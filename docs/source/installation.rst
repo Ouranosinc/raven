@@ -13,9 +13,7 @@ Install from Anaconda
 Install from GitHub
 -------------------
 
-Check out code from the raven GitHub repo and start the installation:
-
-.. code-block:: sh
+Check out code from the raven GitHub repo and start the installation::
 
    $ git clone https://github.com/huard/raven.git
    $ cd raven
@@ -27,9 +25,7 @@ Check out code from the raven GitHub repo and start the installation:
 +++++++++++++++++++++++++
 
 The previous installation instructions assume you have Anaconda installed.
-We provide also a ``Makefile`` to run this installation without additional steps:
-
-.. code-block:: sh
+We provide also a ``Makefile`` to run this installation without additional steps::
 
    $ git clone https://github.com/huard/raven.git
    $ cd raven
@@ -58,9 +54,7 @@ http://localhost:5000/wps?service=WPS&version=1.0.0&request=GetCapabilities.
 
 .. NOTE:: Remember the process ID (PID) so you can stop the service with ``kill PID``.
 
-Check the log files for errors:
-
-.. code-block:: sh
+Check the log files for errors::
 
    $ tail -f  pywps.log
 
@@ -74,6 +68,14 @@ Use Ansible to deploy raven on your System
 
 Use the `Ansible playbook`_ for PyWPS to deploy raven on your system.
 Follow the `example`_ for raven given in the playbook.
+
+Building the docs
+-----------------
+
+First install dependencies for the documentation::
+
+  $ make bootstrap_dev
+  $ make docs
 
 .. _Ansible playbook: http://ansible-wps-playbook.readthedocs.io/en/latest/index.html
 .. _example: http://ansible-wps-playbook.readthedocs.io/en/latest/tutorial.html
