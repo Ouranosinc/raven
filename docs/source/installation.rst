@@ -6,7 +6,9 @@ Installation
 Install from Anaconda
 ---------------------
 
-.. TODO:: Prepare Conda package.
+.. todo::
+
+   Prepare Conda package.
 
 Install from GitHub
 -------------------
@@ -35,7 +37,7 @@ We provide also a ``Makefile`` to run this installation without additional steps
    $ make install  # installs Conda if necessary and runs the above installation steps
 
 Start raven PyWPS service
------------------------
+-------------------------
 
 After successful installation you can start the service using the ``raven`` command-line.
 
@@ -63,12 +65,12 @@ Check the log files for errors:
    $ tail -f  pywps.log
 
 Run raven as Docker container
----------------------------
+-----------------------------
 
 You can also run raven as a Docker container, see the :ref:`Tutorial <tutorial>`.
 
 Use Ansible to deploy raven on your System
-----------------------------------------
+------------------------------------------
 
 Use the `Ansible playbook`_ for PyWPS to deploy raven on your system.
 Follow the `example`_ for raven given in the playbook.
