@@ -1,0 +1,13 @@
+version: '3'
+services:
+  emu:
+    build: .
+    image: huard/raven
+    ports:
+      - "5000:5000"
+
+
+# docker-compose build
+# docker-compose up
+# docker-compose down
+# docker-compose rm
