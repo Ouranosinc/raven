@@ -1,4 +1,4 @@
-raven
+Raven
 ===============================
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
@@ -18,12 +18,13 @@ raven
     :alt: Join the chat at https://gitter.im/bird-house/birdhouse
 
 
-raven (the bird)
-  *raven is a bird ...*
+Raven (the bird)
+  *Raven is a bird ...*
 
-A Web Processing Service for hydrological simulations and analysis.
+A Web Processing Service for Climate Data Analysis.
 
 * Free software: MIT license
+* Documentation: https://raven.readthedocs.io.
 
 Credits
 -------

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Top-level package for raven."""
+"""Top-level package for Raven."""
 
 from .wsgi import application
 

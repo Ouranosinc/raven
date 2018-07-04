@@ -7,15 +7,15 @@ Command-line options
 --------------------
 
 You can overwrite the default `PyWPS`_ configuration by using command-line options.
-See the raven help which options are available::
+See the Raven help which options are available::
 
-    $ raven --help
+    $ raven start --help
     --hostname HOSTNAME        hostname in PyWPS configuration.
     --port PORT                port in PyWPS configuration.
 
 Start service with different hostname and port::
 
-    $ raven --hostname localhost --port 5001
+    $ raven start --hostname localhost --port 5001
 
 Use a custom configuration file
 -------------------------------
@@ -32,8 +32,8 @@ For example change the hostname (*demo.org*) and logging level:
    $ vim etc/custom.cfg
    $ cat etc/custom.cfg
    [server]
-   url = http://demo.org:5000/wps
-   outputurl = http://demo.org:5000/outputs
+   url = http://demo.org:9099/wps
+   outputurl = http://demo.org:9099/outputs
 
    [logging]
    level = DEBUG
@@ -43,7 +43,7 @@ Start the service with your custom configuration:
 .. code-block:: sh
 
    # start the service with this configuration
-   $ raven -c etc/custom.cfg
+   $ raven start -c etc/custom.cfg
 
 
 .. _PyWPS: http://pywps.org/
