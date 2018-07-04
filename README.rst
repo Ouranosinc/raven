@@ -24,7 +24,6 @@ raven (the bird)
 A Web Processing Service for hydrological simulations and analysis.
 
 * Free software: MIT license
-* Documentation: https://raven.readthedocs.io.
 
 Credits
 -------
