@@ -32,7 +32,7 @@ classifiers = [
 
 setup(name='raven',
       version=version,
-      description="A Web Processing Service for hydrological simulations and analysis.",
+      description="A Web Processing Service for Climate Data Analysis.",
       long_description=README + '\n\n' + CHANGES,
       author="David Huard",
       author_email='huard.david@ouranos.ca',
@@ -42,8 +42,6 @@ setup(name='raven',
       keywords='wps pywps birdhouse raven',
       packages=find_packages(),
       include_package_data=True,
-      zip_safe=False,
-      test_suite='raven',
       install_requires=reqs,
       entry_points={
           'console_scripts': [

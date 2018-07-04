@@ -4,7 +4,7 @@ services:
     build: .
     image: huard/raven
     ports:
-      - "5000:5000"
+      - "9099:9099"
 
 
 # docker-compose build
