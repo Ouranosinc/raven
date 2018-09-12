@@ -19,7 +19,7 @@ Raven
 
 
 Raven (the bird)
-  *Raven is a bird wrapping processes related to hydrological modeling, and in particular, the `Raven`_ hydrological modeling framework.*
+  *Raven is a bird wrapping processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.*
 
 A Web Processing Service for Climate Data Analysis. Do not confuse this repository for WPS processes with the actual `Raven`_ modeling framework. 
 
