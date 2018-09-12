@@ -19,9 +19,9 @@ Raven
 
 
 Raven (the bird)
-  *Raven is a bird ...*
+  *Raven is a bird wrapping processes related to hydrological modeling, and in particular, the `Raven`_ hydrological modeling framework.*
 
-A Web Processing Service for Climate Data Analysis.
+A Web Processing Service for Climate Data Analysis. Do not confuse this repository for WPS processes with the actual `Raven`_ modeling framework. 
 
 * Free software: MIT license
 * Documentation: https://raven.readthedocs.io.
@@ -33,3 +33,4 @@ This package was created with Cookiecutter_ and the `bird-house/cookiecutter-bir
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
+.. _`Raven`: http://raven.uwaterloo.ca
