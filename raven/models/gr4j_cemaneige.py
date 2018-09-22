@@ -1,5 +1,5 @@
 import numpy as np
-import cema_neige
+from . import cema_neige
 
 def simulation(data, params):
 
@@ -235,15 +235,15 @@ def bounds():
     bnds = ((0, 1500), (-10, 5), (0, 500), (0.5, 4.0), (0, 1), (1, 10))
     return bnds
 
-# import modules for interaction()
-import pandas as pd
-import sys
-sys.path.append('../tools/')
-from wfdei_to_lumped_dataframe import dataframe_construction
-from metrics import NS
 
 def interaction(river_name, path_to_scheme, path_to_observations,\
     X1, X2, X3, X4, X5, X6):
+    # import modules for interaction()
+    import pandas as pd
+    import sys
+    sys.path.append('../tools/')
+    from wfdei_to_lumped_dataframe import dataframe_construction
+    from metrics import NS
 
     # simulate our modeled hydrograph
     data = dataframe_construction(path_to_scheme)
