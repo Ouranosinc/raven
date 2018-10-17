@@ -7,9 +7,9 @@
 #------------------------------------------------------------------------                                  
 #                                                                                                          
 #:RunName              run1                                                                           
-:StartDate             1954-01-01 00:00:00                                                                   
-:Duration              20819                                                                                   
-:TimeStep              1.0                                                                                   
+:StartDate             {StartDate}
+:Duration              {Duration}
+:TimeStep              {TimeStep}
 :Method                ORDERED_SERIES                                                                       
                                                                                                            
 :SoilModel             SOIL_MULTILAYER  4                                                                    
@@ -55,4 +55,4 @@
 # Output Options                                                                                           
 #
 :WriteForcingFunctions
-:EvaluationMetrics NASH_SUTCLIFFE RMSE
+:EvaluationMetrics {EvaluationMetrics}
