@@ -11,7 +11,14 @@ import logging
 LOGGER = logging.getLogger("PYWPS")
 
 
-class GR4JCemaNeigeProcess(Process):
+defaults = dict(
+    rvi=dict(StartDate=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
+    rvp=dict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
+    rvc=dict(SOIL_0=None, SOIL_1=None),
+    rvh=dict(NAME=None, AREA=None, ELEVATION=None, LATITUDE=None, LONGITUDE=None),
+
+
+class RavenGR4JCemaNeigeProcess(Process):
     inputs = [ComplexInput('pr', 'Precipitation (mm)',
                            abstract='netCDF file storing daily precipitation time series (pr).',
                            min_occurs=1,
@@ -42,7 +49,7 @@ class GR4JCemaNeigeProcess(Process):
     def __init__(self):
         super(GR4JCemaNeigeProcess, self).__init__(
             self._handler,
-            identifier='gr4j_cemaneige',
+            identifier='raven_gr4j_cemaneige',
             title='',
             version='',
             abstract='GR4J + CEMANEIGE hydrological model',
