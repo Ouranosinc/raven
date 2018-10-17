@@ -1,0 +1,19 @@
+import pytest
+
+from pywps import Service
+from pywps.tests import assert_response_success
+
+from . common import client_for
+from raven.processes import GR4JCemaNeigeProcess
+
+
+class TestGr4jCemaneige:
+
+    def test_simple(self):
+        client = client_for(Service(processes=[GR4JCemaNeigeProcess()]))
+        datainputs = ""
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='gr4j_cemaneige',
+            datainputs=datainputs)
+        print(resp.data)
+        assert_response_success(resp)

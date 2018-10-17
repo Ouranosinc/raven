@@ -67,6 +67,7 @@ class GR4JCemaNeigeProcess(Process):
         pr = xr.open_dataset(request.inputs['pr'][0].url).pr
         tas = xr.open_dataset(request.inputs['tas'][0].url).tas
         evap = xr.open_dataset(request.inputs['evap'][0].url).evap
+
         start = request.inputs['start_date'][0].data
         end = request.inputs['end_date'][0].data
 
