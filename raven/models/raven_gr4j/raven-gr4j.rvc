@@ -6,5 +6,5 @@
 # Emulation of GR4J simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------                                 
 #         
-:UniformInitialConditions SOIL[0] 418.116
-:UniformInitialConditions SOIL[1] 13.78
+:UniformInitialConditions SOIL[0] {SOIL_0}
+:UniformInitialConditions SOIL[1] {SOIL_1}
