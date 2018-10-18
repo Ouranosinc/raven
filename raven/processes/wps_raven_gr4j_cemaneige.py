@@ -74,7 +74,12 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         df = pd.DataFrame({'Temp': tas, 'Evap': evap, 'Prec': pr}).where(df.time >= sd)
 
-        params = map(float, request.inputs['params'][0].data.split(','))
+        # Assemble model configuration parameters
+        rvp = map(float, request.inputs['params'][0].data.split(','))
+
+
+        ravenio.create_subdir('raven_gr4j', self.workdir, **kwds)
+
 
         q = gr4j(df, params)
         da = xr.DataArray(q)
