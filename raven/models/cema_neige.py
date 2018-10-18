@@ -6,7 +6,7 @@ def simulation(data, params):
 
     Input:
     1. Data - pandas dataframe with correspondent timeseries:
-        'Temp'- mean daily temperature (Celsium degrees)
+        'Temp'- mean daily temperature (Celsius degrees)
         'Prec'- mean daily precipitation (mm/day)
     2. Params - list of model parameters:
         'CTG' - dimensionless weighting coefficient of the snow pack thermal state
