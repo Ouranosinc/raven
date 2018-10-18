@@ -1,13 +1,11 @@
 from pywps import Process
-from pywps import LiteralInput, LiteralOutput
-# from pywps import BoundingBoxInput
-from pywps import BoundingBoxOutput
+from pywps import LiteralInput
 from pywps import ComplexInput, ComplexOutput
-from pywps import Format, FORMATS
+from pywps import FORMATS
 from pywps.app.Common import Metadata
 import xarray as xr
 import os
-
+import datetime as dt
 
 import logging
 LOGGER = logging.getLogger("PYWPS")
@@ -18,34 +16,41 @@ class GR4JCemaNeigeProcess(Process):
         inputs = [ComplexInput('pr', 'Precipitation (mm)',
                                abstract='netCDF file storing daily precipitation time series (pr).',
                                min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF, FORMATS.DODS]),
+                               supported_formats=[FORMATS.NETCDF]),
+
                   ComplexInput('tas', 'Temperature (K)',
                                abstract='netCDF file storing daily temperature time series (tas).',
                                min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF, FORMATS.DODS]),
+                               supported_formats=[FORMATS.NETCDF]),
+
                   ComplexInput('evap', 'Evapotranspiration (mm)',
                                abstract='netCDF file storing daily evapotranspiration time series (evap).',
                                min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF, FORMATS.DODS]),
+                               supported_formats=[FORMATS.NETCDF]),
+
                   LiteralInput('params', 'Comma separated list of model parameters',
                                abstract='Parameters: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CN_X1, 1-CN_X2'
                                         'Raven: SOIL_PROD, GR4J_X2, GR4J_X3, GR4J_X4, AvgAnnualSnow, AirSnowCoeff',
                                min_occurs=0,
-                               default='0.696, 0.7, 19.7, 2.09, 123.3, 0.75'),
-                  LiteralInput('start_date', 'Simulation start date',
-                               abstract='Start date of the simulation. Defaults to the start of the forcing file.',
-                               data_type='datetime',
-                               default='01-01-0001',
+                               data_type='string',
+                               default='300, -1, 200, 2, .5, 8'),
+
+                  LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
+                               abstract='Start date of the simulation (AAAA-MM-DD). Defaults to the start of the forcing file. ',
+                               data_type='date',
+                               default='0001-01-01',
                                min_occurs=0),
-                  LiteralInput('end_date', 'Simulation end date',
-                               abstract='End date of the simulation. Defaults to the end of the forcing file.',
-                               data_type='datetime',
-                               default='01-01-0001',
-                               min_occurs=0)
-                  ],
+
+                  LiteralInput('end_date', 'Simulation end date (AAAA-MM-DD)',
+                               abstract='End date of the simulation (AAAA-MM-DD). Defaults to the end of the forcing file.',
+                               data_type='date',
+                               default='0001-01-01',
+                               min_occurs=0),
+                  ]
+
         outputs = [ComplexOutput('q', 'Discharge time series (mm)',
                                  supported_formats=[FORMATS.NETCDF],
-                                 as_reference=True)]
+                                 as_reference=True), ]
 
         super(GR4JCemaNeigeProcess, self).__init__(
             self._handler,
@@ -61,25 +66,38 @@ class GR4JCemaNeigeProcess(Process):
 
     def _handler(self, request, response):
         from raven.models import gr4j
-        import pandas as pd
+
+        xr.set_options(enable_cftimeindex=True)
 
         # Read the input data
-        pr = xr.open_dataset(request.inputs['pr'][0].url).pr
-        tas = xr.open_dataset(request.inputs['tas'][0].url).tas
-        evap = xr.open_dataset(request.inputs['evap'][0].url).evap
+        paths = [request.inputs['pr'][0].file,
+                 request.inputs['tas'][0].file,
+                 request.inputs['evap'][0].file]
+        ds = xr.open_mfdataset(paths).rename({'pr': 'Prec', 'tas': 'Temp', 'evap': 'Evap'})
 
+        # Convert temperature to Celsius
+        ds['Temp'] -= 273.15
+
+        # Convert to pandas.DataFrame
+        df = ds.to_dataframe()
+
+        # Parse start and end time
         start = request.inputs['start_date'][0].data
         end = request.inputs['end_date'][0].data
 
-        if start == self.inputs['start_date'].default:
-            start = pr.time[0]
+        if start == dt.date(1, 1, 1):
+            start = df.index[0]
+        else:  # Convert date to datetime
+            start = dt.datetime.combine(start, dt.time())
 
-        if end == self.inputs['end_date'].default:
-            end = pr.time[-1]
+        if end == dt.date(1, 1, 1):
+            end = df.index[-1]
+        else:
+            end = dt.datetime.combine(end, dt.time())
 
-        # Create the input dataframe
-        df = pd.DataFrame({'Temp': tas, 'Evap': evap, 'Prec': pr})
-        df = df.where(df.time >= start and df.time < end)  # really ?
+        # Select time steps
+        mask = (df.index >= start) & (df.index <= end)
+        df = df.loc[mask]
 
         # Create the model parameter array
         params = map(float, request.inputs['params'][0].data.split(','))
@@ -87,11 +105,17 @@ class GR4JCemaNeigeProcess(Process):
         # Run the model
         q = gr4j(df, params)
 
+        # Set output attributes
         da = xr.DataArray(q)
         da.attrs['long_name'] = 'discharge'
         da.attrs['standard_name'] = 'discharge'
         da.attrs['units'] = 'mm/day'
 
+        # Save to disk
         fn = os.path.join(self.workdir, 'q.nc')
         da.to_netcdf(fn)
+
+        # Store file path in process response
         response.outputs['q'].file = fn
+        
+        return response
