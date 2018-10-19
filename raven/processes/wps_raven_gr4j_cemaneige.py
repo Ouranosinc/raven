@@ -1,9 +1,7 @@
 import datetime as dt
-
+import os
 from pywps import Process
 from pywps import LiteralInput, LiteralOutput
-# from pywps import BoundingBoxInput
-from pywps import BoundingBoxOutput
 from pywps import ComplexInput, ComplexOutput
 from pywps import Format, FORMATS
 from pywps.app.Common import Metadata
@@ -11,8 +9,10 @@ import subprocess
 from . import ravenio
 
 import logging
+from collections import OrderedDict as Odict
+
 LOGGER = logging.getLogger("PYWPS")
-from collections import OrderedDict as odict
+
 
 """
 Notes
@@ -26,14 +26,13 @@ The Process itself can also set defaults for convenience.
 """
 
 
-defaults = odict(
+defaults = Odict(
     rvi=dict(Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
-    rvp=odict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
-    rvc=odict(SOIL_0=None, SOIL_1=None),
+    rvp=Odict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
+    rvc=Odict(SOIL_0=None, SOIL_1=None),
     rvh=dict(NAME=None, AREA=None, ELEVATION=None, LATITUDE=None, LONGITUDE=None),
-    rvt=dict(RAIN=None, SNOW=None, TASMIN=None, TASMAX=None, PET=None)
+    rvt=dict(RAIN=None, SNOW=None, TASMIN=None, TASMAX=None, PET=None, QOBS=None)
 )
-
 
 
 class RavenGR4JCemaNeigeProcess(Process):
@@ -65,6 +64,11 @@ class RavenGR4JCemaNeigeProcess(Process):
                                min_occurs=1,
                                supported_formats=[FORMATS.NETCDF]),
 
+                  ComplexInput('qobs', 'Streamflow observations (m3/s)',
+                               abstract='netCDF file storing daily streamflow time series (qobs).',
+                               min_occurs=1,
+                               supported_formats=[FORMATS.NETCDF]),
+
                   LiteralInput('params', 'Comma separated list of model parameters',
                                abstract='Parameters: SOIL_PROD, GR4J_X2, GR4J_X3, GR4J_X4, AvgAnnualSnow, AirSnowCoeff',
                                data_type='string',
@@ -87,7 +91,7 @@ class RavenGR4JCemaNeigeProcess(Process):
 
                   LiteralInput('duration', 'Simulation duration (days)',
                                abstract='Number of simulated days, defaults to the length of the input forcings.',
-                               data_type='int',
+                               data_type='nonNegativeInteger',
                                default=-1,
                                min_occurs=0),
 
@@ -145,12 +149,12 @@ class RavenGR4JCemaNeigeProcess(Process):
     def _handler(self, request, response):
 
         # -------------- #
-        ## Model config ##
+        #  Model config  #
         # -------------- #
         rvi, rvp, rvc, rvh, rvt = defaults.values()
 
         # Read the input forcing files
-        for k,v in rvt.items():
+        for k, v in rvt.items():
             rvt[k] = request.inputs[k.lower()][0].file
 
         # Read model configuration and simulation information
@@ -170,26 +174,28 @@ class RavenGR4JCemaNeigeProcess(Process):
         rvc.update(dict(zip(rvc.keys(), map(float, request.inputs['init'][0].data.split(',')))))
         # -------------- #
 
-
         # Handle start and end date defaults
+        start, end = ravenio.start_end_date(rvt.values())
 
+        if rvi['Start_Date'] == dt.datetime(1, 1, 1):
+            rvi['Start_Date'] = start
 
-        start = rvi['Start_Date']
-        if start == dt.datetime(1, 1, 1):
-            start = df.index[0]
-        else:  # Convert date to datetime
-            start = dt.datetime.combine(start, dt.time())
-
-        if end == dt.date(1, 1, 1):
-            end = df.index[-1]
+        if rvi['Duration'] > -1:
+            if rvi['End_Date'] != dt.datetime(1, 1, 1):
+                LOGGER.warning("Ambiguous input detected, values for Duration and End_Date have been specified."
+                               "Defaults to Duration value.")
         else:
-            end = dt.datetime.combine(end, dt.time())
+            if rvi['End_Date'] == dt.datetime(1, 1, 1):
+                rvi['End_Date'] = end
 
+            rvi['Duration'] = (rvi['End_Date'] - rvi['Start_Date']).days
 
         # Prepare simulation subdirectory
         params = dict(rvi=rvi, rvp=rvp, rvc=rvc, rvh=rvh, rvt=rvt)
         cmd = ravenio.setup_model('raven-gr4j', self.workdir, params)
 
         # Run the simulation
-
         subprocess.run([cmd])
+        response.outputs['q'].file = os.path.join(self.workdir, 'output', 'duh.nc')
+
+        return response
