@@ -13,12 +13,7 @@ class TestRavenGR4JCemaNeigeProcess:
     def test_simple(self):
         client = client_for(Service(processes=[RavenGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
 
-        datainputs = "rain=files@xlink:href=file://{fn};" \
-                     "snow=files@xlink:href=file://{fn};" \
-                     "tasmin=files@xlink:href=file://{fn};" \
-                     "tasmax=files@xlink:href=file://{fn};" \
-                     "pet=files@xlink:href=file://{fn};" \
-                     "qobs=files@xlink:href=file://{fn};" \
+        datainputs = "nc=files@xlink:href=file://{fn};" \
                      "params={params};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
