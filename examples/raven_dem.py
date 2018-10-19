@@ -7,31 +7,50 @@ import glob
 
 class RavenDEM(object):
 
+    def _get_proj(self):
+        layer = self._shape.GetLayer()
+        feature = layer.GetNextFeature()
+        geo_ref = feature.GetGeometryRef()
+        ref = geo_ref.GetSpatialReference()
+        proj = 'EPSG:{}'.format(ref.GetAuthorityCode("GEOGCS"))
+        return {'Projection': proj}
+
+    def _get_fields(self):
+        layer = self._shape.GetLayer()
+        layer_def = layer.GetLayerDefn()
+        fields = []
+        for i in range(layer_def.GetFieldCount()):
+            fields.append(layer_def.GetFieldDefn(i).GetName())
+        return fields
+
+    def _get_layer(self):
+        layer = self._shape.GetLayer()
+        layer_def = layer.GetLayerDefn()
+        return layer_def.GetName()
+
+    def _get_features(self):
+        layer = self._shape.GetLayer()
+        return layer.GetFeatureCount()
+
     def __init__(self, dem, shape):
         self._dem = gdal.Open(dem)
         self._shape = ogr.Open(shape)
         self.__shape_filename__ = str(os.path.basename(shape))
         self.__dem_filename__ = str(os.path.basename(dem))
+        self.__crs__ = self._get_proj()
 
     def shape_stats(self):
         print('Shape stats:',  self.__shape_filename__)
-        layer = self._shape.GetLayer()
-        layer_def = layer.GetLayerDefn()
-        print('Layer_name: ', layer_def.GetName())
-
-        features = layer.GetFeatureCount()
-        print('Number of features:', features)
-        print('Field names:')
-        for i in range(layer_def.GetFieldCount()):
-            print(layer_def.GetFieldDefn(i).GetName())
-
-        feature = layer.GetNextFeature()
-        geo_ref = feature.GetGeometryRef()
-        ref = geo_ref.GetSpatialReference()
-        print('Projection: EPSG', ref.GetAuthorityCode('GEOGCS'), '\n')
+        print('Layer_name: ', self._get_layer())
+        print('Number of features:', self._get_features())
+        print('Field names:', self._get_fields())
+        print('CRS:', self._get_proj())
 
     def dem_stats(self):
         print('DEM stats: ', self.__dem_filename__)
+
+    def reproject(self, crs):
+        pass
 
     def clip_raster_with_shape(self):
         # band = 1
@@ -39,7 +58,7 @@ class RavenDEM(object):
         # shape = self._shape
         pass
 
-    def get_feature_centroids(self):
+    def feature_centroids(self):
         layer = self._shape.GetLayer()
         centroids = []
         for feature in layer:
@@ -47,7 +66,7 @@ class RavenDEM(object):
             centroids.append(geom.Centroid().ExportToWkt())
         return centroids
 
-    def elevation_average(self, band=1):
+    def average_elev(self, band=1):
         # band = 1
         pass
 
@@ -64,6 +83,5 @@ if __name__ == '__main__':
     for n in shapes:
         rvn = RavenDEM(dems[0], n)
         rvn.shape_stats()
-        # rvn.dem_stats()
-        print(rvn.get_feature_centroids(), '\n')
+        print(rvn.feature_centroids(), '\n')
 
