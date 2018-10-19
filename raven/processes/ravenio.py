@@ -4,14 +4,10 @@ from raven.models import raven_templates
 import xarray as xr
 
 # Model executable
-exec = os.path.join(os.path.abspath(os.path.dirname(raven.__file__)), 'bin', 'raven')
+exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven'))
 
 def rv_format(fn, kwds):
     """Read the model input template file and fill the given arguments."""
-
-    if None in kwds.values():
-        raise ValueError("Some parameters are not properly set.")
-
     with open(fn) as f:
         txt = f.read()
 
