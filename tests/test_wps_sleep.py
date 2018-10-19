@@ -7,7 +7,7 @@ from . common import client_for
 from raven.processes.wps_sleep import Sleep
 
 
-@pytest.mark.slow
+@pytest.mark.skip
 def test_wps_sleep():
     client = client_for(Service(processes=[Sleep()]))
     datainputs = "deplay=1"
