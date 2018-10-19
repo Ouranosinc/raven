@@ -7,7 +7,7 @@ from . common import client_for, TESTDATA, CFG_FILE
 from raven.processes import GR4JCemaNeigeProcess
 
 
-class TestGr4jCemaneige:
+class TestGR4JCemaNeigeProcess:
 
     def test_simple(self):
         client = client_for(Service(processes=[GR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
