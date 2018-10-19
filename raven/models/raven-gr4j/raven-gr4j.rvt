@@ -51,7 +51,7 @@
 # observed streamflow
 :ObservationData HYDROGRAPH 1 m3/s
     :ReadFromNetCDF
-         :FileNameNC     data_obs/Salmon-River-Near-Prince-George_meteo_daily.nc
+         :FileNameNC     {QOBS}
          :VarNameNC      qobs
          :DimNamesNC     time
     :EndReadFromNetCDF

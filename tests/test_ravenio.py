@@ -13,13 +13,14 @@ import glob
 class TestStartDate:
 
     def test_grj4_cemaneige(self):
-        start = ravenio.start_date(TESTDATA['gr4j-cemaneige'].values())
+        start, end = ravenio.start_end_date(TESTDATA['gr4j-cemaneige'].values())
         assert start == dt.datetime(2000, 7, 1)
-
+        assert end == dt.datetime(2002, 7, 1)
 
     def test_raven_gr4j_cemaneige(self):
-        start = ravenio.start_date([TESTDATA['raven-gr4j-cemaneige'],])
+        start, end = ravenio.start_end_date([TESTDATA['raven-gr4j-cemaneige'],])
         assert start == dt.datetime(1954, 1, 1)
+        assert end == dt.datetime(2010, 12, 31)
 
 class TestSetupModel:
     gr4j = odict(
@@ -27,7 +28,7 @@ class TestSetupModel:
         rvp=odict(GR4J_X1=.7, GR4J_X2=.7, GR4J_X3=19., GR4J_X4=2.09, AvgAnnualSnow=123, AirSnowCoeff=.75),
         rvc=odict(SOIL_0=1, SOIL_1=2),
         rvh=dict(NAME='Test', AREA=45, ELEVATION=3, LATITUDE=45, LONGITUDE=-154),
-        rvt=dict(RAIN='data/data.nc', SNOW='data/data.nc', TASMIN='data/data.nc', TASMAX='data/data.nc', PET='data/data.nc')
+        rvt=dict(RAIN='data/data.nc', SNOW='data/data.nc', TASMIN='data/data.nc', TASMAX='data/data.nc', PET='data/data.nc', QOBS='data/data.nc')
     )
 
     def test_gr4j(self):
