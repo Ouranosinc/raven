@@ -78,21 +78,21 @@ class RavenGR4JCemaNeigeProcess(Process):
                   LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
                                abstract='Start date of the simulation (AAAA-MM-DD). '
                                         'Defaults to the start of the forcing file. ',
-                               data_type='datetime',
+                               data_type='dateTime',
                                default='0001-01-01 00:00:00',
                                min_occurs=0),
 
                   LiteralInput('end_date', 'Simulation end date (AAAA-MM-DD)',
                                abstract='End date of the simulation (AAAA-MM-DD). '
                                         'Defaults to the end of the forcing file.',
-                               data_type='datetime',
+                               data_type='dateTime',
                                default='0001-01-01 00:00:00',
                                min_occurs=0),
 
                   LiteralInput('duration', 'Simulation duration (days)',
                                abstract='Number of simulated days, defaults to the length of the input forcings.',
                                data_type='nonNegativeInteger',
-                               default=-1,
+                               default=0,
                                min_occurs=0),
 
                   LiteralInput('init', 'Initial soil conditions',
@@ -159,7 +159,7 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Read model configuration and simulation information
         for k, v in rvi.items():
-            if v is not None:
+            if v is not None and k.lower() in request.inputs.keys():
                 rvi[k] = request.inputs[k.lower()][0].data
 
         # Read basin attributes
@@ -175,12 +175,13 @@ class RavenGR4JCemaNeigeProcess(Process):
         # -------------- #
 
         # Handle start and end date defaults
-        start, end = ravenio.start_end_date(rvt.values())
+        print(rvt.values())
+        start, end = ravenio.start_end_date(set(rvt.values()))
 
         if rvi['Start_Date'] == dt.datetime(1, 1, 1):
             rvi['Start_Date'] = start
 
-        if rvi['Duration'] > -1:
+        if rvi['Duration'] > 0:
             if rvi['End_Date'] != dt.datetime(1, 1, 1):
                 LOGGER.warning("Ambiguous input detected, values for Duration and End_Date have been specified."
                                "Defaults to Duration value.")
