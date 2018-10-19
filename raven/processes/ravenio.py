@@ -1,33 +1,71 @@
 import os
+import raven
+from raven.models import raven_templates
+import xarray as xr
 
-def rv_format(fn, kind='i', **kwds):
+# Model executable
+exec = os.path.join(os.path.abspath(os.path.dirname(raven.__file__)), 'bin', 'raven')
+
+def rv_format(fn, kwds):
     """Read the model input template file and fill the given arguments."""
 
     if None in kwds.values():
         raise ValueError("Some parameters are not properly set.")
 
-    if kind not in ['chipt']:
-        raise ValueError('`kind` must be one of c,h,i,p,t: {}'.format(kind))
-
-    with open(fn + '.rv' + kind) as f:
+    with open(fn) as f:
         txt = f.read()
 
     return txt.format(**kwds)
 
 
-def create_subdir(name, outpath, **kwds):
-    """Create a subdirectory and write the RAVEN configuration files. """
-    from raven.models import raven_templates
+def setup_model(name, outpath, params):
+    """Create a subdirectory and write the RAVEN configuration files.
+
+    Parameters
+    ----------
+    name : str {'raven-gr4j'}
+      Model name.
+    outpath : str
+      Work directory where the configuration files will be written.
+    params : dict
+      Model parameter values to be written into template.
+
+    Returns
+    -------
+    cmd : str
+      The model executable symbolic link in created directory.
+    """
     inpath = raven_templates[name]
 
     # Create subdirectory
     os.mkdir(os.path.join(outpath, 'model'))
     os.mkdir(os.path.join(outpath, 'output'))
 
-    for kind in 'chipt':
-        txt = rv_format(name, kind, **kwds)
-        with open(os.path.join(outpath, model, name + '.rv' + kind), 'w') as f:
+    for ext, param in params.items():
+        fn = name + os.path.extsep + ext
+        txt = rv_format(os.path.join(inpath, fn), param)
+
+        with open(os.path.join(outpath, 'model', fn), 'w') as f:
             f.write(txt)
 
-    os.symlink(os.path.join(..., 'raven_rev.exe'))
+    cmd = os.path.join(outpath, 'model', 'raven')
+    os.symlink(exec, cmd)
 
+    return cmd
+
+
+def start_date(fns):
+    """Return the common starting date and time of netCDF files.
+
+    Parameters
+    ----------
+    fns : sequence
+      Sequence of netCDF file names for forcing data.
+
+    Returns
+    -------
+    start : datetime
+      The start datetime of the forcing files.
+    """
+    ds = xr.open_mfdataset(fns)
+    return ds.indexes['time'][0]
