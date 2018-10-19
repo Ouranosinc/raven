@@ -27,14 +27,14 @@
    :EndData
    :Data TEMP_MIN deg_C
       :ReadFromNetCDF
-         :FileNameNC     {TASMIN}
+         :FileNameNC     {TMIN}
          :VarNameNC      tmin
          :DimNamesNC     time
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MAX deg_C
       :ReadFromNetCDF
-         :FileNameNC     {TASMAX}
+         :FileNameNC     {TMAX}
          :VarNameNC      tmax
          :DimNamesNC     time
       :EndReadFromNetCDF

@@ -31,41 +31,21 @@ defaults = Odict(
     rvp=Odict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
     rvc=Odict(SOIL_0=None, SOIL_1=None),
     rvh=dict(NAME=None, AREA=None, ELEVATION=None, LATITUDE=None, LONGITUDE=None),
-    rvt=dict(RAIN=None, SNOW=None, TASMIN=None, TASMAX=None, PET=None, QOBS=None)
+    rvt=dict(RAIN=None, SNOW=None, TMIN=None, TMAX=None, PET=None, QOBS=None)
 )
-
 
 class RavenGR4JCemaNeigeProcess(Process):
 
     def __init__(self):
 
-        inputs = [ComplexInput('rain', 'Daily rainfall (mm/d)',
-                               abstract='netCDF file storing daily liquid precipitation time series (rain).',
-                               min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF]),
-
-                  ComplexInput('snow', 'Snowfall (mm)',
-                               abstract='netCDF file storing daily solid precipitation time series (snow).',
-                               min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF]),
-
-                  ComplexInput('tasmin', 'Daily minimum temperature (degC)',
-                               abstract='netCDF file storing daily minimum temperature time series (tasmin).',
-                               min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF]),
-
-                  ComplexInput('tasmax', 'Daily maximum temperature (degC)',
-                               abstract='netCDF file storing daily maximum temperature time series (tasmax).',
-                               min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF]),
-
-                  ComplexInput('pet', 'Potential evapotranspiration (mm/d)',
-                               abstract='netCDF file storing daily evapotranspiration time series (evap).',
-                               min_occurs=1,
-                               supported_formats=[FORMATS.NETCDF]),
-
-                  ComplexInput('qobs', 'Streamflow observations (m3/s)',
-                               abstract='netCDF file storing daily streamflow time series (qobs).',
+        inputs = [ComplexInput('nc', 'netCDF input files',
+                               abstract='NetCDF file or files storing'
+                                        ' daily liquid precipitation (rain [mm]), '
+                                        'solid precipitation (snow [mm]), '
+                                        'minimum temperature (tasmin [degC]), '
+                                        'maximum temperature (tasmax [degC]), '
+                                        'potential evapotranspiration (pet [mm]) and '
+                                        'observed streamflow (qobs [m3/s]).',
                                min_occurs=1,
                                supported_formats=[FORMATS.NETCDF]),
 
@@ -153,18 +133,20 @@ class RavenGR4JCemaNeigeProcess(Process):
         # -------------- #
         rvi, rvp, rvc, rvh, rvt = defaults.values()
 
-        # Read the input forcing files
-        for k, v in rvt.items():
-            rvt[k] = request.inputs[k.lower()][0].file
+        # Assign the correct input forcing file to each field
+        files = [i.file for i in request.inputs['nc']]
+        vals = ravenio.assign_files(files, [k.lower() for k in rvt.keys()])
+        rvt = dict(zip(rvt.keys(), vals))
 
         # Read model configuration and simulation information
+        print (request.inputs.keys())
         for k, v in rvi.items():
-            if v is not None and k.lower() in request.inputs.keys():
+            if v is None and k.lower() in request.inputs.keys():
                 rvi[k] = request.inputs[k.lower()][0].data
 
         # Read basin attributes
         for k, v in rvh.items():
-            if v is not None:
+            if v is None:
                 rvh[k] = request.inputs[k.lower()][0].data
 
         # Assemble model configuration parameters
@@ -175,8 +157,7 @@ class RavenGR4JCemaNeigeProcess(Process):
         # -------------- #
 
         # Handle start and end date defaults
-        print(rvt.values())
-        start, end = ravenio.start_end_date(set(rvt.values()))
+        start, end = ravenio.start_end_date(files)
 
         if rvi['Start_Date'] == dt.datetime(1, 1, 1):
             rvi['Start_Date'] = start
@@ -193,7 +174,7 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Prepare simulation subdirectory
         params = dict(rvi=rvi, rvp=rvp, rvc=rvc, rvh=rvh, rvt=rvt)
-        cmd = ravenio.setup_model('raven-gr4j', self.workdir, params)
+        cmd = ravenio.setup_model('raven-gr4j-cemaneige', self.workdir, params)
 
         # Run the simulation
         subprocess.run([cmd])
