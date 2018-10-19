@@ -1,21 +1,29 @@
 from osgeo import gdal
 from osgeo import ogr
+import pyproj
 # import geopandas as gpd
 import os
 import glob
 
 
-class RavenDEM(object):
+class RavenShape(object):
 
     def _get_proj(self):
+
         layer = self._shape.GetLayer()
         feature = layer.GetNextFeature()
         geo_ref = feature.GetGeometryRef()
         ref = geo_ref.GetSpatialReference()
-        proj = 'EPSG:{}'.format(ref.GetAuthorityCode("GEOGCS"))
-        return {'Projection': proj}
+
+        return ref.GetAuthorityCode("GEOGCS")
+
+    def _get_pyprojCRS(self):
+
+        proj = 'epsg:{}'.format(self._get_proj())
+        return pyproj.Proj(init=proj)
 
     def _get_fields(self):
+
         layer = self._shape.GetLayer()
         layer_def = layer.GetLayerDefn()
         fields = []
@@ -24,41 +32,60 @@ class RavenDEM(object):
         return fields
 
     def _get_layer(self):
+
         layer = self._shape.GetLayer()
         layer_def = layer.GetLayerDefn()
         return layer_def.GetName()
 
+    def _get_layer_bounds(self):
+
+        layer = self._shape.GetLayer()
+        return layer.GetExtent()
+
     def _get_features(self):
+
         layer = self._shape.GetLayer()
         return layer.GetFeatureCount()
 
-    def __init__(self, dem, shape):
-        self._dem = gdal.Open(dem)
+    def __init__(self, shape):
         self._shape = ogr.Open(shape)
         self.__shape_filename__ = str(os.path.basename(shape))
-        self.__dem_filename__ = str(os.path.basename(dem))
-        self.__crs__ = self._get_proj()
+        self.__crs__ = self._get_pyprojCRS()
 
     def shape_stats(self):
-        print('Shape stats:',  self.__shape_filename__)
+
+        msg = 'Shape stats: {}'.format(self.__shape_filename__)
+        print(msg)
+        print('~' * len(msg))
         print('Layer_name: ', self._get_layer())
+        print('layer_bounds:', self._get_layer_bounds())
         print('Number of features:', self._get_features())
         print('Field names:', self._get_fields())
-        print('CRS:', self._get_proj())
+        print('CRS: EPSG:{}'.format(self._get_proj()))
 
-    def dem_stats(self):
-        print('DEM stats: ', self.__dem_filename__)
+    def check_crs(self, crs='', dem=''):
 
-    def reproject(self, crs):
-        pass
+        if crs and dem:
+            msg = 'Please specify a crs or a dem, not both.'
+            raise KeyError(msg)
 
-    def clip_raster_with_shape(self):
-        # band = 1
-        # grid = self._dem
-        # shape = self._shape
-        pass
+        elif crs:
+            if crs == self.__crs__:
+                print('Shape is already in this CRS')
+                return None
+
+            try:
+                pass
+            except Exception as e:
+                msg = 'CRS cannot be parsed: {}'.format(e)
+                raise ValueError(msg)
+
+        elif dem:
+            msg = 'Please specify a crs or a dem'
+            raise KeyError(msg)
 
     def feature_centroids(self):
+
         layer = self._shape.GetLayer()
         centroids = []
         for feature in layer:
@@ -66,7 +93,15 @@ class RavenDEM(object):
             centroids.append(geom.Centroid().ExportToWkt())
         return centroids
 
-    def average_elev(self, band=1):
+    def clip_raster(self, dem):
+
+        raster = gdal.Open(dem)
+        # band = 1
+        # grid = self._dem
+        # shape = self._shape
+        pass
+
+    def average_raster_elev(self, band=1):
         # band = 1
         pass
 
@@ -81,7 +116,8 @@ if __name__ == '__main__':
     print(shapes)
 
     for n in shapes:
-        rvn = RavenDEM(dems[0], n)
+        rvn = RavenShape(n)
         rvn.shape_stats()
-        print(rvn.feature_centroids(), '\n')
+        print(rvn.feature_centroids())
+        print('\n')
 

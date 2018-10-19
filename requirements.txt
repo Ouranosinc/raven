@@ -4,3 +4,4 @@ click
 psutil
 xarray
 gdal
+pyproj
