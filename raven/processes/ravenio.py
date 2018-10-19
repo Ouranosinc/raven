@@ -67,3 +67,35 @@ def start_end_date(fns):
     """
     ds = xr.open_mfdataset(fns)
     return ds.indexes['time'][0], ds.indexes['time'][-1]
+
+
+def assign_files(fns, variables):
+    """Find for each variable the file storing it's data.
+
+    Parameters
+    ----------
+    fns : sequence
+      Paths to netCDF files.
+    variables : sequence
+      Names of the variables to look for.
+
+    Returns
+    -------
+    out : list
+      A dictionary keyed by variable storing the file storing each variable.
+    """
+    out = {}
+    for fn in fns:
+        ds = xr.open_dataset(fn)
+        for var in variables:
+            if var in ds:
+                out[var] = fn
+
+    for var in variables:
+        if var not in out.keys():
+            raise ValueError("{} not found in files.".format(var))
+
+    return [out[v] for v in variables]
+
+
+
