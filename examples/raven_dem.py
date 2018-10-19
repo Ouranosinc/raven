@@ -1,5 +1,4 @@
-from osgeo import gdal
-from osgeo import ogr
+from osgeo import gdal, ogr
 import pyproj
 # import geopandas as gpd
 import os
@@ -31,7 +30,7 @@ class RavenShape(object):
             fields.append(layer_def.GetFieldDefn(i).GetName())
         return fields
 
-    def _get_layer(self):
+    def _get_layer_name(self):
 
         layer = self._shape.GetLayer()
         layer_def = layer.GetLayerDefn()
@@ -42,10 +41,13 @@ class RavenShape(object):
         layer = self._shape.GetLayer()
         return layer.GetExtent()
 
-    def _get_features(self):
+    def _get_feature_count(self):
 
         layer = self._shape.GetLayer()
         return layer.GetFeatureCount()
+
+    def _get_feature_bounds(self):
+        pass
 
     def __init__(self, shape):
         self._shape = ogr.Open(shape)
@@ -57,13 +59,13 @@ class RavenShape(object):
         msg = 'Shape stats: {}'.format(self.__shape_filename__)
         print(msg)
         print('~' * len(msg))
-        print('Layer_name: ', self._get_layer())
-        print('layer_bounds:', self._get_layer_bounds())
-        print('Number of features:', self._get_features())
+        print('Layer name: ', self._get_layer_name())
+        print('Layer bounds:', self._get_layer_bounds())
+        print('Number of features:', self._get_feature_count())
         print('Field names:', self._get_fields())
         print('CRS: EPSG:{}'.format(self._get_proj()))
 
-    def check_crs(self, crs='', dem=''):
+    def check_crs(self, crs=None, dem=None):
 
         if crs and dem:
             msg = 'Please specify a crs or a dem, not both.'
@@ -93,7 +95,7 @@ class RavenShape(object):
             centroids.append(geom.Centroid().ExportToWkt())
         return centroids
 
-    def clip_raster(self, dem):
+    def clip_raster(self, dem=None):
 
         raster = gdal.Open(dem)
         # band = 1
@@ -101,7 +103,7 @@ class RavenShape(object):
         # shape = self._shape
         pass
 
-    def average_raster_elev(self, band=1):
+    def average_raster_elev(self, dem=None):
         # band = 1
         pass
 
