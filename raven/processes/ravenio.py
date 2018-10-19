@@ -50,8 +50,8 @@ def setup_model(name, outpath, params):
     return cmd
 
 
-def start_date(fns):
-    """Return the common starting date and time of netCDF files.
+def start_end_date(fns):
+    """Return the common starting and ending date and time of netCDF files.
 
     Parameters
     ----------
@@ -61,7 +61,9 @@ def start_date(fns):
     Returns
     -------
     start : datetime
-      The start datetime of the forcing files.
+      The first datetime of the forcing files.
+    end : datetime
+      The last datetime of the forcing files.
     """
     ds = xr.open_mfdataset(fns)
-    return ds.indexes['time'][0]
+    return ds.indexes['time'][0], ds.indexes['time'][-1]
