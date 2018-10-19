@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------                                  
 #                                                                                                          
 #:RunName              run1                                                                           
-:StartDate             {StartDate}
+:StartDate             {Start_Date}
 :Duration              {Duration}
 :TimeStep              {TimeStep}
 :Method                ORDERED_SERIES                                                                       
@@ -56,3 +56,4 @@
 #
 :WriteForcingFunctions
 :EvaluationMetrics {EvaluationMetrics}
+:WriteNetcdfFormat  yes
