@@ -1,3 +1,5 @@
+import datetime as dt
+
 from pywps import Process
 from pywps import LiteralInput, LiteralOutput
 # from pywps import BoundingBoxInput
@@ -5,83 +7,189 @@ from pywps import BoundingBoxOutput
 from pywps import ComplexInput, ComplexOutput
 from pywps import Format, FORMATS
 from pywps.app.Common import Metadata
-
+import subprocess
+from . import ravenio
 
 import logging
 LOGGER = logging.getLogger("PYWPS")
+from collections import OrderedDict as odict
+
+"""
+Notes
+-----
+
+The configuration files for RAVEN's GR4J-Cemaneige model and in models/raven-gr4j. 
+All parameters that could potentially be user-defined are tagged using {}.
+Different WPS processes can provide different level of customization for the same model. 
+The idea is to use the `defaults` dictionary to set *frozen* parameters.   
+The Process itself can also set defaults for convenience. 
+"""
 
 
-defaults = dict(
-    rvi=dict(StartDate=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
-    rvp=dict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
-    rvc=dict(SOIL_0=None, SOIL_1=None),
+defaults = odict(
+    rvi=dict(Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
+    rvp=odict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
+    rvc=odict(SOIL_0=None, SOIL_1=None),
     rvh=dict(NAME=None, AREA=None, ELEVATION=None, LATITUDE=None, LONGITUDE=None),
+    rvt=dict(RAIN=None, SNOW=None, TASMIN=None, TASMAX=None, PET=None)
+)
+
 
 
 class RavenGR4JCemaNeigeProcess(Process):
-    inputs = [ComplexInput('pr', 'Precipitation (mm)',
-                           abstract='netCDF file storing daily precipitation time series (pr).',
-                           min_occurs=1,
-                           supported_formats=[FORMATS.NETCDF, FORMATS.DODS]),
-              ComplexInput('tas', 'Temperature (K)',
-                           abstract='netCDF file storing daily temperature time series (tas).',
-                           min_occurs=1,
-                           supported_formats=[FORMATS.NETCDF, FORMATS.DODS]),
-              ComplexInput('evap', 'Evapotranspiration (mm)',
-                           abstract='netCDF file storing daily evapotranspiration time series (evap).',
-                           min_occurs=1,
-                           supported_formats=[FORMATS.NETCDF, FORMATS.DODS]),
-              LiteralInput('params', 'Comma separated list of model parameters',
-                           abstract='Parameters: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CN_X1, 1-CN_X2'
-                                    'Raven: SOIL_PROD, GR4J_X2, GR4J_X3, GR4J_X4, AvgAnnualSnow, AirSnowCoeff',
-                           min_occurs=0,
-                           default='0.696, 0.7, 19.7, 2.09, 123.3, 0.75'),
-              LiteralInput('start_date', 'Simulation start date',
-                           abstract='Start date of the simulation. Defaults to the start of the forcing file.',
-                           data_type='datetime',
-                           default='01-01-0001',
-                           min_occurs=0)
-              ],
-    outputs = [ComplexOutput('q', 'Discharge time series (mm)',
-                             supported_formats=[FORMATS.NETCDF],
-                             as_reference=True)]
 
     def __init__(self):
-        super(GR4JCemaNeigeProcess, self).__init__(
+
+        inputs = [ComplexInput('rain', 'Daily rainfall (mm/d)',
+                               abstract='netCDF file storing daily liquid precipitation time series (rain).',
+                               min_occurs=1,
+                               supported_formats=[FORMATS.NETCDF]),
+
+                  ComplexInput('snow', 'Snowfall (mm)',
+                               abstract='netCDF file storing daily solid precipitation time series (snow).',
+                               min_occurs=1,
+                               supported_formats=[FORMATS.NETCDF]),
+
+                  ComplexInput('tasmin', 'Daily minimum temperature (degC)',
+                               abstract='netCDF file storing daily minimum temperature time series (tasmin).',
+                               min_occurs=1,
+                               supported_formats=[FORMATS.NETCDF]),
+
+                  ComplexInput('tasmax', 'Daily maximum temperature (degC)',
+                               abstract='netCDF file storing daily maximum temperature time series (tasmax).',
+                               min_occurs=1,
+                               supported_formats=[FORMATS.NETCDF]),
+
+                  ComplexInput('pet', 'Potential evapotranspiration (mm/d)',
+                               abstract='netCDF file storing daily evapotranspiration time series (evap).',
+                               min_occurs=1,
+                               supported_formats=[FORMATS.NETCDF]),
+
+                  LiteralInput('params', 'Comma separated list of model parameters',
+                               abstract='Parameters: SOIL_PROD, GR4J_X2, GR4J_X3, GR4J_X4, AvgAnnualSnow, AirSnowCoeff',
+                               data_type='string',
+                               default='0.696, 0.7, 19.7, 2.09, 123.3, 0.75',
+                               min_occurs=0),
+
+                  LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
+                               abstract='Start date of the simulation (AAAA-MM-DD). '
+                                        'Defaults to the start of the forcing file. ',
+                               data_type='datetime',
+                               default='0001-01-01 00:00:00',
+                               min_occurs=0),
+
+                  LiteralInput('end_date', 'Simulation end date (AAAA-MM-DD)',
+                               abstract='End date of the simulation (AAAA-MM-DD). '
+                                        'Defaults to the end of the forcing file.',
+                               data_type='datetime',
+                               default='0001-01-01 00:00:00',
+                               min_occurs=0),
+
+                  LiteralInput('duration', 'Simulation duration (days)',
+                               abstract='Number of simulated days, defaults to the length of the input forcings.',
+                               data_type='int',
+                               default=-1,
+                               min_occurs=0),
+
+                  LiteralInput('init', 'Initial soil conditions',
+                               abstract='Underground reservoir levels: SOIL_0, SOIL_1',
+                               data_type='string',
+                               default='0, 0',
+                               min_occurs=0),
+
+                  LiteralInput('name', 'Simulation name',
+                               abstract='The name given to the simulation, for example <watershed>_<experiment>',
+                               data_type='string',
+                               default='raven-gr4j-cemaneige-sim',
+                               min_occurs=0),
+
+                  LiteralInput('area', 'Watershed area (km2)',
+                               abstract='Watershed area (km2)',
+                               data_type='float',
+                               default=0.,
+                               min_occurs=0),
+
+                  LiteralInput('latitude', 'Latitude',
+                               abstract="Watershed's centroid latitude",
+                               data_type='float',
+                               min_occurs=1),
+
+                  LiteralInput('longitude', 'Longitude',
+                               abstract="Watershed's centroid longitude",
+                               data_type='float',
+                               min_occurs=1),
+
+                  LiteralInput('elevation', 'Elevation (m)',
+                               abstract="Watershed's mean elevation (m)",
+                               data_type='float',
+                               min_occurs=1),
+
+                  ]
+
+        outputs = [ComplexOutput('q', 'Discharge time series (mm)',
+                                 supported_formats=[FORMATS.NETCDF],
+                                 as_reference=True), ]
+
+        super(RavenGR4JCemaNeigeProcess, self).__init__(
             self._handler,
-            identifier='raven_gr4j_cemaneige',
+            identifier='raven-gr4j-cemaneige',
             title='',
             version='',
-            abstract='GR4J + CEMANEIGE hydrological model',
+            abstract='Raven GR4J + CEMANEIGE hydrological model',
             inputs=inputs,
             outputs=outputs,
             status_supported=True,
             store_supported=True
-        )
+            )
 
     def _handler(self, request, response):
-        from models import gr4j
-        import pandas as pd
 
-        # Read the input data
-        pr = xr.open_dataset(request.inputs['pr'][0].url).pr
-        tas = xr.open_dataset(request.inputs['tas'][0].url).tas
-        evap = xr.open_dataset(request.inputs['evap'][0].url).evap
-        sd = request.inputs['start_date'][0].data
+        # -------------- #
+        ## Model config ##
+        # -------------- #
+        rvi, rvp, rvc, rvh, rvt = defaults.values()
 
-        if sd == self.inputs['start_date'].default:
-            sd = pr.time[0]
+        # Read the input forcing files
+        for k,v in rvt.items():
+            rvt[k] = request.inputs[k.lower()][0].file
 
-        df = pd.DataFrame({'Temp': tas, 'Evap': evap, 'Prec': pr}).where(df.time >= sd)
+        # Read model configuration and simulation information
+        for k, v in rvi.items():
+            if v is not None:
+                rvi[k] = request.inputs[k.lower()][0].data
+
+        # Read basin attributes
+        for k, v in rvh.items():
+            if v is not None:
+                rvh[k] = request.inputs[k.lower()][0].data
 
         # Assemble model configuration parameters
-        rvp = map(float, request.inputs['params'][0].data.split(','))
+        rvp.update(dict(zip(rvp.keys(), map(float, request.inputs['params'][0].data.split(',')))))
+
+        # Assemble soil initial conditions
+        rvc.update(dict(zip(rvc.keys(), map(float, request.inputs['init'][0].data.split(',')))))
+        # -------------- #
 
 
-        ravenio.create_subdir('raven_gr4j', self.workdir, **kwds)
+        # Handle start and end date defaults
 
 
-        q = gr4j(df, params)
-        da = xr.DataArray(q)
-        da.to_netcdf()
+        start = rvi['Start_Date']
+        if start == dt.datetime(1, 1, 1):
+            start = df.index[0]
+        else:  # Convert date to datetime
+            start = dt.datetime.combine(start, dt.time())
 
+        if end == dt.date(1, 1, 1):
+            end = df.index[-1]
+        else:
+            end = dt.datetime.combine(end, dt.time())
+
+
+        # Prepare simulation subdirectory
+        params = dict(rvi=rvi, rvp=rvp, rvc=rvc, rvh=rvh, rvt=rvt)
+        cmd = ravenio.setup_model('raven-gr4j', self.workdir, params)
+
+        # Run the simulation
+
+        subprocess.run([cmd])

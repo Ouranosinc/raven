@@ -7,12 +7,52 @@
 #------------------------------------------------------------------------
 
 # meteorological forcings
-:Gauge
-  :Latitude    54.4848
-  :Longitude -123.3659
-  :Elevation  843.0
-  :RedirectToFile data_obs/Salmon-River-Near-Prince-George_meteo_daily.rvt
+:Gauge meteorological forcings
+   :Latitude    54.4848
+   :Longitude -123.3659
+   :Elevation  843.0
+   :Data RAINFALL mm/d
+      :ReadFromNetCDF
+         :FileNameNC     {RAIN}
+         :VarNameNC      rain
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data SNOWFALL mm/d
+      :ReadFromNetCDF
+         :FileNameNC     {SNOW}
+         :VarNameNC      snow
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data TEMP_MIN deg_C
+      :ReadFromNetCDF
+         :FileNameNC     {TASMIN}
+         :VarNameNC      tmin
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data TEMP_MAX deg_C
+      :ReadFromNetCDF
+         :FileNameNC     {TASMAX}
+         :VarNameNC      tmax
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data PET mm/d
+      :ReadFromNetCDF
+         :FileNameNC     {PET}
+         :VarNameNC      pet
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
 :EndGauge
 
 # observed streamflow
-:RedirectToFile data_obs/Salmon-River-Near-Prince-George_Qobs_daily.rvt
+:ObservationData HYDROGRAPH 1 m3/s
+    :ReadFromNetCDF
+         :FileNameNC     data_obs/Salmon-River-Near-Prince-George_meteo_daily.nc
+         :VarNameNC      qobs
+         :DimNamesNC     time
+    :EndReadFromNetCDF
+:EndObservationData
