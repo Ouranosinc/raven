@@ -3,4 +3,4 @@ import os
 
 _dir = os.path.abspath(os.path.dirname(__file__))
 
-raven_templates = {'raven-gr4j': os.path.join(_dir, 'raven-gr4j')}
+raven_templates = {'raven-gr4j-cemaneige': os.path.join(_dir, 'raven-gr4j-cemaneige')}
