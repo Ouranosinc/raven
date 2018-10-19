@@ -32,7 +32,7 @@ class TestSetupModel:
     )
 
     def test_gr4j(self):
-        name = 'raven-gr4j'
+        name = 'raven-gr4j-cemaneige'
         outpath = tempfile.mkdtemp()
         ravenio.setup_model(name, outpath, self.gr4j)
 
