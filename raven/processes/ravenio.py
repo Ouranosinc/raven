@@ -2,7 +2,6 @@ import os
 import raven
 from raven.models import raven_templates
 import xarray as xr
-import json
 import csv
 
 # Model executable

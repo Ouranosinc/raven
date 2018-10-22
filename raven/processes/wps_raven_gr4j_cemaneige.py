@@ -1,10 +1,10 @@
 import datetime as dt
 import os
 from pywps import Process
-from pywps import LiteralInput, LiteralOutput
+from pywps import LiteralInput
 from pywps import ComplexInput, ComplexOutput
-from pywps import Format, FORMATS
-from pywps.app.Common import Metadata
+from pywps import FORMATS
+# from pywps.app.Common import Metadata
 import subprocess
 from . import ravenio
 
@@ -18,24 +18,26 @@ LOGGER = logging.getLogger("PYWPS")
 Notes
 -----
 
-The configuration files for RAVEN's GR4J-Cemaneige model and in models/raven-gr4j-cemaneige. 
-All parameters that could potentially be user-defined are tagged using {}. These tags need to be replaced by 
-actual values before the model is launched. There are two mechanisms to make those replacements: 
+The configuration files for RAVEN's GR4J-Cemaneige model and in models/raven-gr4j-cemaneige.
+All parameters that could potentially be user-defined are tagged using {}. These tags need to be replaced by
+actual values before the model is launched. There are two mechanisms to make those replacements:
 
 1. Set-up frozen values in the `defaults` dictionary (see below). These cannot be modified by the WPS request.
-2. Provide values through the WPS request (request- or default-defined).  
+2. Provide values through the WPS request (request- or default-defined).
 
-Multiple processes running the GR4J-Cemaneige model can thus template the model differently.   
- """
+Multiple processes running the GR4J-Cemaneige model can thus template the model differently.
+"""
 
 
 defaults = Odict(
-    rvi=dict(run_name=None, Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
+    rvi=dict(run_name=None, Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0,
+             EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
     rvp=Odict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
     rvc=Odict(SOIL_0=None, SOIL_1=None),
     rvh=dict(NAME=None, AREA=None, ELEVATION=None, LATITUDE=None, LONGITUDE=None),
     rvt=dict(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
 )
+
 
 class RavenGR4JCemaNeigeProcess(Process):
     """
@@ -130,12 +132,13 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         outputs = [ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                                  supported_formats=[FORMATS.NETCDF],
-                                 abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all '
-                                          'subbasins specified as ’gauged’ in the .rvh file. It reports period-ending '
-                                          'time-averaged flows for the preceding time step, as is consistent with most measured '
-                                          'stream gauge data (again, the initial flow conditions at the start of the '
-                                          'first time step are included). If observed hydrographs are specified, they '
-                                          'will be output adjacent to the corresponding modelled hydrograph. ',
+                                 abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
+                                          'specified as ’gauged’ in the .rvh file. It reports period-ending time-'
+                                          'averaged flows for the preceding time step, as is consistent with most '
+                                          'measured stream gauge data (again, the initial flow conditions at the '
+                                          'start of the first time step are included). If observed hydrographs are '
+                                          'specified, they will be output adjacent to the corresponding modelled  '
+                                          'hydrograph. ',
                                  as_reference=True),
 
                    ComplexOutput('storage', 'Watershed storage time series (mm)',
@@ -155,7 +158,7 @@ class RavenGR4JCemaNeigeProcess(Process):
                                  as_reference=True),
 
                    ComplexOutput('diagnostics', 'Performance diagnostic values',
-                                 abstract = "Model diagnostic CSV file.",
+                                 abstract="Model diagnostic CSV file.",
                                  supported_formats=[FORMATS.TEXT],
                                  as_reference=True)
 
@@ -171,7 +174,7 @@ class RavenGR4JCemaNeigeProcess(Process):
             outputs=outputs,
             status_supported=True,
             store_supported=True
-            )
+        )
 
     def _handler(self, request, response):
 
