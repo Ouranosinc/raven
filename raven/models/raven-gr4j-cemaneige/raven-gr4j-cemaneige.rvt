@@ -13,36 +13,36 @@
    :Elevation  843.0
    :Data RAINFALL mm/d
       :ReadFromNetCDF
-         :FileNameNC     {RAIN}
-         :VarNameNC      rain
+         :FileNameNC     {pr}
+         :VarNameNC      {pr_var}
          :DimNamesNC     time
       :EndReadFromNetCDF
    :EndData
    :Data SNOWFALL mm/d
       :ReadFromNetCDF
-         :FileNameNC     {SNOW}
-         :VarNameNC      snow
+         :FileNameNC     {prsn}
+         :VarNameNC      {prsn_var}
          :DimNamesNC     time
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MIN deg_C
       :ReadFromNetCDF
-         :FileNameNC     {TMIN}
-         :VarNameNC      tmin
+         :FileNameNC     {tasmin}
+         :VarNameNC      {tasmin_var}
          :DimNamesNC     time
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MAX deg_C
       :ReadFromNetCDF
-         :FileNameNC     {TMAX}
-         :VarNameNC      tmax
+         :FileNameNC     {tasmax}
+         :VarNameNC      {tasmax_var}
          :DimNamesNC     time
       :EndReadFromNetCDF
    :EndData
    :Data PET mm/d
       :ReadFromNetCDF
-         :FileNameNC     {PET}
-         :VarNameNC      pet
+         :FileNameNC     {evspsbl}
+         :VarNameNC      {evspsbl_var}
          :DimNamesNC     time
       :EndReadFromNetCDF
    :EndData
@@ -51,8 +51,8 @@
 # observed streamflow
 :ObservationData HYDROGRAPH 1 m3/s
     :ReadFromNetCDF
-         :FileNameNC     {QOBS}
-         :VarNameNC      qobs
+         :FileNameNC     {water_volume_transport_in_river_channel}
+         :VarNameNC      {water_volume_transport_in_river_channel_var}
          :DimNamesNC     time
     :EndReadFromNetCDF
 :EndObservationData

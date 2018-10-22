@@ -27,11 +27,11 @@ The Process itself can also set defaults for convenience.
 
 
 defaults = Odict(
-    rvi=dict(Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
+    rvi=dict(run_name=None, Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0, EvaluationMetrics='NASH_SUTCLIFFE RMSE'),
     rvp=Odict(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None),
     rvc=Odict(SOIL_0=None, SOIL_1=None),
     rvh=dict(NAME=None, AREA=None, ELEVATION=None, LATITUDE=None, LONGITUDE=None),
-    rvt=dict(RAIN=None, SNOW=None, TMIN=None, TMAX=None, PET=None, QOBS=None)
+    rvt=dict(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
 )
 
 class RavenGR4JCemaNeigeProcess(Process):
@@ -40,11 +40,11 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         inputs = [ComplexInput('nc', 'netCDF input files',
                                abstract='NetCDF file or files storing'
-                                        ' daily liquid precipitation (rain [mm]), '
-                                        'solid precipitation (snow [mm]), '
-                                        'minimum temperature (tasmin [degC]), '
-                                        'maximum temperature (tasmax [degC]), '
-                                        'potential evapotranspiration (pet [mm]) and '
+                                        ' daily liquid precipitation (pr), '
+                                        'solid precipitation (prsn), '
+                                        'minimum temperature (tasmin), '
+                                        'maximum temperature (tasmax), '
+                                        'potential evapotranspiration (evspsbl) and '
                                         'observed streamflow (qobs [m3/s]).',
                                min_occurs=1,
                                supported_formats=[FORMATS.NETCDF]),
@@ -81,10 +81,16 @@ class RavenGR4JCemaNeigeProcess(Process):
                                default='0, 0',
                                min_occurs=0),
 
-                  LiteralInput('name', 'Simulation name',
+                  LiteralInput('run_name', 'Simulation name',
                                abstract='The name given to the simulation, for example <watershed>_<experiment>',
                                data_type='string',
                                default='raven-gr4j-cemaneige-sim',
+                               min_occurs=0),
+
+                  LiteralInput('name', 'Watershed name',
+                               abstract='The name of the watershed the model is run for.',
+                               data_type='string',
+                               default='watershed',
                                min_occurs=0),
 
                   LiteralInput('area', 'Watershed area (km2)',
@@ -110,9 +116,38 @@ class RavenGR4JCemaNeigeProcess(Process):
 
                   ]
 
-        outputs = [ComplexOutput('q', 'Discharge time series (mm)',
+        outputs = [ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                                  supported_formats=[FORMATS.NETCDF],
-                                 as_reference=True), ]
+                                 abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all '
+                                          'subbasins specified as ’gauged’ in the .rvh file. It reports period-ending '
+                                          'time-averaged flows for the preceding time step, as is consistent with most measured '
+                                          'stream gauge data (again, the initial flow conditions at the start of the '
+                                          'first time step are included). If observed hydrographs are specified, they '
+                                          'will be output adjacent to the corresponding modelled hydrograph. ',
+                                 as_reference=True),
+
+                   ComplexOutput('storage', 'Watershed storage time series (mm)',
+                                 abstract='A netCDF file describing the total storage of water (in mm) in all water '
+                                          'storage compartments for each time step of the simulation. Mass balance '
+                                          'errors, cumulative input (precipitation), and output (channel losses) are '
+                                          'also included. Note that the precipitation rates in this file are '
+                                          'period-ending, i.e., this is the precipitation rate for the time step '
+                                          'preceding the time stamp; all water storage variables represent '
+                                          'instantaneous reports of the storage at the time stamp indicate.',
+                                 supported_formats=[FORMATS.NETCDF],
+                                 as_reference=True),
+
+                   ComplexOutput('solution', 'solution.rvc file to restart another simulation with the conditions '
+                                             'at the end of this simulation.',
+                                 supported_formats=[FORMATS.TEXT],
+                                 as_reference=True),
+
+                   ComplexOutput('diagnostics', 'Performance diagnostic values',
+                                 abstract = "Model diagnostic CSV file.",
+                                 supported_formats=[FORMATS.TEXT],
+                                 as_reference=True)
+
+                   ]
 
         super(RavenGR4JCemaNeigeProcess, self).__init__(
             self._handler,
@@ -135,8 +170,7 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Assign the correct input forcing file to each field
         files = [i.file for i in request.inputs['nc']]
-        vals = ravenio.assign_files(files, [k.lower() for k in rvt.keys()])
-        rvt = dict(zip(rvt.keys(), vals))
+        rvt.update(ravenio.assign_files(files, rvt.keys()))
 
         # Read model configuration and simulation information
         for k, v in rvi.items():
@@ -177,6 +211,18 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Run the simulation
         subprocess.run(cmd)
-        #response.outputs['q'].file = os.path.join(self.workdir, 'output', 'duh.nc')
+
+        # Output files default names
+        out_files = {'hydrograph': 'Hydrographs.nc',
+                     'storage': 'WatershedStorage.nc',
+                     'solution': 'solution.rvc',
+                     'diagnostics': 'Diagnostics.csv'}
+
+        # Assign the response outputs to the full names
+        sim = rvi['run_name']
+
+        for key, val in out_files.items():
+            fn = os.path.join(self.workdir, 'output', '_'.join([sim, val]))
+            response.outputs[key].file = fn
 
         return response

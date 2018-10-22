@@ -2,9 +2,23 @@ import os
 import raven
 from raven.models import raven_templates
 import xarray as xr
+import json
+import csv
 
 # Model executable
 raven_exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven'))
+
+# Dictionary of potential variable names, keyed by CF standard name.
+# http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
+# PET is the potential evapotranspiration, while evspsbl is the actual evap.
+variable_names = {'tasmin': ['tasmin', 'tmin'],
+                  'tasmax': ['tasmax', 'tmax'],
+                  'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
+                  'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
+                  'evspsbl': ['pet', 'evap', 'evapotranspiration'],
+                  'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
+                  }
+
 
 def rv_format(fn, kwds):
     """Read the model input template file and fill the given arguments."""
@@ -32,22 +46,24 @@ def setup_model(name, outpath, params):
       The command line arguments to launch the model with the configuration files.
     """
     inpath = raven_templates[name]
+    model_path = os.path.join(outpath, 'model')
+    output_path = os.path.join(outpath, 'output')
 
     # Create subdirectory
-    os.mkdir(os.path.join(outpath, 'model'))
-    os.mkdir(os.path.join(outpath, 'output'))
+    os.mkdir(model_path)
+    os.mkdir(output_path)
 
     for ext, param in params.items():
         fn = name + os.path.extsep + ext
         txt = rv_format(os.path.join(inpath, fn), param)
 
-        with open(os.path.join(outpath, 'model', fn), 'w') as f:
+        with open(os.path.join(model_path, fn), 'w') as f:
             f.write(txt)
 
-    cmd = os.path.join(outpath, 'model', 'raven')
+    cmd = os.path.join(model_path, 'raven')
     os.symlink(raven_exec, cmd)
 
-    return [cmd, os.path.join(outpath, 'model', name)]
+    return [cmd, os.path.join(outpath, 'model', name), '-o', os.path.join(outpath, 'output', '')]
 
 
 def start_end_date(fns):
@@ -70,14 +86,15 @@ def start_end_date(fns):
 
 
 def assign_files(fns, variables):
-    """Find for each variable the file storing it's data.
+    """Find for each variable the file storing it's data and the name of the netCDF variable.
 
     Parameters
     ----------
     fns : sequence
       Paths to netCDF files.
     variables : sequence
-      Names of the variables to look for.
+      Names of the variables to look for. Specify their CF standard name, a dictionary of
+      alternative names will be used for the lookup.
 
     Returns
     -------
@@ -88,14 +105,33 @@ def assign_files(fns, variables):
     for fn in fns:
         ds = xr.open_dataset(fn)
         for var in variables:
-            if var in ds:
-                out[var] = fn
+            for alt_name in variable_names[var]:
+                if alt_name in ds.data_vars:
+                    # out[var] = fn  # Absolute path (not supported yet)
+                    out[var] = os.path.join('..', os.path.split(fn)[1])  # Relative path
+                    out[var + '_var'] = alt_name
 
     for var in variables:
         if var not in out.keys():
             raise ValueError("{} not found in files.".format(var))
 
-    return [out[v] for v in variables]
+    return out
 
 
+def read_diagnostics(f):
+    """Return a dictionary representation of the output diagnostic file.
 
+
+    Parameters
+    ----------
+    f : file
+      Diagnostic file.
+    """
+
+    reader = csv.reader(f.readlines())
+    header = reader.next()
+    content = reader.next()
+
+    out = dict(zip(header, content))
+    out.pop('')
+    return out

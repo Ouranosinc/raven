@@ -14,5 +14,5 @@
 :HRUs
   :Attributes,  AREA, ELEVATION, LATITUDE, LONGITUDE, BASIN_ID,LAND_USE_CLASS, VEG_CLASS,SOIL_PROFILE, AQUIFER_PROFILE, TERRAIN_CLASS, SLOPE, ASPECT
   :Units     ,   km2,         m,      deg,       deg,     none,          none,      none,        none,            none,          none,   deg,    deg
-            {AREA},     {ELEVATION},  {LATITUDE}, {LONGITUDE},        1,        LU_ALL,   VEG_ALL,   DEFAULT_P,          [NONE],        [NONE],     0,      0
+            1,{AREA},     {ELEVATION},  {LATITUDE}, {LONGITUDE},        1,        LU_ALL,   VEG_ALL,   DEFAULT_P,          [NONE],        [NONE],     0,      0
 :EndHRUs
