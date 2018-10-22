@@ -6,7 +6,7 @@
 # Emulation of GR4J simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------                                  
 #                                                                                                          
-#:RunName              run1                                                                           
+:RunName               {run_name}
 :StartDate             {Start_Date}
 :Duration              {Duration}
 :TimeStep              {TimeStep}
@@ -57,3 +57,7 @@
 :WriteForcingFunctions
 :EvaluationMetrics {EvaluationMetrics}
 :WriteNetcdfFormat  yes
+#:NoisyMode
+:SilentMode
+#:OutputDirectory ../output/
+
