@@ -18,12 +18,15 @@ LOGGER = logging.getLogger("PYWPS")
 Notes
 -----
 
-The configuration files for RAVEN's GR4J-Cemaneige model and in models/raven-gr4j. 
-All parameters that could potentially be user-defined are tagged using {}.
-Different WPS processes can provide different level of customization for the same model. 
-The idea is to use the `defaults` dictionary to set *frozen* parameters.   
-The Process itself can also set defaults for convenience. 
-"""
+The configuration files for RAVEN's GR4J-Cemaneige model and in models/raven-gr4j-cemaneige. 
+All parameters that could potentially be user-defined are tagged using {}. These tags need to be replaced by 
+actual values before the model is launched. There are two mechanisms to make those replacements: 
+
+1. Set-up frozen values in the `defaults` dictionary (see below). These cannot be modified by the WPS request.
+2. Provide values through the WPS request (request- or default-defined).  
+
+Multiple processes running the GR4J-Cemaneige model can thus template the model differently.   
+ """
 
 
 defaults = Odict(
@@ -35,6 +38,15 @@ defaults = Odict(
 )
 
 class RavenGR4JCemaNeigeProcess(Process):
+    """
+    RAVEN emulator for the GR4J-Cemaneige model.
+
+    This process runs the GR4J-Cemaneige model using a RAVEN emulator. Users need to provide netCDF input files for
+    rain, snow minimum and maximum temperature as well as potential evapotranspiration. To run diagnostics, observed
+    stream flows are also required.
+
+
+    """
 
     def __init__(self):
 
@@ -166,9 +178,11 @@ class RavenGR4JCemaNeigeProcess(Process):
         # -------------- #
         #  Model config  #
         # -------------- #
+
+        # Default values for this particular process
         rvi, rvp, rvc, rvh, rvt = defaults.values()
 
-        # Assign the correct input forcing file to each field
+        # Assign the correct input forcing file and variable names fpr each field
         files = [i.file for i in request.inputs['nc']]
         rvt.update(ravenio.assign_files(files, rvt.keys()))
 
@@ -187,7 +201,6 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Assemble soil initial conditions
         rvc.update(dict(zip(rvc.keys(), map(float, request.inputs['init'][0].data.split(',')))))
-        # -------------- #
 
         # Handle start and end date defaults
         start, end = ravenio.start_end_date(files)
@@ -220,7 +233,6 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Assign the response outputs to the full names
         sim = rvi['run_name']
-
         for key, val in out_files.items():
             fn = os.path.join(self.workdir, 'output', '_'.join([sim, val]))
             response.outputs[key].file = fn

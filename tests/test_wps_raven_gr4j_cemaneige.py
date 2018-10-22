@@ -28,7 +28,8 @@ class TestRavenGR4JCemaNeigeProcess:
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     init='4,5',
-                    name='test-raven-gr4j-cemaneige',
+                    name='Saumon',
+                    run_name='test',
                     area='4250.6',
                     elevation='843.0',
                     latitude=54.4848,
@@ -39,5 +40,4 @@ class TestRavenGR4JCemaNeigeProcess:
             service='WPS', request='Execute', version='1.0.0', identifier='raven-gr4j-cemaneige',
             datainputs=datainputs)
 
-        print(resp.response)
         assert_response_success(resp)
