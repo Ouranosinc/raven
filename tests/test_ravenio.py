@@ -28,7 +28,7 @@ class TestSetupModel:
         rvp=odict(GR4J_X1=.7, GR4J_X2=.7, GR4J_X3=19., GR4J_X4=2.09, AvgAnnualSnow=123, AirSnowCoeff=.75),
         rvc=odict(SOIL_0=1, SOIL_1=2),
         rvh=dict(NAME='Test', AREA=45, ELEVATION=3, LATITUDE=45, LONGITUDE=-154),
-        rvt=dict(RAIN='data/data.nc', SNOW='data/data.nc', TASMIN='data/data.nc', TASMAX='data/data.nc', PET='data/data.nc', QOBS='data/data.nc')
+        rvt=dict(RAIN='data/data.nc', SNOW='data/data.nc', TMIN='data/data.nc', TMAX='data/data.nc', PET='data/data.nc', QOBS='data/data.nc')
     )
 
     def test_gr4j(self):

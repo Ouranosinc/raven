@@ -4,7 +4,7 @@ from raven.models import raven_templates
 import xarray as xr
 
 # Model executable
-exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven'))
+raven_exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven'))
 
 def rv_format(fn, kwds):
     """Read the model input template file and fill the given arguments."""
@@ -29,7 +29,7 @@ def setup_model(name, outpath, params):
     Returns
     -------
     cmd : str
-      The model executable symbolic link in created directory.
+      The command line arguments to launch the model with the configuration files.
     """
     inpath = raven_templates[name]
 
@@ -45,9 +45,9 @@ def setup_model(name, outpath, params):
             f.write(txt)
 
     cmd = os.path.join(outpath, 'model', 'raven')
-    os.symlink(exec, cmd)
+    os.symlink(raven_exec, cmd)
 
-    return cmd
+    return [cmd, os.path.join(outpath, 'model', name)]
 
 
 def start_end_date(fns):
