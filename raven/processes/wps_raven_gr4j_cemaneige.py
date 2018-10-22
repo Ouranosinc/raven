@@ -139,7 +139,6 @@ class RavenGR4JCemaNeigeProcess(Process):
         rvt = dict(zip(rvt.keys(), vals))
 
         # Read model configuration and simulation information
-        print (request.inputs.keys())
         for k, v in rvi.items():
             if v is None and k.lower() in request.inputs.keys():
                 rvi[k] = request.inputs[k.lower()][0].data
@@ -174,10 +173,10 @@ class RavenGR4JCemaNeigeProcess(Process):
 
         # Prepare simulation subdirectory
         params = dict(rvi=rvi, rvp=rvp, rvc=rvc, rvh=rvh, rvt=rvt)
-        cmd = ravenio.setup_model('raven-gr4j-cemaneige', self.workdir, params)
+        cmd = ravenio.setup_model(self.identifier, self.workdir, params)
 
         # Run the simulation
-        subprocess.run([cmd])
-        response.outputs['q'].file = os.path.join(self.workdir, 'output', 'duh.nc')
+        subprocess.run(cmd)
+        #response.outputs['q'].file = os.path.join(self.workdir, 'output', 'duh.nc')
 
         return response
