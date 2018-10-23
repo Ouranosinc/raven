@@ -1,12 +1,22 @@
 from osgeo import gdal, ogr, osr
-# import geopandas as gpd
 import os
 import glob
+import numpy as np
 
 gdal.UseExceptions()
 
 
 class RavenShape:
+
+    # Example via https://stackoverflow.com/a/50039984/7322852
+    @staticmethod
+    def _clipper(bbox, transform):
+        xo = int(round((bbox[0] - transform[0]) / transform[1]))
+        yo = int(round((transform[3] - bbox[3]) / transform[1]))
+        xd = int(round((bbox[1] - bbox[0]) / transform[1]))
+        yd = int(round((bbox[3] - bbox[2]) / transform[1]))
+
+        return xo, yo, xd, yd
 
     @staticmethod
     def _get_crs(shape):
@@ -146,30 +156,33 @@ class RavenShape:
               'Mean value:{}'.format(int(array.mean())), '\n',
               'Max value:{}'.format(array.max()))
 
-        # Courtesy of https://gis.stackexchange.com/a/195208/65343
-        # shape = self._shape
-        # layer = shape.GetLayer()
-        #
-        # if layer is not None:
-        #     for feat in layer:
-        #         geom = feat.GetGeometryRef()
-        #         # print(geom)
-        #         mx, my = geom.GetX(), geom.GetY()
-        #         # print(mx, my)
-        #
-        #         px = int((mx - transform[0]) / transform[1])
-        #         py = int((mx - transform[3]) / transform[5])
-        #
-        #         intval = band.ReadAsArray(px, py)#, 1, 1)
-        #         print(intval)
-        # else:
-        #     raise Exception('Layer unable to be loaded.')
-        #
-        # return intval
-        raise NotImplementedError
+        shape = self._shape
+        layer = shape.GetLayer()
 
-    def average_elev(self, dem=None):
-        pass
+        if layer is not None:
+            for feat in layer:
+                bbox = feat.GetGeometryRef().GetEnvelope()
+
+                xo, yo, xd, yd = self._clipper(bbox, transform)
+
+                arr = raster.ReadAsArray(xo, yo, xd, yd)
+                yield arr
+
+            layer.ResetReading()
+
+        return
+
+    def average(self, dem=None):
+        clipper = self.clip(dem)
+
+        averages = []
+
+        # Create a dictionary with FIDs for clipped parcels
+        for parcel in clipper:
+            if isinstance(parcel, np.ndarray):
+                averages.append(np.mean(parcel))
+
+        return averages
 
 
 if __name__ == '__main__':
@@ -184,14 +197,22 @@ if __name__ == '__main__':
     print(dems)
 
     rvn = RavenShape(shapes[0])
-    output = rvn.clip(dems[0])
+    clip_gen = rvn.clip(dems[0])
 
-    print(output)
+    for clip in clip_gen:
+        print(type(clip))
 
-    # for n in shapes:
-    #     rvn = RavenShape(n)
-    #     rvn.stats()
-    #     print(rvn._check_crs(crs=4326))
-    #     print(rvn._check_crs(dem=dem))
-    #     print(rvn.feature_centroids())
-    #     print('\n')
+    averaged_parcels = rvn.average(dems[0])
+
+    for region in averaged_parcels:
+        print(region)
+
+    for n in shapes:
+        rvn = RavenShape(n)
+        rvn.stats()
+        print(rvn._check_crs(crs=4326))
+        print(rvn._check_crs(dem=dems[0]))
+        print(rvn.feature_centroids())
+        print('\n')
+
+# Example: https://gis.stackexchange.com/a/195208/65343
