@@ -62,7 +62,7 @@ def setup_model(name, outpath, params):
     cmd = os.path.join(model_path, 'raven')
     os.symlink(raven_exec, cmd)
 
-    return [cmd, os.path.join(outpath, 'model', name), '-o', os.path.join(outpath, 'output', '')]
+    return [cmd, os.path.join(outpath, 'model', name), '-o', os.path.join(outpath, 'output')]
 
 
 def start_end_date(fns):
@@ -106,8 +106,7 @@ def assign_files(fns, variables):
         for var in variables:
             for alt_name in variable_names[var]:
                 if alt_name in ds.data_vars:
-                    # out[var] = fn  # Absolute path (not supported yet)
-                    out[var] = os.path.join('..', os.path.split(fn)[1])  # Relative path
+                    out[var] = fn
                     out[var + '_var'] = alt_name
 
     for var in variables:
