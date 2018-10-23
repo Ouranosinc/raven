@@ -8,6 +8,8 @@ CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
+RAVEN_URL = http://raven.uwaterloo.ca/files/v2.8.1/Raven_2.8.1_Source.zip
+RAVEN_SRC = $(CURDIR)/src/RAVEN
 ifeq "$(OS_NAME)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
 else ifeq "$(OS_NAME)" "Darwin"
@@ -67,8 +69,20 @@ bootstrap_dev:
 	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx bumpversion"
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
+
+.PHONY: raven_dev
+raven_dev:
+	@echo "Downloading RAVEN hydrological framework ..."
+	@test -f $(CURDIR)/src/RAVEN.zip || curl $(RAVEN_URL) --output "$(CURDIR)/src/RAVEN.zip"
+	@echo "Unzipping RAVEN ..."
+	@test -d $(RAVEN_SRC) || unzip $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
+	@echo "Compiling RAVEN ..."
+	@test -f $(RAVEN_SRC)/raven_rev.exe || $(MAKE) -C $(RAVEN_SRC) -j4
+	@test -d bin || mkdir bin
+	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
+
 .PHONY: install
-install: bootstrap
+install: bootstrap raven_dev
 	@echo "Installing application ..."
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && python setup.py develop"
 	@echo "\nStart service with \`make start'"

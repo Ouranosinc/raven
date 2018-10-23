@@ -20,7 +20,7 @@ class TestGR4JCemaneige():
 
 
     def test_nc_data(self):
-        paths = [v[7:] for v in TESTDATA['gr4j-cemaneige'].values()]
+        paths = TESTDATA['gr4j-cemaneige'].values()
         ds = xr.open_mfdataset(paths).rename({'pr': 'Prec', 'tas': 'Temp', 'evap': 'Evap'})
         ds['Temp'] -= 273.15
         df = ds.to_dataframe()
