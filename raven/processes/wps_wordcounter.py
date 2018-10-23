@@ -1,4 +1,5 @@
 import re
+import os
 from collections import Counter
 
 from pywps import Process
@@ -43,8 +44,7 @@ class WordCounter(Process):
             store_supported=True,
             status_supported=True)
 
-    @staticmethod
-    def _handler(request, response):
+    def _handler(self, request, response):
         wordre = re.compile(r'\w+')
 
         def words(f):
@@ -55,7 +55,7 @@ class WordCounter(Process):
         counts = Counter(words(request.inputs['text'][0].stream))
         sorted_counts = sorted([(v, k) for (k, v) in counts.items()],
                                reverse=True)
-        with open('out.txt', 'w') as fout:
+        with open(os.path.join(self.workdir, 'out.txt'), 'w') as fout:
             fout.write(str(sorted_counts))
             response.outputs['output'].file = fout.name
         return response
