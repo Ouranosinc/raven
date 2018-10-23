@@ -36,13 +36,15 @@ class GR4JCemaNeigeProcess(Process):
                                default='300, -1, 200, 2, .5, 8'),
 
                   LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
-                               abstract='Start date of the simulation (AAAA-MM-DD). Defaults to the start of the forcing file. ',
+                               abstract='Start date of the simulation (AAAA-MM-DD). '
+                                        'Defaults to the start of the forcing file. ',
                                data_type='date',
                                default='0001-01-01',
                                min_occurs=0),
 
                   LiteralInput('end_date', 'Simulation end date (AAAA-MM-DD)',
-                               abstract='End date of the simulation (AAAA-MM-DD). Defaults to the end of the forcing file.',
+                               abstract='End date of the simulation (AAAA-MM-DD). '
+                                        'Defaults to the end of the forcing file.',
                                data_type='date',
                                default='0001-01-01',
                                min_occurs=0),
@@ -117,5 +119,5 @@ class GR4JCemaNeigeProcess(Process):
 
         # Store file path in process response
         response.outputs['q'].file = fn
-        
+
         return response

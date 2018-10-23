@@ -7,9 +7,11 @@ import pandas as pd
 TESTS_HOME = os.path.abspath(os.path.dirname(__file__))
 CFG_FILE = os.path.join(TESTS_HOME, 'test.cfg')
 
-TESTDATA = {'gr4j-cemaneige': {'pr': 'file://{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'pr.nc')),
-                               'tas': 'file://{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'tas.nc')),
-                               'evap': 'file://{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'evap.nc'))}
+TESTDATA = {'gr4j-cemaneige':
+                {'pr': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'pr.nc')),
+                 'tas': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'tas.nc')),
+                 'evap': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'evap.nc'))},
+            'raven-gr4j-cemaneige': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'raven-gr4j-cemaneige', 'Salmon-River-Near-Prince-George_meteo_daily.nc'))
             }
 
 
