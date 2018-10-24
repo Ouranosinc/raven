@@ -5,10 +5,10 @@ import numpy as np
 
 gdal.UseExceptions()
 
-
 class RavenShape:
 
-    # Example via https://stackoverflow.com/a/50039984/7322852
+    # Examples via https://gis.stackexchange.com/a/195208/65343
+    # Examples via https://stackoverflow.com/a/50039984/7322852
     @staticmethod
     def _clipper(bbox, transform):
         xo = int(round((bbox[0] - transform[0]) / transform[1]))
@@ -120,6 +120,8 @@ class RavenShape:
         if dem is None:
             raise Exception('No DEM specified.')
         elif isinstance(dem, str):
+            if dem.endswith('.tif') or dem.endswith('.tiff'):
+                gdal.GetDriverByName('GTiff')
             self._check_crs(dem=dem)
 
     def stats(self):
@@ -184,35 +186,3 @@ class RavenShape:
 
         return averages
 
-
-if __name__ == '__main__':
-    gdal.GetDriverByName('GTiff')
-
-    data_dir = os.path.join(os.getcwd(), 'example_data')
-    files = glob.glob(os.path.join(data_dir, '*'), recursive=True)
-    shapes = [shp for shp in files if shp.endswith('.gml') or shp.endswith('.shp')]
-    dems = [dem for dem in files if dem.endswith('.tif') or dem.endswith('.tiff')]
-
-    print(shapes)
-    print(dems)
-
-    rvn = RavenShape(shapes[0])
-    clip_gen = rvn.clip(dems[0])
-
-    for clip in clip_gen:
-        print(type(clip))
-
-    averaged_parcels = rvn.average(dems[0])
-
-    for region in averaged_parcels:
-        print(region)
-
-    for n in shapes:
-        rvn = RavenShape(n)
-        rvn.stats()
-        print(rvn._check_crs(crs=4326))
-        print(rvn._check_crs(dem=dems[0]))
-        print(rvn.feature_centroids())
-        print('\n')
-
-# Example: https://gis.stackexchange.com/a/195208/65343
