@@ -1,14 +1,29 @@
 from osgeo import gdal, ogr, osr
 import os
-import glob
 import numpy as np
+
 
 gdal.UseExceptions()
 
-class RavenShape:
+
+class RavenGIS(object):
+    pass
+
+
+class RavenRaster(RavenGIS):
+    pass
+
+
+class RavenShape(RavenGIS):
 
     # Examples via https://gis.stackexchange.com/a/195208/65343
     # Examples via https://stackoverflow.com/a/50039984/7322852
+
+    def __init__(self, shape):
+        self._shape = ogr.Open(shape)
+        self._shape_filename = os.path.basename(shape)
+        self._crs = self._get_crs(shape)
+
     @staticmethod
     def _clipper(bbox, transform):
         xo = int(round((bbox[0] - transform[0]) / transform[1]))
@@ -30,11 +45,6 @@ class RavenShape:
         srs.ImportFromWkt(wkt)
 
         return srs.ExportToPrettyWkt()
-
-    def __init__(self, shape):
-        self._shape = ogr.Open(shape)
-        self._shape_filename = os.path.basename(shape)
-        self._crs = self._get_crs(shape)
 
     def _get_fields(self):
         """Returns the field names from attributes table of shape layer."""
@@ -185,4 +195,3 @@ class RavenShape:
                 averages.append(np.mean(parcel))
 
         return averages
-
