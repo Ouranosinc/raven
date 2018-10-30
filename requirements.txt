@@ -4,4 +4,8 @@ click
 psutil
 xarray
 gdal
+numpy
 pyproj
+netCDF4
+dask
+scipy
