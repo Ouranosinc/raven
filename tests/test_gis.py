@@ -1,28 +1,38 @@
-from raven.gis import RavenShape
+from raven.gis import RavenShape, RavenRaster
 import os
-import glob
+# import pytest
 
 
 class TestGISClasses:
 
     def test_raven_shape(self):
-        pass
+        here = os.getcwd()
+
+        dem = os.path.join(here, 'tests/testdata/earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')
+        shape = os.path.join(here, 'tests/testdata/donneesqc_mrc_poly/donnees_quebec_mrc_polygones.gml')
+
+        rvn = RavenShape(shape)
+        assert rvn.crs() == '4326'
+        assert len(rvn) == 137
+        assert rvn.clip(dem)
 
     def test_raven_raster(self):
-        pass
+        here = os.getcwd()
 
-    def test_raven_gis(self):
-        pass
+        dem = os.path.join(here, 'tests/testdata/earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')
+        shape = os.path.join(here, 'tests/testdata/donneesqc_mrc_poly/donnees_quebec_mrc_polygones.gml')
 
-# shapes = "/home/tjs/git/raven/tests/testdata/donneesqc_mrc_poly/donnees_quebec_mrc_polygones.gml"
-#
-# dems = "/home/tjs/git/raven/tests/testdata/earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
-#
+        rvn = RavenRaster(dem)
+        assert rvn.crs() == '4326'
+        assert not rvn.check_crs(crs='5555')
+        assert rvn.check_crs(shape=shape)
+
+
 # print(shapes)
 # print(dems)
 #
 # rvn = RavenShape(shapes)
-# rvn.stats()
+
 # clip_gen = rvn.clip(dems)
 #
 # for clip in clip_gen:
@@ -36,6 +46,5 @@ class TestGISClasses:
 #
 #
 # rvn = RavenShape(shapes)
-# rvn.stats()
 # print(rvn.feature_centroids())
 # print('\n')

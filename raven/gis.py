@@ -1,7 +1,10 @@
 from osgeo import gdal, ogr, osr
-import os
+from warnings import warn
+import logging
 import numpy as np
+import os
 
+logging.captureWarnings(True)
 gdal.UseExceptions()
 
 
@@ -11,7 +14,11 @@ class RavenGIS(object):
     def __init__(self):
         self._shape = None
         self._raster = None
+        self._pretty_crs = None
         self._epsg = None
+
+    def crs(self):
+        return self._epsg
 
     @staticmethod
     def clipper(bbox, transform):
@@ -77,24 +84,41 @@ class RavenGIS(object):
             raise Exception(msg)
 
     @staticmethod
-    def check_crs(shape=None, raster=None, crs=None):
+    def _check_crs(shape=None, raster=None, crs=None):
         """
         Ensures that the CRS of the vector/raster and the specified CRS from EPSG string or shape/dem are compatible.
         Needed to circumvent problems that can arise from OGC-compliant WKT and ESRI-WKT CRS strings.
         Not sure of a better way to handle this issue.
         """
 
-        if shape is None and raster is None:
-            raise Exception("Please specify a shape or raster instance.")
-        if shape and raster and crs is None:
-            # check the CRS between the two
-            pass
-        if shape and raster is None and crs:
-            pass
-        if shape is None and raster and crs:
-            pass
-        else:
-            raise Exception("Please provide more arguments.")
+        try:
+            if shape is None and raster is None:
+                raise Exception("Please specify a shape or raster instance.")
+
+            elif all([shape, raster, crs]):
+                if len({shape, raster, crs}) == 1:
+                    return True
+                else:
+                    return False
+
+            elif (shape and raster and crs is None) or (shape and crs and raster is None)\
+                    or (raster and crs and shape is None):
+
+                if shape == raster:
+                    return True
+                elif shape == crs:
+                    return True
+                elif raster == crs:
+                    return True
+                else:
+                    return False
+
+            else:
+                raise Exception("Please provide more arguments.")
+
+        except Exception as e:
+            msg = 'Failed to read SHAPE/DEM/CRS: {}'.format(e)
+            raise Exception(msg)
 
 
 class RavenRaster(RavenGIS):
@@ -109,8 +133,31 @@ class RavenRaster(RavenGIS):
         super(RavenRaster, self).__init__()
 
         self._raster = self.get_raster(raster)
-        self._raster_filename = os.path.basename(raster)
-        self._raster_pretty_crs, self._epsg = self.get_crs(raster=raster)
+        self._filename = os.path.basename(raster)
+        self._pretty_crs, self._epsg = self.get_crs(raster=raster)
+
+    def __repr__(self):
+        return 'RavenGIS({!r}, {!r})'.format(self.__class__.__name__, self._filename)
+
+    def __str__(self):
+        return 'RavenGIS Raster: {}'.format(self._filename)
+
+    def stats(self):
+        """Outputs stats based on raster contents."""
+        raster = self._raster
+        transform = raster.GetGeoTransform()
+        band = raster.GetRasterBand(1)
+        array = band.ReadAsArray()
+
+        msg = 'Raster stats: {}'.format(self._filename)
+        print(msg)
+        print('~' * len(msg))
+        print('Layer boundary box: {}'.format(self._get_raster_extent()))
+        print('Geographic Transformation:{}'.format(transform), '\n',
+              'Min value:{}'.format(array.min()), '\n',
+              'Mean value:{}'.format(int(array.mean())), '\n',
+              'Max value:{}'.format(array.max()))
+        print('CRS:\n\t{}'.format(self._pretty_crs))
 
     def _get_raster_extent(self):
         """Returns the lat,lon boundaries for union of all features in layer"""
@@ -123,32 +170,17 @@ class RavenRaster(RavenGIS):
 
         return [upper_left_x, upper_left_y, lower_right_x, lower_right_y]
 
-    def _check_raster_crs(self, shape=None, crs=None):
+    def check_crs(self, shape=None, crs=None):
         """
         Ensures that the CRS of the vector/raster and the specified CRS from EPSG string or shape/dem are compatible.
         Needed to circumvent problems that can arise from OGC-compliant WKT and ESRI-WKT CRS strings.
         Not sure of a better way to handle this issue.
         """
+        shape_crs = None
+        if shape:
+            shape_crs = self.get_crs(shape=shape)[1]
 
-        self.check_crs(shape=shape, raster=self._raster_pretty_crs, crs=crs)
-
-    def stats(self):
-        """Outputs stats based on raster contents."""
-
-        raster = self._raster
-        transform = raster.GetGeoTransform()
-        band = raster.GetRasterBand(1)
-        array = band.ReadAsArray()
-
-        msg = 'Raster stats: {}'.format(self._raster_filename)
-        print(msg)
-        print('~' * len(msg))
-        print('Layer boundary box: {}'.format(self._get_raster_extent()))
-        print('Geographic Transformation:{}'.format(transform), '\n',
-              'Min value:{}'.format(array.min()), '\n',
-              'Mean value:{}'.format(int(array.mean())), '\n',
-              'Max value:{}'.format(array.max()))
-        print('CRS:\n\t{}'.format(self._raster_pretty_crs))
+        return self._check_crs(shape=shape_crs, raster=self._epsg, crs=crs)
 
 
 class RavenShape(RavenGIS):
@@ -166,8 +198,28 @@ class RavenShape(RavenGIS):
         super(RavenShape, self).__init__()
 
         self._shape = self.get_shape(shape)
-        self._shape_filename = os.path.basename(shape)
-        self._shape_pretty_crs, self._epsg = self.get_crs(shape=shape)
+        self._filename = os.path.basename(shape)
+        self._pretty_crs, self._epsg = self.get_crs(shape=shape)
+
+    def __repr__(self):
+        return 'RavenGIS({!r}, {!r})'.format(self.__class__.__name__, self._filename)
+
+    def __str__(self):
+        return 'RavenGIS Shape: {}'.format(self._filename)
+
+    def __len__(self, *args, **kwargs):
+        return self._get_feature_count()
+
+    def stats(self):
+        """Outputs stats based on shapefile contents."""
+        msg = 'Shape stats: {}'.format(self._filename)
+        print(msg)
+        print('~' * len(msg))
+        print('Layer name: {}'.format(self._get_layer_name()))
+        print('Layer bounds: {}'.format(self._get_layer_bounds()))
+        print('Number of features: {}'.format(self._get_feature_count()))
+        print('Field names: {}'.format(self._get_fields()))
+        print('CRS:\n\t{}'.format(self._pretty_crs))
 
     def _get_fields(self):
         """Returns the field names from attributes table of shape layer."""
@@ -197,16 +249,6 @@ class RavenShape(RavenGIS):
     def _get_feature_bounds(self):
         raise NotImplementedError
 
-    def stats(self):
-        """Outputs stats based on shapefile contents."""
-        msg = 'Shape stats: {}'.format(self._shape_filename)
-        print(msg)
-        print('~' * len(msg))
-        print('Layer name: {}'.format(self._get_layer_name()))
-        print('Layer bounds: {}'.format(self._get_layer_bounds()))
-        print('Number of features: {}'.format(self._get_feature_count()))
-        print('Field names: {}'.format(self._get_fields()))
-        print('CRS:\n\t{}'.format(self._shape_pretty_crs))
 
     def feature_centroids(self):
         """Returns the centroids respecting all features of the shape layer."""
@@ -217,59 +259,17 @@ class RavenShape(RavenGIS):
             centroids.append(geom.Centroid().ExportToWkt())
         return centroids
 
-    # TODO: Clean up and remove most of this boilerplate code
-    def _check_shape_crs(self, raster=None, crs=None):
+    def check_crs(self, raster=None, crs=None):
         """
         Ensures that the CRS of the vector/raster and the specified CRS from EPSG string or shape/dem are compatible.
         Needed to circumvent problems that can arise from OGC-compliant WKT and ESRI-WKT CRS strings.
         Not sure of a better way to handle this issue.
         """
+        raster_crs = None
+        if raster:
+            raster_crs = self.get_crs(raster=raster)[1]
 
-        self.check_crs(shape=self._shape_crs, raster=raster, crs=crs)
-
-        if (raster and crs is None) or (crs and raster is None):
-            try:
-                field_srs = osr.SpatialReference()
-                rvn_srs = osr.SpatialReference()
-
-                if crs is None:
-                    field = gdal.Open(raster, gdal.GA_ReadOnly)
-                    field_srs.ImportFromWkt(field.GetProjection())
-                else:
-                    field_srs.ImportFromEPSG(crs)
-
-                rvn_srs.ImportFromWkt(self._crs)
-
-                if field_srs.IsGeographic() and rvn_srs.IsGeographic():
-                    projcs = False
-                elif not field_srs.IsGeographic() or not rvn_srs.IsGeographic():
-                    projcs = True
-                else:
-                    # TODO: Create a check that cascades to a reprojection for clipping
-                    raise Exception('Mixed geographic projection types.')
-
-                if projcs is True:
-                    structure = 'PROJCS|GEOGCS|AUTHORITY'
-                else:
-                    structure = 'GEOGCS|AUTHORITY'
-
-                dem_code = field_srs.GetAttrValue(structure, 1)
-                rvn_code = rvn_srs.GetAttrValue(structure, 1)
-
-                if dem_code == rvn_code:
-                    return True
-                else:
-                    return False
-
-            except Exception as e:
-                msg = 'Failed to read CRS/DEM: {}'.format(e)
-                raise Exception(msg)
-
-        elif crs is not None and raster is not None:
-            raise KeyError('Please specify a CRS or a DEM, not both.')
-
-        else:
-            raise KeyError('Please specify a CRS or a DEM')
+        return self._check_crs(shape=self._epsg, raster=raster_crs, crs=crs)
 
     def clip(self, raster=None):
 
@@ -277,8 +277,8 @@ class RavenShape(RavenGIS):
         transform = raster.GetGeoTransform()
         band = raster.GetRasterBand(1)
 
-        shape = self._shape
-        layer = shape.GetLayer()
+        bounds = self._shape
+        layer = bounds.GetLayer()
 
         if layer is not None:
             for feat in layer:
@@ -287,14 +287,21 @@ class RavenShape(RavenGIS):
                 xo, yo, xd, yd = self.clipper(bbox, transform)
 
                 arr = band.ReadAsArray(xo, yo, xd, yd)
+
                 yield arr
 
             layer.ResetReading()
 
         return
 
-    def average(self, dem=None):
-        clipper = self.clip(dem)
+    # TODO: implement a warning when an average is calculated from areas that include NaNs!
+    # This doesn't work with gdal-derived numpy arrays but something similar to the following lines:
+    #
+    # if np.isnan(np.asarray(parcel)).any():
+    #     warn('Clipped regions go beyond extent of the raster. Caveat emptor.')
+
+    def average(self, raster=None):
+        clipper = self.clip(raster)
 
         averages = []
 
