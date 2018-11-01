@@ -11,7 +11,7 @@
 :UniformInitialConditions SOIL[0] {SOIL_0} # x(20)/2
 :UniformInitialConditions SOIL[1] {SOIL_1} # x(21)/2
 
-:HRUStateVariableTable (formerly :IntialConditionsTable)
+:HRUStateVariableTable (formerly :InitialConditionsTable)
    :Attributes SOIL[0] SOIL[1]
    :Units mm mm
    1 {SOIL_0} {SOIL_1}

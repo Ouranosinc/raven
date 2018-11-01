@@ -13,6 +13,8 @@ TESTDATA = {'gr4j-cemaneige':
                  'evap': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'evap.nc'))},
             'raven-gr4j-cemaneige': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'raven-gr4j-cemaneige', 'Salmon-River-Near-Prince-George_meteo_daily.nc'))
             }
+TESTDATA['raven-hmets'] = TESTDATA['raven-gr4j-cemaneige']
+
 
 
 class WpsTestClient(WpsClient):
