@@ -5,7 +5,7 @@ import xarray as xr
 import csv
 
 # Model executable
-raven_exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven_rev.exe'))
+raven_exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven'))
 
 # Dictionary of potential variable names, keyed by CF standard name.
 # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
