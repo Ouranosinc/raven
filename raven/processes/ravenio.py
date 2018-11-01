@@ -108,6 +108,7 @@ def assign_files(fns, variables):
                 if alt_name in ds.data_vars:
                     out[var] = fn
                     out[var + '_var'] = alt_name
+                    break
 
     for var in variables:
         if var not in out.keys():
