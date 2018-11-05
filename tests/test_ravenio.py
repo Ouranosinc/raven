@@ -17,7 +17,7 @@ class TestStartDate:
         assert end == dt.datetime(2002, 7, 1)
 
     def test_raven_gr4j_cemaneige(self):
-        start, end = ravenio.start_end_date([TESTDATA['raven-gr4j-cemaneige'],])
+        start, end = ravenio.start_end_date([TESTDATA['raven-gr4j-cemaneige-nc-ts'],])
         assert start == dt.datetime(1954, 1, 1)
         assert end == dt.datetime(2010, 12, 31)
 
