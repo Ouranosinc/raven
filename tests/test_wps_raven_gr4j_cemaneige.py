@@ -23,7 +23,7 @@ class TestRavenGR4JCemaNeigeProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(fn=TESTDATA['raven-gr4j-cemaneige'],
+            .format(fn=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
                     params='0.696, 0.7, 19.7, 2.09, 123.3, 0.75',
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
