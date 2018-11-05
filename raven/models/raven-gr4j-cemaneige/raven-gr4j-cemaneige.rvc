@@ -1,0 +1,10 @@
+#########################################################################                                  
+:FileType          rvc ASCII Raven 2.8.2                                                                              
+:WrittenBy         Juliane Mai & James Craig                                                                             
+:CreationDate      Sep 2018
+#
+# Emulation of GR4J simulation of Salmon River near Prince George                                                             
+#------------------------------------------------------------------------                                 
+#         
+:UniformInitialConditions SOIL[0] {SOIL_0}
+:UniformInitialConditions SOIL[1] {SOIL_1}
