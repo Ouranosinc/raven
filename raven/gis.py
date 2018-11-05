@@ -4,12 +4,17 @@ import logging
 import numpy as np
 import os
 
+
 logging.captureWarnings(True)
 gdal.UseExceptions()
 
 
 # TODO: Integrate some of the functionality from rasterio and/or shapely and/or fiona
 class RavenGIS(object):
+    """
+    Base object for GIS analyses. Contains static methods that are used to perform data extractions of raster
+    and vector data objects as well as performs comparison analyses between them.
+    """
 
     def __init__(self):
         self._shape = None
@@ -21,7 +26,16 @@ class RavenGIS(object):
         return self._epsg
 
     @staticmethod
-    def clipper(bbox, transform):
+    def raster_bbox_corners(raster):
+        """Returns the lat,lon boundaries for union of all features"""
+        upper_left_x, x_res, x_skew, upper_left_y, y_skew, y_res = raster.GetGeoTransform()
+        lower_right_x = upper_left_x + (raster.RasterXSize * x_res)
+        lower_right_y = upper_left_y + (raster.RasterYSize * y_res)
+        return upper_left_x, upper_left_y, lower_right_x, lower_right_y
+
+    @staticmethod
+    def shape_bbox_corners(bbox, transform):
+        """Extracts the corner coordinates from a Geometry Reference"""
         xo = int(round((bbox[0] - transform[0]) / transform[1]))
         yo = int(round((transform[3] - bbox[3]) / transform[1]))
         xd = int(round((bbox[1] - bbox[0]) / transform[1]))
@@ -29,11 +43,14 @@ class RavenGIS(object):
         return xo, yo, xd, yd
 
     @staticmethod
-    def get_crs(shape=None, raster=None):
+    def extract_crs(shape=None, raster=None):
         """Boilerplate for quickly parsing the CRS of given shape/raster layer."""
         if shape and raster is None:
-
-            ogr_shape = ogr.Open(shape)
+            try:
+                ogr_shape = ogr.Open(shape)
+                assert ogr_shape is not None
+            except AssertionError:
+                raise Exception('Not a valid shape!')
             layer = ogr_shape.GetLayer()
             spa_ref = layer.GetSpatialRef()
 
@@ -41,9 +58,11 @@ class RavenGIS(object):
             srs.ImportFromWkt(spa_ref.ExportToWkt())
 
         elif raster and shape is None:
-
-            gdal_raster = gdal.Open(raster, gdal.GA_ReadOnly)
-
+            try:
+                gdal_raster = gdal.Open(raster, gdal.GA_ReadOnly)
+                assert gdal_raster is not None
+            except AssertionError:
+                raise Exception('Not a valid raster!')
             srs = osr.SpatialReference()
             srs.ImportFromWkt(gdal_raster.GetProjection())
 
@@ -60,21 +79,35 @@ class RavenGIS(object):
         return srs.ExportToPrettyWkt(), epsg
 
     @staticmethod
-    def get_raster(raster):
-        """Call to CRS checker for entered DEMs"""
+    def open_raster(raster):
+        """Tries to open a raster with GDAL"""
         if raster is None:
             raise Exception('No raster specified.')
         if isinstance(raster, str):
             if raster.endswith('.tif') or raster.endswith('.tiff'):
                 gdal.GetDriverByName('GTiff')
         try:
-            return gdal.Open(raster)
+            return gdal.Open(raster, gdal.GA_ReadOnly)
         except Exception as e:
             msg = "Failed to open DEM/raster image: {}".format(e)
             raise Exception(msg)
 
     @staticmethod
-    def get_shape(shape):
+    def box(corners):
+        """Creates a boundary box based on the extent of a raster"""
+        ulx, uly, lrx, lry = corners
+        ring = ogr.Geometry(ogr.wkbLinearRing)
+        ring.AddPoint(ulx, lry)
+        ring.AddPoint(ulx, uly)
+        ring.AddPoint(lrx, uly)
+        ring.AddPoint(lrx, lry)
+        ring.AddPoint(ulx, lry)
+        box = ogr.Geometry(ogr.wkbPolygon)
+        box.AddGeometry(ring)
+        return box
+
+    @staticmethod
+    def open_shape(shape):
         if shape is None:
             raise Exception('No shape specified.')
         try:
@@ -130,11 +163,14 @@ class RavenRaster(RavenGIS):
     """
 
     def __init__(self, raster):
-        super(RavenRaster, self).__init__()
+        if isinstance(raster, str):
+            super(RavenRaster, self).__init__()
 
-        self._raster = self.get_raster(raster)
-        self._filename = os.path.basename(raster)
-        self._pretty_crs, self._epsg = self.get_crs(raster=raster)
+            self._raster = self.open_raster(raster)
+            self._filename = os.path.basename(raster)
+            self._pretty_crs, self._epsg = self.extract_crs(raster=raster)
+        else:
+            raise Exception('File cannot be read!')
 
     def __repr__(self):
         return 'RavenGIS({!r}, {!r})'.format(self.__class__.__name__, self._filename)
@@ -152,23 +188,12 @@ class RavenRaster(RavenGIS):
         msg = 'Raster stats: {}'.format(self._filename)
         print(msg)
         print('~' * len(msg))
-        print('Layer boundary box: {}'.format(self._get_raster_extent()))
+        print('Layer boundary box: {}'.format(self.raster_bbox_corners(self._raster)))
         print('Geographic Transformation:{}'.format(transform), '\n',
               'Min value:{}'.format(array.min()), '\n',
               'Mean value:{}'.format(int(array.mean())), '\n',
               'Max value:{}'.format(array.max()))
         print('CRS:\n\t{}'.format(self._pretty_crs))
-
-    def _get_raster_extent(self):
-        """Returns the lat,lon boundaries for union of all features in layer"""
-        raster = self._raster
-
-        upper_left_x, x_res, x_skew, upper_left_y, y_skew, y_res = raster.GetGeoTransform()
-
-        lower_right_x = upper_left_x + (raster.RasterXSize * x_res)
-        lower_right_y = upper_left_y + (raster.RasterYSize * y_res)
-
-        return [upper_left_x, upper_left_y, lower_right_x, lower_right_y]
 
     def check_crs(self, shape=None, crs=None):
         """
@@ -178,9 +203,13 @@ class RavenRaster(RavenGIS):
         """
         shape_crs = None
         if shape:
-            shape_crs = self.get_crs(shape=shape)[1]
+            shape_crs = self.extract_crs(shape=shape)[1]
 
         return self._check_crs(shape=shape_crs, raster=self._epsg, crs=crs)
+
+    def _get_raster_counts(self):
+        """A method for returning the cell values and frequencies of the RavenRaster"""
+        raise NotImplementedError
 
 
 class RavenShape(RavenGIS):
@@ -193,13 +222,17 @@ class RavenShape(RavenGIS):
 
     # Examples via https://gis.stackexchange.com/a/195208/65343
     # Examples via https://stackoverflow.com/a/50039984/7322852
+    # Examples via https://gis.stackexchange.com/a/126472/65343
 
     def __init__(self, shape):
-        super(RavenShape, self).__init__()
+        if isinstance(shape, str):
+            super(RavenShape, self).__init__()
 
-        self._shape = self.get_shape(shape)
-        self._filename = os.path.basename(shape)
-        self._pretty_crs, self._epsg = self.get_crs(shape=shape)
+            self._shape = self.open_shape(shape)
+            self._filename = os.path.basename(shape)
+            self._pretty_crs, self._epsg = self.extract_crs(shape=shape)
+        else:
+            raise Exception('File cannot be read!')
 
     def __repr__(self):
         return 'RavenGIS({!r}, {!r})'.format(self.__class__.__name__, self._filename)
@@ -249,15 +282,23 @@ class RavenShape(RavenGIS):
     def _get_feature_bounds(self):
         raise NotImplementedError
 
+    def _get_layer_area(self):
+        raise NotImplementedError
 
-    def feature_centroids(self):
+    def _get_feature_area(self):
+        raise NotImplementedError
+
+    def centroids(self):
         """Returns the centroids respecting all features of the shape layer."""
         layer = self._shape.GetLayer()
-        centroids = []
-        for feature in layer:
+
+        for i, feature in enumerate(layer):
             geom = feature.GetGeometryRef()
-            centroids.append(geom.Centroid().ExportToWkt())
-        return centroids
+            yield i, geom.Centroid().ExportToWkt()
+
+        layer.ResetReading()
+
+        return
 
     def check_crs(self, raster=None, crs=None):
         """
@@ -267,47 +308,50 @@ class RavenShape(RavenGIS):
         """
         raster_crs = None
         if raster:
-            raster_crs = self.get_crs(raster=raster)[1]
+            raster_crs = self.extract_crs(raster=raster)[1]
 
         return self._check_crs(shape=self._epsg, raster=raster_crs, crs=crs)
 
-    def clip(self, raster=None):
+    def clip(self, raster):
 
-        raster = self.get_raster(raster)
+        raster = self.open_raster(raster)
         transform = raster.GetGeoTransform()
         band = raster.GetRasterBand(1)
 
-        bounds = self._shape
-        layer = bounds.GetLayer()
+        # Create a shape to verify the spatial relationship between raster and shape
+        raster_corners = self.raster_bbox_corners(raster)
+        raster_bounds = self.box(raster_corners)
 
-        if layer is not None:
-            for feat in layer:
-                bbox = feat.GetGeometryRef().GetEnvelope()
+        shp = self._shape
+        layer = shp.GetLayer()
 
-                xo, yo, xd, yd = self.clipper(bbox, transform)
+        for i, feat in enumerate(layer):
+            shape_geo = feat.GetGeometryRef()
+            bbox = shape_geo.GetEnvelope()
 
-                arr = band.ReadAsArray(xo, yo, xd, yd)
+            xo, yo, xd, yd = self.shape_bbox_corners(bbox, transform)
+            arr = np.array([band.ReadAsArray(xo, yo, xd, yd)])
 
-                yield arr
+            if not raster_bounds.Intersects(shape_geo):
+                msg = 'Clipped regions for feat {} do not intersect raster.'.format(i)
+                warn(msg)
+                continue
+            elif not raster_bounds.Contains(shape_geo):
+                msg = 'Clipped regions for feat {} are not contained by raster.'.format(i)
+                warn(msg)
+                continue
 
-            layer.ResetReading()
+            yield i, arr
 
+        layer.ResetReading()
         return
 
-    # TODO: implement a warning when an average is calculated from areas that include NaNs!
-    # This doesn't work with gdal-derived numpy arrays but something similar to the following lines:
-    #
-    # if np.isnan(np.asarray(parcel)).any():
-    #     warn('Clipped regions go beyond extent of the raster. Caveat emptor.')
-
-    def average(self, raster=None):
+    def average(self, raster):
         clipper = self.clip(raster)
 
-        averages = []
-
         # Create a dictionary with FIDs for clipped parcels
-        for parcel in clipper:
+        for i, parcel in clipper:
             if isinstance(parcel, np.ndarray):
-                averages.append(np.mean(parcel))
+                yield i, np.mean(parcel)
 
-        return averages
+        return
