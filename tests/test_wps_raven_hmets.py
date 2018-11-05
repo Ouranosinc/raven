@@ -23,7 +23,7 @@ class TestRavenHMETSProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(fn=TESTDATA['raven-hmets'],
+            .format(fn=TESTDATA['raven-hmets-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     init='155,455',
