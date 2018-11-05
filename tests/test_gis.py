@@ -28,23 +28,21 @@ class TestGISClasses:
         assert rvn.check_crs(shape=shape)
 
 
-# print(shapes)
-# print(dems)
+# if __name__ == "__main__":
+#     here = os.getcwd()
 #
-# rvn = RavenShape(shapes)
-
-# clip_gen = rvn.clip(dems)
+#     dem = os.path.join(here, '../tests/testdata/earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')
+#     shape = os.path.join(here, '../tests/testdata/donneesqc_mrc_poly/donnees_quebec_mrc_polygones.gml')
 #
-# for clip in clip_gen:
-#     print(type(clip))
-#     print(clip)
+#     rvn = RavenShape(shape)
 #
-# averaged_parcels = rvn.average(dems)
+#     print(rvn)
 #
-# for region in averaged_parcels:
-#     print(region)
+#     for centroid in rvn.centroids():
+#         print(centroid)
 #
+#     for clip in rvn.clip(dem):
+#         print(clip)
 #
-# rvn = RavenShape(shapes)
-# print(rvn.feature_centroids())
-# print('\n')
+#     for region in rvn.average(raster=dem):
+#         print(region)
