@@ -27,7 +27,7 @@ class RavenProcess(Process):
                                'potential evapotranspiration (evspsbl) and '
                                'observed streamflow (qobs [m3/s]).',
                       min_occurs=1,
-                      supported_formats=[FORMATS.NETCDF])
+                      supported_formats=[FORMATS.NETCDF, FORMATS.TEXT])
 
     conf = ComplexInput('conf', 'Raven configuration files',
                         abstract="Raven rv files",
@@ -105,15 +105,12 @@ class RavenProcess(Process):
             name, ext = os.path.splitext(os.path.split(f)[-1])
             config[ext[1:]] = f
 
-        #for key in ['rvi', 'rvp', 'rvc', 'rvh', 'rvt']:
-        #    config[key] = request.inputs[key][0].file
-
         cmd = os.path.join(self.workdir, 'raven')
         os.symlink(ravenio.raven_exec, cmd)
 
         # Run the simulation
         subprocess.call([cmd, os.path.join(self.workdir, name), '-o', os.path.join(self.workdir, 'output')])
-
+        cmdline = " ".join([cmd, os.path.join(self.workdir, name), '-o', os.path.join(self.workdir, 'output')])
         # Get the output files.
         outs = self._match_outputs(response.outputs.keys())
         for key, val in outs.items():

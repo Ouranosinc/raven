@@ -26,8 +26,8 @@ TESTDATA['raven-gr4j-cemaneige-nc-rv'] = \
                               'raven-gr4j-salmon.rv?'))
 
 TESTDATA['raven-hmets-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-TESTDATA['raven-hmets-rv'] = '{0}'.format(os.path.join('raven-hmets', 'raven-hmets-salmon.rv?'))
-TESTDATA['raven-hmets-ts'] = '{0}'.format(os.path.join('raven-hmets', 'Salmon-River-Near-Prince-George_*.rvt'))
+TESTDATA['raven-hmets-rv'] = '{0}'.format(os.path.join(TD, 'raven-hmets', 'raven-hmets-salmon.rv?'))
+TESTDATA['raven-hmets-ts'] = '{0}'.format(os.path.join(TD, 'raven-hmets', 'Salmon-River-Near-Prince-George_*.rvt'))
 
 class WpsTestClient(WpsClient):
 
