@@ -9,3 +9,4 @@ pyproj
 netCDF4
 dask
 scipy
+rasterio
