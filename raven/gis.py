@@ -3,7 +3,7 @@ from warnings import warn
 import logging
 import numpy as np
 import os
-
+import rasterio as rio
 
 logging.captureWarnings(True)
 gdal.UseExceptions()
@@ -79,18 +79,29 @@ class RavenGIS(object):
         return srs.ExportToPrettyWkt(), epsg
 
     @staticmethod
-    def open_raster(raster):
+    def open_raster(raster, copy=None):
         """Tries to open a raster with GDAL"""
         if raster is None:
             raise Exception('No raster specified.')
+
         if isinstance(raster, str):
-            if raster.endswith('.tif') or raster.endswith('.tiff'):
-                gdal.GetDriverByName('GTiff')
-        try:
-            return gdal.Open(raster, gdal.GA_ReadOnly)
-        except Exception as e:
-            msg = "Failed to open DEM/raster image: {}".format(e)
-            raise Exception(msg)
+            if isinstance(copy, str):
+                if raster.endswith('.tif') or raster.endswith('.tiff'):
+                    try:
+                        driver = gdal.GetDriverByName('GTiff')
+                        inmemory_raster = driver.CreateCopy(copy, raster, strict=0,
+                                                            options=["TILED=YES", "COMPRESS=PACKBITS"])
+                        return inmemory_raster
+                    except Exception as e:
+                        msg = "Failed to copy DEM/raster image: {}".format(e)
+                        raise Exception(msg)
+            try:
+                source_raster = gdal.Open(raster, gdal.GA_ReadOnly)
+                return source_raster
+
+            except Exception as e:
+                msg = "Failed to open DEM/raster image: {}".format(e)
+                raise Exception(msg)
 
     @staticmethod
     def box(corners):
@@ -134,7 +145,7 @@ class RavenGIS(object):
                 else:
                     return False
 
-            elif (shape and raster and crs is None) or (shape and crs and raster is None)\
+            elif (shape and raster and crs is None) or (shape and crs and raster is None) \
                     or (raster and crs and shape is None):
 
                 if shape == raster:
