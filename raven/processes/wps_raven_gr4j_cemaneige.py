@@ -1,5 +1,3 @@
-import datetime as dt
-import os
 from .wps_raven import RavenProcess
 from pywps import LiteralInput
 from raven.models import GR4JCemaneige
@@ -17,15 +15,15 @@ Notes
 
 The configuration files for RAVEN's GR4J-Cemaneige model and in models/raven-gr4j-cemaneige.
 All parameters that could potentially be user-defined are tagged using {}. These tags need to be replaced by
-actual values before the model is launched. 
+actual values before the model is launched.
 """
 
 param_defaults = Odict([('SOIL_PROD', 0.696),
-                   ('GR4J_X2', 0.7),
-                   ('GR4J_X3', 19.7),
-                   ('GR4J_X4', 2.09),
-                   ('AvgAnnualSnow', 123.3),
-                   ('AirSnowCoeff', 0.75)])
+                        ('GR4J_X2', 0.7),
+                        ('GR4J_X3', 19.7),
+                        ('GR4J_X4', 2.09),
+                        ('AvgAnnualSnow', 123.3),
+                        ('AirSnowCoeff', 0.75)])
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
@@ -38,6 +36,7 @@ init = LiteralInput('init', 'Initial soil conditions',
                     data_type='string',
                     default='0, 0',
                     min_occurs=0)
+
 
 class RavenGR4JCemaNeigeProcess(RavenProcess):
     """
@@ -58,4 +57,3 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
-

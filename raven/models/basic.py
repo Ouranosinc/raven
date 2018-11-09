@@ -40,12 +40,12 @@ class Raven:
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
     # PET is the potential evapotranspiration, while evspsbl is the actual evap.
     _variable_names = {'tasmin': ['tasmin', 'tmin'],
-                      'tasmax': ['tasmax', 'tmax'],
-                      'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
-                      'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
-                      'evspsbl': ['pet', 'evap', 'evapotranspiration'],
-                      'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
-                      }
+                       'tasmax': ['tasmax', 'tmax'],
+                       'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
+                       'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
+                       'evspsbl': ['pet', 'evap', 'evapotranspiration'],
+                       'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
+                       }
 
     def __init__(self, workdir):
         self.workdir = Path(workdir)
@@ -338,7 +338,6 @@ class Raven:
         return (fn.stem, fn.suffix[1:])
 
 
-
 class GR4JCemaneige(Raven):
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
@@ -347,7 +346,7 @@ class GR4JCemaneige(Raven):
     rvc = RVC(SOIL_0=None, SOIL_1=None)
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-                water_volume_transport_in_river_channel=None)
+             water_volume_transport_in_river_channel=None)
 
 
 class HMETS(GR4JCemaneige):
