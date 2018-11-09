@@ -9,9 +9,9 @@
 #
 
 :RunName               {run_name}
-:StartDate             {Start_Date}
-:Duration              {Duration}
-:TimeStep              {TimeStep}
+:StartDate             {start_date}
+:Duration              {duration}
+:TimeStep              {time_step}
 :Method                ORDERED_SERIES 
 
 :PotentialMeltMethod     POTMELT_HMETS
@@ -46,7 +46,7 @@
 #
 # manual testing settings
 :WriteForcingFunctions
-:EvaluationMetrics {EvaluationMetrics}
+:EvaluationMetrics {evaluation_metrics}
 :WriteNetcdfFormat  yes
 #:NoisyMode
 :SilentMode

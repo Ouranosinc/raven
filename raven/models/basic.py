@@ -16,14 +16,19 @@ from collections import OrderedDict
 import os
 import subprocess
 import csv
-import six
 import datetime as dt
+import six
+import xarray as xr
+from .rv import RV, RVI, RVP, RVC
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
+
 class Raven:
     """Generic class for the Raven model."""
-    name = 'generic-raven'
+    identifier = 'generic-raven'
+    templates = ()
+    rvi = rvp = rvc = rvh = rvt = RV()
 
     # Output files default names. The actual output file names will be composed of the run_name and the default name.
     _output_fn = {'hydrograph': 'Hydrographs.nc',
@@ -31,58 +36,108 @@ class Raven:
                   'solution': 'solution.rvc',
                   'diagnostics': 'Diagnostics.csv'}
 
+    # Dictionary of potential variable names, keyed by CF standard name.
+    # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
+    # PET is the potential evapotranspiration, while evspsbl is the actual evap.
+    _variable_names = {'tasmin': ['tasmin', 'tmin'],
+                      'tasmax': ['tasmax', 'tmax'],
+                      'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
+                      'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
+                      'evspsbl': ['pet', 'evap', 'evapotranspiration'],
+                      'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
+                      }
+
     def __init__(self, workdir):
         self.workdir = Path(workdir)
         self.outputs = {}
+        self._name = None
 
         self._defaults = {}
         self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
 
-        # Configuration files dictionary (can also be template)
-        self._configuration = dict.fromkeys(self._rvext, '')
+        # The configuration file content is stored in conf.
+        self._conf = dict.fromkeys(self._rvext, "")
 
-        # Model parameters
-        self.parameters = dict.fromkeys(self._rvext, OrderedDict())
+        # Model parameters - dictionary representation of rv attributes.
+        self._parameters = dict.fromkeys(self._rvext, OrderedDict())
+
+        if self.templates:
+            self.configure(self.templates)
+
+    @property
+    def cmd(self):
+        return self.model_path / 'raven'
 
     @property
     def model_path(self):
         return self.workdir / 'model'
 
     @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, x):
+        if self._name is None:
+            self._name = x
+        elif x != self._name:
+            raise UserWarning("Model configuration name changed.")
+
+    @property
     def output_path(self):
         return self.workdir / 'output'
 
     @property
-    def cmd(self):
-        return self.model_path / 'raven'
-
-    def configure(self, **kwds):
-        for key, fn in kwds.items():
-            if key not in self._rvext:
-                raise ValueError('rv contains unrecognized configuration file keys.')
-
-            self._configuration[key] = Path(fn)
-            setattr(self, key, open(fn).read())
-
-        self.name = fn.stem
+    def parameters(self):
+        return {ext: OrderedDict(getattr(self, ext).items()) for ext in self._rvext}
 
     @property
-    def configuration(self):
-        """Return rv file paths."""
-        return self._configuration
+    def rv(self):
+        """Return a dictionary of the configuration files."""
+        return {ext: self._conf[ext] for ext in self._rvext}
 
-    def _dump_rv(self):
+    @property
+    def rvobjs(self):
+        """Return a generator for (ext, rv object)."""
+        return {ext: getattr(self, ext) for ext in self._rvext}
+
+    def configure(self, fns):
+        for fn in fns:
+            name, ext = self.split_ext(fn)
+            self.name = name
+
+            if ext not in self._rvext:
+                raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
+
+            self._conf[ext] = open(fn).read()
+
+    def assign(self, key, value):
+        """Assign parameter to rv object that has a key with the same name."""
+        for ext, obj in self.rvobjs.items():
+            try:
+                obj[key] = value
+            except AttributeError:
+                pass
+
+    def _dump_rv(self, ts):
         """Write configuration files to disk."""
-        for key, val in self.configuration.items():
-            fn = self.model_path / val.name
+        for ext, txt in self.rv.items():
+            fn = self.model_path / (self.name + '.' + ext)
 
             with open(fn, 'w') as f:
-                txt = getattr(self, key)
 
                 # Write parameters into template. Don't write by default as some configuration files might have
                 # meaningless {}.
-                if self.parameters[key]:
-                    txt = txt.format(**self.parameters[key])
+                if self.parameters[ext]:
+                    params = self.parameters[ext]
+
+                    # Include the variable names to the parameters
+                    if ext == 'rvt':
+                        files, var_names = self._assign_files(ts, self.rvt.keys())
+                        params.update(files)
+                        params.update(var_names)
+
+                    txt = txt.format(**params)
 
                 f.write(txt)
 
@@ -97,13 +152,12 @@ class Raven:
 
         """
 
-
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
         os.makedirs(self.model_path, exist_ok=overwrite)
 
         # Write configuration files in model directory
-        self._dump_rv()
+        self._dump_rv(ts)
 
         # Create symbolic link to input files
         for fn in ts:
@@ -134,10 +188,18 @@ class Raven:
         >>> r.configure(rvi=<path to template>, rvp=...}
         >>> r.run(rvp={'param1': val1, ...}, rcv={...})
         """
+        # Update parameter objects
         for key, val in kwds.items():
-            self.parameters[key].update(val)
+            obj = getattr(self, key)
+            if isinstance(val, dict):
+                obj.update(val)
+            else:
+                obj.values = val
 
-        self.setup_model(ts, overwrite)
+        if self.rvi:
+            self.handle_date_defaults(ts)
+
+        self.setup_model(map(Path, ts), overwrite)
 
         # Run the model
         subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
@@ -148,6 +210,43 @@ class Raven:
 
     __call__ = run
 
+    def _assign_files(self, fns, variables):
+        """Find for each variable the file storing it's data and the name of the netCDF variable.
+
+        Parameters
+        ----------
+        fns : sequence
+          Paths to netCDF files.
+        variables : sequence
+          Names of the variables to look for. Specify their CF standard name, a dictionary of
+          alternative names will be used for the lookup.
+
+        Returns
+        -------
+        files : dict
+          A dictionary keyed by variable storing the file storing each variable.
+        variables : dict
+          A dictionary keyed by variable_var storing the variable name within the netCDF file.
+        """
+        files = {}
+        var_names = {}
+
+        for fn in fns:
+            if '.nc' in fn.suffix:
+                with xr.open_dataset(fn) as ds:
+                    for var in variables:
+                        for alt_name in self._variable_names[var]:
+                            if alt_name in ds.data_vars:
+                                files[var] = fn
+                                var_names[var + '_var'] = alt_name
+                                break
+
+        for var in variables:
+            if var not in files.keys():
+                raise ValueError("{} not found in files.".format(var))
+
+        return files, var_names
+
     def _get_output(self, key):
         """Match actual output files to known expected files.
 
@@ -155,12 +254,46 @@ class Raven:
         """
         fn = self._output_fn[key]
         files = list(self.output_path.glob('*' + fn))
+
         if len(files) == 0:
-            raise IOError("No output files for {}".format(fn))
+            raise UserWarning("No output files for {}".format(fn))
+
         if len(files) > 1:
             raise IOError("Multiple matching files found for {}.".format(fn))
 
         return files[0].absolute()
+
+    @staticmethod
+    def start_end_date(fns):
+        """Return the common starting and ending date and time of netCDF files.
+
+        Parameters
+        ----------
+        fns : sequence
+          Sequence of netCDF file names for forcing data.
+
+        Returns
+        -------
+        start : datetime
+          The first datetime of the forcing files.
+        end : datetime
+          The last datetime of the forcing files.
+        """
+        ds = xr.open_mfdataset(fns)
+        return ds.indexes['time'][0], ds.indexes['time'][-1]
+
+    def handle_date_defaults(self, ts):
+
+        # Get start and end date from file
+        start, end = self.start_end_date(ts)
+
+        rvi = self.rvi
+        if rvi.start_date == dt.datetime(1, 1, 1):
+            rvi.start_date = start
+
+        else:
+            if rvi.end_date == dt.datetime(1, 1, 1):
+                rvi.end_date = end
 
     @property
     def hydrograph(self):
@@ -183,78 +316,45 @@ class Raven:
             out.pop('')
             return out
 
-
-class RVI:
-
-    def __init__(self, **kwds):
-        for key, val in kwds:
-            if val is not None:
-                setattr(self, key, val)
-            else:
-                setattr(self, '_'+key, None)
-
     @property
-    def run_name(self):
-        return self._run_name
+    def tags(self):
+        """Return a list of tags within the templates."""
+        import re
+        pattern = re.compile("{(\w+)}")
 
-    @run_name.setter
-    def run_name(self, x):
-        if isinstance(x, six.string_types):
-            self._run_name = x
-        else:
-            raise ValueError("Must be string")
+        out = {}
+        if self.templates:
+            for key, conf in self.rv.items():
+                out[key] = pattern.findall(conf)
 
-    @property
-    def start_date(self):
-        return self._start_date
+        return out
 
-    @start_date.setter
-    def start_date(self, x):
-        if isinstance(x, dt.datetime):
-            self._start_date = x
-            self._update_duration()
-        else:
-            raise ValueError("Must be datetime")
+    @staticmethod
+    def split_ext(fn):
+        """Return the name and rv key of the configuration file."""
+        if isinstance(fn, six.string_types):
+            fn = Path(fn)
 
-    @property
-    def end_date(self):
-        return self._end_date
-
-    @end_date.setter
-    def end_date(self, x):
-        if isinstance(x, dt.datetime):
-            self._end_date = x
-            self._update_duration()
-        else:
-            raise ValueError("Must be datetime")
-
-    @property
-    def duration(self):
-        if isinstance(int):
-            return self._duration
-        else:
-            raise ValueError("Must be int")
-
-    @duration.setter
-    def duration(self, x):
-        self._duration = x
-        self._update_end_date()
-
-    @property
-    def time_step(self):
-        return self._time_step
-
-    @time_step.setter
-    def time_step(self, x):
-        self._time_step = x
-
-    def _update_duration(self):
-        if self.end_date is not None and self.start_date is not None:
-            self.duration = (self.end_date - self.start_date).days
-
-    def _update_end_date(self):
-        if self.start_date is not None and self.duration is not None:
-            self.end_date = self.start_date + dt.timedelta(days=1)
+        return (fn.stem, fn.suffix[1:])
 
 
 
+class GR4JCemaneige(Raven):
+    templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
+
+    rvi = RVI()
+    rvp = RVP(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, AvgAnnualSnow=None, AirSnowCoeff=None)
+    rvc = RVC(SOIL_0=None, SOIL_1=None)
+    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+                water_volume_transport_in_river_channel=None)
+
+
+class HMETS(GR4JCemaneige):
+    templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
+
+    rvp = RVP(GAMMA_SHAPE=None, GAMMA_SCALE=None, GAMMA_SHAPE2=None, GAMMA_SCALE2=None, MIN_MELT_FACTOR=None,
+              MAX_MELT_FACTOR=None, DD_MELT_TEMP=None, DD_AGGRADATION=None, SNOW_SWI_MIN=None, SNOW_SWI_MAX=None,
+              SWI_REDUCT_COEFF=None, DD_REFREEZE_TEMP=None, REFREEZE_FACTOR=None, REFREEZE_EXP=None,
+              PET_CORRECTION=None, HMETS_RUNOFF_COEFF=None, PERC_COEFF=None, BASEFLOW_COEFF_1=None,
+              BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, SNOW_SWI=0.5)

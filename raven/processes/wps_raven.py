@@ -17,8 +17,10 @@ class RavenProcess(Process):
             "the `rvt` file, only provide the name of the forcing file, not an absolute or relative path."
     version = '0.1'
 
+    param_arrays = []
     inputs = [wio.ts, wio.conf]
     outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics]
+    model_cls = Raven
 
     def __init__(self):
 
@@ -37,8 +39,31 @@ class RavenProcess(Process):
     def _handler(self, request, response):
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
-        model = Raven(self.workdir)
+        model = self.model_cls(self.workdir)
 
+        # Model configuration
+        if 'conf' in request.inputs:
+            config = self.get_config(request)
+            model.configure(config.values())
+
+        # Parse all other input parameters
+        for name, obj in request.inputs.items():
+            if name in self.param_arrays:
+                data = map(float, obj[0].data.split(','))
+            else:
+                data = obj[0].data
+            model.assign(name, data)
+
+        # Launch model with input files
+        ts = [f.file for f in request.inputs['ts']]
+        model.run(ts=ts)
+
+        for key, val in model.outputs.items():
+            response.outputs[key].file = val
+
+        return response
+
+    def get_config(self, request):
         # Read configuration files
         config = defaultdict(dict)
         for obj in request.inputs['conf']:
@@ -48,14 +73,7 @@ class RavenProcess(Process):
         if len(config.keys()) > 1:
             raise NotImplementedError("Multi-model simulations are not yet supported.")
 
-        model.configure(**config[fn.stem])
-        ts = [f.file for f in request.inputs['ts']]
-        model.run(ts=ts)
-
-        for key, val in model.outputs.items():
-            response.outputs[key].file = val
-
-        return response
+        return config[fn.stem]
 
     def _match_outputs(self, expected):
         """Match actual output files to known expected files.
