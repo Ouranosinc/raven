@@ -97,4 +97,3 @@ class RavenProcess(Process):
                 raise ValueError("No file named {} was found in output directory.".format(fn))
 
         return out
-
