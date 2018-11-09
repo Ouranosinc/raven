@@ -1,5 +1,5 @@
-
 from collections import OrderedDict
+
 
 # TODO: Implement section parser
 def parse_configuration(fn):
@@ -33,5 +33,3 @@ def parse_configuration(fn):
                     out[key] = True
 
     return out
-
-
