@@ -33,9 +33,9 @@ class Raven:
 
     def __init__(self, workdir):
         self.workdir = Path(workdir)
+        self.outputs = {}
 
         self._defaults = {}
-        self._outputs = {}
         self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
 
         # Configuration files dictionary (can also be template)
@@ -75,10 +75,18 @@ class Raven:
         """Write configuration files to disk."""
         for key, val in self.configuration.items():
             fn = self.model_path / val.name
-            with open(fn, 'w') as f:
-                f.write(getattr(self, key).format(**self.parameters[key]))
 
-    def setup_model(self, fns, overwrite=False):
+            with open(fn, 'w') as f:
+                txt = getattr(self, key)
+
+                # Write parameters into template. Don't write by default as some configuration files might have
+                # meaningless {}.
+                if self.parameters[key]:
+                    txt = txt.format(**self.parameters[key])
+
+                f.write(txt)
+
+    def setup_model(self, ts, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
 
         Model configuration files and time series inputs are stored directly in the working directory.
@@ -98,18 +106,18 @@ class Raven:
         self._dump_rv()
 
         # Create symbolic link to input files
-        for fn in fns:
-            os.symlink(fn, self.model_path / fn.name)
+        for fn in ts:
+            os.symlink(fn, self.model_path / Path(fn).name)
 
         # Create symbolic link to executable
         os.symlink(raven_exec, self.cmd)
 
-    def run(self, fns, overwrite=False, **kwds):
+    def run(self, ts, overwrite=False, **kwds):
         """Run the model.
 
         Parameters
         ----------
-        fns : sequence
+        ts : sequence
           Sequence of input file paths. Symbolic links to those files will be created in the model directory.
         overwrite : bool
           Whether or not to overwrite existing model and output files.
@@ -129,14 +137,14 @@ class Raven:
         for key, val in kwds.items():
             self.parameters[key].update(val)
 
-        self.setup_model(fns, overwrite)
+        self.setup_model(ts, overwrite)
 
         # Run the model
         subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
 
         # Store output file names in dict
         for key in self._output_fn.keys():
-            self._outputs[key] = self._get_output(key)
+            self.outputs[key] = self._get_output(key)
 
     __call__ = run
 
@@ -146,7 +154,7 @@ class Raven:
         Return a dictionary of file paths for each expected input.
         """
         fn = self._output_fn[key]
-        files = self.output_path.glob('*' + fn)
+        files = list(self.output_path.glob('*' + fn))
         if len(files) == 0:
             raise IOError("No output files for {}".format(fn))
         if len(files) > 1:
@@ -157,16 +165,16 @@ class Raven:
     @property
     def hydrograph(self):
         import xarray as xr
-        return xr.open_dataset(self._outputs['hydrograph'])
+        return xr.open_dataset(self.outputs['hydrograph'])
 
     @property
     def storage(self):
         import xarray as xr
-        return xr.open_dataset(self._outputs['storage'])
+        return xr.open_dataset(self.outputs['storage'])
 
     @property
     def diagnostics(self):
-        with open(self._outputs['diagnostics']) as f:
+        with open(self.outputs['diagnostics']) as f:
             reader = csv.reader(f.readlines())
             header = reader.next()
             content = reader.next()

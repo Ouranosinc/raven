@@ -22,9 +22,9 @@ TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-R
 TESTDATA['raven-gr4j-cemaneige-nc-rv'] = (TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?')
 
 TESTDATA['raven-hmets-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-TESTDATA['raven-hmets'] = '{0}'.format(os.path.join(TD, 'raven-hmets'))
-TESTDATA['raven-hmets-rv'] = '{0}'.format(os.path.join(TD, 'raven-hmets', 'raven-hmets-salmon.rv?'))
-TESTDATA['raven-hmets-ts'] = '{0}'.format(os.path.join(TD, 'raven-hmets', 'Salmon-River-Near-Prince-George_*.rvt'))
+TESTDATA['raven-hmets'] = TD / 'raven-hmets'
+TESTDATA['raven-hmets-rv'] = (TD / 'raven-hmets').glob('raven-hmets-salmon.rv?')
+TESTDATA['raven-hmets-ts'] = (TD / 'raven-hmets').glob('Salmon-River-Near-Prince-George_*.rvt')
 
 class WpsTestClient(WpsClient):
 
