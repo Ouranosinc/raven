@@ -3,6 +3,10 @@ import raven
 from raven.models import raven_templates
 import xarray as xr
 import csv
+from collections import OrderedDict
+import six
+import datetime as dt
+from pywps import LiteralInput, ComplexInput, LiteralOutput, ComplexOutput, FORMATS
 
 # Model executable
 raven_exec = os.path.abspath(os.path.join(os.path.dirname(raven.__file__), '..', 'bin', 'raven'))
@@ -17,6 +21,13 @@ variable_names = {'tasmin': ['tasmin', 'tmin'],
                   'evspsbl': ['pet', 'evap', 'evapotranspiration'],
                   'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                   }
+
+output_filenames = {'hydrograph': 'Hydrographs.nc',
+             'storage': 'WatershedStorage.nc',
+             'solution': 'solution.rvc',
+             'diagnostics': 'Diagnostics.csv'}
+
+
 
 
 def rv_format(fn, kwds):
@@ -45,11 +56,10 @@ def setup_model(name, outpath, params):
       The command line arguments to launch the model with the configuration files.
     """
     inpath = raven_templates[name]
-    model_path = os.path.join(outpath, 'model')
     output_path = os.path.join(outpath, 'output')
+    model_path = outpath
 
     # Create subdirectory
-    os.mkdir(model_path)
     os.mkdir(output_path)
 
     for ext, param in params.items():
@@ -134,3 +144,38 @@ def read_diagnostics(f):
     out = dict(zip(header, content))
     out.pop('')
     return out
+
+# TODO: Implement section parser
+def parse_configuration(fn):
+    """Parse Raven configuration file.
+
+    Returns a dictionary keyed by parameter name."""
+    import re
+
+    main_param = re.compile("^:(\w+)\s+([^#]*)")
+    sub_param = re.compile("^  :(\w+)\s+([^#]*)")
+    out = OrderedDict()
+    cat = None
+    with open(fn) as f:
+        for line in f.readlines():
+            match = main_param.search(line)
+            if not match:
+                continue
+
+            key, value = match.groups()
+            if value:
+                values = value.split()
+                out[key] = values[0] if len(values) == 1 else values
+            else:
+                if "List" in key:
+                    pass
+                elif "Classes" in key:
+                    pass
+                elif "Profiles" in key:
+                    pass
+                else:
+                    out[key] = True
+
+    return out
+
+

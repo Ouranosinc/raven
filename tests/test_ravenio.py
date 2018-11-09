@@ -1,7 +1,7 @@
 import pytest
 from raven.processes import ravenio
 from raven.models import raven_templates
-
+from pathlib import Path
 from .common import TESTDATA
 import datetime as dt
 import os
@@ -59,4 +59,12 @@ class TestReadDiagnostics:
 
 
 
+
+class TestParseConfiguration:
+    def test_simple(self):
+        p = Path(TESTDATA['raven-hmets'])
+        rvi = list(p.glob("*.rvi"))[0]
+
+        out = ravenio.parse_configuration(rvi)
+        assert out['Duration'] == '2081'
 
