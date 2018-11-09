@@ -13,7 +13,7 @@ class TestRavenHMETSProcess:
     def test_simple(self):
         client = client_for(Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE))
 
-        datainputs = "nc=files@xlink:href=file://{fn};" \
+        datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "init={init};" \
@@ -23,7 +23,7 @@ class TestRavenHMETSProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(fn=TESTDATA['raven-hmets-nc-ts'],
+            .format(ts=TESTDATA['raven-hmets-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     init='155,455',
