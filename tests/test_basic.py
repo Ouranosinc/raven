@@ -7,8 +7,8 @@ class TestRaven:
 
     def test_init(self):
         rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
-        fn = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 
         r = Raven(tempfile.mkdtemp())
         r.configure(**{f.suffix[1:]: f for f in rvs})
-        r.run([fn,], )
+        r.run([ts,], )

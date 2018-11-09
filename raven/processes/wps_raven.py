@@ -1,6 +1,7 @@
 import os
 from pywps import Process
 import subprocess
+from raven.models import Raven
 from . import ravenio
 from . import wpsio as wio
 import logging
@@ -33,46 +34,25 @@ class RavenProcess(Process):
             store_supported=True
         )
 
-    def _setup_dir(self, name):
-        """Create directory structure to store model input files, executable and output results.
-
-        Model configuration files and time series inputs are stored directly in the working directory.
-
-        workdir/  # Created by PyWPS. Is considered the model path.
-           output/
-
-        """
-        output_path = os.path.join(self.workdir, name, 'output')
-        model_path = os.path.join(self.workdir, name, 'model')
-
-        # Create subdirectory
-        os.mkdir(output_path)
-        os.mkdir(model_path)
-
     def _handler(self, request, response):
-        response.update_status('PyWPS process {self.identifier} started.'.format(self), 0)
+        response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
-        # Create output directory.
-        self._setup_dir()
+        model = Raven(self.workdir)
 
         # Read configuration files
         config = defaultdict(dict)
-        for input in request.inputs['conf']:
-            file = Path(input.file)
-            config[file.stem][file.suffix[1:]] = file
+        for obj in request.inputs['conf']:
+            fn = Path(obj.file)
+            config[fn.stem][fn.suffix[1:]] = fn
 
+        if len(config.keys()) > 1:
+            raise NotImplementedError("Multi-model simulations are not yet supported.")
 
+        model.configure(**config[fn.stem])
+        ts = [f.file for f in request.inputs['ts']]
+        model.run(ts=ts)
 
-
-        cmd = os.path.join(self.workdir, 'raven')
-        os.symlink(ravenio.raven_exec, cmd)
-
-        # Run the simulation
-        subprocess.call([cmd, os.path.join(self.workdir, name), '-o', os.path.join(self.workdir, 'output')])
-        cmdline = " ".join([cmd, os.path.join(self.workdir, name), '-o', os.path.join(self.workdir, 'output')])
-        # Get the output files.
-        outs = self._match_outputs(response.outputs.keys())
-        for key, val in outs.items():
+        for key, val in model.outputs.items():
             response.outputs[key].file = val
 
         return response
