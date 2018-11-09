@@ -15,35 +15,31 @@ class TestRavenProcess:
     def test_gr4j_saumon_nc(self):
         client = client_for(Service(processes=[RavenProcess(), ], cfgfiles=CFG_FILE))
 
-        pattern = TESTDATA['raven-gr4j-cemaneige-nc-rv']
-        rvfiles = {os.path.splitext(fn)[1][1:]: os.path.join(os.path.split(pattern)[0], fn) for fn in
-                   glob.glob(pattern)}
+        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        config = {f.suffix[1:]: f for f in rvs}
 
-        datainputs = ("nc=files@xlink:href=file://{fn};" + \
-                     ';'.join(["conf=files@xlink:href=file://{%s}"%key for key
-                                                                     in cf])) \
-            .format(fn=TESTDATA['raven-gr4j-cemaneige-nc-ts'], **rvfiles)
+        datainputs = ("ts=files@xlink:href=file://{fn};" +
+                      ';'.join(["conf=files@xlink:href=file://{%s}"%key for key in cf])) \
+            .format(fn=ts, **config)
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven',
             datainputs=datainputs)
+
         assert_response_success(resp)
 
 
     def test_hmets(self):
         client = client_for(Service(processes=[RavenProcess(), ], cfgfiles=CFG_FILE))
 
-        pattern = TESTDATA['raven-hmets-rv']
-        rvfiles = {os.path.splitext(fn)[1][1:]: os.path.join(os.path.split(pattern)[0], fn) for fn in
-                   glob.glob(pattern)}
+        rvs = TESTDATA['raven-hmets-rv']
+        ts = list(TESTDATA['raven-hmets-ts'])
+        config = {f.suffix[1:]: f for f in rvs}
 
-        pattern = TESTDATA['raven-hmets-ts']
-        nc = [os.path.join(os.path.split(pattern)[0], fn) for fn in glob.glob(pattern)]
-
-        datainputs = ("nc=files@xlink:href=file://{};nc=files@xlink:href=file://{};" + \
-                      ';'.join(["conf=files@xlink:href=file://{%s}" % key for key
-                                in cf])) \
-            .format(*nc, **rvfiles)
+        datainputs = ("ts=files@xlink:href=file://{};nc=files@xlink:href=file://{};" +
+                      ';'.join(["conf=files@xlink:href=file://{%s}" % key for key in cf])) \
+            .format(*ts, **config)
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven',
