@@ -31,7 +31,7 @@
 :EndSoilParameterList
 
 # ----Soil Profiles--------------------------------------------
-#     name,#horizons,{soiltype,thickness}x{#horizons}
+#     name,#horizons,[soiltype,thickness]x#horizons]
 #     GR4J_X1 is thickness of first layer (SOIL_PROD), here 0.696
 :SoilProfiles
   DEFAULT_P,      4, SOIL_PROD   ,   0.696, SOIL_ROUT  ,   0.300, SOIL_TEMP  ,   1.000, SOIL_GW  ,   1.000, 

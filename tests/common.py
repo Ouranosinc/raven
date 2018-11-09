@@ -1,14 +1,14 @@
 import os
-#from pathlib import Path
+from pathlib import Path
 from pywps.tests import WpsClient, WpsTestResponse
 import numpy as np
 import xarray as xr
 import pandas as pd
 
 
-TESTS_HOME = os.path.abspath(os.path.dirname(__file__))
-TD = os.path.join(TESTS_HOME, 'testdata')
-CFG_FILE = os.path.join(TESTS_HOME, 'test.cfg')
+TESTS_HOME = Path(__file__).parent
+TD = TESTS_HOME / 'testdata'
+CFG_FILE = TESTS_HOME / 'test.cfg'
 
 TESTDATA = {}
 
@@ -17,15 +17,12 @@ TESTDATA['gr4j-cemaneige'] = \
      'tas': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'tas.nc')),
      'evap': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'evap.nc'))}
 
-TESTDATA['raven-gr4j-cemaneige-nc-ts'] = \
-    '{0}'.format(os.path.join(TD, 'raven-gr4j-cemaneige',
-                              'Salmon-River-Near-Prince-George_meteo_daily.nc'))
+TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 
-TESTDATA['raven-gr4j-cemaneige-nc-rv'] = \
-    '{0}'.format(os.path.join(TD, 'raven-gr4j-cemaneige',
-                              'raven-gr4j-salmon.rv?'))
+TESTDATA['raven-gr4j-cemaneige-nc-rv'] = (TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?')
 
 TESTDATA['raven-hmets-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+TESTDATA['raven-hmets'] = '{0}'.format(os.path.join(TD, 'raven-hmets'))
 TESTDATA['raven-hmets-rv'] = '{0}'.format(os.path.join(TD, 'raven-hmets', 'raven-hmets-salmon.rv?'))
 TESTDATA['raven-hmets-ts'] = '{0}'.format(os.path.join(TD, 'raven-hmets', 'Salmon-River-Near-Prince-George_*.rvt'))
 
