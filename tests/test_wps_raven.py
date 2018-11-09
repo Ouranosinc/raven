@@ -19,9 +19,9 @@ class TestRavenProcess:
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
         config = {f.suffix[1:]: f for f in rvs}
 
-        datainputs = ("ts=files@xlink:href=file://{fn};" +
+        datainputs = ("ts=files@xlink:href=file://{ts};" +
                       ';'.join(["conf=files@xlink:href=file://{%s}"%key for key in cf])) \
-            .format(fn=ts, **config)
+            .format(ts=ts, **config)
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven',
@@ -34,10 +34,10 @@ class TestRavenProcess:
         client = client_for(Service(processes=[RavenProcess(), ], cfgfiles=CFG_FILE))
 
         rvs = TESTDATA['raven-hmets-rv']
-        ts = list(TESTDATA['raven-hmets-ts'])
+        ts = TESTDATA['raven-hmets-ts']
         config = {f.suffix[1:]: f for f in rvs}
 
-        datainputs = ("ts=files@xlink:href=file://{};nc=files@xlink:href=file://{};" +
+        datainputs = ("ts=files@xlink:href=file://{};ts=files@xlink:href=file://{};" +
                       ';'.join(["conf=files@xlink:href=file://{%s}" % key for key in cf])) \
             .format(*ts, **config)
 

@@ -19,12 +19,12 @@ TESTDATA['gr4j-cemaneige'] = \
 
 TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 
-TESTDATA['raven-gr4j-cemaneige-nc-rv'] = (TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?')
+TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
 
 TESTDATA['raven-hmets-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 TESTDATA['raven-hmets'] = TD / 'raven-hmets'
-TESTDATA['raven-hmets-rv'] = (TD / 'raven-hmets').glob('raven-hmets-salmon.rv?')
-TESTDATA['raven-hmets-ts'] = (TD / 'raven-hmets').glob('Salmon-River-Near-Prince-George_*.rvt')
+TESTDATA['raven-hmets-rv'] = tuple((TD / 'raven-hmets').glob('raven-hmets-salmon.rv?'))
+TESTDATA['raven-hmets-ts'] = tuple((TD / 'raven-hmets').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
 class WpsTestClient(WpsClient):
 

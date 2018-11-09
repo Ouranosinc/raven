@@ -21,6 +21,7 @@ ts = ComplexInput('ts', 'Input time series files',
                            'potential evapotranspiration (evspsbl) and '
                            'observed streamflow (qobs [m3/s]).',
                   min_occurs=1,
+                  max_occurs=100,
                   supported_formats=[FORMATS.NETCDF, FORMATS.TEXT])
 
 conf = ComplexInput('conf', 'Raven configuration files',
@@ -67,6 +68,94 @@ rvc = ComplexInput('rvc', 'Initial conditions input file',
                    min_occurs=0,
                    default="",
                    supported_formats=[FORMATS.TEXT])
+
+start_date = LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
+                          abstract='Start date of the simulation (AAAA-MM-DD). '
+                                   'Defaults to the start of the forcing file. ',
+                          data_type='dateTime',
+                          default='0001-01-01 00:00:00',
+                          min_occurs=0)
+
+end_date = LiteralInput('end_date', 'Simulation end date (AAAA-MM-DD)',
+                        abstract='End date of the simulation (AAAA-MM-DD). '
+                                 'Defaults to the end of the forcing file.',
+                        data_type='dateTime',
+                        default='0001-01-01 00:00:00',
+                        min_occurs=0)
+
+duration = LiteralInput('duration', 'Simulation duration (days)',
+                        abstract='Number of simulated days, defaults to the length of the input forcings.',
+                        data_type='nonNegativeInteger',
+                        default=0,
+                        min_occurs=0)
+
+run_name = LiteralInput('run_name', 'Simulation name',
+                        abstract='The name given to the simulation, for example <watershed>_<experiment>',
+                        data_type='string',
+                        default='raven-gr4j-cemaneige-sim',
+                        min_occurs=0)
+
+name = LiteralInput('name', 'Watershed name',
+                    abstract='The name of the watershed the model is run for.',
+                    data_type='string',
+                    default='watershed',
+                    min_occurs=0)
+
+area = LiteralInput('area', 'Watershed area (km2)',
+                    abstract='Watershed area (km2)',
+                    data_type='float',
+                    default=0.,
+                    min_occurs=0)
+
+latitude = LiteralInput('latitude', 'Latitude',
+                        abstract="Watershed's centroid latitude",
+                        data_type='float',
+                        min_occurs=1)
+
+longitude = LiteralInput('longitude', 'Longitude',
+                         abstract="Watershed's centroid longitude",
+                         data_type='float',
+                         min_occurs=1)
+
+elevation = LiteralInput('elevation', 'Elevation (m)',
+                         abstract="Watershed's mean elevation (m)",
+                         data_type='float',
+                         min_occurs=1)
+
+# --- #
+
+hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
+                           supported_formats=[FORMATS.NETCDF],
+                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
+                                    'specified as `gauged` in the .rvh file. It reports period-ending time-'
+                                    'averaged flows for the preceding time step, as is consistent with most '
+                                    'measured stream gauge data (again, the initial flow conditions at the '
+                                    'start of the first time step are included). If observed hydrographs are '
+                                    'specified, they will be output adjacent to the corresponding modelled  '
+                                    'hydrograph. ',
+                           as_reference=True)
+
+storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
+                        abstract='A netCDF file describing the total storage of water (in mm) in all water '
+                                 'storage compartments for each time step of the simulation. Mass balance '
+                                 'errors, cumulative input (precipitation), and output (channel losses) are '
+                                 'also included. Note that the precipitation rates in this file are '
+                                 'period-ending, i.e., this is the precipitation rate for the time step '
+                                 'preceding the time stamp; all water storage variables represent '
+                                 'instantaneous reports of the storage at the time stamp indicate.',
+                        supported_formats=[FORMATS.NETCDF],
+                        as_reference=True)
+
+solution = ComplexOutput('solution', 'solution.rvc file to restart another simulation with the conditions '
+                                     'at the end of this simulation.',
+                         supported_formats=[FORMATS.TEXT],
+                         as_reference=True)
+
+diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
+                            abstract="Model diagnostic CSV file.",
+                            supported_formats=[FORMATS.TEXT],
+                            as_reference=True)
+
 
 # ---------------------------------------- #
 # ---------------- Outputs --------------- #
