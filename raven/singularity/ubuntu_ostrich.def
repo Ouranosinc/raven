@@ -1,0 +1,22 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+mpirun  /opt/Source/OstrichMPI
+
+%files
+./src/Source /opt
+
+%environment
+
+%labels
+#AUTHOR marc.lalonde@crim.ca
+
+
+%post
+apt-get update && apt-get -y install wget vim make build-essential libnetcdf-dev libopenmpi-dev ssh 
+#mkdir /data
+#mkdir /data_out
+#chmod 777 /data_out 
+cd /opt/Source && make OMPI
+
