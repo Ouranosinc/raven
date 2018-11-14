@@ -2,7 +2,7 @@ Bootstrap: docker
 From: ubuntu:latest
 
 %runscript
-/opt/src/raven_rev.exe /data/Irond  -o /data_out/
+/opt/src/raven_rev.exe /data/$*  -o /data_out/
 
 %files
 ./src /opt
