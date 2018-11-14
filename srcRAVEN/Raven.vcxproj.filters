@@ -1,0 +1,483 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{9fcb3cb0-404d-47be-8a9e-a25b71ecf188}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Hydrological Processes">
+      <UniqueIdentifier>{ba70f49e-3bc1-4a1a-a50d-33cea3321728}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hydrological Processes\Soil Water Processes">
+      <UniqueIdentifier>{49c65058-d0a6-42e7-9baa-5f55aff159e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hydrological Processes\Snow Water Processes">
+      <UniqueIdentifier>{62198c00-dda3-4421-ac0f-751b0abfa072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hydrological Processes\Vegetation Processes">
+      <UniqueIdentifier>{3c63b923-f22d-4529-ab98-cc38a7dd95ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Forcing Functions">
+      <UniqueIdentifier>{5570ebdb-56d4-4588-99b8-69771427702d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\_Driver">
+      <UniqueIdentifier>{e2d606e1-222e-4db0-b732-4d6887f52400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\_Driver\Input Parsing">
+      <UniqueIdentifier>{0f81fbd0-94cd-4323-92be-d1dc33438cce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c68c0520-36bc-4bce-8307-274d347dda3f}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Land Partitions">
+      <UniqueIdentifier>{8482c144-79fe-41b5-baa9-be8343d67864}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Hydrological Processes">
+      <UniqueIdentifier>{ee2ddfaf-7758-4d7e-8075-b54f345d40d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Model">
+      <UniqueIdentifier>{968ddc5c-27cb-4501-8ae1-c4b1e7b48179}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{1057ab96-f2ca-429f-8ae5-74279d6a055b}</UniqueIdentifier>
+      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="Input Files">
+      <UniqueIdentifier>{a8391a88-b29f-4b94-9d6c-aacb2ba960ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hydrological Routines">
+      <UniqueIdentifier>{e8dea0ba-cf66-44c3-a56d-b4836b9ea6e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\_Driver\Output">
+      <UniqueIdentifier>{e9eeeca8-fb32-49b1-b412-f1f275d391b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Transport Processes">
+      <UniqueIdentifier>{c2aab24b-878f-4b89-bded-2a3d5cd1d8f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Forcing Functions">
+      <UniqueIdentifier>{e64cff5f-3542-45ac-881a-5cf5d22b6a01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Forcing Functions\Gauge/Time Series">
+      <UniqueIdentifier>{73f4e085-188c-4df9-8370-7bdce8970b4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Parameters/Classes">
+      <UniqueIdentifier>{ef3cc306-4097-49f9-b3fa-19e4604b8ca4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Parameters/Classes">
+      <UniqueIdentifier>{005a740c-dbae-426c-b57b-00cc989a1ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input/Output">
+      <UniqueIdentifier>{b3b47708-8613-43e3-8e03-f13932f8f869}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Profiles/XSects/Reservoirs">
+      <UniqueIdentifier>{537f9a12-16f7-4875-8db2-89a184fe6788}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Profiles/XSects/Reservoirs">
+      <UniqueIdentifier>{8448587a-0329-4cec-acdb-91f7e0c6618f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Land Partitions">
+      <UniqueIdentifier>{25b248eb-f632-415a-8496-fc4992d2c143}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Transport">
+      <UniqueIdentifier>{56bc8cff-8585-4c16-97b5-fb3cf3c0f2cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hydrological Processes\Lake/Glacier/Wetland Processes">
+      <UniqueIdentifier>{20a8ebdf-d839-4ed1-9055-283117ab477a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Forcing Functions\Gauge/Time Series/ForcingGrid">
+      <UniqueIdentifier>{e72ddcb4-a56e-432c-90fc-5efe0c618b17}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CommonFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UTM_to_LatLong.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HydroProcessABC.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="PartitionPrecip.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Baseflow.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Interflow.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Percolation.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="SoilEvaporation.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowBalance.cpp">
+      <Filter>Source Files\Hydrological Processes\Snow Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowMeltRefreeze.cpp">
+      <Filter>Source Files\Hydrological Processes\Snow Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Sublimation.cpp">
+      <Filter>Source Files\Hydrological Processes\Snow Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="VegetationMovers.cpp">
+      <Filter>Source Files\Hydrological Processes\Vegetation Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowParams.cpp">
+      <Filter>Source Files\Hydrological Routines</Filter>
+    </ClCompile>
+    <ClCompile Include="SoilParams.cpp">
+      <Filter>Source Files\Hydrological Routines</Filter>
+    </ClCompile>
+    <ClCompile Include="VegetationParams.cpp">
+      <Filter>Source Files\Hydrological Routines</Filter>
+    </ClCompile>
+    <ClCompile Include="HydroUnits.cpp">
+      <Filter>Source Files\Land Partitions</Filter>
+    </ClCompile>
+    <ClCompile Include="SubBasin.cpp">
+      <Filter>Source Files\Land Partitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Gauge.cpp">
+      <Filter>Source Files\Forcing Functions\Gauge/Time Series/ForcingGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeSeries.cpp">
+      <Filter>Source Files\Forcing Functions\Gauge/Time Series/ForcingGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="ChannelXSect.cpp">
+      <Filter>Source Files\Profiles/XSects/Reservoirs</Filter>
+    </ClCompile>
+    <ClCompile Include="SoilProfile.cpp">
+      <Filter>Source Files\Profiles/XSects/Reservoirs</Filter>
+    </ClCompile>
+    <ClCompile Include="Evaporation.cpp">
+      <Filter>Source Files\Forcing Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Radiation.cpp">
+      <Filter>Source Files\Forcing Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateForcings.cpp">
+      <Filter>Source Files\Forcing Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\_Driver</Filter>
+    </ClCompile>
+    <ClCompile Include="RavenMain.cpp">
+      <Filter>Source Files\_Driver</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseHRUFile.cpp">
+      <Filter>Source Files\_Driver\Input Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseInput.cpp">
+      <Filter>Source Files\_Driver\Input Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="ParsePropertyFile.cpp">
+      <Filter>Source Files\_Driver\Input Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseTimeSeriesFile.cpp">
+      <Filter>Source Files\_Driver\Input Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="CapillaryRise.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Flush.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Infiltration.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="StateVariables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HRUGroups.cpp">
+      <Filter>Source Files\Land Partitions</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenWaterEvap.cpp">
+      <Filter>Source Files\Hydrological Processes\Lake/Glacier/Wetland Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="GlacierProcesses.cpp">
+      <Filter>Source Files\Hydrological Processes\Lake/Glacier/Wetland Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomOutput.cpp">
+      <Filter>Source Files\_Driver\Output</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardOutput.cpp">
+      <Filter>Source Files\_Driver\Output</Filter>
+    </ClCompile>
+    <ClCompile Include="OrographicCorrections.cpp">
+      <Filter>Source Files\Forcing Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowAlbedo.cpp">
+      <Filter>Source Files\Hydrological Processes\Snow Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="GreenAmpt.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="CropGrowth.cpp">
+      <Filter>Source Files\Hydrological Processes\Vegetation Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="AquiferStack.cpp">
+      <Filter>Source Files\Profiles/XSects/Reservoirs</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseInitialConditionFile.cpp">
+      <Filter>Source Files\_Driver\Input Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalParams.cpp">
+      <Filter>Source Files\Parameters/Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="LandUseClass.cpp">
+      <Filter>Source Files\Parameters/Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SoilClass.cpp">
+      <Filter>Source Files\Parameters/Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainClass.cpp">
+      <Filter>Source Files\Parameters/Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="VegetationClass.cpp">
+      <Filter>Source Files\Parameters/Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TransientParam.cpp">
+      <Filter>Source Files\Parameters/Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="PotentialMelt.cpp">
+      <Filter>Source Files\Forcing Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="Reservoir.cpp">
+      <Filter>Source Files\Profiles/XSects/Reservoirs</Filter>
+    </ClCompile>
+    <ClCompile Include="Advection.cpp">
+      <Filter>Source Files\Transport Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Transport.cpp">
+      <Filter>Source Files\Transport Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="MassRouting.cpp">
+      <Filter>Source Files\Transport Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Diagnostics.cpp">
+      <Filter>Source Files\_Driver\Output</Filter>
+    </ClCompile>
+    <ClCompile Include="Convolution.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="SnowTempEvolve.cpp">
+      <Filter>Source Files\Hydrological Processes\Snow Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseLib.cpp">
+      <Filter>Source Files\_Driver\Input Parsing</Filter>
+    </ClCompile>
+    <ClCompile Include="Decay.cpp">
+      <Filter>Source Files\Transport Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeSeriesABC.cpp">
+      <Filter>Source Files\Forcing Functions\Gauge/Time Series/ForcingGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="IrregularTimeSeries.cpp">
+      <Filter>Source Files\Forcing Functions\Gauge/Time Series/ForcingGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="Forcings.cpp">
+      <Filter>Source Files\Forcing Functions</Filter>
+    </ClCompile>
+    <ClCompile Include="DepressionProcesses.cpp">
+      <Filter>Source Files\Hydrological Processes\Lake/Glacier/Wetland Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Abstraction.cpp">
+      <Filter>Source Files\Hydrological Processes\Lake/Glacier/Wetland Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Solvers.cpp">
+      <Filter>Source Files\_Driver</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTesting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelForcingGrids.cpp">
+      <Filter>Source Files\_Driver</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelInitialize.cpp">
+      <Filter>Source Files\_Driver</Filter>
+    </ClCompile>
+    <ClCompile Include="LatFlush.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="LatAdvection.cpp">
+      <Filter>Source Files\Transport Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Recharge.cpp">
+      <Filter>Source Files\Hydrological Processes\Soil Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="LateralExchangeABC.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Transformation.cpp">
+      <Filter>Source Files\Transport Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="PrairieSnow.cpp">
+      <Filter>Source Files\Hydrological Processes\Snow Water Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="ForcingGrid.cpp">
+      <Filter>Source Files\Forcing Functions\Gauge/Time Series/ForcingGrid</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessGroup.cpp">
+      <Filter>Source Files\Hydrological Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Assimilate.cpp">
+      <Filter>Source Files\_Driver</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Properties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RavenInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HydroUnits.h">
+      <Filter>Header Files\Land Partitions</Filter>
+    </ClInclude>
+    <ClInclude Include="SubBasin.h">
+      <Filter>Header Files\Land Partitions</Filter>
+    </ClInclude>
+    <ClInclude Include="HydroProcessABC.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="Infiltration.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="Precipitation.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="SnowMovers.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="SoilWaterMovers.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="VegetationMovers.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="Gauge.h">
+      <Filter>Header Files\Forcing Functions\Gauge/Time Series</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeSeries.h">
+      <Filter>Header Files\Forcing Functions\Gauge/Time Series</Filter>
+    </ClInclude>
+    <ClInclude Include="ChannelXSect.h">
+      <Filter>Header Files\Profiles/XSects/Reservoirs</Filter>
+    </ClInclude>
+    <ClInclude Include="SoilProfile.h">
+      <Filter>Header Files\Profiles/XSects/Reservoirs</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomOutput.h">
+      <Filter>Header Files\Input/Output</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelABC.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateVariables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlacierProcesses.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="Albedo.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="CropGrowth.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="Abstraction.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenWaterEvap.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="Radiation.h">
+      <Filter>Header Files\Forcing Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="TransientParam.h">
+      <Filter>Header Files\Parameters/Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="SoilAndLandClasses.h">
+      <Filter>Header Files\Parameters/Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalParams.h">
+      <Filter>Header Files\Parameters/Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Reservoir.h">
+      <Filter>Header Files\Profiles/XSects/Reservoirs</Filter>
+    </ClInclude>
+    <ClInclude Include="Diagnostics.h">
+      <Filter>Header Files\Input/Output</Filter>
+    </ClInclude>
+    <ClInclude Include="Convolution.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="ParseLib.h">
+      <Filter>Header Files\Input/Output</Filter>
+    </ClInclude>
+    <ClInclude Include="Transport.h">
+      <Filter>Header Files\Transport</Filter>
+    </ClInclude>
+    <ClInclude Include="Decay.h">
+      <Filter>Header Files\Transport</Filter>
+    </ClInclude>
+    <ClInclude Include="Advection.h">
+      <Filter>Header Files\Transport</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeSeriesABC.h">
+      <Filter>Header Files\Forcing Functions\Gauge/Time Series</Filter>
+    </ClInclude>
+    <ClInclude Include="IrregularTimeSeries.h">
+      <Filter>Header Files\Forcing Functions\Gauge/Time Series</Filter>
+    </ClInclude>
+    <ClInclude Include="Forcings.h">
+      <Filter>Header Files\Forcing Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="DepressionProcesses.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitTesting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ForcingGrid.h">
+      <Filter>Header Files\Forcing Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="LateralExchangeABC.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="LatAdvection.h">
+      <Filter>Header Files\Transport</Filter>
+    </ClInclude>
+    <ClInclude Include="PrairieSnow.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessGroup.h">
+      <Filter>Header Files\Hydrological Processes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Raven.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagramRaven.cd" />
+    <None Include="PropertyStructures.cd" />
+    <None Include="..\RavenView\RavenView\RavenResource.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="RavenIcon.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

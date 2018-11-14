@@ -9,7 +9,7 @@ CONDA_ENV ?= $(APP_NAME)
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
 RAVEN_URL = http://raven.uwaterloo.ca/files/v2.8.1/Raven_2.8.1_Source.zip
-RAVEN_SRC = $(CURDIR)/src/RAVEN
+RAVEN_SRC = $(CURDIR)/srcRAVEN
 ifeq "$(OS_NAME)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
 else ifeq "$(OS_NAME)" "Darwin"
@@ -72,10 +72,6 @@ bootstrap_dev:
 
 .PHONY: raven_dev
 raven_dev:
-	@echo "Downloading RAVEN hydrological framework ..."
-	@test -f $(CURDIR)/src/RAVEN.zip || curl $(RAVEN_URL) --output "$(CURDIR)/src/RAVEN.zip"
-	@echo "Unzipping RAVEN ..."
-	@test -d $(RAVEN_SRC) || unzip $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
 	@echo "Compiling RAVEN ..."
 	@test -f $(RAVEN_SRC)/raven_rev.exe || $(MAKE) -C $(RAVEN_SRC) -j4
 	@test -d bin || mkdir bin

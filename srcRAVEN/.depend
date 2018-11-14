@@ -1,0 +1,307 @@
+GlobalParams.o: GlobalParams.cpp Properties.h RavenInclude.h \
+ GlobalParams.h
+TimeSeriesABC.o: TimeSeriesABC.cpp TimeSeriesABC.h RavenInclude.h \
+ ParseLib.h
+Evaporation.o: Evaporation.cpp RavenInclude.h Properties.h Radiation.h \
+ HydroUnits.h ModelABC.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Model.h StateVariables.h HydroProcessABC.h \
+ LateralExchangeABC.h SubBasin.h ChannelXSect.h TimeSeries.h \
+ TimeSeriesABC.h ParseLib.h Forcings.h Reservoir.h Gauge.h CustomOutput.h \
+ TransientParam.h Transport.h Diagnostics.h ForcingGrid.h
+CustomOutput.o: CustomOutput.cpp CustomOutput.h RavenInclude.h ModelABC.h \
+ Model.h StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h
+Transport.o: Transport.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Model.h StateVariables.h LateralExchangeABC.h SubBasin.h \
+ ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h Forcings.h \
+ Reservoir.h Gauge.h CustomOutput.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h
+VegetationParams.o: VegetationParams.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h HydroUnits.h ModelABC.h GlobalParams.h \
+ SoilProfile.h
+LandUseClass.o: LandUseClass.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h
+SnowMeltRefreeze.o: SnowMeltRefreeze.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SnowMovers.h
+Radiation.o: Radiation.cpp RavenInclude.h Radiation.h HydroUnits.h \
+ ModelABC.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h
+Decay.o: Decay.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Decay.h Model.h StateVariables.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+CapillaryRise.o: CapillaryRise.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+PartitionPrecip.o: PartitionPrecip.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h Precipitation.h Infiltration.h
+ParseInput.o: ParseInput.cpp RavenInclude.h Properties.h Model.h \
+ ModelABC.h StateVariables.h HydroProcessABC.h HydroUnits.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h Precipitation.h Infiltration.h \
+ SoilWaterMovers.h SnowMovers.h VegetationMovers.h GlacierProcesses.h \
+ Albedo.h CropGrowth.h DepressionProcesses.h OpenWaterEvap.h Advection.h \
+ Convolution.h Decay.h LatAdvection.h PrairieSnow.h ProcessGroup.h
+SoilEvaporation.o: SoilEvaporation.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+ParseHRUFile.o: ParseHRUFile.cpp RavenInclude.h Model.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+LatFlush.o: LatFlush.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h LateralExchangeABC.h Model.h StateVariables.h SubBasin.h \
+ ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h Forcings.h \
+ Reservoir.h Gauge.h CustomOutput.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h
+DepressionProcesses.o: DepressionProcesses.cpp HydroProcessABC.h \
+ RavenInclude.h ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h \
+ GlobalParams.h SoilProfile.h DepressionProcesses.h
+ParsePropertyFile.o: ParsePropertyFile.cpp RavenInclude.h Properties.h \
+ Model.h ModelABC.h StateVariables.h HydroProcessABC.h HydroUnits.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+HydroUnits.o: HydroUnits.cpp HydroUnits.h RavenInclude.h ModelABC.h \
+ Properties.h SoilAndLandClasses.h GlobalParams.h SoilProfile.h \
+ Forcings.h Radiation.h
+OrographicCorrections.o: OrographicCorrections.cpp Model.h RavenInclude.h \
+ ModelABC.h StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+SnowTempEvolve.o: SnowTempEvolve.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SnowMovers.h
+StandardOutput.o: StandardOutput.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+Convolution.o: Convolution.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Convolution.h
+ParseInitialConditionFile.o: ParseInitialConditionFile.cpp RavenInclude.h \
+ Model.h ModelABC.h StateVariables.h HydroProcessABC.h HydroUnits.h \
+ Properties.h SoilAndLandClasses.h GlobalParams.h SoilProfile.h \
+ LateralExchangeABC.h SubBasin.h ChannelXSect.h TimeSeries.h \
+ TimeSeriesABC.h ParseLib.h Forcings.h Reservoir.h Gauge.h CustomOutput.h \
+ TransientParam.h Transport.h Diagnostics.h ForcingGrid.h
+SnowBalance.o: SnowBalance.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SnowMovers.h
+GreenAmpt.o: GreenAmpt.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h Infiltration.h
+Percolation.o: Percolation.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+Baseflow.o: Baseflow.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+Solvers.o: Solvers.cpp RavenInclude.h Model.h ModelABC.h StateVariables.h \
+ HydroProcessABC.h HydroUnits.h Properties.h SoilAndLandClasses.h \
+ GlobalParams.h SoilProfile.h LateralExchangeABC.h SubBasin.h \
+ ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h Forcings.h \
+ Reservoir.h Gauge.h CustomOutput.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h
+GlacierProcesses.o: GlacierProcesses.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h GlacierProcesses.h
+ModelInitialize.o: ModelInitialize.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+Advection.o: Advection.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Advection.h Model.h StateVariables.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+VegetationClass.o: VegetationClass.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h
+ParseTimeSeriesFile.o: ParseTimeSeriesFile.cpp RavenInclude.h Model.h \
+ ModelABC.h StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h IrregularTimeSeries.h
+AquiferStack.o: AquiferStack.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h SoilProfile.h
+TimeSeries.o: TimeSeries.cpp TimeSeries.h TimeSeriesABC.h RavenInclude.h \
+ ParseLib.h Forcings.h
+MassRouting.o: MassRouting.cpp SubBasin.h RavenInclude.h HydroUnits.h \
+ ModelABC.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Model.h StateVariables.h HydroProcessABC.h \
+ LateralExchangeABC.h Gauge.h CustomOutput.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h
+SoilClass.o: SoilClass.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h
+SubBasin.o: SubBasin.cpp SubBasin.h RavenInclude.h HydroUnits.h \
+ ModelABC.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h
+Interflow.o: Interflow.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+OpenWaterEvap.o: OpenWaterEvap.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h OpenWaterEvap.h
+UpdateForcings.o: UpdateForcings.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h Radiation.h
+Transformation.o: Transformation.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Decay.h Model.h StateVariables.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+Assimilate.o: Assimilate.cpp RavenInclude.h Model.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+SnowParams.o: SnowParams.cpp Properties.h RavenInclude.h GlobalParams.h
+Reservoir.o: Reservoir.cpp Reservoir.h RavenInclude.h ParseLib.h \
+ HydroUnits.h ModelABC.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h TimeSeries.h TimeSeriesABC.h Forcings.h
+Recharge.o: Recharge.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+LateralExchangeABC.o: LateralExchangeABC.cpp LateralExchangeABC.h \
+ RavenInclude.h ModelABC.h Model.h StateVariables.h HydroProcessABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h \
+ ParseLib.h Forcings.h Reservoir.h Gauge.h CustomOutput.h \
+ TransientParam.h Transport.h Diagnostics.h ForcingGrid.h
+VegetationMovers.o: VegetationMovers.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h VegetationMovers.h
+Flush.o: Flush.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SoilWaterMovers.h
+Sublimation.o: Sublimation.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h SnowMovers.h
+PotentialMelt.o: PotentialMelt.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+ForcingGrid.o: ForcingGrid.cpp ForcingGrid.h RavenInclude.h ParseLib.h \
+ Forcings.h
+TerrainClass.o: TerrainClass.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h
+SoilProfile.o: SoilProfile.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h SoilProfile.h
+HydroProcessABC.o: HydroProcessABC.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h StateVariables.h
+RavenMain.o: RavenMain.cpp RavenInclude.h Model.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h UnitTesting.h
+StateVariables.o: StateVariables.cpp RavenInclude.h StateVariables.h \
+ Transport.h Model.h ModelABC.h HydroProcessABC.h HydroUnits.h \
+ Properties.h SoilAndLandClasses.h GlobalParams.h SoilProfile.h \
+ LateralExchangeABC.h SubBasin.h ChannelXSect.h TimeSeries.h \
+ TimeSeriesABC.h ParseLib.h Forcings.h Reservoir.h Gauge.h CustomOutput.h \
+ TransientParam.h Diagnostics.h ForcingGrid.h
+LatAdvection.o: LatAdvection.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h LatAdvection.h LateralExchangeABC.h Model.h \
+ StateVariables.h SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h \
+ ParseLib.h Forcings.h Reservoir.h Gauge.h CustomOutput.h \
+ TransientParam.h Transport.h Diagnostics.h ForcingGrid.h
+SoilParams.o: SoilParams.cpp Properties.h RavenInclude.h \
+ SoilAndLandClasses.h
+Infiltration.o: Infiltration.cpp Model.h RavenInclude.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h Infiltration.h
+TransientParam.o: TransientParam.cpp TransientParam.h RavenInclude.h \
+ Properties.h TimeSeries.h TimeSeriesABC.h ParseLib.h Forcings.h \
+ SoilAndLandClasses.h
+SnowAlbedo.o: SnowAlbedo.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h Albedo.h
+ChannelXSect.o: ChannelXSect.cpp ChannelXSect.h RavenInclude.h
+ParseLib.o: ParseLib.cpp ParseLib.h RavenInclude.h
+UnitTesting.o: UnitTesting.cpp RavenInclude.h Model.h ModelABC.h \
+ StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h Radiation.h UnitTesting.h
+PrairieSnow.o: PrairieSnow.cpp RavenInclude.h HydroUnits.h ModelABC.h \
+ Properties.h SoilAndLandClasses.h GlobalParams.h SoilProfile.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Model.h StateVariables.h HydroProcessABC.h \
+ LateralExchangeABC.h Gauge.h CustomOutput.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h PrairieSnow.h
+ProcessGroup.o: ProcessGroup.cpp ProcessGroup.h RavenInclude.h \
+ HydroProcessABC.h ModelABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h
+CommonFunctions.o: CommonFunctions.cpp RavenInclude.h
+Gauge.o: Gauge.cpp Gauge.h RavenInclude.h TimeSeries.h TimeSeriesABC.h \
+ ParseLib.h Forcings.h
+UTM_to_LatLong.o: UTM_to_LatLong.cpp RavenInclude.h
+HRUGroups.o: HRUGroups.cpp HydroUnits.h RavenInclude.h ModelABC.h \
+ Properties.h SoilAndLandClasses.h GlobalParams.h SoilProfile.h
+Diagnostics.o: Diagnostics.cpp TimeSeriesABC.h RavenInclude.h ParseLib.h \
+ Diagnostics.h TimeSeries.h Forcings.h
+ModelForcingGrids.o: ModelForcingGrids.cpp Model.h RavenInclude.h \
+ ModelABC.h StateVariables.h HydroProcessABC.h HydroUnits.h Properties.h \
+ SoilAndLandClasses.h GlobalParams.h SoilProfile.h LateralExchangeABC.h \
+ SubBasin.h ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h \
+ Forcings.h Reservoir.h Gauge.h CustomOutput.h TransientParam.h \
+ Transport.h Diagnostics.h ForcingGrid.h
+Model.o: Model.cpp Model.h RavenInclude.h ModelABC.h StateVariables.h \
+ HydroProcessABC.h HydroUnits.h Properties.h SoilAndLandClasses.h \
+ GlobalParams.h SoilProfile.h LateralExchangeABC.h SubBasin.h \
+ ChannelXSect.h TimeSeries.h TimeSeriesABC.h ParseLib.h Forcings.h \
+ Reservoir.h Gauge.h CustomOutput.h TransientParam.h Transport.h \
+ Diagnostics.h ForcingGrid.h
+CropGrowth.o: CropGrowth.cpp HydroProcessABC.h RavenInclude.h ModelABC.h \
+ HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h CropGrowth.h
+Abstraction.o: Abstraction.cpp HydroProcessABC.h RavenInclude.h \
+ ModelABC.h HydroUnits.h Properties.h SoilAndLandClasses.h GlobalParams.h \
+ SoilProfile.h DepressionProcesses.h
+IrregularTimeSeries.o: IrregularTimeSeries.cpp IrregularTimeSeries.h \
+ TimeSeriesABC.h RavenInclude.h ParseLib.h
+Forcings.o: Forcings.cpp RavenInclude.h
