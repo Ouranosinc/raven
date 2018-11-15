@@ -1,6 +1,5 @@
-************************
 Using singularity images
-************************
+========================
 
 Setup
 -----
@@ -35,9 +34,8 @@ A progress bar appears and indicates that the raven singularity image is being d
 application executes and generates its results inside the data_out folder.
 
 
-******************************
 Maintaining singularity images
-******************************
+==============================
 
 Get Raven source code (v2.8.1):
 ./get_raven.sh
