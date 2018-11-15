@@ -1,17 +1,13 @@
-************************
-Using singularity images
-************************
+# Using singularity images
 
-Setup
------
+## Setup
 
 * install singularity locally: https://www.sylabs.io/guides/2.6/user-guide/installation.html#install-on-linux
 	* Perform an installation from source, option 1
 	* version 2.5.2 is fine
 	* Some external packages are required, such as libarchive-devel
 
-Test using a Raven dataset
---------------------------
+## Test using a Raven dataset
 
 * In your working directory create a folder 'data' and fill it with the raven input data:
 	./data/Irond.rvi
@@ -35,9 +31,8 @@ A progress bar appears and indicates that the raven singularity image is being d
 application executes and generates its results inside the data_out folder.
 
 
-******************************
-Maintaining singularity images
-******************************
+# Maintaining singularity images
+
 
 Get Raven source code (v2.8.1):
 ./get_raven.sh
