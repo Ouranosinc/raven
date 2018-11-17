@@ -1,0 +1,6 @@
+#!/bin/bash
+#SBATCH --time=DURATION
+#SBATCH --account=ACCOUNT
+export SINGULARITY_NOHTTPS=true
+cd INPUT_PATH
+singularity run --bind INPUT_PATH:/data  --bind OUTPUT_PATH:/data_out:rw shub://132.217.141.54/hydro/raven:latest DATAFILE_BASENAME 
