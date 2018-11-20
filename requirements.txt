@@ -4,4 +4,5 @@ click
 psutil
 xarray
 numpy
-NetCDF4
+netCDF4
+dask
