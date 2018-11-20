@@ -1,5 +1,5 @@
-import math
 from math import tanh
+
 
 def gr2m(precip, potential_evap, params, states=None, return_state=False):
     """
@@ -13,7 +13,8 @@ def gr2m(precip, potential_evap, params, states=None, return_state=False):
         :type params: dictionary with keys X1, X5
         :param states: Optional initial state values.
         :type states: Dictionary with optional keys 'production_store', 'routing_store'.
-        :param return_state: If true returns a dictionary containing 'production_store' and 'routing_store'. Default: False.
+        :param return_state: If true returns a dictionary containing 'production_store' and 'routing_store'.
+        Default: False.
         :type return_state: boolean
 
         :return: Array of simulated streamflow.
@@ -39,7 +40,7 @@ def gr2m(precip, potential_evap, params, states=None, return_state=False):
 
         S2 = S1 * (1 - psi) / (1 + psi * (1 - S1 / X1))
 
-        production_store = S2 / pow(1. + pow(S2 / X1, 3), 1./3.)
+        production_store = S2 / pow(1. + pow(S2 / X1, 3), 1. / 3.)
 
         P2 = S2 - production_store
 
