@@ -11,7 +11,7 @@ from shapely import geometry
 # from pywps import LiteralOutput, Format
 
 """
-Dependencies for pysheds not installed with python setup.py install. See requirements.txt. 
+Dependencies for pysheds not installed with python setup.py install. See requirements.txt.
 numpy, scipy, pandas, geojson, affine, scikit-image, pyproj, rasterio
 """
 
@@ -105,7 +105,7 @@ class WatershedDelineation(Process):
 
         lat = request.inputs['latitude'][0].data
         lon = request.inputs['longitude'][0].data
-        name = request.inputs['name'][0].data
+        # name = request.inputs['name'][0].data
 
         grid.catchment(data='dir', x=lon, y=lat, dirmap=dirmap, out_name='catch', nodata_in=nodata, xytype='label')
 
