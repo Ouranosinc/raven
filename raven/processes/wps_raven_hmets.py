@@ -1,6 +1,8 @@
 from collections import OrderedDict as Odict
+
 from raven.processes import RavenGR4JCemaNeigeProcess
-from pywps import LiteralInput
+
+# from pywps import LiteralInput
 
 # Model defaults
 defaults = Odict(
@@ -33,8 +35,8 @@ defaults = Odict(
     rvt=dict(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
 )
 
-# Defaults for this process
 
+# Defaults for this process
 
 
 class RavenHMETSProcess(RavenGR4JCemaNeigeProcess):
@@ -63,5 +65,3 @@ class RavenHMETSProcess(RavenGR4JCemaNeigeProcess):
                        ('BASEFLOW_COEFF_2', 0.0069),
                        ('TOPSOIL', 0.3107),
                        ('PHREATIC', 0.9162)])
-
-
