@@ -1,18 +1,18 @@
 import datetime as dt
+import logging
 import os
-from pywps import Process
-from pywps import LiteralInput
-from pywps import ComplexInput, ComplexOutput
-from pywps import FORMATS
 # from pywps.app.Common import Metadata
 import subprocess
-from . import ravenio
-
-import logging
 from collections import OrderedDict as Odict
 
-LOGGER = logging.getLogger("PYWPS")
+from pywps import ComplexInput, ComplexOutput
+from pywps import FORMATS
+from pywps import LiteralInput
+from pywps import Process
 
+from . import ravenio
+
+LOGGER = logging.getLogger("PYWPS")
 
 """
 Notes
@@ -27,7 +27,6 @@ actual values before the model is launched. There are two mechanisms to make tho
 
 Multiple processes running the GR4J-Cemaneige model can thus template the model differently.
 """
-
 
 defaults = Odict(
     rvi=dict(run_name=None, Start_Date=None, End_Date=None, Duration=None, TimeStep=1.0,
@@ -53,14 +52,13 @@ class RavenGR4JCemaNeigeProcess(Process):
     abstract = 'Raven GR4J + CEMANEIGE hydrological model'
     title = ''
     version = ''
-    defaults = defaults # Model defaults
+    defaults = defaults  # Model defaults
     pdefaults = Odict([('SOIL_PROD', 0.696),
-                           ('GR4J_X2', 0.7),
-                           ('GR4J_X3', 19.7),
-                           ('GR4J_X4', 2.09),
-                           ('AvgAnnualSnow', 123.3),
-                           ('AirSnowCoeff', 0.75)])
-
+                       ('GR4J_X2', 0.7),
+                       ('GR4J_X3', 19.7),
+                       ('GR4J_X4', 2.09),
+                       ('AvgAnnualSnow', 123.3),
+                       ('AirSnowCoeff', 0.75)])
 
     nc = ComplexInput('nc', 'netCDF input files',
                       abstract='NetCDF file or files storing'
@@ -141,7 +139,7 @@ class RavenGR4JCemaNeigeProcess(Process):
     # --- #
 
     hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
-                               supported_formats=[FORMATS.NETCDF],
+                               supported_formats=FORMATS.NETCDF,
                                abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
                                         'specified as `gauged` in the .rvh file. It reports period-ending time-'
                                         'averaged flows for the preceding time step, as is consistent with most '
@@ -159,20 +157,18 @@ class RavenGR4JCemaNeigeProcess(Process):
                                      'period-ending, i.e., this is the precipitation rate for the time step '
                                      'preceding the time stamp; all water storage variables represent '
                                      'instantaneous reports of the storage at the time stamp indicate.',
-                            supported_formats=[FORMATS.NETCDF],
+                            supported_formats=FORMATS.NETCDF,
                             as_reference=True)
 
     solution = ComplexOutput('solution', 'solution.rvc file to restart another simulation with the conditions '
                                          'at the end of this simulation.',
-                             supported_formats=[FORMATS.TEXT],
+                             supported_formats=FORMATS.TEXT,
                              as_reference=True)
 
     diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
                                 abstract="Model diagnostic CSV file.",
-                                supported_formats=[FORMATS.TEXT],
+                                supported_formats=FORMATS.TEXT,
                                 as_reference=True)
-
-
 
     def __init__(self):
 
