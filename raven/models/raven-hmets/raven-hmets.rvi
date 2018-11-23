@@ -44,10 +44,9 @@
 #---------------------------------------------------------
 # Output Options
 #
-# manual testing settings
-:WriteForcingFunctions
+#:WriteForcingFunctions
 :EvaluationMetrics {evaluation_metrics}
 :WriteNetcdfFormat  yes
 #:NoisyMode
 :SilentMode
-# :CustomOutput DAILY AVERAGE SNOW BY_HRU
+:PavicsMode

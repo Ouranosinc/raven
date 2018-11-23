@@ -8,8 +8,8 @@
 
 # -Global snow parameters-------------------------------------
 :RainSnowTransition 0 1.0 
-:AirSnowCoeff       {AirSnowCoeff}  # [1/d] = 1.0 - CEMANEIGE_X2 = 1.0 - x6
-:AvgAnnualSnow      {AvgAnnualSnow} # [mm]  =       CEMANEIGE_X1 =       x5
+:AirSnowCoeff       {one_minus_CEMANEIGE_X2}  # [1/d] = 1.0 - CEMANEIGE_X2 = 1.0 - x6
+:AvgAnnualSnow      {CEMANEIGE_X1}            # [mm]  =       CEMANEIGE_X1 =       x5
 
 # -Orographic Corrections-------------------------------------
 :PrecipitationLapseRate 0.0004
@@ -32,7 +32,7 @@
 
 # ----Soil Profiles--------------------------------------------
 #     name,#horizons,(soiltype,thickness)x(#horizons)
-#     GR4J_X1 is thickness of first layer (SOIL_PROD), here 0.696
+#     GR4J_X1 is thickness of first layer (SOIL_PROD), here {GR4J_X1}
 :SoilProfiles
   DEFAULT_P,      4, SOIL_PROD   ,   {GR4J_X1}, SOIL_ROUT  ,   0.300, SOIL_TEMP  ,   1.000, SOIL_GW  ,   1.000,
 :EndSoilProfiles

@@ -45,17 +45,17 @@
 :SoilProfiles
          LAKE, 0
          ROCK, 0
-  DEFAULT_P, 2, TOPSOIL,  {TOPSOIL}, PHREATIC, {PHREATIC},
-# DEFAULT_P, 2, TOPSOIL, x(20)/1000, PHREATIC, x(21)/1000, 
+  DEFAULT_P, 2, TOPSOIL,  {TOPSOIL_m}, PHREATIC, {PHREATIC_m},
+# DEFAULT_P, 2, TOPSOIL,   x(20)/1000, PHREATIC,   x(21)/1000, 
 :EndSoilProfiles
 
 #-----------------------------------------------------------------
 # Global Parameters
 #-----------------------------------------------------------------
 :GlobalParameter         SNOW_SWI_MIN {SNOW_SWI_MIN}     # x(9)
-:GlobalParameter         SNOW_SWI_MAX {SNOW_SWI_MAX}     # x(9)+x(10)
+:GlobalParameter         SNOW_SWI_MAX {SUM_SNOW_SWI}     # x(9)+x(10)
 :GlobalParameter     SWI_REDUCT_COEFF {SWI_REDUCT_COEFF} # x(11)
-:GlobalParameter             SNOW_SWI {SNOW_SWI}         # not sure why/if needed...
+:GlobalParameter             SNOW_SWI 0.05         # not sure why/if needed...
 
 #-----------------------------------------------------------------
 # Soil Parameters
@@ -75,7 +75,7 @@
 :LandUseParameterList
   :Parameters, MIN_MELT_FACTOR,  MAX_MELT_FACTOR,    DD_MELT_TEMP,  DD_AGGRADATION,  REFREEZE_FACTOR,    REFREEZE_EXP,  DD_REFREEZE_TEMP,  HMETS_RUNOFF_COEFF,
        :Units,          mm/d/C,          mm/d/C,               C,            1/mm,          mm/d/C,               -,                C,                  -,
-    [DEFAULT],{MIN_MELT_FACTOR},{MAX_MELT_FACTOR},  {DD_MELT_TEMP},{DD_AGGRADATION},{REFREEZE_FACTOR},  {REFREEZE_EXP},{DD_REFREEZE_TEMP},{HMETS_RUNOFF_COEFF},
+    [DEFAULT],{MIN_MELT_FACTOR},{SUM_MELT_FACTOR},  {DD_MELT_TEMP},{DD_AGGRADATION},{REFREEZE_FACTOR},  {REFREEZE_EXP},{DD_REFREEZE_TEMP},{HMETS_RUNOFF_COEFF},
 #                         x(5),       x(5)+x(6),            x(7),            x(8),           x(13),           x(14),            x(12),              x(16),        
 :EndLandUseParameterList
 :LandUseParameterList

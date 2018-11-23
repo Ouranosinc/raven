@@ -43,8 +43,8 @@
 # Output Options
 #
 # manual testing settings
-# :NoisyMode
-# :WriteForcingFunctions
 :EvaluationMetrics NASH_SUTCLIFFE RMSE
-# :CustomOutput DAILY AVERAGE SNOW BY_HRU
 :WriteNetcdfFormat  yes
+#:NoisyMode
+:SilentMode
+:PavicsMode

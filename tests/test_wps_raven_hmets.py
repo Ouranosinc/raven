@@ -13,7 +13,31 @@ class TestRavenHMETSProcess:
     def test_simple(self):
         client = client_for(Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE))
 
+        params='9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, 2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947'
+
+        # some params in Raven input files are derived from those 21 parameters
+        # pdefaults.update({'TOPSOIL_m':       pdefaults['TOPSOIL']/1000.})                                --> x20 / 1000.
+        # pdefaults.update({'PHREATIC_m':      pdefaults['PHREATIC']/1000.})                               --> x21 / 1000.
+        # pdefaults.update({'TOPSOIL_hlf':     pdefaults['TOPSOIL']*0.5})                                  --> x20 * 0.5
+        # pdefaults.update({'PHREATIC_hlf':    pdefaults['PHREATIC']*0.5})                                 --> x21 * 0.5  
+        # pdefaults.update({'SUM_MELT_FACTOR': pdefaults['MIN_MELT_FACTOR']+pdefaults['MAX_MELT_FACTOR']}) --> x5 + x6
+        # pdefaults.update({'SUM_SNOW_SWI':    pdefaults['SNOW_SWI_MIN']   +pdefaults['SNOW_SWI_MAX']})    --> x9 + x10
+
+        x20 = float(params.split(',')[19])
+        x21 = float(params.split(',')[20])
+        x5  = float(params.split(',')[4])
+        x6  = float(params.split(',')[5])
+        x9  = float(params.split(',')[8])
+        x10 = float(params.split(',')[9])
+        params+=", {:.5f}".format(x20/1000.)
+        params+=", {:.5f}".format(x21/1000.)
+        params+=", {:.5f}".format(x20*0.5)
+        params+=", {:.5f}".format(x21*0.5)
+        params+=", {:.5f}".format(x5+x6) 
+        params+=", {:.5f}".format(x9+x10)
+
         datainputs = "ts=files@xlink:href=file://{ts};" \
+                     "params={params};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "init={init};" \
@@ -24,10 +48,11 @@ class TestRavenHMETSProcess:
                      "longitude={longitude};" \
                      "elevation={elevation};" \
             .format(ts=TESTDATA['raven-hmets-nc-ts'],
+                    params=params,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     init='155,455',
-                    name='Saumon',
+                    name='Salmon',
                     run_name='test-hmets',
                     area='4250.6',
                     elevation='843.0',

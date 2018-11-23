@@ -6,5 +6,15 @@
 # Emulation of GR4J simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------                                 
 #         
-:UniformInitialConditions SOIL[0] 418.116
-:UniformInitialConditions SOIL[1] 13.78
+# initialize to 1/2 full
+# GR4J_X1 * 1000. / 2.0
+:UniformInitialConditions SOIL[0] 348.0
+
+# Fixed because SOIL_ROUT layer thickness is fixed to be 0.3m
+:UniformInitialConditions SOIL[1] 15.0
+
+:HRUStateVariableTable (formerly :InitialConditionsTable)
+   :Attributes SOIL[0] SOIL[1]
+   :Units      mm      mm
+   1           348.0   15.0
+:EndHRUStateVariableTable
