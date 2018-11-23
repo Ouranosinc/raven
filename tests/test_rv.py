@@ -16,7 +16,7 @@ class TestRV:
         assert dt.datetime(2000, 1, 12) == rvi.end_date
 
     def test_rvp(self):
-        rvp = RV(GR4J_X1=1, GR4J_X2=2, GR4J_X3=3, GR4J_X4=4, AvgAnnualSnow=5, AirSnowCoeff=6)
+        rvp = RV(GR4J_X1=1, GR4J_X2=2, GR4J_X3=3, GR4J_X4=4, CEMANEIGE_X1=5, CEMANEIGE_X2=6)
         assert list(range(1, 7)) == rvp.values()
 
     def test_dict_interface(self):

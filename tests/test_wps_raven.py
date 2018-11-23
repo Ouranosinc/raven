@@ -12,7 +12,7 @@ cf = ['rvi', 'rvp', 'rvc', 'rvh', 'rvt']
 
 class TestRavenProcess:
 
-    def test_gr4j_saumon_nc(self):
+    def test_gr4j_salmon_nc(self):
         client = client_for(Service(processes=[RavenProcess(), ], cfgfiles=CFG_FILE))
 
         rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']

@@ -18,12 +18,17 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-param_defaults = Odict([('SOIL_PROD', 0.696),
-                        ('GR4J_X2', 0.7),
-                        ('GR4J_X3', 19.7),
-                        ('GR4J_X4', 2.09),
-                        ('AvgAnnualSnow', 123.3),
-                        ('AirSnowCoeff', 0.75)])
+param_defaults = Odict([('GR4J_X1',      0.696),
+                        ('GR4J_X2',      0.7),
+                        ('GR4J_X3',      19.7),
+                        ('GR4J_X4',      2.09),
+                        ('CEMANEIGE_X1', 123.3),
+                        ('CEMANEIGE_X2', 0.25)])
+
+# derive remaining parameters from the ones given above
+# this is really important for calibration
+param_defaults.update({'GR4J_X1_hlf':            param_defaults['GR4J_X1']*1000./2.0})
+param_defaults.update({'one_minus_CEMANEIGE_X2': 1.0 - param_defaults['CEMANEIGE_X2']})
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
@@ -48,11 +53,11 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
 
 
     """
-    identifier = 'raven-gr4j-cemaneige'
-    abstract = 'Raven GR4J + CEMANEIGE hydrological model'
-    title = ''
-    version = ''
-    model_cls = GR4JCemaneige
+    identifier   = 'raven-gr4j-cemaneige'
+    abstract     = 'Raven GR4J + CEMANEIGE hydrological model'
+    title        = ''
+    version      = ''
+    model_cls    = GR4JCemaneige
     param_arrays = ['params', 'init']
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,

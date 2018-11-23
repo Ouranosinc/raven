@@ -8,11 +8,14 @@
 #
 
 # initialize to 1/2 full
-:UniformInitialConditions SOIL[0] 155 # x(20)/2
-:UniformInitialConditions SOIL[1] 455 # x(21)/2
+# x(20)/2
+:UniformInitialConditions SOIL[0] 155.36055
+# x(21)/2
+:UniformInitialConditions SOIL[1] 458.09735 
 
-:HRUStateVariableTable (formerly :IntialConditionsTable)
+:HRUStateVariableTable (formerly :InitialConditionsTable)
    :Attributes SOIL[0] SOIL[1]
    :Units mm mm
-   1 155 455
+   1 155.36055 458.09735
 :EndHRUStateVariableTable
+
