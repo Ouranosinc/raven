@@ -31,17 +31,26 @@ class TestGR4JCemaneige:
         model = GR4JCemaneige(tempfile.mkdtemp())
 
         model.rvi.start_date = dt.datetime(2000, 1, 1)
-        model.rvi.end_date = dt.datetime(2002, 1, 1)
-        model.rvi.run_name = 'test'
+        model.rvi.end_date   = dt.datetime(2002, 1, 1)
+        model.rvi.run_name   = 'test'
 
-        model.rvh.name = 'Saumon'
-        model.rvh.area = '4250.6'
+        model.rvh.name      = 'Salmon'
+        model.rvh.area      = '4250.6'
         model.rvh.elevation = '843.0'
-        model.rvh.latitude = 54.4848
+        model.rvh.latitude  = 54.4848
         model.rvh.longitude = -123.3659
 
-        model.rvp.set([0.696, 0.7, 19.7, 2.09, 123.3, 0.75])
-        model.rvc.set([4, 5])
+        rvp_set = [0.696, 0.7, 19.7, 2.09, 123.3, 0.25]
+        # some params in Raven input files are derived from those 21 parameters
+        # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0
+        # pdefaults.update({'one_minus_CEMANEIGE_X2': 1.0 - pdefaults['CEMANEIGE_X2']})   --> 1.0 - x6
+        x1       = rvp_set[0]
+        x6       = rvp_set[5]
+        rvp_set.append( x1 * 1000. / 2.0 )
+        rvp_set.append( 1.0 - x6 )
+        
+        model.rvp.set(rvp_set)
+        model.rvc.set(rvp_set)
 
         model.run([ts,])
 

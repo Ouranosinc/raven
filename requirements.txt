@@ -4,3 +4,7 @@ click
 psutil
 xarray
 pathlib
+netCDF4
+scipy
+dask
+toolz

@@ -5,27 +5,37 @@ from raven.models import HMETS
 from . import wpsio as wio
 
 # Defaults for this process
-param_defaults = Odict([('GAMMA_SHAPE', 9.5019),
-                        ('GAMMA_SCALE', 0.2774),
-                        ('GAMMA_SHAPE2', 6.3942),
-                        ('GAMMA_SCALE2', 0.6884),
-                        ('MIN_MELT_FACTOR', 1.2875),
-                        ('MAX_MELT_FACTOR', 6.7009),
-                        ('DD_MELT_TEMP', 2.3641),
-                        ('DD_AGGRADATION', .0973),
-                        ('SNOW_SWI_MIN', 0.0464),
-                        ('SNOW_SWI_MAX', 0.2462),
-                        ('SWI_REDUCT_COEFF', 0.0222),
-                        ('DD_REFREEZE_TEMP', -1.0919),
-                        ('REFREEZE_FACTOR', 2.6851),
-                        ('REFREEZE_EXP', 0.3740),
-                        ('PET_CORRECTION', 1.0),
-                        ('HMETS_RUNOFF_COEFF', 0.4739),
-                        ('PERC_COEFF', 0.0114),
-                        ('BASEFLOW_COEFF_1', 0.0243),
-                        ('BASEFLOW_COEFF_2', 0.0069),
-                        ('TOPSOIL', 0.3107),
-                        ('PHREATIC', 0.9162)])
+param_defaults = Odict([('GAMMA_SHAPE'        , 9.5019),
+                        ('GAMMA_SCALE'        , 0.2774),
+                        ('GAMMA_SHAPE2'       , 6.3942),
+                        ('GAMMA_SCALE2'       , 0.6884),
+                        ('MIN_MELT_FACTOR'    , 1.2875),
+                        ('MAX_MELT_FACTOR'    , 5.4134),
+                        ('DD_MELT_TEMP'       , 2.3641),
+                        ('DD_AGGRADATION'     , 0.0973),
+                        ('SNOW_SWI_MIN'       , 0.0464),
+                        ('SNOW_SWI_MAX'       , 0.1998),
+                        ('SWI_REDUCT_COEFF'   , 0.0222),
+                        ('DD_REFREEZE_TEMP'   , -1.0919),
+                        ('REFREEZE_FACTOR'    , 2.6851),
+                        ('REFREEZE_EXP'       , 0.3740),
+                        ('PET_CORRECTION'     , 1.0000),
+                        ('HMETS_RUNOFF_COEFF' , 0.4739),
+                        ('PERC_COEFF'         , 0.0114),
+                        ('BASEFLOW_COEFF_1'   , 0.0243),
+                        ('BASEFLOW_COEFF_2'   , 0.0069),
+                        ('TOPSOIL'            , 310.7211),
+                        ('PHREATIC'           , 916.1947)])
+
+# derive remaining parameters from the ones given above
+# this is really important for calibration
+#
+param_defaults.update({'TOPSOIL_m':       param_defaults['TOPSOIL']/1000.})                                
+param_defaults.update({'PHREATIC_m':      param_defaults['PHREATIC']/1000.})                               
+param_defaults.update({'TOPSOIL_hlf':     param_defaults['TOPSOIL']*0.5})                                  
+param_defaults.update({'PHREATIC_hlf':    param_defaults['PHREATIC']*0.5})                                 
+param_defaults.update({'SUM_MELT_FACTOR': param_defaults['MIN_MELT_FACTOR']+param_defaults['MAX_MELT_FACTOR']}) 
+param_defaults.update({'SUM_SNOW_SWI':    param_defaults['SNOW_SWI_MIN']   +param_defaults['SNOW_SWI_MAX']})
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
@@ -41,11 +51,11 @@ init = LiteralInput('init', 'Initial soil conditions',
 
 
 class RavenHMETSProcess(RavenProcess):
-    identifier = 'raven-hmets'
-    abstract = 'HMETS hydrological model'
-    title = ''
-    version = ''
-    model_cls = HMETS
+    identifier   = 'raven-hmets'
+    abstract     = 'HMETS hydrological model'
+    title        = ''
+    version      = ''
+    model_cls    = HMETS
     param_arrays = ['params', 'init']
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,
