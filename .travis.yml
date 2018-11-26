@@ -39,5 +39,5 @@ install:
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
 #  - sleep 2
 script:
-  - pytest
+  - make test
   - flake8
