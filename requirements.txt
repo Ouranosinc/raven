@@ -3,3 +3,7 @@ jinja2
 click
 psutil
 xarray
+numpy
+netCDF4
+dask
+toolz
