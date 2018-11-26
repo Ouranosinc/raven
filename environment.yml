@@ -8,3 +8,4 @@ dependencies:
 - jinja2
 - click
 - psutil
+- xarray
