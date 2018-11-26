@@ -1,14 +1,10 @@
-import pytest
-import os
-import glob
-#import pathlib
 from pywps import Service
 from pywps.tests import assert_response_success
-
 from . common import client_for, TESTDATA, CFG_FILE
 from raven.processes import RavenProcess
 
 cf = ['rvi', 'rvp', 'rvc', 'rvh', 'rvt']
+
 
 class TestRavenProcess:
 
@@ -19,8 +15,8 @@ class TestRavenProcess:
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
         config = {f.suffix[1:]: f for f in rvs}
 
-        datainputs = ("ts=files@xlink:href=file://{ts};" +
-                      ';'.join(["conf=files@xlink:href=file://{%s}"%key for key in cf])) \
+        datainputs = ("ts=files@xlink:href=file://{ts};"
+                      ';'.join(["conf=files@xlink:href=file://{%s}" % key for key in cf])) \
             .format(ts=ts, **config)
 
         resp = client.get(
@@ -29,7 +25,6 @@ class TestRavenProcess:
 
         assert_response_success(resp)
 
-
     def test_hmets(self):
         client = client_for(Service(processes=[RavenProcess(), ], cfgfiles=CFG_FILE))
 
@@ -37,7 +32,7 @@ class TestRavenProcess:
         ts = TESTDATA['raven-hmets-ts']
         config = {f.suffix[1:]: f for f in rvs}
 
-        datainputs = ("ts=files@xlink:href=file://{};ts=files@xlink:href=file://{};" +
+        datainputs = ("ts=files@xlink:href=file://{};ts=files@xlink:href=file://{};"
                       ';'.join(["conf=files@xlink:href=file://{%s}" % key for key in cf])) \
             .format(*ts, **config)
 

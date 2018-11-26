@@ -1,15 +1,4 @@
-import pytest
-from raven.processes import ravenio
 from pathlib import Path
-from .common import TESTDATA
-import datetime as dt
-import glob
-import os
-import tempfile
-from collections import OrderedDict as odict
-
-import pytest
-
 from raven.processes import ravenio
 from .common import TESTDATA
 
@@ -72,6 +61,7 @@ class TestReadDiagnostics:
 
 """
 
+
 class TestParseConfiguration:
     def test_simple(self):
         p = Path(TESTDATA['raven-hmets'])
@@ -79,4 +69,3 @@ class TestParseConfiguration:
 
         out = ravenio.parse_configuration(rvi)
         assert out['Duration'] == '2081'
-

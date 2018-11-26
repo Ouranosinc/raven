@@ -22,4 +22,4 @@ def test_wps_caps():
         'raven-gr4j-cemaneige',
         'raven-hmets',
         'sleep',
-        'wordcounter',]
+        'wordcounter', ]
