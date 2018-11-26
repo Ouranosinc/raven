@@ -79,7 +79,7 @@ raven_dev:
 	@echo "Downloading RAVEN hydrological framework ..."
 	@test -f $(CURDIR)/src/RAVEN.zip || curl $(RAVEN_URL) --output "$(CURDIR)/src/RAVEN.zip"
 	@echo "Unzipping RAVEN ..."
-	@test -d $(RAVEN_SRC) || unzip $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
+	@test -d $(RAVEN_SRC) || unzip -j $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
 	@echo "Compiling RAVEN ..."
 	@test -f $(RAVEN_SRC)/raven_rev.exe || $(MAKE) -C $(RAVEN_SRC) -j4
 	@test -d bin || mkdir bin
