@@ -380,4 +380,3 @@ class HMETS(GR4JCemaneige):
         self.rvp['PHREATIC_m'] = self.rvp['PHREATIC'] / 1000.
         self.rvp['SUM_MELT_FACTOR'] = self.rvp['MIN_MELT_FACTOR'] + self.rvp['MAX_MELT_FACTOR']
         self.rvp['SUM_SNOW_SWI'] = self.rvp['SNOW_SWI_MIN'] + self.rvp['SNOW_SWI_MAX']
-
