@@ -1,7 +1,8 @@
 import numpy as np
 
+
 def simulation(data, params):
-    '''
+    """
     Cema-Neige snow model
 
     Input:
@@ -16,7 +17,7 @@ def simulation(data, params):
     Output:
     Total amount of liquid and melting precipitation daily timeseries
     (for coupling with hydrological model)
-    '''
+    """
 
     ### reading the data ###
     Temp = data['Temp']
@@ -29,15 +30,16 @@ def simulation(data, params):
     ## constants ##
     # melting temperature
     Tmelt = 0
+
     # Threshold for solid precip
     # function for Mean Annual Solid Precipitation
     def MeanAnnualSolidPrecip(data):
-        annual_vals = [data.Prec.ix[data.Prec.index.year == i][data.Temp < -0.2].sum()\
+        annual_vals = [data.Prec.ix[data.Prec.index.year == i][data.Temp < -0.2].sum() \
                        for i in np.unique(data.index.year)]
         return np.mean(annual_vals)
 
     MASP = MeanAnnualSolidPrecip(data)
-    Gthreshold = 0.9*MASP
+    Gthreshold = 0.9 * MASP
     MinSpeed = 0.1
 
     ## model states ##
@@ -68,7 +70,7 @@ def simulation(data, params):
             PotMelt = 0
         ### ratio of snow pack cover (Gratio)
         if G < Gthreshold:
-            Gratio = G/Gthreshold
+            Gratio = G / Gthreshold
         else:
             Gratio = 1
         ### actual melt
@@ -77,7 +79,7 @@ def simulation(data, params):
         G = G - Melt
         ### Gratio update
         if G < Gthreshold:
-            Gratio = G/Gthreshold
+            Gratio = G / Gthreshold
         else:
             Gratio = 1
 
@@ -85,6 +87,7 @@ def simulation(data, params):
         PliqAndMelt[t] = Pliq + Melt
 
     return PliqAndMelt
+
 
 def bounds():
     '''
