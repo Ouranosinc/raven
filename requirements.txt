@@ -7,3 +7,5 @@ numpy
 netCDF4
 dask
 toolz
+pandas
+pywps
