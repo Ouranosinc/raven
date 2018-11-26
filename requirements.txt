@@ -2,9 +2,10 @@ pywps>=4.0.0
 jinja2
 click
 psutil
+numpy
+scipy
 xarray
 pathlib
 netCDF4
-scipy
 dask
 toolz
