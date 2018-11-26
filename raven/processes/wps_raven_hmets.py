@@ -51,11 +51,11 @@ init = LiteralInput('init', 'Initial soil conditions',
 
 
 class RavenHMETSProcess(RavenProcess):
-    identifier   = 'raven-hmets'
-    abstract     = 'HMETS hydrological model'
-    title        = ''
-    version      = ''
-    model_cls    = HMETS
+    identifier = 'raven-hmets'
+    abstract = 'HMETS hydrological model'
+    title = ''
+    version = ''
+    model_cls = HMETS
     param_arrays = ['params', 'init']
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,
