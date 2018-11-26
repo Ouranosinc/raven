@@ -19,11 +19,6 @@ class TestRavenGR4JCemaNeigeProcess:
         # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0
         # pdefaults.update({'one_minus_CEMANEIGE_X2': 1.0 - pdefaults['CEMANEIGE_X2']})   --> 1.0 - x6
 
-        x1 = float(params.split(',')[0])
-        x6 = float(params.split(',')[5])
-        params+=", {:.5f}".format(x1 * 1000. / 2.0)
-        params+=", {:.5f}".format(1.0 - x6)
-
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params};" \
                      "start_date={start_date};" \

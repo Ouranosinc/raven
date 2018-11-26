@@ -102,6 +102,7 @@ class Raven:
         return {ext: getattr(self, ext) for ext in self._rvext}
 
     def configure(self, fns):
+        """Read configuration files."""
         for fn in fns:
             name, ext = self.split_ext(fn)
             self.name = name
@@ -118,6 +119,9 @@ class Raven:
                 obj[key] = value
             except AttributeError:
                 pass
+
+    def derived_parameters(self):
+        return {}
 
     def _dump_rv(self, ts):
         """Write configuration files to disk."""
@@ -155,6 +159,9 @@ class Raven:
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
         os.makedirs(self.model_path, exist_ok=overwrite)
+
+        # Compute derived parameters
+        self.derived_parameters()
 
         # Write configuration files in model directory
         self._dump_rv(ts)
@@ -342,29 +349,35 @@ class GR4JCemaneige(Raven):
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
     rvi = RVI()
-    rvp = RVP(# original parameters (to calibrate)
-              GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, CEMANEIGE_X1=None, CEMANEIGE_X2=None,
-              # derived parameters
-              GR4J_X1_hlf=None, one_minus_CEMANEIGE_X2=None)
-    rvc = rvp
-    # rvc = RVC(SOIL_0=None, SOIL_1=None)
+    rvp = RVP(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, CEMANEIGE_X1=None, CEMANEIGE_X2=None,
+              one_minus_CEMANEIGE_X2=None)
+    rvc = RVC(GR4J_X1_hlf=None)
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
              water_volume_transport_in_river_channel=None)
+
+    def derived_parameters(self):
+        self.rvc['GR4J_X1_hlf'] = self.rvp['GR4J_X1'] * 1000. / 2.
+        self.rvp['one_minus_CEMANEIGE_X2'] = 1.0 - self.rvp['CEMANEIGE_X2']
 
 
 class HMETS(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
-    rvp = RVP(# original parameters (to calibrate)
-              GAMMA_SHAPE=None, GAMMA_SCALE=None, GAMMA_SHAPE2=None, GAMMA_SCALE2=None, MIN_MELT_FACTOR=None,
+    rvp = RVP(GAMMA_SHAPE=None, GAMMA_SCALE=None, GAMMA_SHAPE2=None, GAMMA_SCALE2=None, MIN_MELT_FACTOR=None,
               MAX_MELT_FACTOR=None, DD_MELT_TEMP=None, DD_AGGRADATION=None, SNOW_SWI_MIN=None, SNOW_SWI_MAX=None,
               SWI_REDUCT_COEFF=None, DD_REFREEZE_TEMP=None, REFREEZE_FACTOR=None, REFREEZE_EXP=None,
               PET_CORRECTION=None, HMETS_RUNOFF_COEFF=None, PERC_COEFF=None, BASEFLOW_COEFF_1=None,
-              BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None,
-              # derived parameters
-              TOPSOIL_m=None, PHREATIC_m=None, TOPSOIL_hlf=None, PHREATIC_hlf=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None)
-    rvc = rvp
+              BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, TOPSOIL_m = None, PHREATIC_m = None,
+              SUM_MELT_FACTOR = None, SUM_SNOW_SWI = None)
 
+    rvc = RVC(TOPSOIL_hlf = None, PHREATIC_hlf = None)
 
-    
+    def derived_parameters(self):
+        self.rvc['TOPSOIL_hlf'] = self.rvp['TOPSOIL'] * 0.5
+        self.rvc['PHREATIC_hlf'] = self.rvp['PHREATIC'] * 0.5
+        self.rvp['TOPSOIL_m'] = self.rvp['TOPSOIL'] / 1000.
+        self.rvp['PHREATIC_m'] = self.rvp['PHREATIC'] / 1000.
+        self.rvp['SUM_MELT_FACTOR'] = self.rvp['MIN_MELT_FACTOR'] + self.rvp['MAX_MELT_FACTOR']
+        self.rvp['SUM_SNOW_SWI'] = self.rvp['SNOW_SWI_MIN'] + self.rvp['SNOW_SWI_MAX']
+

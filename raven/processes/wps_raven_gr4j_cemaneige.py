@@ -24,12 +24,6 @@ param_defaults = Odict([('GR4J_X1',      0.696),
                         ('CEMANEIGE_X1', 123.3),
                         ('CEMANEIGE_X2', 0.25)])
 
-# derive remaining parameters from the ones given above
-# this is really important for calibration
-param_defaults.update({'GR4J_X1_hlf':            param_defaults['GR4J_X1']*1000./2.0})
-param_defaults.update({'one_minus_CEMANEIGE_X2': 1.0 - param_defaults['CEMANEIGE_X2']})
-
-
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
                       data_type='string',
