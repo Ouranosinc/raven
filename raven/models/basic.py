@@ -371,7 +371,7 @@ class HMETS(GR4JCemaneige):
               BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, TOPSOIL_m = None, PHREATIC_m = None,
               SUM_MELT_FACTOR = None, SUM_SNOW_SWI = None)
 
-    rvc = RVC(TOPSOIL_hlf = None, PHREATIC_hlf = None)
+    rvc = RVC(TOPSOIL_hlf=None, PHREATIC_hlf=None)
 
     def derived_parameters(self):
         self.rvc['TOPSOIL_hlf'] = self.rvp['TOPSOIL'] * 0.5
