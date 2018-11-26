@@ -8,11 +8,14 @@ CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL = http://raven.uwaterloo.ca/files/v2.8.1/Raven_2.8.1_Source.zip
+RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev157.zip
 RAVEN_SRC = $(CURDIR)/src/RAVEN
+UNAME_S := $(shell uname -s)
+DOWNLOAD_CACHE = /tmp/
+
 ifeq "$(OS_NAME)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
-else ifeq "$(OS_NAME)" "Darwin"
+else ifeq "$(UNAME_S)" "Darwin"
 FN := Miniconda3-latest-MacOSX-x86_64.sh
 else
 FN := unknown
@@ -105,9 +108,7 @@ status:
 .PHONY: clean
 clean: srcclean envclean
 	@echo "Cleaning generated files ..."
-	@-for i in $(TEMP_FILES); do \
-  	test -e $$i && rm -v -rf $$i; \
-  done
+	@-for i in $(TEMP_FILES); do test -e $$i && rm -v -rf $$i; done
 
 .PHONY: envclean
 envclean:

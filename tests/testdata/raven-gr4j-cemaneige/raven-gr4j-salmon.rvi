@@ -6,10 +6,10 @@
 # Emulation of GR4J simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------                                  
 #                                                                                                          
-:RunName               {run_name}
-:StartDate             {start_date}
-:Duration              {duration}
-:TimeStep              {time_step}
+#:RunName              run1                                                                           
+:StartDate             1954-01-01 00:00:00                                                                   
+:Duration              208
+:TimeStep              1.0                                                                                   
 :Method                ORDERED_SERIES                                                                       
                                                                                                            
 :SoilModel             SOIL_MULTILAYER  4                                                                    
@@ -55,7 +55,7 @@
 # Output Options                                                                                           
 #
 :WriteForcingFunctions
-:EvaluationMetrics {evaluation_metrics}
+:EvaluationMetrics NASH_SUTCLIFFE RMSE
 :WriteNetcdfFormat  yes
 #:NoisyMode
 :SilentMode
