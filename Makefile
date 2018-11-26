@@ -9,10 +9,12 @@ CONDA_ENV ?= $(APP_NAME)
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
 RAVEN_URL = http://raven.uwaterloo.ca/files/v2.8.1/Raven_2.8.1_Source.zip
+UNAME_S :=$(shell uname -s)
 RAVEN_SRC = $(CURDIR)/src/RAVEN
-ifeq "$(OS_NAME)" "Linux"
+
+ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
-else ifeq "$(OS_NAME)" "Darwin"
+else ifeq "$(UNAME_S)" "Darwin"
 FN := Miniconda3-latest-MacOSX-x86_64.sh
 else
 FN := unknown
