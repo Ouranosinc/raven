@@ -1,13 +1,12 @@
+
 from .wps_raven import RavenProcess
-from pywps import LiteralInput
 from raven.models import GR4JCemaneige
 from . import wpsio as wio
-
 import logging
 from collections import OrderedDict as Odict
+from pywps import LiteralInput
 
 LOGGER = logging.getLogger("PYWPS")
-
 
 """
 Notes
@@ -29,6 +28,7 @@ param_defaults = Odict([('GR4J_X1',      0.696),
 # this is really important for calibration
 param_defaults.update({'GR4J_X1_hlf':            param_defaults['GR4J_X1']*1000./2.0})
 param_defaults.update({'one_minus_CEMANEIGE_X2': 1.0 - param_defaults['CEMANEIGE_X2']})
+
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
@@ -53,12 +53,15 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
 
 
     """
-    identifier   = 'raven-gr4j-cemaneige'
-    abstract     = 'Raven GR4J + CEMANEIGE hydrological model'
-    title        = ''
-    version      = ''
-    model_cls    = GR4JCemaneige
+
+    identifier = 'raven-gr4j-cemaneige'
+    abstract = 'Raven GR4J + CEMANEIGE hydrological model'
+    title = ''
+    version = ''
+    model_cls = GR4JCemaneige
     param_arrays = ['params', 'init']
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
+
+
