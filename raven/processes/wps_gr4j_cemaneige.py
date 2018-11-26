@@ -29,11 +29,11 @@ class GR4JCemaNeigeProcess(Process):
                                supported_formats=[FORMATS.NETCDF]),
 
                   LiteralInput('params', 'Comma separated list of model parameters',
-                               abstract='Parameters: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CN_X1, 1-CN_X2'
-                                        'Raven: SOIL_PROD, GR4J_X2, GR4J_X3, GR4J_X4, AvgAnnualSnow, AirSnowCoeff',
+                               abstract='Parameters: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CN_X1, CN_X2'
+                                        'Raven: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CEMANEIGE_X1, CEMANEIGE_X2',
                                min_occurs=0,
                                data_type='string',
-                               default='300, -1, 200, 2, .5, 8'),
+                               default='0.696, 0.7, 19.7, 2.09, 123.3, 0.25'),
 
                   LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
                                abstract='Start date of the simulation (AAAA-MM-DD). '
