@@ -10,3 +10,4 @@ dependencies:
 - psutil
 - xarray
 - pandas
+- bumpversion
