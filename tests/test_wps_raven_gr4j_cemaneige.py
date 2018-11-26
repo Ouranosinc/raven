@@ -13,7 +13,7 @@ class TestRavenGR4JCemaNeigeProcess:
     def test_simple(self):
         client = client_for(Service(processes=[RavenGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
 
-        params='0.696, 0.7, 19.7, 2.09, 123.3, 0.25'
+        params = '0.696, 0.7, 19.7, 2.09, 123.3, 0.25'
 
         # some params in Raven input files are derived from those 21 parameters
         # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0

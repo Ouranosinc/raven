@@ -17,10 +17,10 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-param_defaults = Odict([('GR4J_X1',      0.696),
-                        ('GR4J_X2',      0.7),
-                        ('GR4J_X3',      19.7),
-                        ('GR4J_X4',      2.09),
+param_defaults = Odict([('GR4J_X1', 0.696),
+                        ('GR4J_X2', 0.7),
+                        ('GR4J_X3', 19.7),
+                        ('GR4J_X4', 2.09),
                         ('CEMANEIGE_X1', 123.3),
                         ('CEMANEIGE_X2', 0.25)])
 
@@ -57,5 +57,3 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
-
-

@@ -2,6 +2,7 @@ import pytest
 from raven.models import RV, RVI, RVP
 import datetime as dt
 
+
 class TestRV:
 
     def test_rvi(self):
@@ -33,4 +34,3 @@ class TestRV:
         rvp['params'] = [3, 4]
 
         assert 3 == rvp.a
-
