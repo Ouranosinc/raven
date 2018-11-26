@@ -16,7 +16,7 @@ class TestRavenProcess:
         config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = ("ts=files@xlink:href=file://{ts};" + ";".join(["conf=files@xlink:href=file://{%s}" % key for key
-                                                                   in cf])).format(ts=ts, **config)
+                                                                     in cf])).format(ts=ts, **config)
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven',
@@ -31,17 +31,11 @@ class TestRavenProcess:
         ts = TESTDATA['raven-hmets-ts']
         config = {f.suffix[1:]: f for f in rvs}
 
-        datainputs = ("ts=files@xlink:href=file://{};ts=files@xlink:href=file://{};" +
-                      ';'.join(["conf=files@xlink:href=file://{%s}" % key for key in cf])).format(*ts, **config)
+        datainputs = ("ts=files@xlink:href=file://{};"
+                      "ts=files@xlink:href=file://{};" + ';'.join(["conf=files@xlink:href=file://{%s}" % key for key
+                                                                   in cf])).format(*ts, **config)
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven',
             datainputs=datainputs)
         assert_response_success(resp)
-
-
-"rvi=files@xlink:href=file://{rvi};" \
-                     "rvp=files@xlink:href=file://{rvp};" \
-                     "rvc=files@xlink:href=file://{rvc};" \
-                     "rvh=files@xlink:href=file://{rvh};" \
-                     "rvt=files@xlink:href=file://{rvt};" \
