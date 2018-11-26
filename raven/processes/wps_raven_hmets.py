@@ -27,15 +27,6 @@ param_defaults = Odict([('GAMMA_SHAPE'        , 9.5019),
                         ('TOPSOIL'            , 310.7211),
                         ('PHREATIC'           , 916.1947)])
 
-# derive remaining parameters from the ones given above
-# this is really important for calibration
-#
-param_defaults.update({'TOPSOIL_m':       param_defaults['TOPSOIL']/1000.})                                
-param_defaults.update({'PHREATIC_m':      param_defaults['PHREATIC']/1000.})                               
-param_defaults.update({'TOPSOIL_hlf':     param_defaults['TOPSOIL']*0.5})                                  
-param_defaults.update({'PHREATIC_hlf':    param_defaults['PHREATIC']*0.5})                                 
-param_defaults.update({'SUM_MELT_FACTOR': param_defaults['MIN_MELT_FACTOR']+param_defaults['MAX_MELT_FACTOR']}) 
-param_defaults.update({'SUM_SNOW_SWI':    param_defaults['SNOW_SWI_MIN']   +param_defaults['SNOW_SWI_MAX']})
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
