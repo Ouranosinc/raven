@@ -17,5 +17,9 @@ def test_wps_caps():
                             '/ows:Identifier')
     assert sorted(names.split()) == [
         'inout',
+        'gr4j-cemaneige',
+        'raven',
+        'raven-gr4j-cemaneige',
+        'raven-hmets',
         'sleep',
-        'wordcounter']
+        'wordcounter', ]
