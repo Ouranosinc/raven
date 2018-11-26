@@ -6,12 +6,10 @@
 # Emulation of HMETS simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------
 #
-#
-
-:RunName               {run_name}
-:StartDate             {start_date}
-:Duration              {duration}
-:TimeStep              {time_step}
+#:RunName              run1                                                                           
+:StartDate             1954-01-01 00:00:00                                                                   
+:Duration              2081
+:TimeStep              1.0                                                                                   
 :Method                ORDERED_SERIES 
 
 :PotentialMeltMethod     POTMELT_HMETS
@@ -44,8 +42,8 @@
 #---------------------------------------------------------
 # Output Options
 #
-#:WriteForcingFunctions
-:EvaluationMetrics {evaluation_metrics}
+# manual testing settings
+:EvaluationMetrics NASH_SUTCLIFFE RMSE
 :WriteNetcdfFormat  yes
 #:NoisyMode
 :SilentMode

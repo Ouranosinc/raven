@@ -1,21 +1,29 @@
 import os
-
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import xarray as xr
 from pywps.tests import WpsClient, WpsTestResponse
 
-TESTS_HOME = os.path.abspath(os.path.dirname(__file__))
-CFG_FILE = os.path.join(TESTS_HOME, 'test.cfg')
 
-TESTDATA = {'gr4j-cemaneige':
-            {'pr': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'pr.nc')),
-             'tas': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'tas.nc')),
-             'evap': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'gr4j_cemaneige', 'evap.nc'))},
-            'raven-gr4j-cemaneige': '{0}'.format(os.path.join(TESTS_HOME, 'testdata', 'raven-gr4j-cemaneige',
-                                                              'Salmon-River-Near-Prince-George_meteo_daily.nc'))
-            }
-TESTDATA['raven-hmets'] = TESTDATA['raven-gr4j-cemaneige']
+TESTS_HOME = Path(__file__).parent
+TD = TESTS_HOME / 'testdata'
+CFG_FILE = TESTS_HOME / 'test.cfg'
+
+TESTDATA = {}
+TESTDATA['gr4j-cemaneige'] = \
+    {'pr': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'pr.nc')),
+     'tas': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'tas.nc')),
+     'evap': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'evap.nc'))}
+
+TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
+
+TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
+
+TESTDATA['raven-hmets-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+TESTDATA['raven-hmets'] = TD / 'raven-hmets'
+TESTDATA['raven-hmets-rv'] = tuple((TD / 'raven-hmets').glob('raven-hmets-salmon.rv?'))
+TESTDATA['raven-hmets-ts'] = tuple((TD / 'raven-hmets').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
 
 class WpsTestClient(WpsClient):
