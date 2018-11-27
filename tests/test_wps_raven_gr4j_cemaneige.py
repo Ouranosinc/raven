@@ -4,7 +4,7 @@ import datetime as dt
 from pywps import Service
 from pywps.tests import assert_response_success
 
-from . common import client_for, TESTDATA, CFG_FILE
+from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenGR4JCemaNeigeProcess
 
 
@@ -45,5 +45,9 @@ class TestRavenGR4JCemaNeigeProcess:
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven-gr4j-cemaneige',
             datainputs=datainputs)
-        print(resp.response)
+
         assert_response_success(resp)
+        out = get_output(resp.xml)
+        assert 'diagnostics' in out
+        tmp_file, _ = urlretrieve(out['diagnostics'])
+        assert 'DIAG' in open(tmp_file).read()
