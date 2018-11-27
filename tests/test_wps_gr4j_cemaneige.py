@@ -19,7 +19,6 @@ class TestGR4JCemaNeigeProcess:
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='gr4j_cemaneige',
             datainputs=datainputs)
-        print(datainputs)
-        print(resp.response)
+
         assert_response_success(resp)
 

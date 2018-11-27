@@ -3,6 +3,7 @@ from . common import TESTDATA
 from raven.models import Raven, GR4JCemaneige, RVI, RV
 import tempfile
 import datetime as dt
+import numpy as np
 
 
 class TestRaven:
@@ -44,6 +45,12 @@ class TestGR4JCemaneige:
         model.rvp.set([0.696, 0.7, 19.7, 2.09, 123.3, 0.25])
 
         model.run([ts, ])
+
+        d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.09, 2)
+
+        hds = model.hydrograph
+        assert 'q_sim' in hds.data_vars
 
     def test_tags(self):
         model = GR4JCemaneige(tempfile.mkdtemp())

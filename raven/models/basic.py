@@ -316,12 +316,17 @@ class Raven:
     def diagnostics(self):
         with open(self.outputs['diagnostics']) as f:
             reader = csv.reader(f.readlines())
-            header = reader.next()
-            content = reader.next()
+            header = next(reader)
+            content = next(reader)
 
             out = dict(zip(header, content))
             out.pop('')
-            return out
+
+        for key, val in out.items():
+            if 'DIAG' in key:
+                out[key] = float(val)
+
+        return out
 
     @property
     def tags(self):
@@ -368,8 +373,8 @@ class HMETS(GR4JCemaneige):
               MAX_MELT_FACTOR=None, DD_MELT_TEMP=None, DD_AGGRADATION=None, SNOW_SWI_MIN=None, SNOW_SWI_MAX=None,
               SWI_REDUCT_COEFF=None, DD_REFREEZE_TEMP=None, REFREEZE_FACTOR=None, REFREEZE_EXP=None,
               PET_CORRECTION=None, HMETS_RUNOFF_COEFF=None, PERC_COEFF=None, BASEFLOW_COEFF_1=None,
-              BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, TOPSOIL_m = None, PHREATIC_m = None,
-              SUM_MELT_FACTOR = None, SUM_SNOW_SWI = None)
+              BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, TOPSOIL_m=None, PHREATIC_m=None,
+              SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None)
 
     rvc = RVC(TOPSOIL_hlf=None, PHREATIC_hlf=None)
 
