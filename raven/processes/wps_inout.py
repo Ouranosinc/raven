@@ -1,6 +1,6 @@
 from pywps import Process
 from pywps import LiteralInput, LiteralOutput
-# from pywps import BoundingBoxInput
+from pywps import BoundingBoxInput
 from pywps import BoundingBoxOutput
 from pywps import ComplexInput, ComplexOutput
 from pywps import Format, FORMATS
