@@ -1,3 +1,4 @@
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 
@@ -5,6 +6,7 @@ from raven.processes import GR4JCemaNeigeProcess
 from .common import client_for, TESTDATA, CFG_FILE
 
 
+# @pytest.mark.skip
 class TestGR4JCemaNeigeProcess:
 
     def test_simple(self):
@@ -18,3 +20,4 @@ class TestGR4JCemaNeigeProcess:
             datainputs=datainputs)
 
         assert_response_success(resp)
+

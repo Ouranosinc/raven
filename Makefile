@@ -3,7 +3,7 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-ANACONDA_HOME ?= $(HOME)/anaconda
+ANACONDA_HOME ?= $(HOME)/miniconda
 CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
@@ -13,7 +13,7 @@ RAVEN_SRC = $(CURDIR)/src/RAVEN
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 
-ifeq "$(OS_NAME)" "Linux"
+ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
 else ifeq "$(UNAME_S)" "Darwin"
 FN := Miniconda3-latest-MacOSX-x86_64.sh
@@ -69,7 +69,8 @@ bootstrap: conda_env bootstrap_dev
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
-	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx bumpversion"
+	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx"
+	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
 
@@ -78,7 +79,7 @@ raven_dev:
 	@echo "Downloading RAVEN hydrological framework ..."
 	@test -f $(CURDIR)/src/RAVEN.zip || curl $(RAVEN_URL) --output "$(CURDIR)/src/RAVEN.zip"
 	@echo "Unzipping RAVEN ..."
-	@test -d $(RAVEN_SRC) || unzip $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
+	@test -d $(RAVEN_SRC) || unzip -j $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
 	@echo "Compiling RAVEN ..."
 	@test -f $(RAVEN_SRC)/raven_rev.exe || $(MAKE) -C $(RAVEN_SRC) -j4
 	@test -d bin || mkdir bin
