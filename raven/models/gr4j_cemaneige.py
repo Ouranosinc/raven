@@ -19,10 +19,10 @@ def simulation(data, params):
         X4 : time constant of unit hydrograph (X4 - TB) [day]
             [0.5, 4.0]
         Cema-Neige snow model parameters:
-        X5 : dimensionless weighting coefficient of the snow pack thermal state
-            [0, 1]
-        X6 : day-degree rate of melting (mm/(day*celsium degree))
+        X5 : day-degree rate of melting (mm/(day*celsium degree))
             [1, 10]
+        X6 : dimensionless weighting coefficient of the snow pack thermal state
+            [0, 1]
     """
     # 1. parameters initialization
     X1, X2, X3, X4, X5, X6 = params
@@ -234,12 +234,12 @@ def bounds():
     X4 : time constant of unit hydrograph (X4 - TB) [day]
         [0.5, 4.0]
     Cema-Neige snow model parameters:
-    X5 : dimensionless weighting coefficient of the snow pack thermal state
-        [0, 1]
-    X6 : day-degree rate of melting (mm/(day*celsium degree))
+    X5 : day-degree rate of melting (mm/(day*celsium degree))
         [1, 10]
+    X6 : dimensionless weighting coefficient of the snow pack thermal state
+        [0, 1]
     '''
-    bnds = ((0, 1500), (-10, 5), (0, 500), (0.5, 4.0), (0, 1), (1, 10))
+    bnds = ((0, 1500), (-10, 5), (0, 500), (0.5, 4.0), (1, 10), (0, 1))
     return bnds
 
 

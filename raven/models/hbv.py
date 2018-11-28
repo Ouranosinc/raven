@@ -2,9 +2,9 @@ import numpy as np
 import scipy.signal as ss
 
 
-def simulation(data, params=[1.0, 0.15, 250, 0.055, \
-                             0.055, 0.04, 0.7, 3.0, \
-                             1.5, 120, 1.0, 0.0, \
+def simulation(data, params=[1.0, 0.15, 250, 0.055,
+                             0.055, 0.04, 0.7, 3.0,
+                             1.5, 120, 1.0, 0.0,
                              5.0, 0.7, 0.05, 0.1]):
     '''
     Implementation of HBV model (Bergstrom, 1986)
