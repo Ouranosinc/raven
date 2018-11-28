@@ -19,7 +19,7 @@ before_install:
 install:
   - make install
   - make start
-  - sleep 2
+#  - sleep 2
 #  # Prepare env with Python version
 #  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
 #  # Update now the env with our environment
@@ -31,7 +31,7 @@ install:
 #  - python setup.py install
 before_script:
   # Start WPS service on port 5000 on 0.0.0.0
-  - raven start --daemon --bind-host 0.0.0.0 --port 5000
+#  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
 script:
   - make test
