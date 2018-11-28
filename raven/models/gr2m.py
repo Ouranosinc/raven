@@ -13,7 +13,8 @@ def gr2m(precip, potential_evap, params, states=None, return_state=False):
         :type params: dictionary with keys X1, X5
         :param states: Optional initial state values.
         :type states: Dictionary with optional keys 'production_store', 'routing_store'.
-        :param return_state: If true returns a dictionary containing 'production_store' and 'routing_store'. Default: False.
+        :param return_state: If true returns a dictionary containing 'production_store' and 'routing_store'.
+        Default: False.
         :type return_state: boolean
 
         :return: Array of simulated streamflow.

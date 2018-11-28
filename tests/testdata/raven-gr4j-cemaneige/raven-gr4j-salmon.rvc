@@ -3,18 +3,18 @@
 :WrittenBy         Juliane Mai & James Craig                                                                             
 :CreationDate      Sep 2018
 #
-# Emulation of HMETS simulation of Salmon River near Prince George                                                             
+# Emulation of GR4J simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------                                 
-#
-
+#         
 # initialize to 1/2 full
-# x(20)/2
-:UniformInitialConditions SOIL[0] {TOPSOIL_hlf}
-# x(21)/2
-:UniformInitialConditions SOIL[1] {PHREATIC_hlf} 
+# GR4J_X1 * 1000. / 2.0
+:UniformInitialConditions SOIL[0] 348.0
+
+# Fixed because SOIL_ROUT layer thickness is fixed to be 0.3m
+:UniformInitialConditions SOIL[1] 15.0
 
 :HRUStateVariableTable (formerly :InitialConditionsTable)
    :Attributes SOIL[0] SOIL[1]
-   :Units mm mm
-   1 {TOPSOIL_hlf} {PHREATIC_hlf}
+   :Units      mm      mm
+   1           348.0   15.0
 :EndHRUStateVariableTable

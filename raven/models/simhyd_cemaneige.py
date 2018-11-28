@@ -1,9 +1,10 @@
-import numpy as np
 import cema_neige
+import numpy as np
+
 
 
 def simulation(data, params):
-    '''
+    """
     SIMHYD hydrological model (Chiew, 2009)
     coupled with Cema-Neige snow model
 
@@ -39,7 +40,7 @@ def simulation(data, params):
             [0, 1]
         X6 : day-degree rate of melting (mm/(day*celsium degree))
             [1, 10]
-    '''
+    """
     ### read parameters ###
     INSC, COEFF, SQ, SMSC, SUB, CRAK, K, etmul, DELAY, X_m, X5, X6 = params
 
@@ -148,7 +149,7 @@ def simulation(data, params):
 
 
 def bounds():
-    '''
+    """
     'INSC' - interception store capacity (mm)
         [0, 50]
     'COEFF'- maximum infiltration loss
@@ -175,7 +176,8 @@ def bounds():
         [0, 1]
     X6 : day-degree rate of melting (mm/(day*celsium degree))
         [1, 10]
-    '''
+
+    """
     bnds = ((0, 50), (0, 400), (0, 10), (0, 1000), \
             (0, 1), (0, 1), (0, 1), (0.1, 3), \
             (0.1, 5), (0.01, 0.5), (0, 1), (1, 10))

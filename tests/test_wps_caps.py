@@ -1,9 +1,11 @@
-from pywps import Service
 import pytest
-from pywps.tests import assert_response_success
+from pywps import Service
 
-from .common import client_for
 from raven.processes import processes
+from .common import client_for
+
+
+# from pywps.tests import assert_response_success
 
 @pytest.mark.skip
 def test_wps_caps():
@@ -15,5 +17,9 @@ def test_wps_caps():
                             '/ows:Identifier')
     assert sorted(names.split()) == [
         'inout',
+        'gr4j-cemaneige',
+        'raven',
+        'raven-gr4j-cemaneige',
+        'raven-hmets',
         'sleep',
-        'wordcounter']
+        'wordcounter', ]

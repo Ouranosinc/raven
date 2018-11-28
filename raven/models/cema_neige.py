@@ -2,7 +2,7 @@ import numpy as np
 
 
 def simulation(data, params):
-    '''
+    """
     Cema-Neige snow model
 
     Input:
@@ -10,21 +10,21 @@ def simulation(data, params):
         'Temp'- mean daily temperature (Celsius degrees)
         'Prec'- mean daily precipitation (mm/day)
     2. Params - list of model parameters:
-        'CTG' - dimensionless weighting coefficient of the snow pack thermal state
-                [0, 1]
         'Kf'  - day-degree rate of melting (mm/(day*celsium degree))
                 [1, 10]
+        'CTG' - dimensionless weighting coefficient of the snow pack thermal state
+                [0, 1]
     Output:
     Total amount of liquid and melting precipitation daily timeseries
     (for coupling with hydrological model)
-    '''
+    """
 
     ### reading the data ###
     Temp = data['Temp']
     Prec = data['Prec']
     FraqSolidPrecip = np.where(Temp < -0.2, 1, 0)
 
-    CTG, Kf = params
+    Kf, CTG = params
 
     ### initialization ###
     ## constants ##
@@ -91,10 +91,10 @@ def simulation(data, params):
 
 def bounds():
     '''
-    'CTG' - dimensionless weighting coefficient of the snow pack thermal state
-            [0, 1]
     'Kf'  - day-degree rate of melting (mm/(day*celsium degree))
             [1, 10]
+    'CTG' - dimensionless weighting coefficient of the snow pack thermal state
+            [0, 1]
     '''
-    bnds = ((0, 1), (1, 10))
+    bnds = ((1, 10),(0, 1))
     return bnds
