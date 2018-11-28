@@ -9,6 +9,7 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
 
 
+@pytest.mark.skip
 class TestRavenHMETSProcess:
 
     def test_simple(self):

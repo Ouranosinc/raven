@@ -23,9 +23,9 @@ CFG_FILE = TESTS_HOME / 'test.cfg'
 
 TESTDATA = {}
 TESTDATA['gr4j-cemaneige'] = \
-    {'pr': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'pr.nc')),
-     'tas': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'tas.nc')),
-     'evap': '{0}'.format(os.path.join(TD, 'gr4j_cemaneige', 'evap.nc'))}
+    {'pr': TD / 'gr4j_cemaneige' / 'pr.nc',
+     'tas': TD / 'gr4j_cemaneige' / 'tas.nc',
+     'evap': TD / 'gr4j_cemaneige' / 'evap.nc'}
 
 TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 
