@@ -9,7 +9,7 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenGR4JCemaNeigeProcess
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 class TestRavenGR4JCemaNeigeProcess:
 
     def test_simple(self):

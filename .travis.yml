@@ -1,11 +1,8 @@
-language: generic
+language: python
 matrix:
   fast_finish: true
   include:
     - os: osx
-#      python: "2.7"
-#    - os: osx
-#      python: "3.6"
     - os: linux
       dist: xenial
       python: "2.7"
@@ -38,4 +35,4 @@ before_script:
   - sleep 2
 script:
   - make test
-#  - flake8
+  - flake8
