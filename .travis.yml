@@ -2,13 +2,22 @@ language: generic
 matrix:
   fast_finish: true
   include:
-    - os: osx
-    - os: linux
+    - name: "OSX"
+      os: osx
+      env: TEST_SUITE=test
+    - name: "Linux Python 2.7"
+      os: linux
       dist: xenial
       python: "2.7"
-    - os: linux
+      env: TEST_SUITE=test
+    - name: "Linux Python 3.6"
+      os: linux
       dist: xenial
       python: "3.6"
+      env: TEST_SUITE=test
+    - name: "PEP8"
+      env: TEST_SUITE=pep8
+
 branches:
   only:
     - master
@@ -17,8 +26,8 @@ before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
   - pip install --user flake8
 install:
-  - make install
-  - make start
+  - if [ $TEST_SUITE != pep8 ] make install
+  - if [ $TEST_SUITE != pep8 ] make start
 #  - sleep 2
 #  # Prepare env with Python version
 #  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
@@ -34,5 +43,4 @@ before_script:
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
 script:
-  - make test
-  - flake8
+  - make $TEST_SUITE
