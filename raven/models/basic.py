@@ -172,9 +172,8 @@ class Raven:
             os.symlink(fn, self.model_path / Path(fn).name)
 
         # Create symbolic link to executable
-        #os.symlink(raven_exec, self.cmd)
-        shutil.copyfile(raven_exec, self.cmd)
-
+        os.symlink(raven_exec, self.cmd)
+        
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
 
