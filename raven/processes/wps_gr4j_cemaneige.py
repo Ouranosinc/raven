@@ -56,7 +56,7 @@ class GR4JCemaNeigeProcess(Process):
 
         super(GR4JCemaNeigeProcess, self).__init__(
             self._handler,
-            identifier='gr4j_cemaneige',
+            identifier='gr4j-cemaneige',
             title='',
             version='',
             abstract='GR4J + CEMANEIGE hydrological model',

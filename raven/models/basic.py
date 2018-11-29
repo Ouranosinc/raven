@@ -173,7 +173,7 @@ class Raven:
 
         # Create symbolic link to executable
         os.symlink(raven_exec, self.cmd)
-        
+
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
 

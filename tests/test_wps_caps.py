@@ -15,11 +15,11 @@ def test_wps_caps():
                             '/wps:ProcessOfferings'
                             '/wps:Process'
                             '/ows:Identifier')
-    assert sorted(names.split()) == [
-        'inout',
-        'gr4j-cemaneige',
-        'raven',
-        'raven-gr4j-cemaneige',
-        'raven-hmets',
-        'sleep',
-        'wordcounter', ]
+    sn = sorted(names.split())
+    assert sn == ['gr4j-cemaneige',
+                  'inout',
+                  'raven',
+                  'raven-gr4j-cemaneige',
+                  'raven-hmets',
+                  'sleep',
+                  'wordcounter']

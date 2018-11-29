@@ -10,6 +10,7 @@ processes = [
     RavenProcess(),
     GR4JCemaNeigeProcess(),
     RavenGR4JCemaNeigeProcess(),
+    RavenHMETSProcess(),
     WordCounter(),
     InOut(),
     Sleep(),
