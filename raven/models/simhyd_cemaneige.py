@@ -30,27 +30,27 @@ def simulation(data, params):
             [0, 1]
         'etmul'- added parameter to convert maxT to PET
             [0.1, 3]
-        ### Muskinghum routing parameters
+        # Muskinghum routing parameters
         'DELAY'- runoff delay
             [0.1, 5]
         'X_m'  - transformation parameter
             [0.01, 0.5]
-        ### Cema-Neige parameters
+        # Cema-Neige parameters
         X5 : dimensionless weighting coefficient of the snow pack thermal state
             [0, 1]
         X6 : day-degree rate of melting (mm/(day*celsium degree))
             [1, 10]
     """
-    ### read parameters ###
+    # read parameters #
     INSC, COEFF, SQ, SMSC, SUB, CRAK, K, etmul, DELAY, X_m, X5, X6 = params
 
-    ### read the data ###
+    # read the data #
     # Temp = data['Temp']
     # Prec = data['Prec']
     Evap = data['Evap'] * etmul
     Prec = cema_neige.simulation(data, [X5, X6])
 
-    ### states and parameters initialization ###
+    # states and parameters initialization #
     # total runoff
     U = np.zeros(len(Prec))
     # interception store
@@ -80,7 +80,8 @@ def simulation(data, params):
     # ground water storage
     GW = np.zeros(len(Prec))
 
-    GWt1, GWt0 = 0, 0
+    # GWt0 = 0
+    GWt1 = 0
     SMSt0 = 0.5
     SMSt1 = SMSt0 * SMSC
 
@@ -121,7 +122,7 @@ def simulation(data, params):
         # final runoff (effective precipitation) calculation
         U[t] = IRUN[t] + SRUN[t] + BAS[t]
 
-    ### Muskinghum routing scheme ###
+    # Muskinghum routing scheme #
     # initialize transformed runoff
     Q = np.zeros(len(U))
     # calculate Muskinghum components
@@ -143,7 +144,8 @@ def simulation(data, params):
     for t in range(len(U) - 1):
         Q[t + 1] = C0 * U[t + 1] + C1 * U[t] + C2 * Q[t]
         # control Q
-        if Q[t + 1] < 0: Q[t + 1] = 0
+        if Q[t + 1] < 0:
+            Q[t + 1] = 0
 
     return Q
 
@@ -166,20 +168,20 @@ def bounds():
         [0, 1]
     'etmul'- added parameter to convert maxT to PET
         [0.1, 3]
-    ### Muskinghum routing parameters
+    # Muskinghum routing parameters
     'DELAY'- runoff delay
         [0.1, 5]
     'X_m'  - transformation parameter
         [0.01, 0.5]
-    ### Cema-Neige parameters
+    # Cema-Neige parameters
     X5 : dimensionless weighting coefficient of the snow pack thermal state
         [0, 1]
-    X6 : day-degree rate of melting (mm/(day*celsium degree))
+    X6 : day-degree rate of melting (mm/(day*celsius degree))
         [1, 10]
 
     """
-    bnds = ((0, 50), (0, 400), (0, 10), (0, 1000), \
-            (0, 1), (0, 1), (0, 1), (0.1, 3), \
+    bnds = ((0, 50), (0, 400), (0, 10), (0, 1000),
+            (0, 1), (0, 1), (0, 1), (0.1, 3),
             (0.1, 5), (0.01, 0.5), (0, 1), (1, 10))
     return bnds
 
@@ -193,11 +195,11 @@ from wfdei_to_lumped_dataframe import dataframe_construction
 from metrics import NS
 
 
-def interaction(river_name, path_to_scheme, path_to_observations, \
+def interaction(river_name, path_to_scheme, path_to_observations,
                 INSC, COEFF, SQ, SMSC, SUB, CRAK, K, etmul, DELAY, X_m, X5, X6):
     # simulate our modeled hydrograph
     data = dataframe_construction(path_to_scheme)
-    data['Qsim'] = simulation(data, [INSC, COEFF, SQ, SMSC, SUB, CRAK, K, \
+    data['Qsim'] = simulation(data, [INSC, COEFF, SQ, SMSC, SUB, CRAK, K,
                                      etmul, DELAY, X_m, X5, X6])
 
     # read observations

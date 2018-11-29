@@ -56,7 +56,7 @@ class GR4JCemaNeigeProcess(Process):
 
         super(GR4JCemaNeigeProcess, self).__init__(
             self._handler,
-            identifier='gr4j_cemaneige',
+            identifier='gr4j-cemaneige',
             title='',
             version='',
             abstract='GR4J + CEMANEIGE hydrological model',
@@ -69,7 +69,7 @@ class GR4JCemaNeigeProcess(Process):
     def _handler(self, request, response):
         from raven.models import gr4j
 
-        xr.set_options(enable_cftimeindex=True)
+        # xr.set_options(enable_cftimeindex=True)
 
         # Read the input data
         paths = [request.inputs['pr'][0].file,

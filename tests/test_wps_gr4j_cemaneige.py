@@ -1,3 +1,4 @@
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 
@@ -14,7 +15,7 @@ class TestGR4JCemaNeigeProcess:
                      "tas=files@xlink:href=file://{tas};"\
                      "evap=files@xlink:href=file://{evap};".format(**kwds)
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='gr4j_cemaneige',
+            service='WPS', request='Execute', version='1.0.0', identifier='gr4j-cemaneige',
             datainputs=datainputs)
 
         assert_response_success(resp)

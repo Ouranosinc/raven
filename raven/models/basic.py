@@ -155,6 +155,7 @@ class Raven:
            output/
 
         """
+        import shutil
 
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
@@ -332,7 +333,7 @@ class Raven:
     def tags(self):
         """Return a list of tags within the templates."""
         import re
-        pattern = re.compile("{(\w+)}")
+        pattern = re.compile(r"{(\w+)}")
 
         out = {}
         if self.templates:

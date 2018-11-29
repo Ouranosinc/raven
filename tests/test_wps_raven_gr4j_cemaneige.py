@@ -9,6 +9,7 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenGR4JCemaNeigeProcess
 
 
+# @pytest.mark.skip
 class TestRavenGR4JCemaNeigeProcess:
 
     def test_simple(self):
@@ -48,6 +49,7 @@ class TestRavenGR4JCemaNeigeProcess:
             datainputs=datainputs)
 
         assert_response_success(resp)
+
         out = get_output(resp.xml)
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
