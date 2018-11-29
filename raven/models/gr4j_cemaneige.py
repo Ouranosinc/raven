@@ -126,18 +126,20 @@ def simulation(data, params):
             # part of production store capacity that suffers deficit
             WS = EN / X1
             # control WS
-            if WS > 13: WS = 13
+            if WS > 13:
+                WS = 13
             TWS = np.tanh(WS)
             # part of production store capacity has an accumulated rainfall
             Sr = St[0] / X1
             # actual evaporation rate (will evaporate from production store)
             ER = St[0] * (2 - Sr) * TWS / (1 + (1 - Sr) * TWS)
             # actual evapotranspiration
-            AE = ER + Prec[t]
+            # AE = ER + Prec[t]
             # production store capacity update
             St[0] = St[0] - ER
             # control state of production store
-            if St[0] < 0: St[0] = 0
+            if St[0] < 0:
+                St[0] = 0
             # water that reaches routing functions
             PR = 0
         # case 2. Effective rainfall produces runoff
@@ -145,13 +147,14 @@ def simulation(data, params):
             # net evapotranspiration capacity
             EN = 0
             # actual evapotranspiration
-            AE = Evap[t]
+            # AE = Evap[t]
             # net rainfall
             PN = Prec[t] - Evap[t]
             # part of production store capacity that holds rainfall
             WS = PN / X1
             # control WS
-            if WS > 13: WS = 13
+            if WS > 13:
+                WS = 13
             TWS = np.tanh(WS)
             # active part of production store
             Sr = St[0] / X1
@@ -162,7 +165,8 @@ def simulation(data, params):
             # production store capacity update
             St[0] = St[0] + PS
             # control state of production store
-            if St[0] < 0: St[0] = 0
+            if St[0] < 0:
+                St[0] = 0
 
         # percolation from production store
         Sr = St[0] / X1
@@ -195,12 +199,14 @@ def simulation(data, params):
         EXCH = X2 * Rr * Rr * Rr * np.sqrt(Rr)
 
         # routing store
-        AEXCH1 = EXCH
-        if St[1] + StUH1[0] + EXCH < 0: AEXCH1 = -St[1] - StUH1[0]
+        # AEXCH1 = EXCH
+        # if St[1] + StUH1[0] + EXCH < 0:
+        #    AEXCH1 = -St[1] - StUH1[0]
         # update state 2
         St[1] = St[1] + StUH1[0] + EXCH
         # control state 2
-        if St[1] < 0: St[1] = 0
+        if St[1] < 0:
+            St[1] = 0
         Rr = St[1] / X3
         Rr = Rr * Rr
         Rr = Rr * Rr
@@ -209,8 +215,9 @@ def simulation(data, params):
         St[1] = St[1] - QR
 
         # runoff from direct branch QD
-        AEXCH2 = EXCH
-        if StUH2[0] + EXCH < 0: AEXCH2 = -StUH2[0]
+        # AEXCH2 = EXCH
+        # if StUH2[0] + EXCH < 0:
+        #    AEXCH2 = -StUH2[0]
         QD = max(0, StUH2[0] + EXCH)
 
         # total runoff
@@ -243,7 +250,7 @@ def bounds():
     return bnds
 
 
-def interaction(river_name, path_to_scheme, path_to_observations, \
+def interaction(river_name, path_to_scheme, path_to_observations,
                 X1, X2, X3, X4, X5, X6):
     # import modules for interaction()
     import pandas as pd

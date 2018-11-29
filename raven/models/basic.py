@@ -333,7 +333,7 @@ class Raven:
     def tags(self):
         """Return a list of tags within the templates."""
         import re
-        pattern = re.compile("{(\w+)}")
+        pattern = re.compile(r"{(\w+)}")
 
         out = {}
         if self.templates:
