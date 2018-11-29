@@ -72,8 +72,8 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
     Evap = data['Evap']
 
     # 2. set the parameters
-    parBETA, parCET, parFC, parK0, parK1, parK2, parLP, parMAXBAS, \
-    parPERC, parUZL, parPCORR, parTT, parCFMAX, parSFCF, parCFR, parCWH = params
+    parBETA, parCET, parFC, parK0, parK1, parK2, parLP, parMAXBAS, parPERC, parUZL, parPCORR, parTT, parCFMAX,\
+        parSFCF, parCFR, parCWH = params
 
     # 3. initialize boxes and initial conditions
     # snowpack box
@@ -109,7 +109,7 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
     SNOW = parSFCF * SNOW
     # evaporation correction
     # a. calculate long-term averages of daily temperature
-    Temp_mean = np.array([Temp.ix[Temp.index.dayofyear == x].mean() \
+    Temp_mean = np.array([Temp.ix[Temp.index.dayofyear == x].mean()
                           for x in range(1, 367)])
     # b. correction of Evaporation daily values
     Evap = Evap.index.map(lambda x: (1 + parCET * (Temp[x] - Temp_mean[x.dayofyear - 1])) * Evap[x])
@@ -126,7 +126,8 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
         # day-degree simple melting
         melt = parCFMAX * (Temp[t] - parTT)
         # control melting
-        if melt < 0: melt = 0
+        if melt < 0:
+            melt = 0
         melt = min(melt, SNOWPACK[t])
         # how meltwater box forms
         MELTWATER[t] = MELTWATER[t - 1] + melt
@@ -135,16 +136,18 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
         # refreezing accounting
         refreezing = parCFR * parCFMAX * (parTT - Temp[t])
         # control refreezing
-        if refreezing < 0: refreezing = 0
+        if refreezing < 0:
+            refreezing = 0
         refreezing = min(refreezing, MELTWATER[t])
         # snowpack after refreezing
         SNOWPACK[t] = SNOWPACK[t] + refreezing
         # meltwater after refreezing
         MELTWATER[t] = MELTWATER[t] - refreezing
         # recharge to soil
-        tosoil = MELTWATER[t] - (parCWH * SNOWPACK[t]);
+        tosoil = MELTWATER[t] - (parCWH * SNOWPACK[t])
         # control recharge to soil
-        if tosoil < 0: tosoil = 0
+        if tosoil < 0:
+            tosoil = 0
         # meltwater after recharge to soil
         MELTWATER[t] = MELTWATER[t] - tosoil
 
@@ -152,8 +155,10 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
         # soil wetness calculation
         soil_wetness = (SM[t - 1] / parFC) ** parBETA
         # control soil wetness (should be in [0, 1])
-        if soil_wetness < 0: soil_wetness = 0
-        if soil_wetness > 1: soil_wetness = 1
+        if soil_wetness < 0:
+            soil_wetness = 0
+        if soil_wetness > 1:
+            soil_wetness = 1
         # soil recharge
         recharge = (RAIN[t] + tosoil) * soil_wetness
         # soil moisture update
@@ -161,15 +166,18 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
         # excess of water calculation
         excess = SM[t] - parFC
         # control excess
-        if excess < 0: excess = 0
+        if excess < 0:
+            excess = 0
         # soil moisture update
         SM[t] = SM[t] - excess
 
         # evaporation accounting
         evapfactor = SM[t] / (parLP * parFC)
         # control evapfactor in range [0, 1]
-        if evapfactor < 0: evapfactor = 0
-        if evapfactor > 1: evapfactor = 1
+        if evapfactor < 0:
+            evapfactor = 0
+        if evapfactor > 1:
+            evapfactor = 1
         # calculate actual evaporation
         ETact[t] = Evap[t] * evapfactor
         # control actual evaporation
@@ -221,7 +229,7 @@ def simulation(data, params=[1.0, 0.15, 250, 0.055,
 
 
 def bounds():
-    '''
+    """
     # BETA   - parameter that determines the relative contribution to runoff from rain or snowmelt
     #          [1, 6]
     # CET    - Evaporation correction factor
@@ -255,10 +263,10 @@ def bounds():
     #          [0, 0.1] (usually 0.05)
     # CWH    - Fraction (portion) of meltwater and rainfall which retain in snowpack (water holding capacity)
     #          [0, 0.2] (usually 0.1)
-    '''
-    bnds = ((1, 6), (0, 0.3), (50, 500), (0.01, 0.4), \
-            (0.01, 0.4), (0.001, 0.15), (0.3, 1), (1, 7), \
-            (0, 3), (0, 500), (0.5, 2), (-1.5, 2.5), \
+    """
+    bnds = ((1, 6), (0, 0.3), (50, 500), (0.01, 0.4),
+            (0.01, 0.4), (0.001, 0.15), (0.3, 1), (1, 7),
+            (0, 3), (0, 500), (0.5, 2), (-1.5, 2.5),
             (1, 10), (0.4, 1), (0, 0.1), (0, 0.2))
     return bnds
 
@@ -272,13 +280,13 @@ from wfdei_to_lumped_dataframe import dataframe_construction
 from metrics import NS
 
 
-def interaction(river_name, path_to_scheme, path_to_observations, \
-                parBETA, parCET, parFC, parK0, parK1, parK2, parLP, parMAXBAS, \
+def interaction(river_name, path_to_scheme, path_to_observations,
+                parBETA, parCET, parFC, parK0, parK1, parK2, parLP, parMAXBAS,
                 parPERC, parUZL, parPCORR, parTT, parCFMAX, parSFCF, parCFR, parCWH):
     # simulate our modeled hydrograph
     data = dataframe_construction(path_to_scheme)
-    data['Qsim'] = simulation(data, [parBETA, parCET, parFC, parK0, parK1, \
-                                     parK2, parLP, parMAXBAS, parPERC, parUZL, parPCORR, parTT, parCFMAX, \
+    data['Qsim'] = simulation(data, [parBETA, parCET, parFC, parK0, parK1,
+                                     parK2, parLP, parMAXBAS, parPERC, parUZL, parPCORR, parTT, parCFMAX,
                                      parSFCF, parCFR, parCWH])
 
     # read observations

@@ -8,10 +8,10 @@ def parse_configuration(fn):
     Returns a dictionary keyed by parameter name."""
     import re
 
-    main_param = re.compile("^:(\w+)\s+([^#]*)")
-    sub_param = re.compile("^  :(\w+)\s+([^#]*)")
+    main_param = re.compile(r"^:(\w+)\s+([^#]*)")
+    # sub_param = re.compile(r"^  :(\w+)\s+([^#]*)")
     out = OrderedDict()
-    cat = None
+    # cat = None
     with open(fn) as f:
         for line in f.readlines():
             match = main_param.search(line)
