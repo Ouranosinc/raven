@@ -69,7 +69,7 @@ class GR4JCemaNeigeProcess(Process):
     def _handler(self, request, response):
         from raven.models import gr4j
 
-        xr.set_options(enable_cftimeindex=True)
+        # xr.set_options(enable_cftimeindex=True)
 
         # Read the input data
         paths = [request.inputs['pr'][0].file,
