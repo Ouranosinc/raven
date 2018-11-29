@@ -2,20 +2,25 @@ language: generic
 matrix:
   fast_finish: true
   include:
-    - os: osx
-    - os: linux
+    - name: "macOS"
+      os: osx
+    - name: "Linux (Python2.7)"
+      os: linux
       dist: xenial
       python: "2.7"
-    - os: linux
+    - name: "Linux (Python3.6 + pep8)"
+      os: linux
       dist: xenial
       python: "3.6"
+      env:
+        - PEP8=true
 branches:
   only:
     - master
 sudo: false
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
-  - pip install --user flake8
+  - if [ $PEP8 = true ]; then pip install --user flake8; fi
 install:
   - make install
   - make start
@@ -30,9 +35,9 @@ install:
 #  # Install Emu WPS
 #  - python setup.py install
 before_script:
-  # Start WPS service on port 5000 on 0.0.0.0
+#  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
 script:
   - make test
-  - flake8
+  - if [ $PEP8 = true ]; then flake8 raven tests; fi
