@@ -20,7 +20,7 @@ branches:
 sudo: false
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
-  - if [ $PEP8 = true ]; then sudo apt-get install flake8; fi
+  - if [ $PEP8 = true ]; then sudo apt-get install python-flake8; fi
 install:
   - make install
   - make start
