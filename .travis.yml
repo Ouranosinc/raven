@@ -14,12 +14,7 @@ matrix:
       os: linux
       dist: xenial
       python: "3.6"
-      env: TEST_SUITE=test
-    - name: "PEP8"
-      os: linux
-      dist: xenial
-      python: "3.6"
-      env: TEST_SUITE=pep8
+      env: TEST_SUITE=test pep8
 
 
 branches:
@@ -30,7 +25,8 @@ before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
   - pip install --user flake8
 install:
-  - if [ test IN env(TEST_SUITE) ]; then make install start; fi
+  - make install
+  - make start
 #  - sleep 2
 #  # Prepare env with Python version
 #  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
