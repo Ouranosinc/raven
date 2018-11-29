@@ -4,29 +4,23 @@ matrix:
   include:
     - name: "macOS"
       os: osx
-      env: TEST_SUITE=test
     - name: "Linux (Python2.7)"
       os: linux
       dist: xenial
       python: "2.7"
-      env: TEST_SUITE=test
     - name: "Linux (Python3.6 + pep8)"
       os: linux
       dist: xenial
       python: "3.6"
       env:
-        - TEST_SUITE=test
         - PEP8=true
-      addons:
-        apt:
-          packages:
-            - python-flake8
 branches:
   only:
     - master
 sudo: false
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
+  - if [ $PEP8 = true ]; then sudo apt-get install flake8; fi
 install:
   - make install
   - make start
@@ -45,5 +39,5 @@ before_script:
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
 script:
-  - make $TEST_SUITE
+  - make test
   - if [ $PEP8 = true ]; then flake8 raven tests; fi
