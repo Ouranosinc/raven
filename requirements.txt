@@ -1,4 +1,4 @@
-pywps>=4.0.0
+pywps>=4.0
 jinja2
 click
 psutil
@@ -11,3 +11,4 @@ netCDF4
 dask
 pathlib
 toolz
+pandas
