@@ -15,11 +15,9 @@ def test_wps_caps():
                             '/wps:ProcessOfferings'
                             '/wps:Process'
                             '/ows:Identifier')
-    sn = sorted(names.split())
-    assert sn == ['gr4j-cemaneige',
-                  'inout',
+    sn = set(names.split())
+    assert sn == {'gr4j-cemaneige',
                   'raven',
                   'raven-gr4j-cemaneige',
                   'raven-hmets',
-                  'sleep',
-                  'wordcounter']
+                  }
