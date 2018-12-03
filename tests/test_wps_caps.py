@@ -16,5 +16,6 @@ def test_wps_caps():
     assert sn == {'gr4j-cemaneige',
                   'raven',
                   'raven-gr4j-cemaneige',
+                  'raven-mohyse',
                   'raven-hmets',
                   }
