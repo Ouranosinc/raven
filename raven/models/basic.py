@@ -19,7 +19,7 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RV, RVI, RVP, RVC
+from .rv import RV, RVI, RVP, RVC, RVH
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -125,6 +125,10 @@ class Raven:
 
     def _dump_rv(self, ts):
         """Write configuration files to disk."""
+
+        print("JMJM model_path ",self.model_path)
+        print("JMJM name ",self.name)
+        
         for ext, txt in self.rv.items():
             fn = self.model_path / (self.name + '.' + ext)
 
@@ -365,6 +369,17 @@ class GR4JCemaneige(Raven):
     def derived_parameters(self):
         self.rvc['GR4J_X1_hlf'] = self.rvp['GR4J_X1'] * 1000. / 2.
         self.rvp['one_minus_CEMANEIGE_X2'] = 1.0 - self.rvp['CEMANEIGE_X2']
+
+class MOHYSE(GR4JCemaneige):
+    templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
+
+    rvp = RVP(par_x01=None, par_x02=None, par_x03=None, par_x04=None, 
+              par_x05=None, par_x06=None, par_x07=None, par_x08=None)
+
+    rvh = RVH(par_x09=None, par_x10=None, par_rezi_x10=None)
+
+    def derived_parameters(self):
+        self.rvh['par_rezi_x10'] = 1.0 / self.rvh['par_x10']
 
 
 class HMETS(GR4JCemaneige):

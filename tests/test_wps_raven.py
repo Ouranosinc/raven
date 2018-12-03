@@ -39,3 +39,19 @@ class TestRavenProcess:
             service='WPS', request='Execute', version='1.0.0', identifier='raven',
             datainputs=datainputs)
         assert_response_success(resp)
+
+    def test_mohyse(self):
+        client = client_for(Service(processes=[RavenProcess(), ], cfgfiles=CFG_FILE))
+
+        rvs = TESTDATA['raven-mohyse-rv']
+        ts = TESTDATA['raven-mohyse-ts']
+        config = {f.suffix[1:]: f for f in rvs}
+
+        datainputs = ("ts=files@xlink:href=file://{};"
+                      "ts=files@xlink:href=file://{};" + ';'.join(["conf=files@xlink:href=file://{%s}" % key for key
+                                                                   in cf])).format(*ts, **config)
+
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='raven',
+            datainputs=datainputs)
+        assert_response_success(resp)

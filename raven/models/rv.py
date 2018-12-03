@@ -168,3 +168,7 @@ class RVP(RV):
 
 class RVC(RV):
     _magic_key_name = 'init'
+
+
+class RVH(RV):
+    _magic_key_name = 'hru'
