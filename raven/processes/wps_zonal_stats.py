@@ -9,12 +9,11 @@ from pywps.app.Common import Metadata
 LOGGER = logging.getLogger("PYWPS")
 
 
-class ShapeStatistics(Process):
+class ZonalStatistics(Process):
     """Given a file containing vector data, provide general information and spatial characteristics"""
 
     def __init__(self):
         inputs = [
-            LiteralInput('expand features', 'Examine all features in shapefile', data_type='boolean'),
             LiteralInput('touches', 'Select boundary pixels that are touched by shape', data_type='boolean'),
             LiteralInput('categorical', 'Return distinct pixel categories', data_type='boolean'),
             LiteralInput('band', 'Raster band', data_type='int', default=1,
@@ -28,6 +27,7 @@ class ShapeStatistics(Process):
             # supported_formats=[
             #            # shp
             #            {mimeType: 'application/zip',
+            #            encoding: '???',
             #            schema: None},
             #
             #            # gml
@@ -68,12 +68,9 @@ class ShapeStatistics(Process):
                           abstract='Number of null data pixels'),
             LiteralOutput('categories', 'Counts of pixels by category', data_type='dict',
                           abstract='Counts of pixels by category'),
-
-            # LiteralOutput('area', 'Area Calculations', data_type='float', abstract='Area of shape in sq. km.'),
-            # LiteralOutput('centroids', 'Centroid Locations', data_type='~~LIST OF FLOATS~~', )
         ]
 
-        super(ShapeStatistics, self).__init__(
+        super(ZonalStatistics, self).__init__(
             self._rasterstats_handler,
             identifier="rasterstats",
             title="Raster Zonal Statistics",
@@ -87,8 +84,10 @@ class ShapeStatistics(Process):
 
     @staticmethod
     def _rasterstats_handler(request, response):
+
         dem_fn = request.inputs['raster'][0].file
         shape_fn = request.inputs['shape'][0].file
+        band = request.inputs['band'][0]
 
         touches = False
         categorical = False
@@ -98,15 +97,19 @@ class ShapeStatistics(Process):
             categorical = True
 
         # TODO: Figure out whether lists are accepted outputs
-        if not categorical:
-            stats = zonal_stats(shape_fn, dem_fn, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
-                                all_touched=touches, geojson_out='True')
+        try:
+            if not categorical:
+                stats = zonal_stats(shape_fn, dem_fn, all_touched=touches, band=band,
+                                    stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'])
+                for key in stats.keys():
+                    response.outputs[key].data = stats[key]
 
-            for key in stats.keys():
-                response.outputs[key].data = stats[key]
-
-        else:
-            stats = zonal_stats(shape_fn, dem_fn, categorical=categorical, all_touched=touches, geojson_out=True)
-            response.outputs['categories'].data = stats[1]
+            else:
+                stats = zonal_stats(
+                    shape_fn, dem_fn, band=band, categorical=categorical, all_touched=touches, geojson_out=True)
+                response.outputs['categories'].data = stats[1]
+        except Exception as e:
+            msg = 'Failed to perform zonal statistics: {}'.format(e)
+            raise Exception(msg)
 
         return response
