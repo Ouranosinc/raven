@@ -28,7 +28,7 @@ class TestRavenMOHYSEProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['raven-mohyse-nc-ts'],
                     params=params,
-                    start_date=dt.datetime(2000, 1, 1),
+                    start_date=dt.datetime(1954, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
                     run_name='test-mohyse',
@@ -44,18 +44,19 @@ class TestRavenMOHYSEProcess:
 
         assert_response_success(resp)
         out = get_output(resp.xml)
+        
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # checking correctness of NSE (full period 1954-2011 would be NSE=0.636019 as template in Wiki)
+        # checking correctness of NSE (full period 1954-2011 would be NSE=0.391107 as template in Wiki)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -2.9826, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.3837, 4, err_msg='NSE is not matching expected value')
 
-        # checking correctness of RMSE (full period 1954-2011 would be RMSE=28.3758 as template in wiki)
+        # checking correctness of RMSE (full period 1954-2011 would be RMSE=36.7012 as template in wiki)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 71.6874, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 37.1292, 4, err_msg='RMSE is not matching expected value')
