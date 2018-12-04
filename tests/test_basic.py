@@ -16,6 +16,14 @@ class TestRaven:
         model.configure(rvs)
         model.run([ts, ], )
 
+    def test_mohyse(self):
+        rvs = TESTDATA['raven-mohyse-rv']
+        ts = list(TESTDATA['raven-mohyse-ts'])
+
+        model = Raven(tempfile.mkdtemp())
+        model.configure(rvs)
+        model.run(ts)
+
     def test_hmets(self):
         rvs = TESTDATA['raven-hmets-rv']
         ts = list(TESTDATA['raven-hmets-ts'])
