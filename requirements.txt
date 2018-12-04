@@ -5,10 +5,15 @@ psutil
 numpy
 scipy
 xarray
-gdal
-pyproj
+pandas
 netCDF4
 dask
 pathlib
 toolz
-pandas
+
+# gdal --- Not compatible with rasterio!
+fiona
+rasterio
+pyproj
+pycrs
+rasterstats
