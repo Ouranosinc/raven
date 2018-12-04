@@ -20,7 +20,6 @@ class TestRavenMOHYSEProcess:
                      "params={params};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
-                     "init={init};" \
                      "name={name};" \
                      "run_name={run_name};" \
                      "area={area};" \
@@ -31,7 +30,6 @@ class TestRavenMOHYSEProcess:
                     params=params,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
-                    init='155,455',
                     name='Salmon',
                     run_name='test-mohyse',
                     area='4250.6',
