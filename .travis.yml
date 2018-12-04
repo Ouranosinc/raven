@@ -19,7 +19,7 @@ branches:
     - master
 sudo: false
 before_install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
+  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
 install:
   - make install
   - make start
@@ -39,4 +39,4 @@ before_script:
   - sleep 2
 script:
   - make test
-  - if [ $PEP8 = true ]; then make pep8; fi
+  - if [[ $PEP8 = true ]]; then make pep8; fi
