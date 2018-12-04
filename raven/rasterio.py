@@ -377,8 +377,8 @@
 #
 #     def area(self, crs=None):
 #         """
-#         Returns a generator for the area for each feature in the shaope layer. If a CRS code is given, features will be
-#         transformed to the CRS before area calculations are performed.
+#         Returns a generator for the area for each feature in the shaope layer. If a CRS code is given,
+#         features will be transformed to the CRS before area calculations are performed.
 #         """
 #         if self._geo and crs is None:
 #             msg = 'Shape is in a native geographic CRS. Area is in squared decimal degrees!'

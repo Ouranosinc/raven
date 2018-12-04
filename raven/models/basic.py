@@ -125,7 +125,7 @@ class Raven:
 
     def _dump_rv(self, ts):
         """Write configuration files to disk."""
-        
+
         for ext, txt in self.rv.items():
             fn = self.model_path / (self.name + '.' + ext)
 
@@ -367,6 +367,7 @@ class GR4JCemaneige(Raven):
         self.rvc['GR4J_X1_hlf'] = self.rvp['GR4J_X1'] * 1000. / 2.
         self.rvp['one_minus_CEMANEIGE_X2'] = 1.0 - self.rvp['CEMANEIGE_X2']
 
+
 class MOHYSE(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
 
@@ -374,13 +375,14 @@ class MOHYSE(GR4JCemaneige):
     rvp = RVP(par_x01=None, par_x02=None, par_x03=None, par_x04=None, par_x05=None,
               par_x06=None, par_x07=None, par_x08=None, par_x09=None, par_x10=None)
 
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x09=None, par_x10=None, 
+    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x09=None, par_x10=None,
              par_rezi_x10=None)
 
     def derived_parameters(self):
         self.rvh['par_x09'] = self.rvp['par_x09']
         self.rvh['par_x10'] = self.rvp['par_x10']
         self.rvh['par_rezi_x10'] = 1.0 / self.rvh['par_x10']
+
 
 class HMETS(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))

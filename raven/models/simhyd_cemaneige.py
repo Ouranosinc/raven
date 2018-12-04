@@ -1,6 +1,5 @@
-import cema_neige
+from . import cema_neige
 import numpy as np
-
 
 
 def simulation(data, params):
