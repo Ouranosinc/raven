@@ -2,7 +2,6 @@
 
 """Top-level package for Raven."""
 
-from .gis import RavenShape, RavenRaster
 from .wsgi import application
 
 __author__ = """David Huard"""
