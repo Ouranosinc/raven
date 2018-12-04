@@ -370,14 +370,17 @@ class GR4JCemaneige(Raven):
 class MOHYSE(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
 
-    rvp = RVP(par_x01=None, par_x02=None, par_x03=None, par_x04=None, 
-              par_x05=None, par_x06=None, par_x07=None, par_x08=None)
+    rvc = RVC()
+    rvp = RVP(par_x01=None, par_x02=None, par_x03=None, par_x04=None, par_x05=None,
+              par_x06=None, par_x07=None, par_x08=None, par_x09=None, par_x10=None)
 
-    rvh = RVH(par_x09=None, par_x10=None, par_rezi_x10=None)
+    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x09=None, par_x10=None, 
+             par_rezi_x10=None)
 
     def derived_parameters(self):
+        self.rvh['par_x09'] = self.rvp['par_x09']
+        self.rvh['par_x10'] = self.rvp['par_x10']
         self.rvh['par_rezi_x10'] = 1.0 / self.rvh['par_x10']
-
 
 class HMETS(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))

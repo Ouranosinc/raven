@@ -16,18 +16,11 @@ param_defaults = Odict([('par_x01', 1.0000),
                         ('par_x09', 0.9039),
                         ('par_x10', 5.6167)])
 
-
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(param_defaults.keys()),
                       data_type='string',
                       default=', '.join(str(p) for p in param_defaults.values()),
                       min_occurs=0)
-
-init = LiteralInput('init', 'Initial soil conditions',
-                    abstract='Underground reservoir levels: SOIL_0, SOIL_1',
-                    data_type='string',
-                    default='0, 0',
-                    min_occurs=0)
 
 
 class RavenMOHYSEProcess(RavenProcess):
@@ -36,7 +29,7 @@ class RavenMOHYSEProcess(RavenProcess):
     title = ''
     version = ''
     model_cls = MOHYSE
-    param_arrays = ['params', 'init']
+    param_arrays = ['params']
 
-    inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, init, wio.run_name,
+    inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
