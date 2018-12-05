@@ -16,7 +16,7 @@ class TestGR4JCemaneige():
         evap = (temp / 400 + (np.random.rand(n) - .5) * 8).clip(0)
         df = pd.DataFrame({'Temp': temp, 'Evap': evap, 'Prec': precip})
 
-        params = [0.696, 0.7, 19.7, 2.09, 123.3, 0.25]
+        params = [0.529, -3.396, 407.29, 1.072, 16.9, 0.947]
         out = models.gr4j(df, params)
         return out
 
@@ -25,6 +25,6 @@ class TestGR4JCemaneige():
         ds = xr.open_mfdataset(paths).rename({'pr': 'Prec', 'tas': 'Temp', 'evap': 'Evap'})
         ds['Temp'] -= 273.15
         df = ds.to_dataframe()
-        params = [0.696, 0.7, 19.7, 2.09, 123.3, 0.25]
+        params = [0.529, -3.396, 407.29, 1.072, 16.9, 0.947]
         q = models.gr4j(df, params)
         return q
