@@ -175,3 +175,7 @@ class RVC(RV):
 
 class RVH(RV):
     _magic_key_name = 'hru'
+
+
+class RVT(RV):
+    _magic_key_name = 'timeseries'

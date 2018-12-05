@@ -401,3 +401,21 @@ class HMETS(GR4JCemaneige):
         self.rvp['PHREATIC_m'] = self.rvp['PHREATIC'] / 1000.
         self.rvp['SUM_MELT_FACTOR'] = self.rvp['MIN_MELT_FACTOR'] + self.rvp['MAX_MELT_FACTOR']
         self.rvp['SUM_SNOW_SWI'] = self.rvp['SNOW_SWI_MIN'] + self.rvp['SNOW_SWI_MAX']
+
+class HBVEC(GR4JCemaneige):
+    templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
+
+    rvc = RVC()
+    rvp = RVP(par_x01=None, par_x02=None, par_x03=None, par_x04=None, par_x05=None,
+              par_x06=None, par_x07=None, par_x08=None, par_x09=None, par_x10=None,
+              par_x11=None, par_x12=None, par_x13=None, par_x14=None, par_x15=None,
+              par_x16=None, par_x17=None, par_x18=None, par_x19=None, one_plus_par_x15=None)
+    
+    rvt = RV(par_x20=None, par_x21=None)  # guessing that this is wrong
+
+    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None,
+             par_x11=None, par_x11_half=None)
+
+    def derived_parameters(self):
+        self.rvp['one_plus_par_x15'] = self.rvp['par_x15'] + 1.0
+        self.rvh['par_x11_half'] = self.rvp['par_x11'] / 2.0

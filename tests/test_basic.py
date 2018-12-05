@@ -32,6 +32,14 @@ class TestRaven:
         model.configure(rvs)
         model.run(ts)
 
+    def test_hbvec(self):
+        rvs = TESTDATA['raven-hbv-ec-rv']
+        ts = list(TESTDATA['raven-hbv-ec-ts'])
+
+        model = Raven(tempfile.mkdtemp())
+        model.configure(rvs)
+        model.run(ts)
+
 
 class TestGR4JCemaneige:
 
