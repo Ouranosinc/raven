@@ -12,14 +12,14 @@ automatically filled in.
 """
 import raven
 from pathlib import Path
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import os
 import subprocess
 import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RV, RVI, RVP, RVC, RVH
+from .rv import RV
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -355,13 +355,13 @@ class Raven:
 class GR4JCemaneige(Raven):
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
-    rvi = RVI()
-    rvp = RVP(GR4J_X1=None, GR4J_X2=None, GR4J_X3=None, GR4J_X4=None, CEMANEIGE_X1=None, CEMANEIGE_X2=None,
-              one_minus_CEMANEIGE_X2=None)
-    rvc = RVC(GR4J_X1_hlf=None)
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-             water_volume_transport_in_river_channel=None)
+    params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1',
+                                                  'CEMANEIGE_X2', 'one_minus_CEMANEIGE_X2'))
+
+    #rvc = RV(GR4J_X1_hlf=None)
+    #rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+    #rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+    #         water_volume_transport_in_river_channel=None)
 
     def derived_parameters(self):
         self.rvc['GR4J_X1_hlf'] = self.rvp['GR4J_X1'] * 1000. / 2.
@@ -370,12 +370,11 @@ class GR4JCemaneige(Raven):
 class MOHYSE(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
 
-    rvc = RVC()
-    rvp = RVP(par_x01=None, par_x02=None, par_x03=None, par_x04=None, par_x05=None,
-              par_x06=None, par_x07=None, par_x08=None, par_x09=None, par_x10=None)
+    #rvp = RV(par_x01=None, par_x02=None, par_x03=None, par_x04=None, par_x05=None,
+    #          par_x06=None, par_x07=None, par_x08=None, par_x09=None, par_x10=None)
 
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x09=None, par_x10=None, 
-             par_rezi_x10=None)
+    #rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x09=None, par_x10=None,
+    #         par_rezi_x10=None)
 
     def derived_parameters(self):
         self.rvh['par_x09'] = self.rvp['par_x09']
@@ -385,14 +384,14 @@ class MOHYSE(GR4JCemaneige):
 class HMETS(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
-    rvp = RVP(GAMMA_SHAPE=None, GAMMA_SCALE=None, GAMMA_SHAPE2=None, GAMMA_SCALE2=None, MIN_MELT_FACTOR=None,
-              MAX_MELT_FACTOR=None, DD_MELT_TEMP=None, DD_AGGRADATION=None, SNOW_SWI_MIN=None, SNOW_SWI_MAX=None,
-              SWI_REDUCT_COEFF=None, DD_REFREEZE_TEMP=None, REFREEZE_FACTOR=None, REFREEZE_EXP=None,
-              PET_CORRECTION=None, HMETS_RUNOFF_COEFF=None, PERC_COEFF=None, BASEFLOW_COEFF_1=None,
-              BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, TOPSOIL_m=None, PHREATIC_m=None,
-              SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None)
+    #rvp = RV(GAMMA_SHAPE=None, GAMMA_SCALE=None, GAMMA_SHAPE2=None, GAMMA_SCALE2=None, MIN_MELT_FACTOR=None,
+    #          MAX_MELT_FACTOR=None, DD_MELT_TEMP=None, DD_AGGRADATION=None, SNOW_SWI_MIN=None, SNOW_SWI_MAX=None,
+    #          SWI_REDUCT_COEFF=None, DD_REFREEZE_TEMP=None, REFREEZE_FACTOR=None, REFREEZE_EXP=None,
+    #          PET_CORRECTION=None, HMETS_RUNOFF_COEFF=None, PERC_COEFF=None, BASEFLOW_COEFF_1=None,
+    #          BASEFLOW_COEFF_2=None, TOPSOIL=None, PHREATIC=None, TOPSOIL_m=None, PHREATIC_m=None,
+    #          SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None)
 
-    rvc = RVC(TOPSOIL_hlf=None, PHREATIC_hlf=None)
+    #rvc = RV(TOPSOIL_hlf=None, PHREATIC_hlf=None)
 
     def derived_parameters(self):
         self.rvc['TOPSOIL_hlf'] = self.rvp['TOPSOIL'] * 0.5
