@@ -31,6 +31,11 @@ TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-R
 
 TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
 
+TESTDATA['raven-mohyse-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+TESTDATA['raven-mohyse'] = TD / 'raven-mohyse'
+TESTDATA['raven-mohyse-rv'] = tuple((TD / 'raven-mohyse').glob('raven-mohyse-salmon.rv?'))
+TESTDATA['raven-mohyse-ts'] = tuple((TD / 'raven-mohyse').glob('Salmon-River-Near-Prince-George_*.rvt'))
+
 TESTDATA['raven-hmets-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 TESTDATA['raven-hmets'] = TD / 'raven-hmets'
 TESTDATA['raven-hmets-rv'] = tuple((TD / 'raven-hmets').glob('raven-hmets-salmon.rv?'))
