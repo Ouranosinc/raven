@@ -33,24 +33,12 @@ Simulation end date and duration are updated automatically when duration, start 
 
 
 class RV(collections.abc.Mapping):
+    """Generic configuration class."""
 
     def __init__(self, **kwargs):
-        self.name = None
-        self.area = None
-        self.elevation = None
-        self.latitude = None
-        self.longitude = None
-
-        self._run_name = None
-        self._start_date = None
-        self._end_date = None
-        self._duration = None
-        self._time_step = None
-        self._evaluation_metrics = None
-
         # Set initial default values
         for key, val in kwargs.items():
-            self[key] = val
+            setattr(self, key, val)
 
     def __getitem__(self, key):
         return getattr(self, key)
@@ -74,7 +62,7 @@ class RV(collections.abc.Mapping):
         for attribute in self.keys():
             yield attribute, getattr(self, attribute)
 
-    def flatten(self):
+    def to_dict(self):
         """Return dictionary of content and namedtuple fields."""
         out = {}
         for key, val in self.items():
@@ -83,6 +71,25 @@ class RV(collections.abc.Mapping):
             else:
                 out[key] = val
         return out
+
+
+class RVI(RV):
+    """Configuration class for rvp, rvh, rvc"""
+    def __init__(self, **kwargs):
+        self.name = None
+        self.area = None
+        self.elevation = None
+        self.latitude = None
+        self.longitude = None
+
+        self._run_name = None
+        self._start_date = None
+        self._end_date = None
+        self._duration = 1
+        self._time_step = 1.0
+        self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
+
+        super(RVI, self).__init__(**kwargs)
 
     @property
     def run_name(self):
@@ -171,13 +178,7 @@ class RV(collections.abc.Mapping):
             self._end_date = self.start_date + dt.timedelta(days=self.duration)
 
 
-class RVP(RV):
-    _magic_key_name = 'params'
-
-
-class RVC(RV):
-    _magic_key_name = 'init'
-
-
-class RVH(RV):
-    _magic_key_name = 'hru'
+def isinstance_namedtuple(x):
+  return (isinstance(x, tuple) and
+          isinstance(getattr(x, '__dict__', None), collections.Mapping) and
+          getattr(x, '_fields', None) is not None)
