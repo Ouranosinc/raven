@@ -1,7 +1,7 @@
 from .gr4j_cemaneige import simulation as gr4j
 import os
 from .basic import Raven, GR4JCemaneige, MOHYSE, HMETS
-from .rv import RV
+from .rv import RV, RVI
 
 _dir = os.path.abspath(os.path.dirname(__file__))
 
