@@ -5,6 +5,7 @@ from os import path
 from pssh.clients import ParallelSSHClient
 import pprint
 import sys
+import getopt
 import time
 import os
 import shutil
@@ -14,6 +15,9 @@ hostname = "cedar.computecanada.ca"
 user = "lalondem"
 home_dir = path.join("/home",user)
 src_data_path = "./data/"
+do_cleanup = True
+template_dir = None
+dataset = None
 batch_cmd_template = "batch_template.txt"
 output_folder=""
 from subprocess import run
@@ -26,27 +30,22 @@ def rand_fname(length=8):
 
     return fname
 
-def copy_data_to_remote(c, datapath, rootdir, rootfname):
+def copy_data_to_remote(c, datapath, dataset_, remote_path, remote_temp_folder):
 
-    c.run_command("mkdir "+rootdir+rootfname)
-#    for root, dirs, files in os.walk(datapath):
-#       for filename in files:
-#            print("Transferring "+filename)
-#            c.put(path.join(root,filename), remote=tempdest)  # in remote home directory for now
-#       for dirname in dirs:
-#            print("Transferring "+dirname)
-#           c.put(path.join(root,dirname), remote=tempdest)  # in remote home directory for now
+    c.run_command("mkdir "+path.join(remote_path, remote_temp_folder))
 
-    data_path_content = os.listdir(path=src_data_path)
-    assert(len(data_path_content) == 1)
-    df_basename = data_path_content[0]
-
-    os.system("tar cvf "+rootfname+".tar -C "+ path.join(datapath,df_basename)+" .")
-    g=c.scp_send(rootfname+".tar", rootdir+rootfname+"/data.tar")
+#    data_path_content = os.listdir(path=src_data_path)
+#    assert(len(data_path_content) == 1)
+#    df_basename = data_path_content[0]
+    df_basename = dataset_
+    remote_tar = path.join(remote_path, remote_temp_folder, "data.tar")
+    print("system cmd: "+"tar cvf /tmp/"+remote_temp_folder+".tar -C "+ path.join(datapath,df_basename)+" .")
+    os.system("tar cvf /tmp/"+remote_temp_folder+".tar -C "+ path.join(datapath,df_basename)+" .")
+    g=c.scp_send("/tmp/"+remote_temp_folder+".tar", remote_tar)
     joinall(g, raise_error=True)
-    destpath = path.join(rootdir+rootfname,"data.tar")
+    destpath = path.join(remote_path, remote_temp_folder)
     print(destpath)
-    output = c.run_command("tar xvf "+destpath+" -C "+rootdir+rootfname)
+    output = c.run_command("tar xvf "+remote_tar+" -C "+destpath)
     errmsg = next(output[hostname]["stderr"], None)
     if errmsg is not None:
         print("Error: " + errmsg)
@@ -54,8 +53,7 @@ def copy_data_to_remote(c, datapath, rootdir, rootfname):
     if errmsg is not None:
         print("stdout: " + errmsg)
 
-    print("tar xvf "+destpath+" -C "+rootdir+rootfname)
-    os.remove(rootfname+".tar")
+    os.remove("/tmp/"+remote_temp_folder+".tar")
     #print(next(output[hostname]["stdout"]))
     return df_basename
 
@@ -74,13 +72,14 @@ def copy_data_from_remote(c, base_dir, jobname, jobid, absolute_local_out_dir):
         output = c.run_command("tar cf "+absolute_tar_fname+" -C "+absolute_output_data_path+" .")
         print("copy_data_from_remote: recv")
         #g = c.scp_recv(absolute_tar_fname, path.join(absolute_local_out_dir,jobname+"_out.tar"))
-        g = c.copy_remote_file(absolute_tar_fname, jobname + "_out.tar")  #scp_recv
+        g = c.copy_remote_file(absolute_tar_fname, "/tmp/"+jobname + "_out.tar")  #scp_recv
         joinall(g, raise_error=True)
-        if os.path.exists(absolute_local_out_dir):
-            shutil.rmtree(absolute_local_out_dir)
-        os.mkdir(absolute_local_out_dir)
-        print("tar xf /media/sf_develop/pavics-hydro/2cc/"+jobname+"_out.tar_"+hostname+" -C "+absolute_local_out_dir)
-        os.system("tar xf /media/sf_develop/pavics-hydro/2cc/"+jobname+"_out.tar_"+hostname+" -C "+absolute_local_out_dir)
+        if not os.path.exists(absolute_local_out_dir):
+            #shutil.rmtree(absolute_local_out_dir)
+            os.mkdir(absolute_local_out_dir)
+        #os.mkdir(path.join(absolute_local_out_dir,jobname)
+        #print("tar xf /media/sf_develop/pavics-hydro/2cc/"+jobname+"_out.tar_"+hostname+" -C "+absolute_local_out_dir)
+        os.system("tar xf /tmp/"+jobname+"_out.tar_"+hostname+" -C "+absolute_local_out_dir)
 
     except:
         print("No output from job")
@@ -90,7 +89,7 @@ def copy_data_from_remote(c, base_dir, jobname, jobid, absolute_local_out_dir):
 
 def copy_batchscript(c, rootdir, rootfname, datafile_basename, batch_tmplt_fname):
 
-    template_file = open(batch_tmplt_fname, "r")
+    template_file = open(path.join(template_dir,batch_tmplt_fname), "r")
     tmplt = template_file.read()
     tmplt = tmplt.replace("ACCOUNT","def-fouchers")
     tmplt = tmplt.replace("DURATION","00:20:00")
@@ -101,17 +100,17 @@ def copy_batchscript(c, rootdir, rootfname, datafile_basename, batch_tmplt_fname
 
     #    subst_template_file, subst_fname = tempfile.mkstemp(suffix=".sh")
     subst_fname = rootfname+".sh"
-    file = open(subst_fname, 'w')
+    file = open("/tmp/"+subst_fname, 'w')
     file.write(tmplt)
     file.close()
 
     c.run_command("mkdir " + rootdir + rootfname + "/out")
     c.run_command("chmod 777 " + rootdir + rootfname)
     c.run_command("chmod 777 " + rootdir + rootfname + "/out")
-    g = c.copy_file(subst_fname,path.join(rootdir+rootfname,subst_fname))
+    g = c.copy_file("/tmp/"+subst_fname,path.join(rootdir+rootfname,subst_fname))
     joinall(g, raise_error=True)
     c.run_command("chmod ugo+x "+path.join(rootdir+rootfname,subst_fname))
-    os.remove(subst_fname)
+    os.remove("/tmp/"+subst_fname)
     return path.join(rootdir+rootfname,subst_fname)
 
 def submit_job(client, script_fname):
@@ -157,27 +156,28 @@ def get_status(c, hostname, jobid):
 
 def process_cmd(client, hostname, option, jobname="", jobid=""):
     if option == 'Retrieve':
-        if os.path.exists(output_folder):
-            shutil.rmtree(output_folder)
-        os.mkdir(output_folder)
+#        output_folder_temp = path.join(output_folder, remote_temp_folder)
+        if not os.path.exists(output_folder):
+            #shutil.rmtree(output_folder_temp)
+            os.mkdir(output_folder)
 
         copy_data_from_remote(client, base_dir=home_dir, jobname=jobname, jobid=jobid,
-                              absolute_local_out_dir="/media/sf_develop/pavics-hydro/2cc/"+output_folder)
+                              absolute_local_out_dir=output_folder)
 
     if option == 'Monitor':
         return get_status(client, hostname, jobid)
 
     if option == "Submit":
-        rootfname = rand_fname()
-        rootdir = "/home/" + user + "/"
-        print("remote folder is " + rootfname)
-        datafile_basename = copy_data_to_remote(client, src_data_path, rootdir, rootfname)
+        remote_temp_folder = rand_fname()
+        remote_path = "/home/" + user + "/"
+        print("remote folder is " + remote_temp_folder)
+        datafile_basename = copy_data_to_remote(client, src_data_path, dataset, remote_path, remote_temp_folder)
 
-        script_fname = copy_batchscript(client, rootdir, rootfname, datafile_basename, batch_cmd_template)
+        script_fname = copy_batchscript(client, remote_path, remote_temp_folder, dataset, batch_cmd_template)
         print("Running " + script_fname)
         j = submit_job(client, script_fname)
         print("job id = " + j)
-        return (j, rootfname)
+        return (j, remote_temp_folder)
 
 
 def cleanup(client, hostname_, jobname, jobid):
@@ -196,32 +196,60 @@ def cleanup(client, hostname_, jobname, jobid):
         pass
 
     #locally
-    os.remove(jobname + "_out.tar_" + hostname_)
+    os.remove(path.join("/tmp",jobname + "_out.tar_" + hostname_))
+
+
+"""
+Expected data structure (raven)
+src_data_dir/datasetname/datasetname.rv?
+"""
 
 
 
-def mainfct():
+def mainfct(argv):
     #        print("main.py command (Submit|Monitor|Retrieve)")
+
+    try:
+        opts, args = getopt.getopt(argv, "d:i:o:t:n")
+    except getopt.GetoptError:
+
+        print('main.py -d workingdir -i dataset -o outputdir -t template_dir -n (no cleanup)')
+        sys.exit(2)
+
+    src_data_dir = "./"
+    out_dir = "./"
+
+    global dataset
+    global template_dir
+    global do_cleanup
+    for opt, arg in opts:
+        if opt == '-d':
+            src_data_dir = arg
+        elif opt == "-i":
+            dataset = arg
+        elif opt == "-o":
+            out_dir = arg
+        elif opt == "-t":
+            template_dir = arg
+        elif opt == "-n":
+            do_cleanup = False
+
+    if dataset is None or template_dir is None:
+        print("Missing arg!")
+        exit(2)
+
+    global output_folder
+    output_folder = out_dir
+    global src_data_path
+    src_data_path = src_data_dir
+
 
     hosts = [hostname]
     client = ParallelSSHClient(hosts, user=user)
 
-    #copy_data_from_remote(client, "/home/" + user, jobname="tmp-tA4UxjKu", jobid="13436409",
-    #                      absolute_local_out_dir="/media/sf_develop/pavics-hydro/2cc/toto/")
-    #exit(1)
 
-#    if len(sys.argv) > 1:
-#       option = sys.argv[1]
-#        if len(sys.argv==3):
-#            remote_datadir = sys.argv[2]
-#        else:
-#            remote_datadir = None
-#
-#        process_cmd(client,hostname,option,jobname=remote_datadir)
-#
-#    else:
-    global output_folder
-    output_folder = sys.argv[1]
+    #global output_folder
+    #output_folder = sys.argv[1]
 
     if True:
 
@@ -245,11 +273,15 @@ def mainfct():
                 job_finished = True
 
         process_cmd(client, hostname, "Retrieve", jobname=jobinfo[1], jobid=jobinfo[0])
-        cleanup(client, hostname, jobname=jobinfo[1], jobid=jobinfo[0])
+        if do_cleanup:
+            cleanup(client, hostname, jobname=jobinfo[1], jobid=jobinfo[0])
 
 
     print("done.")
 
 
+# -d workingdir -i rootdatafile -o outdir
 if __name__ == '__main__':
-    mainfct()
+
+
+    mainfct(sys.argv[1:])
