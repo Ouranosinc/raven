@@ -3,6 +3,7 @@ from raven.models.rv import RV, RVI
 import datetime as dt
 from collections import namedtuple
 
+
 class TestRV:
 
     def test_end_date(self):

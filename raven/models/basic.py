@@ -125,7 +125,7 @@ class Raven:
 
     def _dump_rv(self, ts):
         """Write configuration files to disk."""
-        
+
         for ext, txt in self.rv.items():
             fn = self.model_path / (self.name + '.' + ext)
 
