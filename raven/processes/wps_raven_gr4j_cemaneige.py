@@ -25,7 +25,7 @@ params = LiteralInput('params', 'Comma separated list of model parameters',
                       default=', '.join(str(p) for p in list(params_defaults)),
                       min_occurs=0)
 
-#init = LiteralInput('init', 'Initial soil conditions',
+# init = LiteralInput('init', 'Initial soil conditions',
 #                    abstract='Underground reservoir levels: SOIL_0, SOIL_1',
 #                    data_type='string',
 #                    default='0, 0',
