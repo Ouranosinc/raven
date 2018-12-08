@@ -7,7 +7,7 @@ import collections
 Raven configuration
 -------------------
 
-The RV class is used to store Raven parameters for emulated models. 
+The RV class is used to store Raven parameters for emulated models.
 
 Each model should subclass RV to define the parameters it expects using a namedtuple class. For example::
 
@@ -15,10 +15,10 @@ Each model should subclass RV to define the parameters it expects using a namedt
         params = namedtuple('ModelParams', 'x1, x2, x3')
         init = namedtuple('ModelInit', 'i1, i2')
         hru = namedtuple('ModelHRU', 'hru1', hru2')
-    
+
 It can then be instantiated by passing values that will set as default values for each parameter::
 
-    rv = MyModel(params=MyModel.params(1,2,3), init=MyModel.init(0,0), hru=MyModel.hru(4,5), name='basin')    
+    rv = MyModel(params=MyModel.params(1,2,3), init=MyModel.init(0,0), hru=MyModel.hru(4,5), name='basin')
 
 values can then be modified either using attributes or properties::
 
@@ -26,10 +26,9 @@ values can then be modified either using attributes or properties::
     rv['evaluation_metrics'] = 'LOG_NASH'
 
 
-Simulation end date and duration are updated automatically when duration, start date or end date are changed. 
+Simulation end date and duration are updated automatically when duration, start date or end date are changed.
 
 """
-
 
 
 class RV(collections.abc.Mapping):
@@ -56,7 +55,7 @@ class RV(collections.abc.Mapping):
         return iter(self.keys())
 
     def keys(self):
-        return (key[1:] if key.startswith('_') else key for key in self.__dict__ )
+        return (key[1:] if key.startswith('_') else key for key in self.__dict__)
 
     def items(self):
         for attribute in self.keys():
@@ -179,6 +178,7 @@ class RVI(RV):
 
 
 def isinstance_namedtuple(x):
-  return (isinstance(x, tuple) and
-          isinstance(getattr(x, '__dict__', None), collections.Mapping) and
-          getattr(x, '_fields', None) is not None)
+    a = isinstance(x, tuple)
+    b = isinstance(getattr(x, '__dict__', None), collections.Mapping)
+    c = getattr(x, '_fields', None) is not None
+    return a and b and c
