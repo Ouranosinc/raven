@@ -1,11 +1,15 @@
-Bootstrap: docker
-From: ubuntu:latest
+Bootstrap: localimage 
+From: raven.img
 
 %runscript
-mpirun  /opt/Source/OstrichMPI
+cd /data
+ln -s /opt/Ostrich_2017-12-19_plus_progressJSON/OstrichGCC .
+./OstrichGCC
+
+#mpirun  /opt/Source/OstrichMPI
 
 %files
-./src/Source /opt
+./Ostrich_2017-12-19_plus_progressJSON/ /opt
 
 %environment
 
@@ -18,5 +22,5 @@ apt-get update && apt-get -y install wget vim make build-essential libnetcdf-dev
 #mkdir /data
 #mkdir /data_out
 #chmod 777 /data_out 
-cd /opt/Source && make OMPI
+cd /opt/Ostrich_2017-12-19_plus_progressJSON/ && make GCC
 
