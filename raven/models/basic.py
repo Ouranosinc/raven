@@ -426,14 +426,10 @@ class HBVEC(GR4JCemaneige):
         params = namedtuple('HBVECParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 22)]))
 
     rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))), one_plus_par_x15=None)
-    
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
              water_volume_transport_in_river_channel=None)
-
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x11_half=None)
 
     def derived_parameters(self):
         self.rvp['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
         self.rvh['par_x11_half'] = self.rvp.params.par_x11 / 2.0
-
-
