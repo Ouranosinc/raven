@@ -50,7 +50,7 @@ class TestGR4JCemaneige:
         model.rvh.latitude = 54.4848
         model.rvh.longitude = -123.3659
 
-        model.rvp.set([0.696, 0.7, 19.7, 2.09, 123.3, 0.25])
+        model.rvp.params = model.RVP.params(0.696, 0.7, 19.7, 2.09, 123.3, 0.25)
 
         model.run([ts, ])
 
