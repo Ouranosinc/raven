@@ -47,7 +47,7 @@ class TestRavenMOHYSEProcess:
 
         assert_response_success(resp)
         out = get_output(resp.xml)
-        
+
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
