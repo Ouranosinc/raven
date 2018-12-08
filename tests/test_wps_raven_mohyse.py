@@ -14,10 +14,12 @@ class TestRavenMOHYSEProcess:
     def test_simple(self):
         client = client_for(Service(processes=[RavenMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6167'
+        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453'
+        hrus = '0.9039, 5.6167'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params};" \
+                     "hrus={hrus};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
@@ -28,6 +30,7 @@ class TestRavenMOHYSEProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['raven-mohyse-nc-ts'],
                     params=params,
+                    hrus=hrus,
                     start_date=dt.datetime(1954, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -44,7 +47,7 @@ class TestRavenMOHYSEProcess:
 
         assert_response_success(resp)
         out = get_output(resp.xml)
-        
+
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()

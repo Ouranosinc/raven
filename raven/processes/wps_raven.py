@@ -17,7 +17,7 @@ class RavenProcess(Process):
             "the `rvt` file, only provide the name of the forcing file, not an absolute or relative path."
     version = '0.1'
 
-    param_arrays = []
+    tuple_inputs = {}
     inputs = [wio.ts, wio.conf]
     outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics]
     model_cls = Raven
@@ -48,8 +48,9 @@ class RavenProcess(Process):
 
         # Parse all other input parameters
         for name, obj in request.inputs.items():
-            if name in self.param_arrays:
-                data = map(float, obj[0].data.split(','))
+            if name in self.tuple_inputs:
+                arr = map(float, obj[0].data.split(','))
+                data = self.tuple_inputs[name](*arr)
             else:
                 data = obj[0].data
             model.assign(name, data)
