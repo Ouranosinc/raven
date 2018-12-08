@@ -1,11 +1,11 @@
 import pytest
-from raven.models import RV, RVI, RVP
+from raven.models.rv import RV, RVI
 import datetime as dt
-
+from collections import namedtuple
 
 class TestRV:
 
-    def test_rvi(self):
+    def test_end_date(self):
         rvi = RVI(run_name='test',
                   start_date=dt.datetime(2000, 1, 1),
                   end_date=dt.datetime(2000, 1, 11),
@@ -16,21 +16,28 @@ class TestRV:
         rvi.duration = 11
         assert dt.datetime(2000, 1, 12) == rvi.end_date
 
-    def test_rvp(self):
-        rvp = RV(GR4J_X1=1, GR4J_X2=2, GR4J_X3=3, GR4J_X4=4, CEMANEIGE_X1=5, CEMANEIGE_X2=6)
-        assert list(range(1, 7)) == rvp.values()
+    def test_params(self):
+        class RVP(RV):
+            params = namedtuple('p', 'x, y')
+
+        rvp = RVP()
+        rvp.params = RVP.params(1, 2)
+        assert rvp.params.x == 1
+
+        d = rvp.to_dict()
+        assert 'x' in d
 
     def test_dict_interface(self):
-        rvp = RV(a=1, b=2)
-        d = dict(c=3)
-        d.update(rvp.items())
-        assert 'a' in d
+        rv = RV(run_name='test')
+
+        assert rv['run_name'] == rv.run_name
 
         with pytest.raises(AttributeError):
-            rvp['r'] = 6
+            rv['r'] = 6
 
-    def test_magic(self):
-        rvp = RVP(a=1, b=2)
-        rvp['params'] = [3, 4]
+    def test_evaluation_metrics(self):
+        rvi = RVI()
+        rvi.evaluation_metrics = 'LOG_NASH'
 
-        assert 3 == rvp.a
+        with pytest.raises(ValueError):
+            rvi.evaluation_metrics = 'JIM'

@@ -25,7 +25,6 @@ class TestRavenGR4JCemaNeigeProcess:
                      "params={params};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
-                     "init={init};" \
                      "name={name};" \
                      "area={area};" \
                      "latitude={latitude};" \
@@ -35,7 +34,6 @@ class TestRavenGR4JCemaNeigeProcess:
                     params=params,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
-                    init='4,5',
                     name='Salmon',
                     run_name='test',
                     area='4250.6',
