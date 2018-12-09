@@ -10,7 +10,7 @@ import time
 import os
 import shutil
 import tempfile
-
+import os.path
 hostname = "cedar.computecanada.ca"
 user = "lalondem"
 home_dir = path.join("/home",user)
@@ -77,6 +77,8 @@ def copy_data_from_remote(c, base_dir, jobname, jobid, absolute_local_out_dir):
         if not os.path.exists(absolute_local_out_dir):
             #shutil.rmtree(absolute_local_out_dir)
             os.mkdir(absolute_local_out_dir)
+
+
         #os.mkdir(path.join(absolute_local_out_dir,jobname)
         #print("tar xf /media/sf_develop/pavics-hydro/2cc/"+jobname+"_out.tar_"+hostname+" -C "+absolute_local_out_dir)
         os.system("tar xf /tmp/"+jobname+"_out.tar_"+hostname+" -C "+absolute_local_out_dir)
@@ -86,8 +88,8 @@ def copy_data_from_remote(c, base_dir, jobname, jobid, absolute_local_out_dir):
     print("received")
 
 
-
-def copy_batchscript(c, rootdir, rootfname, datafile_basename, batch_tmplt_fname):
+# executable_ is either raven or ostrich
+def copy_batchscript(executable_, c, rootdir, rootfname, datafile_basename, batch_tmplt_fname):
 
     template_file = open(path.join(template_dir,batch_tmplt_fname), "r")
     tmplt = template_file.read()
@@ -97,6 +99,7 @@ def copy_batchscript(c, rootdir, rootfname, datafile_basename, batch_tmplt_fname
     tmplt = tmplt.replace("INPUT_PATH", rootdir + rootfname)
     tmplt = tmplt.replace("OUTPUT_PATH", rootdir + rootfname+"/out")
     tmplt = tmplt.replace("DATAFILE_BASENAME", datafile_basename)
+    tmplt = tmplt.replace("EXEC", executable_)
 
     #    subst_template_file, subst_fname = tempfile.mkstemp(suffix=".sh")
     subst_fname = rootfname+".sh"
@@ -111,6 +114,19 @@ def copy_batchscript(c, rootdir, rootfname, datafile_basename, batch_tmplt_fname
     joinall(g, raise_error=True)
     c.run_command("chmod ugo+x "+path.join(rootdir+rootfname,subst_fname))
     os.remove("/tmp/"+subst_fname)
+
+    if executable_ == "ostrich":
+        # In addition, copy  raven script
+        r = path.join(rootdir,rootfname,"Ost-RAVEN.sh")
+        srcfilee = path.join(template_dir,"Ost-RAVEN.sh")
+        g=c.copy_file(srcfilee, r)
+        joinall(g, raise_error=True)
+        c.run_command("chmod ugo+x " + r)
+        c.run_command("mkdir " + rootdir + rootfname + "/model/output")
+
+        c.run_command("chmod 777 " + rootdir + rootfname + "/model/output")
+
+
     return path.join(rootdir+rootfname,subst_fname)
 
 def submit_job(client, script_fname):
@@ -154,7 +170,8 @@ def get_status(c, hostname, jobid):
     return status_output[0]
 
 
-def process_cmd(client, hostname, option, jobname="", jobid=""):
+def process_cmd(executable_, client, hostname, option, jobname="", jobid=""):
+
     if option == 'Retrieve':
 #        output_folder_temp = path.join(output_folder, remote_temp_folder)
         if not os.path.exists(output_folder):
@@ -173,7 +190,7 @@ def process_cmd(client, hostname, option, jobname="", jobid=""):
         print("remote folder is " + remote_temp_folder)
         datafile_basename = copy_data_to_remote(client, src_data_path, dataset, remote_path, remote_temp_folder)
 
-        script_fname = copy_batchscript(client, remote_path, remote_temp_folder, dataset, batch_cmd_template)
+        script_fname = copy_batchscript(executable_, client, remote_path, remote_temp_folder, dataset, batch_cmd_template)
         print("Running " + script_fname)
         j = submit_job(client, script_fname)
         print("job id = " + j)
@@ -210,21 +227,26 @@ def mainfct(argv):
     #        print("main.py command (Submit|Monitor|Retrieve)")
 
     try:
-        opts, args = getopt.getopt(argv, "d:i:o:t:n")
+        opts, args = getopt.getopt(argv, "e:d:i:o:t:n")
     except getopt.GetoptError:
 
-        print('main.py -d workingdir -i dataset -o outputdir -t template_dir -n (no cleanup)')
+        print('main.py -e executable (raven|ostrich) -d workingdir -i dataset -o outputdir -t template_dir -n (no cleanup)')
         sys.exit(2)
 
     src_data_dir = "./"
     out_dir = "./"
-
+    executable = None
     global dataset
     global template_dir
     global do_cleanup
     for opt, arg in opts:
         if opt == '-d':
             src_data_dir = arg
+        elif opt == '-e':
+            if arg == "raven":
+                executable = "raven"
+            elif arg == "ostrich":
+                executable = "ostrich"
         elif opt == "-i":
             dataset = arg
         elif opt == "-o":
@@ -236,6 +258,9 @@ def mainfct(argv):
 
     if dataset is None or template_dir is None:
         print("Missing arg!")
+        exit(2)
+    if executable is None:
+        print("Missing executable!")
         exit(2)
 
     global output_folder
@@ -253,14 +278,14 @@ def mainfct(argv):
 
     if True:
 
-        jobinfo = process_cmd(client,hostname,"Submit")
+        jobinfo = process_cmd(executable, client,hostname,"Submit")
 
         job_finished = False
         while(not job_finished):
 
             time.sleep(60)
             try:
-                out = process_cmd(client, hostname, "Monitor", jobid=jobinfo[0] )
+                out = process_cmd(executable, client, hostname, "Monitor", jobid=jobinfo[0] )
                 if out == "PENDING":
                     print("Still pending")
                 if out == "RUNNING":
@@ -272,7 +297,7 @@ def mainfct(argv):
                 print(e)
                 job_finished = True
 
-        process_cmd(client, hostname, "Retrieve", jobname=jobinfo[1], jobid=jobinfo[0])
+        process_cmd(executable,client, hostname, "Retrieve", jobname=jobinfo[1], jobid=jobinfo[0])
         if do_cleanup:
             cleanup(client, hostname, jobname=jobinfo[1], jobid=jobinfo[0])
 
