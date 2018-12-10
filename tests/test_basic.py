@@ -32,6 +32,14 @@ class TestRaven:
         model.configure(rvs)
         model.run(ts)
 
+    def test_hbvec(self):
+        rvs = TESTDATA['raven-hbv-ec-rv']
+        ts = list(TESTDATA['raven-hbv-ec-ts'])
+
+        model = Raven(tempfile.mkdtemp())
+        model.configure(rvs)
+        model.run(ts)
+
 
 class TestGR4JCemaneige:
 
@@ -50,12 +58,13 @@ class TestGR4JCemaneige:
         model.rvh.latitude = 54.4848
         model.rvh.longitude = -123.3659
 
-        model.rvp.params = model.RVP.params(0.696, 0.7, 19.7, 2.09, 123.3, 0.25)
+        model.rvp.params = model.RVP.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
 
         model.run([ts, ])
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.09, 2)
+        # yields NSE=0.5112 for full period 1954-2010
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
 
         hds = model.hydrograph
         assert 'q_sim' in hds.data_vars

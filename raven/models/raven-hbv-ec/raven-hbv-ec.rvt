@@ -1,0 +1,80 @@
+#########################################################################                                  
+:FileType          rvt ASCII Raven 2.8.2                                                                              
+:WrittenBy         Juliane Mai & James Craig                                                                             
+:CreationDate      Nov 2018
+#
+# Emulation of HBV-EC simulation of Salmon River near Prince George                                                             
+#------------------------------------------------------------------------
+
+# meteorological forcings
+:Gauge meteorological forcings
+
+  :Latitude               54.4848
+  :Longitude             -123.3659
+  :Elevation              843.0     
+
+  :RainCorrection         {par_x20}   # HBV_PAR_20 == RFCF
+  :SnowCorrection         {par_x21}   # HBV_PAR_21 == SFCF
+
+   # Julie has a script "monthly_average_values.sh" that can be shared
+   # call:
+   #     ./monthly_average_values.sh data_obs/Salmon-River-Near-Prince-George_meteo_daily.nc
+   # result:
+   #     You can copy the following two lines to your *.rvt file for the HBV-EC setup:
+   #     :MonthlyAveEvaporation, 0.028, 0.089, 0.315, 1.003, 2.077, 2.959, 3.190, 2.548, 1.382, 0.520, 0.101, 0.023,
+   #     :MonthlyAveTemperature, -11.4, -7.2, -2.8, 2.8, 8.1, 12.2, 14.4, 13.5, 8.9, 3.4, -4.0, -9.3,
+   #
+   #                       Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
+#   :MonthlyAveEvaporation, 0.028, 0.089, 0.315, 1.003, 2.077, 2.959, 3.190, 2.548, 1.382, 0.520, 0.101, 0.023,
+#   :MonthlyAveTemperature, -11.4, -7.2,  -2.8,  2.8,   8.1,   12.2,  14.4,  13.5,  8.9,   3.4,   -4.0,  -9.3,
+
+:MonthlyAveEvaporation, {mae_01}, {mae_02}, {mae_03}, {mae_04}, {mae_05}, {mae_06}, {mae_07}, {mae_08}, {mae_09}, {mae_10}, {mae_11}, {mae_12}
+:MonthlyAveTemperature, {mat_01}, {mat_02}, {mat_03}, {mat_04}, {mat_05}, {mat_06}, {mat_07}, {mat_08}, {mat_09}, {mat_10}, {mat_11}, {mat_12}
+
+   :Data RAINFALL mm/d
+      :ReadFromNetCDF
+         :FileNameNC     {pr}
+         :VarNameNC      {pr_var}
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data SNOWFALL mm/d
+      :ReadFromNetCDF
+         :FileNameNC     {prsn}
+         :VarNameNC      {prsn_var}
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data TEMP_MIN deg_C
+      :ReadFromNetCDF
+         :FileNameNC     {tasmin}
+         :VarNameNC      {tasmin_var}
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data TEMP_MAX deg_C
+      :ReadFromNetCDF
+         :FileNameNC     {tasmax}
+         :VarNameNC      {tasmax_var}
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+   :Data PET mm/d
+      :ReadFromNetCDF
+         :FileNameNC     {evspsbl}
+         :VarNameNC      {evspsbl_var}
+         :DimNamesNC     time
+      :EndReadFromNetCDF
+   :EndData
+:EndGauge
+
+# observed streamflow
+:ObservationData HYDROGRAPH 1 m3/s
+    :ReadFromNetCDF
+         :FileNameNC     {water_volume_transport_in_river_channel}
+         :VarNameNC      {water_volume_transport_in_river_channel_var}
+         :DimNamesNC     time
+    :EndReadFromNetCDF
+:EndObservationData
+
+

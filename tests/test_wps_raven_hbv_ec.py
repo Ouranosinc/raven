@@ -6,36 +6,36 @@ from pywps import Service
 from pywps.tests import assert_response_success
 
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
-from raven.processes import RavenGR4JCemaNeigeProcess
+from raven.processes import RavenHBVECProcess
 
 
-# @pytest.mark.skip
-class TestRavenGR4JCemaNeigeProcess:
+class TestRavenHBVECProcess:
 
     def test_simple(self):
-        client = client_for(Service(processes=[RavenGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
+        client = client_for(Service(processes=[RavenHBVECProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.947'
-
-        # some params in Raven input files are derived from those 21 parameters
-        # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0
-        # pdefaults.update({'one_minus_CEMANEIGE_X2': 1.0 - pdefaults['CEMANEIGE_X2']})   --> 1.0 - x6
+        params = '0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.5060520, 3.438486, 38.32455, ' \
+                 '0.4606565, 0.06303738, 2.277781, 4.873686, 0.5718813, 0.04505643, 0.877607, 18.94145,  ' \
+                 '2.036937, 0.4452843, 0.6771759, 1.141608, 1.024278'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
+                     "init={init};" \
                      "name={name};" \
+                     "run_name={run_name};" \
                      "area={area};" \
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(ts=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
+            .format(ts=TESTDATA['raven-hbv-ec-nc-ts'],
                     params=params,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
+                    init='155,455',
                     name='Salmon',
-                    run_name='test',
+                    run_name='test-hbv-ec',
                     area='4250.6',
                     elevation='843.0',
                     latitude=54.4848,
@@ -43,24 +43,23 @@ class TestRavenGR4JCemaNeigeProcess:
                     )
 
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='raven-gr4j-cemaneige',
+            service='WPS', request='Execute', version='1.0.0', identifier='raven-hbv-ec',
             datainputs=datainputs)
 
         assert_response_success(resp)
-
         out = get_output(resp.xml)
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # checking correctness of NSE (full period 1954-2010 would be NSE=0.5112)
+        # checking correctness of NSE (full period 1954-2011 would be NSE=0.585785 as template in Wiki)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -0.130614, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, -0.0755275, 4, err_msg='NSE is not matching expected value')
 
-        # checking correctness of RMSE (full period 1954-2010 would be RMSE=32.8827)
+        # checking correctness of RMSE (full period 1954-2011 would be RMSE=30.2707 as template in wiki) ?????
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 38.1958, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 37.2537, 4, err_msg='RMSE is not matching expected value')
