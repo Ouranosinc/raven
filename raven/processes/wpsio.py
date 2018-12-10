@@ -156,6 +156,11 @@ diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
                             supported_formats=[FORMATS.TEXT],
                             as_reference=True)
 
+# TODO: Add configuration files to output
+# config = ComplexOutput('config', 'Configuration files',
+#                        abstract="Link to configuration files.",
+#                        supported_formats=)
+
 
 # ---------------------------------------- #
 # ---------------- Outputs --------------- #
