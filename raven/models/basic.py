@@ -431,8 +431,6 @@ class HBVEC(GR4JCemaneige):
 
     rvd = RVD(one_plus_par_x15=None, par_x11_half=None)
 
-    # Here we're not initializing the mae and mat arrays because raven._assign_files search the files for rvt keys.
-    # Both the variable names and the mae and mat values are assigned to rvt *a posteriori*.
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
              water_volume_transport_in_river_channel=None)
 
