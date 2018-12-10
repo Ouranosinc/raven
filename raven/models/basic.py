@@ -31,7 +31,6 @@ class Raven:
     templates = ()
     rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
 
-
     # Output files default names. The actual output file names will be composed of the run_name and the default name.
     _output_fn = {'hydrograph': 'Hydrographs.nc',
                   'storage': 'WatershedStorage.nc',
@@ -435,7 +434,7 @@ class HBVEC(GR4JCemaneige):
     # Here we're not initializing the mae and mat arrays because raven._assign_files search the files for rvt keys.
     # Both the variable names and the mae and mat values are assigned to rvt *a posteriori*.
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-              water_volume_transport_in_river_channel=None)
+             water_volume_transport_in_river_channel=None)
 
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
@@ -452,12 +451,3 @@ class HBVEC(GR4JCemaneige):
         tas = (tasmax + tasmin) / 2.
         self.rvd.mat = self.RVD.mat(*tas.groupby('time.month').mean().values)
         self.rvd.mae = self.RVD.mae(*evap.groupby('time.month').mean().values)
-
-
-
-# :MonthlyAveEvaporation, {mae_01}, {mae_02}, {mae_03}, {mae_04}, {mae_05}, {mae_06}, {mae_07}, {mae_08}, {mae_09},
-# {mae_10}, {mae_11}, {mae_12}
-# :MonthlyAveTemperature, {mat_01}, {mat_02}, {mat_03}, {mat_04}, {mat_05}, {mat_06}, {mat_07}, {mat_08}, {mat_09},
-# {mat_10}, {mat_11}, {mat_12}
-
-
