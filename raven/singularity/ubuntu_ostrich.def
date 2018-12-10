@@ -2,9 +2,11 @@ Bootstrap: localimage
 From: raven.img
 
 %runscript
+
 cd /data
 ln -s /opt/Ostrich_2017-12-19_plus_progressJSON/OstrichGCC .
 ./OstrichGCC
+cp -r processor_0/* /data_out/
 
 #mpirun  /opt/Source/OstrichMPI
 
