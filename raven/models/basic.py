@@ -29,7 +29,8 @@ class Raven:
     """Generic class for the Raven model."""
     identifier = 'generic-raven'
     templates = ()
-    rvi = rvp = rvc = rvt = rvh = RV()
+    rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
+
 
     # Output files default names. The actual output file names will be composed of the run_name and the default name.
     _output_fn = {'hydrograph': 'Hydrographs.nc',
@@ -54,7 +55,7 @@ class Raven:
         self._name = None
 
         self._defaults = {}
-        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
+        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd')
 
         # The configuration file content is stored in conf.
         self._conf = dict.fromkeys(self._rvext, "")
@@ -159,8 +160,8 @@ class Raven:
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
-        self.rvt.update(files)
-        self.rvt.update(var_names, force=True)
+        self.rvt.update(files, force=True)
+        self.rvd.update(var_names, force=True)
 
         # Compute derived parameters
         self.derived_parameters()
@@ -208,7 +209,7 @@ class Raven:
         if self.rvi:
             self.handle_date_defaults(ts)
 
-        self.setup_model(map(Path, ts), overwrite)
+        self.setup_model(tuple(map(Path, ts)), overwrite)
 
         # Run the model
         subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
@@ -361,15 +362,15 @@ class GR4JCemaneige(Raven):
     class RVP(RV):
         params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
 
-    rvp = RVP(params=RVP.params(None, None, None, None, None, None), one_minus_CEMANEIGE_X2=None)
-    rvc = RV(GR4J_X1_hlf=None)
+    rvp = RVP(params=RVP.params(None, None, None, None, None, None))
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+    rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
 
     def derived_parameters(self):
-        self.rvc.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
-        self.rvp.one_minus_CEMANEIGE_X2 = 1.0 - self.rvp.params.CEMANEIGE_X2
+        self.rvd.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
+        self.rvd.one_minus_CEMANEIGE_X2 = 1.0 - self.rvp.params.CEMANEIGE_X2
 
 
 class MOHYSE(Raven):
@@ -382,13 +383,13 @@ class MOHYSE(Raven):
         hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
 
     rvp = RVP(params=RVP.params(*((None, ) * 8)))
-    rvh = RVH(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=RVH.hrus(None, None),
-              par_rezi_x10=None)
+    rvh = RVH(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=RVH.hrus(None, None))
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
+    rvd = RV(par_rezi_x10=None)
 
     def derived_parameters(self):
-        self.rvh['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
+        self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
 
 
 class HMETS(GR4JCemaneige):
@@ -402,19 +403,19 @@ class HMETS(GR4JCemaneige):
                                             'HMETS_RUNOFF_COEFF', 'PERC_COEFF', 'BASEFLOW_COEFF_1',
                                             'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'))
 
-    rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))), TOPSOIL_m=None, PHREATIC_m=None,
-              SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None)
-    rvc = RV(TOPSOIL_hlf=None, PHREATIC_hlf=None)
+    rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))))
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
+    rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
+             PHREATIC_hlf=None)
 
     def derived_parameters(self):
-        self.rvc['TOPSOIL_hlf'] = self.rvp.params.TOPSOIL * 0.5
-        self.rvc['PHREATIC_hlf'] = self.rvp.params.PHREATIC * 0.5
-        self.rvp['TOPSOIL_m'] = self.rvp.params.TOPSOIL / 1000.
-        self.rvp['PHREATIC_m'] = self.rvp.params.PHREATIC / 1000.
-        self.rvp['SUM_MELT_FACTOR'] = self.rvp.params.MIN_MELT_FACTOR + self.rvp.params.MAX_MELT_FACTOR
-        self.rvp['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
+        self.rvd['TOPSOIL_hlf'] = self.rvp.params.TOPSOIL * 0.5
+        self.rvd['PHREATIC_hlf'] = self.rvp.params.PHREATIC * 0.5
+        self.rvd['TOPSOIL_m'] = self.rvp.params.TOPSOIL / 1000.
+        self.rvd['PHREATIC_m'] = self.rvp.params.PHREATIC / 1000.
+        self.rvd['SUM_MELT_FACTOR'] = self.rvp.params.MIN_MELT_FACTOR + self.rvp.params.MAX_MELT_FACTOR
+        self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
 
 
 class HBVEC(GR4JCemaneige):
@@ -423,32 +424,34 @@ class HBVEC(GR4JCemaneige):
     class RVP(RV):
         params = namedtuple('HBVECParams', ('par_x{:02}'.format(i) for i in range(1, 22)))
 
-    rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))), one_plus_par_x15=None)
+    rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))))
 
-    class RVT(RV):
+    class RVD(RV):
         mae = namedtuple('MeanAverageEvap', ('mae_{:02}'.format(i) for i in range(1, 13)))
         mat = namedtuple('MeanAverageTemp', ('mat_{:02}'.format(i) for i in range(1, 13)))
 
+    rvd = RVD(one_plus_par_x15=None, par_x11_half=None)
+
     # Here we're not initializing the mae and mat arrays because raven._assign_files search the files for rvt keys.
     # Both the variable names and the mae and mat values are assigned to rvt *a posteriori*.
-    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
               water_volume_transport_in_river_channel=None)
 
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x11_half=None)
+    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
     def derived_parameters(self):
         import xarray as xr
 
-        self.rvp['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
-        self.rvh['par_x11_half'] = self.rvp.params.par_x11 / 2.0
+        self.rvd['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
+        self.rvd['par_x11_half'] = self.rvp.params.par_x11 / 2.0
 
-        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
-        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
-        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
+        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvd.tasmax_var]
+        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvd.tasmin_var]
+        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvd.evspsbl_var]
 
         tas = (tasmax + tasmin) / 2.
-        self.rvt.mat = self.RVT.mat(*tas.groupby('time.month').mean().values)
-        self.rvt.mae = self.RVT.mae(*evap.groupby('time.month').mean().values)
+        self.rvd.mat = self.RVD.mat(*tas.groupby('time.month').mean().values)
+        self.rvd.mae = self.RVD.mae(*evap.groupby('time.month').mean().values)
 
 
 
