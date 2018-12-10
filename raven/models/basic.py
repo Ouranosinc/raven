@@ -20,6 +20,7 @@ import datetime as dt
 import six
 import xarray as xr
 from .rv import RV, RVI
+import numpy as np
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -137,13 +138,6 @@ class Raven:
             with open(fn, 'w') as f:
                 # Write parameters into template.
                 if params:
-
-                    # Include the variable names to the parameters
-                    if ext == 'rvt':
-                        files, var_names = self._assign_files(ts, self.rvt.keys())
-                        params.update(files)
-                        params.update(var_names)
-
                     txt = txt.format(**params)
 
                 f.write(txt)
@@ -158,11 +152,15 @@ class Raven:
            output/
 
         """
-        import shutil
 
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
         os.makedirs(self.model_path, exist_ok=overwrite)
+
+        # Match the input files
+        files, var_names = self._assign_files(ts, self.rvt.keys())
+        self.rvt.update(files)
+        self.rvt.update(var_names, force=True)
 
         # Compute derived parameters
         self.derived_parameters()
@@ -423,13 +421,40 @@ class HBVEC(GR4JCemaneige):
     templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
 
     class RVP(RV):
-        params = namedtuple('HBVECParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 22)]))
+        params = namedtuple('HBVECParams', ('par_x{:02}'.format(i) for i in range(1, 22)))
 
     rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))), one_plus_par_x15=None)
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-             water_volume_transport_in_river_channel=None)
+
+    class RVT(RV):
+        mae = namedtuple('MeanAverageEvap', ('mae_{:02}'.format(i) for i in range(1, 13)))
+        mat = namedtuple('MeanAverageTemp', ('mat_{:02}'.format(i) for i in range(1, 13)))
+
+    # Here we're not initializing the mae and mat arrays because raven._assign_files search the files for rvt keys.
+    # Both the variable names and the mae and mat values are assigned to rvt *a posteriori*.
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+              water_volume_transport_in_river_channel=None)
+
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, par_x11_half=None)
 
     def derived_parameters(self):
+        import xarray as xr
+
         self.rvp['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
         self.rvh['par_x11_half'] = self.rvp.params.par_x11 / 2.0
+
+        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
+        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
+        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
+
+        tas = (tasmax + tasmin) / 2.
+        self.rvt.mat = self.RVT.mat(*tas.groupby('time.month').mean().values)
+        self.rvt.mae = self.RVT.mae(*evap.groupby('time.month').mean().values)
+
+
+
+# :MonthlyAveEvaporation, {mae_01}, {mae_02}, {mae_03}, {mae_04}, {mae_05}, {mae_06}, {mae_07}, {mae_08}, {mae_09},
+# {mae_10}, {mae_11}, {mae_12}
+# :MonthlyAveTemperature, {mat_01}, {mat_02}, {mat_03}, {mat_04}, {mat_05}, {mat_06}, {mat_07}, {mat_08}, {mat_09},
+# {mat_10}, {mat_11}, {mat_12}
+
+

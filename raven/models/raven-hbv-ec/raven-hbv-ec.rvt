@@ -25,8 +25,11 @@
    #     :MonthlyAveTemperature, -11.4, -7.2, -2.8, 2.8, 8.1, 12.2, 14.4, 13.5, 8.9, 3.4, -4.0, -9.3,
    #
    #                       Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
-   :MonthlyAveEvaporation, 0.028, 0.089, 0.315, 1.003, 2.077, 2.959, 3.190, 2.548, 1.382, 0.520, 0.101, 0.023,
-   :MonthlyAveTemperature, -11.4, -7.2,  -2.8,  2.8,   8.1,   12.2,  14.4,  13.5,  8.9,   3.4,   -4.0,  -9.3,
+#   :MonthlyAveEvaporation, 0.028, 0.089, 0.315, 1.003, 2.077, 2.959, 3.190, 2.548, 1.382, 0.520, 0.101, 0.023,
+#   :MonthlyAveTemperature, -11.4, -7.2,  -2.8,  2.8,   8.1,   12.2,  14.4,  13.5,  8.9,   3.4,   -4.0,  -9.3,
+
+:MonthlyAveEvaporation, {mae_01}, {mae_02}, {mae_03}, {mae_04}, {mae_05}, {mae_06}, {mae_07}, {mae_08}, {mae_09}, {mae_10}, {mae_11}, {mae_12}
+:MonthlyAveTemperature, {mat_01}, {mat_02}, {mat_03}, {mat_04}, {mat_05}, {mat_06}, {mat_07}, {mat_08}, {mat_09}, {mat_10}, {mat_11}, {mat_12}
 
    :Data RAINFALL mm/d
       :ReadFromNetCDF

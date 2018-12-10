@@ -42,3 +42,11 @@ class TestRV:
 
         with pytest.raises(ValueError):
             rvi.evaluation_metrics = 'JIM'
+
+    def test_update(self):
+        rv = RV(a=None, b=None)
+        rv.update({'a': 1, 'b': 2})
+        assert rv.a == 1
+
+        rv.c = 1
+        assert rv['c'] == 1
