@@ -33,7 +33,7 @@ class GR4JCemaNeigeProcess(Process):
                                         'Raven: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CEMANEIGE_X1, CEMANEIGE_X2',
                                min_occurs=0,
                                data_type='string',
-                               default='0.696, 0.7, 19.7, 2.09, 123.3, 0.25'),
+                               default='0.529, -3.396, 407.29, 1.072, 16.9, 0.947'),
 
                   LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
                                abstract='Start date of the simulation (AAAA-MM-DD). '

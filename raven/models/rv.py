@@ -1,79 +1,130 @@
 import six
 import datetime as dt
-from collections import OrderedDict
+import collections
 
 
-class RV(object):
-    _keys = None
-    _magic_key_name = ''
+"""
+Raven configuration
+-------------------
+
+The RV class is used to store Raven parameters for emulated models.
+
+Each model should subclass RV to define the parameters it expects using a namedtuple class. For example::
+
+    class MyModel(RV):
+        params = namedtuple('ModelParams', 'x1, x2, x3')
+        init = namedtuple('ModelInit', 'i1, i2')
+        hru = namedtuple('ModelHRU', 'hru1', hru2')
+
+It can then be instantiated by passing values that will set as default values for each parameter::
+
+    rv = MyModel(params=MyModel.params(1,2,3), init=MyModel.init(0,0), hru=MyModel.hru(4,5), name='basin')
+
+values can then be modified either using attributes or properties::
+
+    rv.name = 'LacVert'
+    rv['evaluation_metrics'] = 'LOG_NASH'
+
+
+Simulation end date and duration are updated automatically when duration, start date or end date are changed.
+
+"""
+
+
+class RV(collections.abc.Mapping):
+    """Generic configuration class.
+
+    RV provides two mechanisms to set values, a dictionary-like interface and an object-like interface::
+
+        rv = RV(a=None)
+        rv['a'] = 1
+        rv.a = 2
+
+    The dictionary like interface only allows the modification of values for existing items, while the object interface
+    allows the creation of new attributes::
+
+      rv['c'] = 1
+
+    will raise an AttributeError, while::
+
+      rv.c = 1
+
+    will create a new `c` attribute and assign it the value 1.
+
+    """
 
     def __init__(self, **kwargs):
-        if self._keys is None:
-            self._keys = self.__slots__ = tuple(kwargs.keys())
-
-        for attribute in self._keys:
-            setattr(self, attribute, kwargs.pop(attribute))
-
-    def keys(self):
-        """Return a list of keys."""
-        return self._keys
-
-    def values(self):
-        """Return a list of values."""
-        return [getattr(self, key) for key in self._keys]
-
-    def set(self, x):
-        """Set the values from a list, in the same order as this object's keys."""
-        for key, val in zip(self._keys, x):
+        # Set initial default values
+        for key, val in kwargs.items():
             setattr(self, key, val)
 
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __setitem__(self, key, value):
-        if key == self._magic_key_name:
-            self.set(value)
-        elif key in self._keys:
-            setattr(self, key, value)
-        else:
-            raise AttributeError("Cannot create attribute {}".format(key))
+        if not hasattr(self, key):
+            raise AttributeError('Trying to assign unrecognized object: {}'.format(key))
+
+        setattr(self, key, value)
 
     def __len__(self):
-        return len(self._keys)
+        return len(self.__dict__)
 
     def __iter__(self):
-        return iter(self._keys)
+        return iter(self.keys())
+
+    def keys(self):
+        return (key[1:] if key.startswith('_') else key for key in self.__dict__)
 
     def items(self):
-        """Return a generator of (key, value) pairs."""
-        for attribute in self._keys:
+        for attribute in self.keys():
             yield attribute, getattr(self, attribute)
+
+    def to_dict(self):
+        """Return dictionary of content and namedtuple fields."""
+        out = {}
+        for key, val in self.items():
+            if hasattr(val, '_fields'):
+                out.update(val._asdict())
+            else:
+                out[key] = val
+        return out
+
+    def update(self, items, force=False):
+        """Update values from dictionary items.
+
+        Parameters
+        ----------
+        items : dict
+          Dictionary of values.
+        force : bool
+          If True, un-initialized keys can be set.
+        """
+        if force:
+            for key, val in items.items():
+                setattr(self, key, val)
+        else:
+            for key, val in items.items():
+                self[key] = val
 
 
 class RVI(RV):
-    _keys = ('run_name', 'start_date', 'end_date', 'duration', 'time_step', 'evaluation_metrics',)
+    """Configuration class for rvp, rvh, rvc"""
+    def __init__(self, **kwargs):
+        self.name = None
+        self.area = None
+        self.elevation = None
+        self.latitude = None
+        self.longitude = None
 
-    def __init__(self,
-                 run_name='raven-sim',
-                 start_date=None,
-                 end_date=None,
-                 duration=1,
-                 time_step=1.0,
-                 evaluation_metrics='NASH_SUTCLIFFE RMSE',
-                 **kwargs):
+        self._run_name = None
+        self._start_date = None
+        self._end_date = None
+        self._duration = 1
+        self._time_step = 1.0
+        self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
 
-        self._run_name = run_name
-        self._start_date = start_date
-        self._end_date = end_date
-        self._duration = duration
-        self._time_step = time_step
-        self._evaluation_metrics = evaluation_metrics
-
-        for key, val in kwargs.items():
-            setattr(self, key, val)
-
-        self._update_duration()
-        self._update_end_date()
+        super(RVI, self).__init__(**kwargs)
 
     @property
     def run_name(self):
@@ -162,13 +213,8 @@ class RVI(RV):
             self._end_date = self.start_date + dt.timedelta(days=self.duration)
 
 
-class RVP(RV):
-    _magic_key_name = 'params'
-
-
-class RVC(RV):
-    _magic_key_name = 'init'
-
-
-class RVH(RV):
-    _magic_key_name = 'hru'
+def isinstance_namedtuple(x):
+    a = isinstance(x, tuple)
+    b = isinstance(getattr(x, '__dict__', None), collections.Mapping)
+    c = getattr(x, '_fields', None) is not None
+    return a and b and c
