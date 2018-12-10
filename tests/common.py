@@ -41,6 +41,11 @@ TESTDATA['raven-hmets'] = TD / 'raven-hmets'
 TESTDATA['raven-hmets-rv'] = tuple((TD / 'raven-hmets').glob('raven-hmets-salmon.rv?'))
 TESTDATA['raven-hmets-ts'] = tuple((TD / 'raven-hmets').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
+TESTDATA['raven-hbv-ec-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+TESTDATA['raven-hbv-ec'] = TD / 'raven-hbv-ec'
+TESTDATA['raven-hbv-ec-rv'] = tuple((TD / 'raven-hbv-ec').glob('raven-hbv-ec-salmon.rv?'))
+TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Near-Prince-George_*.rvt'))
+
 
 class WpsTestClient(WpsClient):
 

@@ -18,4 +18,5 @@ def test_wps_caps():
                   'raven-gr4j-cemaneige',
                   'raven-mohyse',
                   'raven-hmets',
+                  'raven-hbv-ec',
                   }

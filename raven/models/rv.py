@@ -32,7 +32,26 @@ Simulation end date and duration are updated automatically when duration, start 
 
 
 class RV(collections.abc.Mapping):
-    """Generic configuration class."""
+    """Generic configuration class.
+
+    RV provides two mechanisms to set values, a dictionary-like interface and an object-like interface::
+
+        rv = RV(a=None)
+        rv['a'] = 1
+        rv.a = 2
+
+    The dictionary like interface only allows the modification of values for existing items, while the object interface
+    allows the creation of new attributes::
+
+      rv['c'] = 1
+
+    will raise an AttributeError, while::
+
+      rv.c = 1
+
+    will create a new `c` attribute and assign it the value 1.
+
+    """
 
     def __init__(self, **kwargs):
         # Set initial default values
@@ -70,6 +89,23 @@ class RV(collections.abc.Mapping):
             else:
                 out[key] = val
         return out
+
+    def update(self, items, force=False):
+        """Update values from dictionary items.
+
+        Parameters
+        ----------
+        items : dict
+          Dictionary of values.
+        force : bool
+          If True, un-initialized keys can be set.
+        """
+        if force:
+            for key, val in items.items():
+                setattr(self, key, val)
+        else:
+            for key, val in items.items():
+                self[key] = val
 
 
 class RVI(RV):

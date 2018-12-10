@@ -16,20 +16,18 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = GR4JCemaneige.RVP.params(GR4J_X1=0.696, GR4J_X2=0.7, GR4J_X3=19.7, GR4J_X4=2.09,
-                                           CEMANEIGE_X1=123.3, CEMANEIGE_X2=0.25)
+params_defaults = GR4JCemaneige.RVP.params(GR4J_X1=0.529,
+                                           GR4J_X2=-3.396,
+                                           GR4J_X3=407.29,
+                                           GR4J_X4=1.072,
+                                           CEMANEIGE_X1=16.9,
+                                           CEMANEIGE_X2=0.947)
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(params_defaults._fields),
                       data_type='string',
                       default=', '.join(str(p) for p in list(params_defaults)),
                       min_occurs=0)
-
-# init = LiteralInput('init', 'Initial soil conditions',
-#                    abstract='Underground reservoir levels: SOIL_0, SOIL_1',
-#                    data_type='string',
-#                    default='0, 0',
-#                    min_occurs=0)
 
 
 class RavenGR4JCemaNeigeProcess(RavenProcess):
