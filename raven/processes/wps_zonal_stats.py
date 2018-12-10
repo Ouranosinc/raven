@@ -72,7 +72,7 @@ class ZonalStatistics(Process):
         dem_fn = request.inputs['raster'][0].file
         shape_fn = request.inputs['shape'][0].file
         band = request.inputs['band'][0]
-        touches = request.inputs['select_all_touching']
+        touches = request.inputs['select_all_touching'][0]
         categorical = request.inputs['categorical'][0]
 
         # TODO: Figure out whether lists are accepted outputs
