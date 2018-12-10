@@ -1,10 +1,10 @@
 #!/bin/bash
 
-\rm -f ubuntu.img
-singularity create ubuntu.img
-sudo singularity bootstrap ubuntu.img ubuntu.def
+\rm -f raven.img
+singularity create raven.img
+sudo singularity bootstrap raven.img ubuntu.def
 # Expecting already logged to the singularity registry
 export SREGISTRY_CLIENT=registry
-sregistry push --name hydro/raven --tag latest ubuntu.img
+sregistry push --name hydro/raven --tag latest raven.img
 
 
