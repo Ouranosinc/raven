@@ -1,10 +1,10 @@
 import logging
 
-from rasterstats import zonal_stats
 from pywps import LiteralInput, ComplexInput
 from pywps import LiteralOutput
-from pywps import Process
+from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
+from rasterstats import zonal_stats
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -14,33 +14,18 @@ class ZonalStatistics(Process):
 
     def __init__(self):
         inputs = [
-            LiteralInput('touches', 'Select boundary pixels that are touched by shape', data_type='boolean'),
-            LiteralInput('categorical', 'Return distinct pixel categories', data_type='boolean'),
+            LiteralInput('select_all_touching', 'Select boundary pixels that are touched by shape',
+                         data_type='boolean', default='false'),
+            LiteralInput('categorical', 'Return distinct pixel categories',
+                         data_type='boolean', default='false'),
             LiteralInput('band', 'Raster band', data_type='int', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Defaults to 1'),
             ComplexInput('shape', 'Vector Shape',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, GeoJSON, or any other file in a'
                                   ' standard vector format. The ESRI Shapefile must be zipped and contain the .shp,'
                                   ' .shx, and .dbf. The shape CRS definition should also match the DEM CRS.',
-                         min_occurs=1,
-                         default=None, supported_formats=[]),
+                         min_occurs=1, supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             # supported_formats=[
-            #            # shp
-            #            {mimeType: 'application/zip',
-            #            encoding: '???',
-            #            schema: None},
-            #
-            #            # gml
-            #            {mimeType: 'text/xml',
-            #            encoding:'utf-8',
-            #            schema:'http://schemas.opengis.net/gml/3.2.1/gml.xsd'},
-            #
-            #            # json
-            #            {mimeType: 'text/plain',
-            #            encoding: 'iso-8859-2',
-            #            schema: None
-            #            },
-            #
             #            # kml
             #            {mimeType: 'text/xml',
             #            encoding: 'windows-1250',
@@ -54,8 +39,7 @@ class ZonalStatistics(Process):
                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from'
                                        ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
-                         min_occurs=0, max_occurs=1,
-                         default='', supported_formats=[])]  # TODO: Enter default DEM URI from PAVICS
+                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF])]
 
         outputs = [
             LiteralOutput('count', 'Feature Count', data_type='int', abstract='Number of features in shape', ),
@@ -88,13 +72,8 @@ class ZonalStatistics(Process):
         dem_fn = request.inputs['raster'][0].file
         shape_fn = request.inputs['shape'][0].file
         band = request.inputs['band'][0]
-
-        touches = False
-        categorical = False
-        if request.inputs['touches'][0]:
-            touches = True
-        if request.inputs['categorical'][0]:
-            categorical = True
+        touches = request.inputs['select_all_touching']
+        categorical = request.inputs['categorical'][0]
 
         # TODO: Figure out whether lists are accepted outputs
         try:
@@ -108,6 +87,7 @@ class ZonalStatistics(Process):
                 stats = zonal_stats(
                     shape_fn, dem_fn, band=band, categorical=categorical, all_touched=touches, geojson_out=True)
                 response.outputs['categories'].data = stats[1]
+
         except Exception as e:
             msg = 'Failed to perform zonal statistics: {}'.format(e)
             raise Exception(msg)
