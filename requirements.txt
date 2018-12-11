@@ -10,6 +10,7 @@ netCDF4
 dask
 pathlib
 toolz
+six
 
 # gdal --- Not compatible with rasterio!
 fiona
