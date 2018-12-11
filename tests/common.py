@@ -6,6 +6,7 @@ import xarray as xr
 from pywps.tests import WpsClient, WpsTestResponse
 from pywps import get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
+
 import six
 if six.PY2:
     from urllib import urlretrieve
@@ -17,6 +18,7 @@ VERSION = "1.0.0"
 WPS, OWS = get_ElementMakerForVersion(VERSION)
 xpath_ns = get_xpath_ns(VERSION)
 
+# TODO: pathlib is python3 only and this seems to be the only call from it.
 TESTS_HOME = Path(__file__).parent
 TD = TESTS_HOME / 'testdata'
 CFG_FILE = TESTS_HOME / 'test.cfg'
@@ -28,7 +30,6 @@ TESTDATA['gr4j-cemaneige'] = \
      'evap': TD / 'gr4j_cemaneige' / 'evap.nc'}
 
 TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
-
 TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
 
 TESTDATA['raven-mohyse-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
@@ -45,6 +46,11 @@ TESTDATA['raven-hbv-ec-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 TESTDATA['raven-hbv-ec'] = TD / 'raven-hbv-ec'
 TESTDATA['raven-hbv-ec-rv'] = tuple((TD / 'raven-hbv-ec').glob('raven-hbv-ec-salmon.rv?'))
 TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Near-Prince-George_*.rvt'))
+
+TESTDATA['earthenv_dem_90m'] = os.path.join(TD, 'earthenv_dem_90m','earthenv_dem90_southernQuebec.tiff')
+TESTDATA['donnees_quebec_mrc_poly'] = os.path.join(TD, 'donneesqc_mrc_poly', 'donnees_quebec_mrc_polygones.gml')
+TESTDATA['statcan_econregions_2016'] = os.path.join(TD, 'statcan_econregions_2016', 'lre_000b16a_f_wgs84_quebec.gml')
+TESTDATA['watershed_vector'] = os.path.join(TD, 'watershed_vector', 'LSJ_LL.zip')
 
 
 class WpsTestClient(WpsClient):
@@ -68,15 +74,15 @@ def get_output(doc):
         [identifier_el] = xpath_ns(output_el, './ows:Identifier')
 
         lit_el = xpath_ns(output_el, './wps:Data/wps:LiteralData')
-        if lit_el != []:
+        if lit_el:
             output[identifier_el.text] = lit_el[0].text
 
         ref_el = xpath_ns(output_el, './wps:Reference')
-        if ref_el != []:
+        if ref_el:
             output[identifier_el.text] = ref_el[0].attrib['href']
 
         data_el = xpath_ns(output_el, './wps:Data/wps:ComplexData')
-        if data_el != []:
+        if data_el:
             output[identifier_el.text] = data_el[0].text
 
     return output
