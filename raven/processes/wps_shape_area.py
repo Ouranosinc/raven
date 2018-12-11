@@ -1,6 +1,6 @@
 import logging
-import re
 from functools import partial
+from raven.utils import address_append
 
 import fiona
 import shapely.ops as ops
@@ -18,13 +18,18 @@ WORLDMOLL = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
 ALBERS = '+proj=aea +lat_1=0 +lat_2=0 +lon_0=0 +ellps=WGS84 +x_0=0 +y_0=0 +units=m +no_defs'
 
 
-class ShapeArea(Process):
+class ShapeAreaProcess(Process):
     """Given a file containing vector data, provide general information and spatial characteristics"""
+
+    identifier = ''
+    abstract = ''
+    title = ''
+    version = ''
 
     def __init__(self):
         inputs = [
             LiteralInput('use_all_features', 'Examine all features in shapefile', data_type='boolean', default='false'),
-            LiteralInput('crs', 'EPSG Coordinate Reference System code', data_type='int', default='4326'),
+            LiteralInput('crs', 'EPSG Coordinate Reference System code', data_type='integer', default='4326'),
             ComplexInput('shape', 'Vector Shape',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, JSON, GeoJSON.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
@@ -44,7 +49,7 @@ class ShapeArea(Process):
                           abstract='Geographic representations and descriptions of shape features')
         ]
 
-        super(ShapeArea, self).__init__(
+        super(ShapeAreaProcess, self).__init__(
             self._shapearea_handler,
             identifier="shape_area",
             title="Shape Area",
@@ -58,21 +63,6 @@ class ShapeArea(Process):
 
     @staticmethod
     def _shapearea_handler(request, response):
-
-        def address_append(address):
-            zipped = re.search(r'(\.zip)', address)
-            tarred = re.search(r'(\.tar)', address)
-
-            try:
-                if zipped:
-                    return 'zip://{}'.format(address)
-                elif tarred:
-                    return 'tar://{}'.format(address)
-                else:
-                    return address
-            except Exception as e:
-                msg = 'Failed to prefix or parse URL: {}'.format(e)
-                raise Exception(msg)
 
         shape_fn = request.inputs['shape'][0].file
         shape_url = address_append(shape_fn)

@@ -9,8 +9,13 @@ from rasterstats import zonal_stats
 LOGGER = logging.getLogger("PYWPS")
 
 
-class ZonalStatistics(Process):
-    """Given a file containing vector data, provide general information and spatial characteristics"""
+class ZonalStatisticsProcess(Process):
+    """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions"""
+
+    identifier = ''
+    abstract = ''
+    title = ''
+    version = ''
 
     def __init__(self):
         inputs = [
@@ -18,7 +23,7 @@ class ZonalStatistics(Process):
                          data_type='boolean', default='false'),
             LiteralInput('categorical', 'Return distinct pixel categories',
                          data_type='boolean', default='false'),
-            LiteralInput('band', 'Raster band', data_type='int', default=1,
+            LiteralInput('band', 'Raster band', data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Defaults to 1'),
             ComplexInput('shape', 'Vector Shape',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, GeoJSON, or any other file in a'
@@ -42,19 +47,20 @@ class ZonalStatistics(Process):
                          min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF])]
 
         outputs = [
-            LiteralOutput('count', 'Feature Count', data_type='int', abstract='Number of features in shape', ),
+            LiteralOutput('count', 'Feature Count', data_type='integer', abstract='Number of features in shape', ),
             LiteralOutput('min', 'Minimum pixel value', data_type='float', abstract='Minimum raster value'),
             LiteralOutput('max', 'Maximum pixel value', data_type='float', abstract='Maximum raster value'),
             LiteralOutput('mean', 'Mean pixel value', data_type='float', abstract='Mean raster value'),
             LiteralOutput('median', 'Median pixel value', data_type='float', abstract='Median raster value'),
-            LiteralOutput('sum', 'Sum of pixels', data_type='int', abstract='Sum of all pixel values'),
-            LiteralOutput('nodata', 'Number of null data pixels', data_type='int',
+            LiteralOutput('sum', 'Sum of pixels', data_type='integer', abstract='Sum of all pixel values'),
+            LiteralOutput('nodata', 'Number of null data pixels', data_type='integer',
                           abstract='Number of null data pixels'),
-            LiteralOutput('categories', 'Counts of pixels by category', data_type='dict',
-                          abstract='Counts of pixels by category'),
+            # TODO: Figure out a replacement for dictionary or find a way of supporting dictionaries with WPS
+            # LiteralOutput('categories', 'Counts of pixels by category', data_type='dict',
+            #               abstract='Counts of pixels by category'),
         ]
 
-        super(ZonalStatistics, self).__init__(
+        super(ZonalStatisticsProcess, self).__init__(
             self._rasterstats_handler,
             identifier="rasterstats",
             title="Raster Zonal Statistics",
@@ -86,7 +92,8 @@ class ZonalStatistics(Process):
             else:
                 stats = zonal_stats(
                     shape_fn, dem_fn, band=band, categorical=categorical, all_touched=touches, geojson_out=True)
-                response.outputs['categories'].data = stats[1]
+                # response.outputs['categories'].data = stats[1]
+                pass
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics: {}'.format(e)
