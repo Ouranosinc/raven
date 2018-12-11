@@ -14,7 +14,9 @@ six
 
 # gdal --- Not compatible with rasterio!
 fiona
-rasterio
-pyproj
 pycrs
+pyproj
+pysheds
+rasterio
 rasterstats
+shapely
