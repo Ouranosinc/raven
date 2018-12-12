@@ -1,6 +1,6 @@
 import logging
 from functools import partial
-from raven.utils import address_append
+from raven.utils import extract_archive
 
 import fiona
 import shapely.ops as ops
@@ -15,7 +15,7 @@ LOGGER = logging.getLogger("PYWPS")
 
 LAEA = '+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
 WORLDMOLL = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
-ALBERS = '+proj=aea +lat_1=0 +lat_2=0 +lon_0=0 +ellps=WGS84 +x_0=0 +y_0=0 +units=m +no_defs'
+ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
 
 
 class ShapeAreaProcess(Process):
@@ -28,25 +28,22 @@ class ShapeAreaProcess(Process):
 
     def __init__(self):
         inputs = [
-            LiteralInput('use_all_features', 'Examine all features in shapefile', data_type='boolean', default='false'),
-            LiteralInput('crs', 'EPSG Coordinate Reference System code', data_type='integer', default='4326'),
             ComplexInput('shape', 'Vector Shape',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, JSON, GeoJSON.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
-                         min_occurs=1, supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON])]
-        # supported_formats=[
-        #            # kml
-        #            {mimeType: 'text/xml',
-        #            encoding: 'windows-1250',
-        #            schema: 'http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd'}
-        #            ])
+                         min_occurs=1, supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
+            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG)', data_type='integer', default='4326'),
+            LiteralInput('projected_crs', 'Coordinate Reference System for area calculation (EPSG; Default:32198)',
+                         data_type='integer', default='32198')
+        ]
 
         outputs = [
-            LiteralOutput('area', 'Area Calculations', data_type='float', abstract='Area of shape in m^2'),
-            LiteralOutput('centroids', 'Centroid Locations', data_type='float',
-                          abstract="Geographic locations of feature centroids"),
-            LiteralOutput('schemas', 'Feature schemas',
-                          abstract='Geographic representations and descriptions of shape features')
+            LiteralOutput('properties', 'Feature schemas',
+                          abstract='Geographic representations and descriptions of shape features'),
+            LiteralOutput('area', 'Area calculation in square metres', data_type='float',
+                          abstract='Area of shape in m^2'),
+            LiteralOutput('centroid', 'Centroid location (lon, lat)', data_type='float',
+                          abstract="Geographic locations of feature centroids")
         ]
 
         super(ShapeAreaProcess, self).__init__(
@@ -64,47 +61,65 @@ class ShapeAreaProcess(Process):
     @staticmethod
     def _shapearea_handler(request, response):
 
-        shape_fn = request.inputs['shape'][0].file
-        shape_url = address_append(shape_fn)
+        shape_url = request.inputs['shape'][0].file
         shape_crs = request.inputs['crs'][0]
-        features = request.inputs['use_all_features'][0]
-        schemas = []
-        centroids = []
+        projected_crs = request.inputs['projected_crs'][0]
+
+        archive_types = ['.nc', '.tar', '.zip']
+        allowed_types = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
+
+        # TODO: I know this is ugly. Suggestions welcome.
+        if any(ext in shape_url for ext in archive_types):
+            extracted = extract_archive(shape_url)
+            for potential_vector in extracted:
+                if any(ext in potential_vector for ext in allowed_types):
+                    shape_url = potential_vector
+
+        properties = []
         areas = []
+        centroid = []
 
-        for i, layername in enumerate(fiona.listlayers(shape_url)):
-            if features:
-                with fiona.open(shape_url, 'r', crs=from_epsg(shape_crs), layer=i) as src:
-                    geom = shape(src['geometry'])
+        try:
+            with fiona.open(shape_url, 'r', crs=from_epsg(shape_crs)) as src:
+                for feature in src:
+                    geom = shape(feature['geometry'])
 
-                    schemas.append(src.schema)
-                    centroids.append(geom.centroid)
+                    properties.append(feature['properties'])
+                    centroid.append(geom.centroid.xy)
                     transformed = ops.transform(
                         partial(
                             transform,
                             Proj(src.crs),
-                            Proj(from_string(LAEA))),
+                            Proj(from_epsg(projected_crs))),
                         geom)
                     areas.append(transformed.area)
 
-            else:
-                with fiona.open(shape_url, 'r', crs=from_epsg(shape_crs)) as src:
-                    geom = shape(src['geometry'])
+                src.close()
+        except Exception as e:
+            msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
+            LOGGER.error(msg)
 
-                    schemas.append(src.schema)
-                    centroids.append(geom.centroid)
-                    transformed = ops.transform(
-                        partial(
-                            transform,
-                            Proj(src.crs),
-                            Proj(from_string(LAEA))),
-                        geom)
-                    areas.append(transformed.area)
-
-            src.close()
-
-        response.outputs['area'].data = areas
-        response.outputs['centroids'].data = centroids
-        response.outputs['schemas'].data = schemas
+        response['properties'] = properties
+        response['area'] = areas
+        response['centroid'] = centroid
 
         return response
+
+
+# if __name__ == "__main__":
+#     from tests.common import TESTDATA
+#
+#     fields = ['crs={crs}', 'shape=file@xlink:href=file://{file}']
+#     datainputs = ';'.join(fields).format(
+#         crs=4326,
+#         file=TESTDATA['watershed_vector']
+#     )
+#
+#     input = {'crs': 4326, 'file': TESTDATA['watershed_vector']}
+#
+#     output = {}
+#
+#     q = ShapeAreaProcess._shapearea_handler(input, output)
+#
+#     for k in q.keys():
+#         print(k, q[k])
