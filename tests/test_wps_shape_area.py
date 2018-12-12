@@ -10,11 +10,11 @@ class TestShapeAreaProcess:
     def test_simple(self):
         client = client_for(Service(processes=[ShapeAreaProcess(), ], cfgfiles=CFG_FILE))
 
-        fields = ['use_all_features={feat}', 'crs={crs}', 'shape=file@xlink:href=file://{file}']
+        fields = ['shape=file@xlink:href=file://{file}', 'crs={crs}', 'projected_crs={projected_crs}']
         datainputs = ';'.join(fields).format(
-            feat=True,
-            crs='4326',
-            file=TESTDATA['watershed_vector']
+            file=TESTDATA['watershed_vector'],
+            crs=4326,
+            projected_crs=32198
         )
 
         resp = client.get(
@@ -23,6 +23,6 @@ class TestShapeAreaProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
 
+        assert 'properties' in out
         assert 'area' in out
         assert 'centroids' in out
-        assert 'schemas' in out
