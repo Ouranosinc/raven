@@ -77,38 +77,44 @@ class ZonalStatisticsProcess(Process):
         # touches = request.inputs['select_all_touching'][0]
         # categorical = request.inputs['categorical'][0]
 
-        dem_url = request['raster']
+        raster_url = request['raster']
         shape_url = request['shape']
         band = request['band']
         touches = request['select_all_touching']
         categorical = request['categorical']
 
         archive_types = ['.nc', '.tar', '.zip']
-        allowed_types = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
+        allowed_vector = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
+        allowed_raster = ['.tiff', '.tif']
+
+        vector_file = []
+        raster_file = []
 
         # TODO: I know this is ugly. Suggestions welcome.
-        if any(ext in shape_url for ext in archive_types):
+        if any(ext in str(shape_url) for ext in archive_types):
             extracted = extract_archive(shape_url, os.getcwd())  # self.workdir)
             for potential_vector in extracted:
-                if any(ext in potential_vector for ext in allowed_types):
-                    shape_url = potential_vector
+                if any(ext in potential_vector for ext in allowed_vector):
+                    vector_file = potential_vector
 
-        dem_files = any(dem in extract_archive(dem_url) for dem in ['.tiff', '.tif'])
-
-        print(dem_files)
+        if any(dem in str(raster_url) for dem in archive_types):
+            extracted = extract_archive(raster_url, os.getcwd())  # self.workdir)
+            for potential_raster in extracted:
+                if any(ext in potential_raster for ext in allowed_raster):
+                    raster_file = potential_raster
 
         try:
             if not categorical:
-                stats = zonal_stats(shape_url, dem_url, all_touched=touches, band=band,
+                stats = zonal_stats(vector_file, raster_file, all_touched=touches, band=band,
                                     stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'])
-                for key in stats.keys():
+                for key in stats[0].keys():
                     # response.outputs[key].data = stats[key]
-                    response[key] = stats[key]
+                    response[key] = stats[0][key]
             else:
-                stats = zonal_stats(
-                    shape_url, dem_url, band=band, categorical=categorical, all_touched=touches, geojson_out=True)
+                stats = zonal_stats(vector_file, raster_file, band=band,
+                                    categorical=categorical, all_touched=touches, geojson_out=True)
                 # response.outputs['categories'].data = stats[1]
-                response['categories'] = stats[1]
+                response['categories'] = stats[0]
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics: {}'.format(e)
@@ -124,7 +130,7 @@ if __name__ == "__main__":
               'crs={crs}', 'shape=file@xlink:href=file://{shape}', 'raster=file@xlink:href=file://{raster}']
 
     inputs = {'select_all_touching': True,
-              'categorical': False,
+              'categorical': True,
               'band': 1,
               'crs': 4326,
               'shape': TESTDATA['watershed_vector'],
@@ -132,9 +138,10 @@ if __name__ == "__main__":
 
     datainputs = ';'.join(fields).format(**inputs)
 
-    response = {'count': None, 'min': None, 'max': None, 'mean': None, 'median': None, 'sum': None, 'nodata': None}
+    response = {}  # {'count': None, 'min': None, 'max': None, 'mean': None, 'median': None, 'sum': None, 'nodata': None}
 
     q = ZonalStatisticsProcess._zonalstats_handler(request=inputs, response=response)
 
     for k in q.keys():
         print(k, q[k])
+
