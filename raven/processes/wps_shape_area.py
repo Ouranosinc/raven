@@ -6,8 +6,7 @@ import fiona
 import shapely.ops as ops
 from fiona.crs import from_epsg, from_string
 from pyproj import Proj, transform
-from pywps import LiteralInput, ComplexInput
-from pywps import LiteralOutput
+from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from shapely.geometry import shape
 
@@ -38,8 +37,10 @@ class ShapeAreaProcess(Process):
         ]
 
         outputs = [
-            LiteralOutput('properties', 'Feature schemas',
-                          abstract='Geographic representations and descriptions of shape properties.'),
+            ComplexOutput('properties', 'Feature schemas',
+                          abstract='Geographic representations and descriptions of shape properties.',
+                          supported_formats=[FORMATS.JSON],
+                          ),
         ]
 
         super(ShapeAreaProcess, self).__init__(
