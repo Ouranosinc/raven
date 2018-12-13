@@ -19,7 +19,7 @@ branches:
     - master
 sudo: false
 before_install:
-  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf libhdf5 ; else brew install netcdf; fi
+  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install netcdf libhdf5-7; else brew install netcdf; fi
 install:
   - make install
   - make start
