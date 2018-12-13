@@ -1,3 +1,4 @@
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
@@ -5,6 +6,7 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import ZonalStatisticsProcess
 
 
+@pytest.mark.skip
 class TestZonalStatsProcess:
 
     def test_simple(self):
