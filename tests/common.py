@@ -52,6 +52,9 @@ TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebe
 TESTDATA['statcan_econregions_2016'] = TD / 'statcan_econregions_2016' / 'lre_000b16a_f_wgs84_quebec.gml'
 TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
 TESTDATA['hydrosheds_conditioned'] = TD / 'usgs_hydrosheds_conditioned' / 'na_dem_15s_deflate.zip'
+TESTDATA['hydrobasins_10'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev10_v1c.zip'
+TESTDATA['hydrobasins_11'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev11_v1c.zip'
+TESTDATA['hydrobasins_12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
 
 
 class WpsTestClient(WpsClient):
