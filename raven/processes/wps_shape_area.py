@@ -1,7 +1,7 @@
 import logging
 from functools import partial
-from raven.utils import extract_archive
-
+from raven.utils import extract_archive, geom_prop, equal_area_geom_prop
+import json
 import fiona
 import shapely.ops as ops
 from fiona.crs import from_epsg, from_string
@@ -39,15 +39,7 @@ class ShapeAreaProcess(Process):
 
         outputs = [
             LiteralOutput('properties', 'Feature schemas',
-                          abstract='Geographic representations and descriptions of shape features'),
-            LiteralOutput('area', 'Area calculation in square metres', data_type='float',
-                          abstract='Area of shape in m^2'),
-            LiteralOutput('centroid_lon', 'Centroid longitude',
-                          data_type='float',
-                          abstract="Geographic location of feature's centroid"),
-            LiteralOutput('centroid_lat', 'Centroid latitude',
-                          data_type='float',
-                          abstract="Geographic location of feature's centroid")
+                          abstract='Geographic representations and descriptions of shape properties.'),
         ]
 
         super(ShapeAreaProcess, self).__init__(
@@ -79,51 +71,29 @@ class ShapeAreaProcess(Process):
                     shape_url = potential_vector
 
         properties = []
-        areas = []
-        centroid = []
 
         try:
             with fiona.open(shape_url, 'r', crs=from_epsg(shape_crs)) as src:
                 for feature in src:
-                    geom = shape(feature['geometry'])
 
-                    properties.append(feature['properties'])
-                    centroid.append(geom.centroid.xy)
+                    geom = shape(feature['geometry'])
                     transformed = ops.transform(
                         partial(
                             transform,
                             Proj(src.crs),
                             Proj(from_epsg(projected_crs))),
                         geom)
-                    areas.append(transformed.area)
 
-                src.close()
+                    prop = {'id': feature['id']}
+                    prop.update(feature['properties'])
+                    prop.update(geom_prop(geom))
+                    prop.update(equal_area_geom_prop(transformed))
+                    properties.append(prop)
+
         except Exception as e:
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
 
-
-        response.outputs['properties'] = properties
-        response.outputs['area'] = areas
-        response['centroid'] = centroid
+        response.outputs['properties'].data = json.dumps(properties)
 
         return response
-
-
-# if __name__ == "__main__":
-#     from tests.common import TESTDATA
-#
-#     fields = ['crs={crs}', 'shape=file@xlink:href=file://{file}']
-#     datainputs = ';'.join(fields).format(
-#         crs=4326,
-#         file=TESTDATA['watershed_vector']
-#     )
-#
-#     input = {'crs': 4326, 'file': TESTDATA['watershed_vector']}
-#
-#     output = {}
-#
-#     q = ShapeAreaProcess._shapearea_handler(input, output)
-#
-#     for k in q.keys():
-#         print(k, q[k])

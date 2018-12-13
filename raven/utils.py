@@ -1,7 +1,7 @@
 from re import search
 import tempfile
 import logging
-
+import math
 import os
 from zipfile import ZipFile
 import tarfile
@@ -65,3 +65,38 @@ def extract_archive(resources, output_dir=None):
         except Exception as e:
             LOGGER.error('failed to extract sub archive {}: {}'.format(arch, e))
     return files
+
+
+def geom_prop(geom):
+    """Return a dictionary of properties for the given geometry.
+
+    Parameters
+    ----------
+    geom : shapely.geometry
+    """
+    # TODO: Check that it's not a MULTIPOLYGON
+    out = {'centroid': (geom.centroid.x, geom.centroid.y)}
+    return out
+
+
+def equal_area_geom_prop(geom):
+    """Return a dictionary of properties for the given equal area geometry.
+
+    Parameters
+    ----------
+    geom : shapely.geometry
+
+    Returns
+    -------
+    dict
+      Dictionary storing polygon area, perimeter and gravelius shape index.
+    """
+    # TODO: Check that it's not a MULTIPOLYGON
+    area = geom.area
+    length = geom.length
+    gravelius = length / 2 / math.sqrt(math.pi * area)
+    out = {'area': area,
+           'perimeter': length,
+           'gravelius': gravelius,
+           }
+    return out
