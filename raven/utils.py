@@ -35,7 +35,7 @@ def extract_archive(resources, output_dir=None):
     """
     extracts archives (tar/zip)
     :param resources: list of archive files (if netCDF files are in list,
-                     they are passed and returnd as well in the return).
+                     they are passed and returned as well in the return).
     :param output_dir: define a directory to store the results (default: tempory folder).
     :return list: [list of extracted files]
     """
@@ -54,11 +54,11 @@ def extract_archive(resources, output_dir=None):
                 files.append(os.path.join(output_dir, arch))
             elif file.endswith('.tar'):
                 with tarfile.open(arch, mode='r') as tar:
-                    tar.extractall()
+                    tar.extractall(path=output_dir)
                     files.extend([os.path.join(output_dir, f) for f in tar.getnames()])
             elif file.endswith('.zip'):
                 with ZipFile(arch, mode='r') as zf:
-                    zf.extractall()
+                    zf.extractall(path=output_dir)
                     files.extend([os.path.join(output_dir, f) for f in zf.namelist()])
             else:
                 LOGGER.warning('file extension "{}" unknown'.format(file))
