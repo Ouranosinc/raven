@@ -1,6 +1,6 @@
 import logging
 import os
-
+import json
 from pywps import LiteralInput, ComplexInput
 from pywps import LiteralOutput, ComplexOutput
 from pywps import Process, FORMATS
@@ -14,11 +14,6 @@ LOGGER = logging.getLogger("PYWPS")
 
 class ZonalStatisticsProcess(Process):
     """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions"""
-
-    identifier = ''
-    abstract = ''
-    title = ''
-    version = ''
 
     def __init__(self):
         inputs = [
@@ -44,21 +39,24 @@ class ZonalStatisticsProcess(Process):
                          min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF])]
 
         outputs = [
-            LiteralOutput('count', 'Feature Count', data_type='integer', abstract='Number of features in shape', ),
-            LiteralOutput('min', 'Minimum pixel value', data_type='float', abstract='Minimum raster value'),
-            LiteralOutput('max', 'Maximum pixel value', data_type='float', abstract='Maximum raster value'),
-            LiteralOutput('mean', 'Mean pixel value', data_type='float', abstract='Mean raster value'),
-            LiteralOutput('median', 'Median pixel value', data_type='float', abstract='Median raster value'),
-            LiteralOutput('sum', 'Sum of pixels', data_type='integer', abstract='Sum of all pixel values'),
-            LiteralOutput('nodata', 'Number of null data pixels', data_type='integer',
-                          abstract='Number of null data pixels'),
-            ComplexOutput('categories', 'Counts of pixels by category',
-                          abstract='Counts of pixels by category'),
+            ComplexOutput('properties', 'DEM properties within the region defined by `shape`.',
+                          abstract='Elevation statistics: min, max, mean, median, sum, nodata',
+                          supported_formats=(FORMATS.JSON,),
+                          as_reference=False),
         ]
+        #            LiteralOutput('count', 'Feature Count', data_type='integer', abstract='Number of features in
+        #            shape', ),
+        #            LiteralOutput('min', 'Minimum pixel value', data_type='float', abstract='Minimum raster value'),
+        #            LiteralOutput('max', 'Maximum pixel value', data_type='float', abstract='Maximum raster value'),
+        #            LiteralOutput('mean', 'Mean pixel value', data_type='float', abstract='Mean raster value'),
+        #            LiteralOutput('median', 'Median pixel value', data_type='float', abstract='Median raster value'),
+        #            LiteralOutput('sum', 'Sum of pixels', data_type='integer', abstract='Sum of all pixel values'),
+        #            LiteralOutput('nodata', 'Number of null data pixels', data_type='integer',
+        #                          abstract='Number of null data pixels'),
 
         super(ZonalStatisticsProcess, self).__init__(
-            self._zonalstats_handler,
-            identifier="rasterstats",
+            self._handler,
+            identifier="raster-stats",
             title="Raster Zonal Statistics",
             version="1.0",
             abstract="Return raster zonal statistics based on boundaries of a vector file.",
@@ -68,8 +66,7 @@ class ZonalStatisticsProcess(Process):
             status_supported=True,
             store_supported=True)
 
-    @staticmethod
-    def _zonalstats_handler(request, response):
+    def _handler(self, request, response):
 
         # dem_fn = request.inputs['raster'][0].file
         # shape_fn = request.inputs['shape'][0].file
@@ -77,18 +74,18 @@ class ZonalStatisticsProcess(Process):
         # touches = request.inputs['select_all_touching'][0]
         # categorical = request.inputs['categorical'][0]
 
-        dem_url = request['raster']
-        shape_url = request['shape']
-        band = request['band']
-        touches = request['select_all_touching']
-        categorical = request['categorical']
+        dem_url = request.inputs['raster'][0].file
+        shape_url = request.inputs['shape'][0].file
+        band = request.inputs['band'][0].data
+        touches = request.inputs['select_all_touching'][0].data
+        categorical = request.inputs['categorical'][0].data
 
         archive_types = ['.nc', '.tar', '.zip']
         allowed_types = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
 
         # TODO: I know this is ugly. Suggestions welcome.
         if any(ext in shape_url for ext in archive_types):
-            extracted = extract_archive(shape_url, os.getcwd())  # self.workdir)
+            extracted = extract_archive(shape_url, self.workdir)
             for potential_vector in extracted:
                 if any(ext in potential_vector for ext in allowed_types):
                     shape_url = potential_vector
@@ -101,14 +98,19 @@ class ZonalStatisticsProcess(Process):
             if not categorical:
                 stats = zonal_stats(shape_url, dem_url, all_touched=touches, band=band,
                                     stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'])
-                for key in stats.keys():
-                    # response.outputs[key].data = stats[key]
-                    response[key] = stats[key]
+
             else:
                 stats = zonal_stats(
                     shape_url, dem_url, band=band, categorical=categorical, all_touched=touches, geojson_out=True)
-                # response.outputs['categories'].data = stats[1]
-                response['categories'] = stats[1]
+
+            # Using the PyWPS 4.0 release this will output garbage. Should be fixed for the next version.
+            # response.outputs['properties'].data = json.dumps(stats)
+
+            # For the time being, this should do, but will return a reference, not the actual content.
+            fn = os.path.join(self.workdir, 'prop.json')
+            with open(fn, 'w') as f:
+                json.dump(stats, f)
+            response.outputs['properties'].file = fn
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics: {}'.format(e)
@@ -116,7 +118,7 @@ class ZonalStatisticsProcess(Process):
 
         return response
 
-
+"""
 if __name__ == "__main__":
     from tests.common import TESTDATA
 
@@ -138,3 +140,4 @@ if __name__ == "__main__":
 
     for k in q.keys():
         print(k, q[k])
+"""

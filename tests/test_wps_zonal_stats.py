@@ -6,7 +6,6 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import ZonalStatisticsProcess
 
 
-@pytest.mark.skip
 class TestZonalStatsProcess:
 
     def test_simple(self):
@@ -16,8 +15,8 @@ class TestZonalStatsProcess:
             'select_all_touching={touches}',
             'categorical={categorical}',
             'band={band}',
-            'shape={shape}',
-            'raster={raster}'
+            'shape=file@xlink:href=file://{shape}',
+            'raster=file@xlink:href=file://{raster}'
         ]
 
         datainputs = ';'.join(fields).format(
@@ -29,11 +28,13 @@ class TestZonalStatsProcess:
         )
 
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='zonal-stats', datainputs=datainputs)
-
+            service='WPS', request='Execute', version='1.0.0', identifier='raster-stats', datainputs=datainputs)
+        print(resp.response[0])
         assert_response_success(resp)
-        out = get_output(resp.xml)
+        out = get_output(resp.xml)['properties']
 
+        # There is a bug in pywps 4.0 such that as_reference=False is not respected when ComplexOuput.file is set.
+        # So the following won't work out of the box.
         assert 'count' in out
         assert 'min' in out
         assert 'max' in out
