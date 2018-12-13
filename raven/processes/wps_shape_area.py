@@ -21,20 +21,20 @@ ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +
 class ShapeAreaProcess(Process):
     """Given a file containing vector data, provide general information and spatial characteristics"""
 
-    identifier = ''
-    abstract = ''
-    title = ''
-    version = ''
-
     def __init__(self):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, JSON, GeoJSON.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
-                         min_occurs=1, supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
-            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG)', data_type='integer', default='4326'),
-            LiteralInput('projected_crs', 'Coordinate Reference System for area calculation (EPSG; Default:32198)',
-                         data_type='integer', default='32198')
+                         min_occurs=1,
+                         supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
+            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG)',
+                         data_type='integer',
+                         default=4326),
+            LiteralInput('projected_crs',
+                         'Coordinate Reference System for area calculation (EPSG; Default:32198)',
+                         data_type='integer',
+                         default=32198)
         ]
 
         outputs = [
@@ -42,35 +42,38 @@ class ShapeAreaProcess(Process):
                           abstract='Geographic representations and descriptions of shape features'),
             LiteralOutput('area', 'Area calculation in square metres', data_type='float',
                           abstract='Area of shape in m^2'),
-            LiteralOutput('centroid', 'Centroid location (lon, lat)', data_type='float',
-                          abstract="Geographic locations of feature centroids")
+            LiteralOutput('centroid_lon', 'Centroid longitude',
+                          data_type='float',
+                          abstract="Geographic location of feature's centroid"),
+            LiteralOutput('centroid_lat', 'Centroid latitude',
+                          data_type='float',
+                          abstract="Geographic location of feature's centroid")
         ]
 
         super(ShapeAreaProcess, self).__init__(
-            self._shapearea_handler,
-            identifier="shape_area",
+            self._handler,
+            identifier="shape-area",
             title="Shape Area",
             version="1.0",
-            abstract="Return shape area in square Kilometres based on line boundaries of a polygonal vector file.",
+            abstract="Return shape area in square metres based on line boundaries of a polygonal vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
             status_supported=True,
             store_supported=True)
 
-    @staticmethod
-    def _shapearea_handler(request, response):
+    def _handler(self, request, response):
 
         shape_url = request.inputs['shape'][0].file
-        shape_crs = request.inputs['crs'][0]
-        projected_crs = request.inputs['projected_crs'][0]
+        shape_crs = request.inputs['crs'][0].data
+        projected_crs = request.inputs['projected_crs'][0].data
 
         archive_types = ['.nc', '.tar', '.zip']
         allowed_types = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
 
         # TODO: I know this is ugly. Suggestions welcome.
         if any(ext in shape_url for ext in archive_types):
-            extracted = extract_archive(shape_url)
+            extracted = extract_archive(shape_url, self.workdir)
             for potential_vector in extracted:
                 if any(ext in potential_vector for ext in allowed_types):
                     shape_url = potential_vector
@@ -99,8 +102,9 @@ class ShapeAreaProcess(Process):
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
 
-        response['properties'] = properties
-        response['area'] = areas
+
+        response.outputs['properties'] = properties
+        response.outputs['area'] = areas
         response['centroid'] = centroid
 
         return response

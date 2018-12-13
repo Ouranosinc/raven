@@ -16,7 +16,6 @@ six
 fiona
 pycrs
 pyproj
-pysheds
 rasterio
 rasterstats
 shapely

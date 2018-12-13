@@ -14,6 +14,6 @@ processes = [
     RavenMOHYSEProcess(),
     RavenHMETSProcess(),
     RavenHBVECProcess(),
-    ShapeAreaProcess,
-    ZonalStatisticsProcess,
+    ShapeAreaProcess(),
+    ZonalStatisticsProcess(),
 ]

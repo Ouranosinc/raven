@@ -47,10 +47,10 @@ TESTDATA['raven-hbv-ec'] = TD / 'raven-hbv-ec'
 TESTDATA['raven-hbv-ec-rv'] = tuple((TD / 'raven-hbv-ec').glob('raven-hbv-ec-salmon.rv?'))
 TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
-TESTDATA['earthenv_dem_90m'] = os.path.join(TD, 'earthenv_dem_90m','earthenv_dem90_southernQuebec.tiff')
-TESTDATA['donnees_quebec_mrc_poly'] = os.path.join(TD, 'donneesqc_mrc_poly', 'donnees_quebec_mrc_polygones.gml')
-TESTDATA['statcan_econregions_2016'] = os.path.join(TD, 'statcan_econregions_2016', 'lre_000b16a_f_wgs84_quebec.gml')
-TESTDATA['watershed_vector'] = os.path.join(TD, 'watershed_vector', 'LSJ_LL.zip')
+TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_southernQuebec.tiff'
+TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebec_mrc_polygones.gml'
+TESTDATA['statcan_econregions_2016'] = TD / 'statcan_econregions_2016' / 'lre_000b16a_f_wgs84_quebec.gml'
+TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
 
 
 class WpsTestClient(WpsClient):
