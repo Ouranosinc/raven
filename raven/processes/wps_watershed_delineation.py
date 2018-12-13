@@ -87,6 +87,7 @@ class WatershedDelineation(Process):
             status_supported=True,
             store_supported=True)
 
+    # TODO: David, let me know if you work on this. I'm curious to throw my hat in the ring here.
     @staticmethod
     def _pysheds_handler(request, response):
 
@@ -171,3 +172,7 @@ def testing():
     for (p, v) in catch:
         poly = geometry.asShape(p)
         ax1.plot(*poly.exterior.xy, color='white')
+
+
+if __name__ == "__main__":
+    testing()
