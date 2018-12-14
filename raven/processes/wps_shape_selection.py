@@ -42,8 +42,7 @@ class ShapeSelectionProcess(Process):
         outputs = [
             ComplexOutput('feature', 'Watershed feature geometry',
                           abstract='Geographic representations and descriptions of shape properties.',
-                          supported_formats=FORMATS.JSON,
-                          ),
+                          supported_formats=[FORMATS.GEOJSON]),
         ]
 
         super(ShapeSelectionProcess, self).__init__(
