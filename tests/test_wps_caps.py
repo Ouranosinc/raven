@@ -14,9 +14,12 @@ def test_wps_caps():
                             '/ows:Identifier')
     sn = set(names.split())
     assert sn == {'gr4j-cemaneige',
+                  'raster-stats',
                   'raven',
                   'raven-gr4j-cemaneige',
                   'raven-mohyse',
                   'raven-hmets',
                   'raven-hbv-ec',
+                  'shape-area',
+                  'shape-selection',
                   }
