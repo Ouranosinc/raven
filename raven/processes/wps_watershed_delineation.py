@@ -8,8 +8,6 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from shapely import geometry
 
-# from pywps import LiteralOutput, Format
-
 """
 Dependencies for pysheds not installed with python setup.py install. See requirements.txt.
 numpy, scipy, pandas, geojson, affine, scikit-image, pyproj, rasterio

@@ -95,7 +95,7 @@ class ZonalStatisticsProcess(Process):
                     vector_file = potential_vector
 
         if any(dem in str(raster_url) for dem in archive_types):
-            extracted = extract_archive(raster_url, os.getcwd())  # self.workdir)
+            extracted = extract_archive(raster_url, self.workdir)
             for potential_raster in extracted:
                 if any(ext in potential_raster for ext in allowed_raster):
                     raster_file = potential_raster
