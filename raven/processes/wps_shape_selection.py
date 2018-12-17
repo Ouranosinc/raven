@@ -27,10 +27,13 @@ class ShapeSelectionProcess(Process):
             # ComplexInput: features, shapefile with multiple features from which one will be selected
             # ComplexOutput: polygonfeature in format that can be easily worked with on the web frontend.
 
+            LiteralInput('collect_upstream',
+                         'Attempt to capture both conatining basin and all upstream basins from point',
+                         data_type='boolean',
+                         default='false'),
             LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
                          data_type='string',
                          default='(-68.724444, 50.646667)'),
-            # LiteralInput('lon_coordinate', 'Longitude of point of interest', data_type='float', default=-68.724444),
             LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
                          data_type='integer',
                          default=4326),
@@ -70,6 +73,7 @@ class ShapeSelectionProcess(Process):
             logging.error(msg)
             return response
 
+        upstream = request.inputs['collect_upstream'][0].data
         crs = request.inputs['crs'][0].data
         shape_url = request.inputs['shape'][0].file
 
@@ -83,6 +87,7 @@ class ShapeSelectionProcess(Process):
                 if any(ext in potential_vector for ext in allowed_types):
                     shape_url = potential_vector
 
+        basin = []
         properties = []
         location = Point(lon, lat)
         try:
@@ -91,10 +96,15 @@ class ShapeSelectionProcess(Process):
                     geometry = shape(feature['geometry'])
 
                     if geometry.contains(location):
+                        basin = feature['properties']['HYBAS_ID']
                         prop = {'id': feature['id']}
                         prop.update(feature['properties'])
                         prop.update(feature['geometry'])
                         properties.append(prop)
+                        continue
+
+                for feature in src:
+                    basin.append(filter(lambda f: f['properties']['NEXT_DOWN'] == basin[-1], src))
 
         except Exception as e:
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
