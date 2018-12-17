@@ -8,7 +8,7 @@ CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev157.zip
+RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev161.zip
 RAVEN_SRC = $(CURDIR)/src/RAVEN
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
