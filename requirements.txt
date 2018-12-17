@@ -9,3 +9,4 @@ netCDF4
 dask
 toolz
 pandas
+spotpy
