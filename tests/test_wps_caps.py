@@ -19,4 +19,5 @@ def test_wps_caps():
                   'raven-mohyse',
                   'raven-hmets',
                   'raven-hbv-ec',
+                  'objective-function',
                   }
