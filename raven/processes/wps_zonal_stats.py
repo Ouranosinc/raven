@@ -68,12 +68,6 @@ class ZonalStatisticsProcess(Process):
 
     def _handler(self, request, response):
 
-        # dem_fn = request.inputs['raster'][0].file
-        # shape_fn = request.inputs['shape'][0].file
-        # band = request.inputs['band'][0]
-        # touches = request.inputs['select_all_touching'][0]
-        # categorical = request.inputs['categorical'][0]
-
         raster_url = request.inputs['raster'][0].file
         shape_url = request.inputs['shape'][0].file
         band = request.inputs['band'][0].data
@@ -99,6 +93,8 @@ class ZonalStatisticsProcess(Process):
             for potential_raster in extracted:
                 if any(ext in potential_raster for ext in allowed_raster):
                     raster_file = potential_raster
+        if not raster_file:
+            raster_file = raster_url
 
         try:
             if not categorical:
@@ -140,7 +136,7 @@ class ZonalStatisticsProcess(Process):
 #
 #     datainputs = ';'.join(fields).format(**inputs)
 #
-#     response = {}  # {'count': None, 'min': None, 'max': None, 'mean': None, 'median': None, 'sum': None, 'nodata': None}
+#     response = {}
 #
 #     q = ZonalStatisticsProcess._zonalstats_handler(request=inputs, response=response)
 #

@@ -1,7 +1,7 @@
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
+from .common import client_for, TESTDATA, CFG_FILE, get_output
 
 from raven.processes import ZonalStatisticsProcess
 
@@ -31,6 +31,7 @@ class TestZonalStatsProcess:
             service='WPS', request='Execute', version='1.0.0', identifier='raster-stats', datainputs=datainputs)
         print(resp.response[0])
         assert_response_success(resp)
+
         out = get_output(resp.xml)['properties']
 
         # There is a bug in pywps 4.0 such that as_reference=False is not respected when ComplexOuput.file is set.
