@@ -132,17 +132,17 @@ distclean: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
 
 .PHONY: testall
 testall:
 	@echo "Running all tests (including slow and online tests) ..."
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pytest -v"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pytest -v"
 
 .PHONY: pep8
 pep8:
 	@echo "Running pep8 code style checks ..."
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && flake8 raven tests"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && flake8 raven tests"
 
 ##  Sphinx targets
 
