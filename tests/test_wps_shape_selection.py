@@ -25,5 +25,5 @@ class TestShapeAreaProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
 
-        assert 'properties' in out
+        assert 'feature' in out
         # TODO: add a couple of explicit tests that properties are computed.

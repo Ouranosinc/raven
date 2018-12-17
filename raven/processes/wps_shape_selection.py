@@ -17,7 +17,7 @@ ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +
 
 
 class ShapeSelectionProcess(Process):
-    """Given lat/lon coordinates and a file containing vector data, return the feature containing the coordinates"""
+    """Given lat/lon coordinates and a file containing vector data, return the feature containing the coordinates."""
 
     def __init__(self):
         inputs = [
@@ -26,7 +26,7 @@ class ShapeSelectionProcess(Process):
         # ComplexInput: features, shapefile with multiple features from which one will be selected
         # ComplexOutput: polygonfeature in format that can be easily worked with on the web frontend.
 
-            # TODO: I wish I could pass a tuple here. Ideas?
+            # TODO: I wish I could pass a tuple here. Ideas? DH: string lat,lon that you parse into floats.
             LiteralInput('lat_coordinate', 'Latitude of point of interest', data_type='float', default=50.646667),
             LiteralInput('lon_coordinate', 'Longitude of point of interest', data_type='float', default=-68.724444),
             LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
@@ -90,6 +90,6 @@ class ShapeSelectionProcess(Process):
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
 
-        response.outputs['properties'].data = json.dumps(properties)
+        response.outputs['feature'].data = json.dumps(properties)
 
         return response
