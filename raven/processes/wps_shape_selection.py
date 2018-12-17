@@ -88,6 +88,7 @@ class ShapeSelectionProcess(Process):
                     shape_url = potential_vector
 
         basin = []
+        pfaf = ''
         properties = []
         location = Point(lon, lat)
         try:
@@ -97,6 +98,7 @@ class ShapeSelectionProcess(Process):
 
                     if geometry.contains(location):
                         basin = feature['properties']['HYBAS_ID']
+                        pfaf = feature['properties']['PFAF_ID']
                         prop = {'id': feature['id']}
                         prop.update(feature['properties'])
                         prop.update(feature['geometry'])
@@ -104,7 +106,9 @@ class ShapeSelectionProcess(Process):
                         continue
 
                 for feature in src:
-                    basin.append(filter(lambda f: f['properties']['NEXT_DOWN'] == basin[-1], src))
+                    pfaf_start, pfaf_end = pfaf[0:4], pfaf[4:]
+                    basin.append(filter(lambda f: feature['properties']['NEXT_DOWN'] == basin[-1], src))
+
 
         except Exception as e:
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
