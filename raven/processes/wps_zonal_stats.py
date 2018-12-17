@@ -2,7 +2,7 @@ import logging
 import os
 import json
 from pywps import LiteralInput, ComplexInput
-from pywps import LiteralOutput, ComplexOutput
+from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
@@ -18,6 +18,8 @@ class ZonalStatisticsProcess(Process):
     def __init__(self):
         inputs = [
             LiteralInput('select_all_touching', 'Select boundary pixels that are touched by shape',
+                         data_type='boolean', default='false'),
+            LiteralInput('return_geometry', 'Return the vertices of the geometry in the JSON file ',
                          data_type='boolean', default='false'),
             LiteralInput('categorical', 'Return distinct pixel categories',
                          data_type='boolean', default='false'),
@@ -41,7 +43,7 @@ class ZonalStatisticsProcess(Process):
         outputs = [
             ComplexOutput('properties', 'DEM properties within the region defined by `shape`.',
                           abstract='Elevation statistics: min, max, mean, median, sum, nodata',
-                          supported_formats=(FORMATS.JSON,),
+                          supported_formats=(FORMATS.JSON, FORMATS.GEOJSON),
                           as_reference=False),
         ]
         #            LiteralOutput('count', 'Feature Count', data_type='integer', abstract='Number of features in
@@ -72,6 +74,7 @@ class ZonalStatisticsProcess(Process):
         shape_url = request.inputs['shape'][0].file
         band = request.inputs['band'][0].data
         touches = request.inputs['select_all_touching'][0].data
+        geojson_out = request.inputs['return_geometry'][0].data
         categorical = request.inputs['categorical'][0].data
 
         archive_types = ['.nc', '.tar', '.zip']
@@ -97,13 +100,9 @@ class ZonalStatisticsProcess(Process):
             raster_file = raster_url
 
         try:
-            if not categorical:
-                stats = zonal_stats(vector_file, raster_file, all_touched=touches, band=band,
-                                    stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'])
-
-            else:
-                stats = zonal_stats(
-                    shape_url, raster_url, band=band, categorical=categorical, all_touched=touches, geojson_out=True)
+            stats = zonal_stats(
+                vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
+                band=band, categorical=categorical, all_touched=touches, geojson_out=geojson_out)
 
             # Using the PyWPS 4.0 release this will output garbage. Should be fixed for the next version.
             # response.outputs['properties'].data = json.dumps(stats)

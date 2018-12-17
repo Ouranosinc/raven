@@ -13,6 +13,7 @@ class TestZonalStatsProcess:
 
         fields = [
             'select_all_touching={touches}',
+            'return_geometry={return_geometry}'
             'categorical={categorical}',
             'band={band}',
             'shape=file@xlink:href=file://{shape}',
@@ -21,6 +22,7 @@ class TestZonalStatsProcess:
 
         datainputs = ';'.join(fields).format(
             touches=True,
+            return_geometry=False,
             categorical=False,
             band=1,
             shape=TESTDATA['watershed_vector'],
