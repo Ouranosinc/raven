@@ -5,16 +5,14 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output
 from raven.processes import ShapeSelectionProcess
 
 
-class TestShapeAreaProcess:
+class TestShapeSelectionProcess:
 
     def test_simple(self):
         client = client_for(Service(processes=[ShapeSelectionProcess(), ], cfgfiles=CFG_FILE))
 
-        fields = ['lat_coordinate={lat_coordinate}', 'lon_coordinate={lon_coordinate}',
-                  'crs={crs}', 'shape=file@xlink:href=file://{file}']
+        fields = ['lonlat_coordinate={lonlat_coordinate}', 'crs={crs}', 'shape=file@xlink:href=file://{file}']
         datainputs = ';'.join(fields).format(
-            lat_coordinate=50.646667,
-            lon_coordinate=-68.724444,
+            lonlat_coordinate="(-68.724444, 50.646667)",
             crs=4326,
             file=TESTDATA['hydrobasins_12'],
         )

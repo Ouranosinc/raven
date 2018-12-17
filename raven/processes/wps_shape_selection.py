@@ -2,6 +2,7 @@ import logging
 from raven.utils import extract_archive
 import json
 import fiona
+import re
 
 from fiona.crs import from_epsg, from_string
 from pyproj import Proj, transform
@@ -22,13 +23,14 @@ class ShapeSelectionProcess(Process):
     def __init__(self):
         inputs = [
 
-        # LiteralInput, coordinates, type string:lat, lon
-        # ComplexInput: features, shapefile with multiple features from which one will be selected
-        # ComplexOutput: polygonfeature in format that can be easily worked with on the web frontend.
+            # LiteralInput, coordinates, type string:lat, lon
+            # ComplexInput: features, shapefile with multiple features from which one will be selected
+            # ComplexOutput: polygonfeature in format that can be easily worked with on the web frontend.
 
-            # TODO: I wish I could pass a tuple here. Ideas? DH: string lat,lon that you parse into floats.
-            LiteralInput('lat_coordinate', 'Latitude of point of interest', data_type='float', default=50.646667),
-            LiteralInput('lon_coordinate', 'Longitude of point of interest', data_type='float', default=-68.724444),
+            LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
+                         data_type='string',
+                         default='(-68.724444, 50.646667)'),
+            # LiteralInput('lon_coordinate', 'Longitude of point of interest', data_type='float', default=-68.724444),
             LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
                          data_type='integer',
                          default=4326),
@@ -59,7 +61,15 @@ class ShapeSelectionProcess(Process):
 
     def _handler(self, request, response):
 
-        lat, lon = request.inputs['lat_coordinate'][0].data, request.inputs['lon_coordinate'][0].data
+        lonlat = request.inputs['lonlat_coordinate'][0].data
+        try:
+            lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
+        except Exception as e:
+            msg = 'Failed to parse geo-coordinates {0}: {1}'.format(lonlat, e)
+            print(msg)
+            logging.error(msg)
+            return response
+
         crs = request.inputs['crs'][0].data
         shape_url = request.inputs['shape'][0].file
 
