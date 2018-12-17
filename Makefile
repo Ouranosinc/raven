@@ -142,7 +142,7 @@ testall:
 .PHONY: pep8
 pep8:
 	@echo "Running pep8 code style checks ..."
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && flake8"
+	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && flake8 raven tests"
 
 ##  Sphinx targets
 
