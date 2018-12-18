@@ -20,7 +20,6 @@ import datetime as dt
 import six
 import xarray as xr
 from .rv import RV, RVI
-import numpy as np
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -194,7 +193,7 @@ class Raven:
         Example
         -------
         >>> r = Raven('/tmp/test')
-        >>> r.configure(rvi=<path to template>, rvp=...}
+        >>> r.configure(rvi=<path to template>, rvp=...)
         >>> r.run(rvp={'param1': val1, ...}, rcv={...})
         """
         # Update parameter objects
@@ -309,13 +308,13 @@ class Raven:
 
     @property
     def hydrograph(self):
-        import xarray as xr
-        return xr.open_dataset(self.outputs['hydrograph'])
+        from xarray import open_dataset
+        return open_dataset(self.outputs['hydrograph'])
 
     @property
     def storage(self):
-        import xarray as xr
-        return xr.open_dataset(self.outputs['storage'])
+        from xarray import open_dataset
+        return open_dataset(self.outputs['storage'])
 
     @property
     def diagnostics(self):
@@ -352,7 +351,7 @@ class Raven:
         if isinstance(fn, six.string_types):
             fn = Path(fn)
 
-        return (fn.stem, fn.suffix[1:])
+        return fn.stem, fn.suffix[1:]
 
 
 class GR4JCemaneige(Raven):
@@ -381,7 +380,7 @@ class MOHYSE(Raven):
     class RVH(RV):
         hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
 
-    rvp = RVP(params=RVP.params(*((None, ) * 8)))
+    rvp = RVP(params=RVP.params(*((None,) * 8)))
     rvh = RVH(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=RVH.hrus(None, None))
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()

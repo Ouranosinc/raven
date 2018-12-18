@@ -8,8 +8,6 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from shapely import geometry
 
-# from pywps import LiteralOutput, Format
-
 """
 Dependencies for pysheds not installed with python setup.py install. See requirements.txt.
 numpy, scipy, pandas, geojson, affine, scikit-image, pyproj, rasterio
@@ -87,6 +85,7 @@ class WatershedDelineation(Process):
             status_supported=True,
             store_supported=True)
 
+    # TODO: David, let me know if you work on this. I'm curious to throw my hat in the ring here.
     @staticmethod
     def _pysheds_handler(request, response):
 
@@ -125,6 +124,8 @@ class WatershedDelineation(Process):
 
     @staticmethod
     def _saga_handler(request, response):
+        # TODO: Refer to https://sourceforge.net/p/saga-gis/wiki/Compiling%20SAGA%20on%20Linux/
+        # TODO: Also refer to https://sourceforge.net/p/saga-gis/discussion/790705/thread/4b462702/
         pass
 
 
@@ -169,3 +170,7 @@ def testing():
     for (p, v) in catch:
         poly = geometry.asShape(p)
         ax1.plot(*poly.exterior.xy, color='white')
+
+
+if __name__ == "__main__":
+    testing()

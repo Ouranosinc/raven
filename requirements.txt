@@ -1,11 +1,21 @@
-pywps>=4.0
+pywps>=4.1
 jinja2
 click
 psutil
 numpy
 scipy
 xarray
+pandas
 netCDF4
 dask
+pathlib
 toolz
-pandas
+six
+
+# gdal --- Not compatible with rasterio!
+fiona
+pycrs
+pyproj
+rasterio
+rasterstats
+shapely

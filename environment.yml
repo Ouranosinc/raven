@@ -10,5 +10,11 @@ dependencies:
 - psutil
 - xarray
 - pandas
-- spotpy
 - bumpversion
+- fiona
+- pycrs
+- pyproj
+#- pysheds
+- rasterio
+- rasterstats
+- shapely
