@@ -38,7 +38,7 @@ class TestObjectiveFunctionProcess:
         assert_response_success(resp)
         m = json.loads(get_output(resp.xml)['metrics'])
 
-        np.testing.assert_almost_equal(m['nashsutcliffe'], gr4j.diagnostics['DIAG_NASH_SUTCLIFFE'], 3)
+        np.testing.assert_almost_equal(m['nashsutcliffe'], gr4j.diagnostics['DIAG_NASH_SUTCLIFFE'], 4)
 
     def test_rmse_gr4j(self, gr4j):
         client = client_for(Service(processes=[ObjectiveFunctionProcess(), ], cfgfiles=CFG_FILE))
@@ -56,4 +56,4 @@ class TestObjectiveFunctionProcess:
         assert_response_success(resp)
         m = json.loads(get_output(resp.xml)['metrics'])
 
-        np.testing.assert_almost_equal(m['rmse'], gr4j.diagnostics['DIAG_RMSE'], 3)
+        np.testing.assert_almost_equal(m['rmse'], gr4j.diagnostics['DIAG_RMSE'], 4)

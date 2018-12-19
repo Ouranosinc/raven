@@ -52,14 +52,14 @@ class TestRavenHBVECProcess:
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # checking correctness of NSE (full period 1954-2011 would be NSE=0.585785 as template in Wiki)
+        # checking correctness of NSE (full period 1954-2011 would be NSE=0.591707 as template in Wiki)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -0.0755275, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, -0.075407, 4, err_msg='NSE is not matching expected value')
 
-        # checking correctness of RMSE (full period 1954-2011 would be RMSE=30.2707 as template in wiki) ?????
+        # checking correctness of RMSE (full period 1954-2011 would be RMSE=30.0535 as template in Wiki)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 37.2537, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 37.231, 4, err_msg='RMSE is not matching expected value')
