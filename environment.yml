@@ -10,5 +10,4 @@ dependencies:
 - psutil
 - xarray
 - pandas
-- spotpy
 - bumpversion

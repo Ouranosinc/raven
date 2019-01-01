@@ -1,14 +1,13 @@
 import os
 from pywps import Process
 import subprocess
-from raven.models import Raven
 from . import ravenio
 from . import wpsio as wio
 import logging
 from pathlib import Path
 from collections import OrderedDict as Odict, defaultdict
 LOGGER = logging.getLogger("PYWPS")
-
+from raven.models import Raven
 
 class RavenProcess(Process):
     identifier = 'raven'
@@ -20,8 +19,8 @@ class RavenProcess(Process):
     tuple_inputs = {}
     inputs = [wio.ts, wio.conf]
     outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics]
-    model_cls = Raven
-
+    model_cls=Raven
+    
     def __init__(self):
 
         super(RavenProcess, self).__init__(

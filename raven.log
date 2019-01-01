@@ -1,0 +1,16 @@
+2018-12-18 09:02:26,563] [INFO] line=69 module=configuration loading configuration
+2018-12-18 09:02:26,564] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-18 09:06:24,677] [INFO] line=69 module=configuration loading configuration
+2018-12-18 09:06:24,678] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-21 17:13:05,582] [INFO] line=69 module=configuration loading configuration
+2018-12-21 17:13:05,583] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-26 23:14:40,195] [INFO] line=69 module=configuration loading configuration
+2018-12-26 23:14:40,196] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-26 23:17:14,430] [INFO] line=69 module=configuration loading configuration
+2018-12-26 23:17:14,431] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-26 23:18:04,346] [INFO] line=69 module=configuration loading configuration
+2018-12-26 23:18:04,347] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-26 23:19:56,274] [INFO] line=69 module=configuration loading configuration
+2018-12-26 23:19:56,275] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded
+2018-12-26 23:21:49,948] [INFO] line=69 module=configuration loading configuration
+2018-12-26 23:21:49,949] [INFO] line=145 module=configuration Configuration file(s) ['/home/ets/Git/Raven/raven/raven/default.cfg', '/home/ets/Git/Raven/raven/.custom.cfg'] loaded

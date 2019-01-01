@@ -3,7 +3,7 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-ANACONDA_HOME ?= $(HOME)/miniconda
+ANACONDA_HOME ?= $(HOME)/anaconda3
 CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
