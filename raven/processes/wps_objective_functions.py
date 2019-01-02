@@ -30,16 +30,16 @@ class ObjectiveFunctionProcess(Process):
                   ]
 
         outputs = [ComplexOutput('metrics', 'Objective function values',
-                                 abstract="TODO",
+                                 abstract="Returns up to 17 objective function values, depending on the user's requests. By default all 17 are returned. JSON dictionary format.",
                                  supported_formats=(FORMATS.JSON, )),
                    ]
 
         super(ObjectiveFunctionProcess, self).__init__(
             self._handler,
             identifier="objective-function",
-            title="",
+            title="Objective-function process based on SpotPy and its 17 objective functions.",
             version="1.0",
-            abstract="",
+            abstract="This process takes two NETCDF files (one containing variable 'q_sim' and the other 'q_obs') and computes objective-function metrics between them",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
