@@ -106,7 +106,7 @@ class Raven:
         """Read configuration files."""
         for fn in fns:
             name, ext = self.split_ext(fn)
-            self.name = name
+            self._name = name
 
             if ext not in self._rvext:
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
