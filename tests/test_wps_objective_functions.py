@@ -10,6 +10,7 @@ import tempfile
 import json
 import html
 
+
 @pytest.fixture(scope="module")
 def gr4j():
     rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
