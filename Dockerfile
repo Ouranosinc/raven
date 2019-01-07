@@ -25,7 +25,7 @@ RUN ["/bin/bash", "-c", "source activate wps && python setup.py develop"]
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["source activate wps && exec emu start -b 0.0.0.0 -config /opt/wps/etc/demo.cfg"]
+CMD ["source activate wps && exec raven start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
 
 # docker build -t huard/raven .
 # docker run -p 9099:9099 huard/raven
