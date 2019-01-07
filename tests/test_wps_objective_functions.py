@@ -8,7 +8,7 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output
 from raven.models import Raven
 import tempfile
 import json
-
+import html
 
 @pytest.fixture(scope="module")
 def gr4j():
@@ -24,6 +24,7 @@ def gr4j():
 class TestObjectiveFunctionProcess:
 
     def test_all_gr4j(self, gr4j):
+
         client = client_for(Service(processes=[ObjectiveFunctionProcess(), ], cfgfiles=CFG_FILE))
 
         kwds = dict(hydrograph=gr4j.outputs['hydrograph'])
@@ -36,7 +37,8 @@ class TestObjectiveFunctionProcess:
             datainputs=datainputs)
 
         assert_response_success(resp)
-        m = json.loads(get_output(resp.xml)['metrics'])
+        out = get_output(resp.xml)['metrics']
+        m = json.loads(html.unescape(out))
 
         np.testing.assert_almost_equal(m['nashsutcliffe'], gr4j.diagnostics['DIAG_NASH_SUTCLIFFE'], 4)
 
@@ -54,6 +56,7 @@ class TestObjectiveFunctionProcess:
             datainputs=datainputs)
 
         assert_response_success(resp)
-        m = json.loads(get_output(resp.xml)['metrics'])
+        out = get_output(resp.xml)['metrics']
+        m = json.loads(html.unescape(out))
 
         np.testing.assert_almost_equal(m['rmse'], gr4j.diagnostics['DIAG_RMSE'], 4)
