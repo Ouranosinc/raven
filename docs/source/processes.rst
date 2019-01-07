@@ -7,23 +7,34 @@ Processes
     :local:
     :depth: 1
 
-Sleep
------
 
-.. autoprocess:: raven.processes.wps_sleep.Sleep
+Raven emulated models
+---------------------
+
+.. autoprocess:: raven.processes.RavenProcess
    :docstring:
    :skiplines: 1
 
-Wordcounter
------------
+.. autoprocess:: raven.processes.RavenGR4JCemaNeigeProcess
+   :docstring:
 
-.. autoprocess:: raven.processes.wps_wordcounter.WordCounter
+.. autoprocess:: raven.processes.RavenMOHYSEProcess
    :docstring:
    :skiplines: 1
 
-InOut
------
-
-.. autoprocess:: raven.processes.wps_inout.InOut
+.. autoprocess:: raven.processes.RavenHMETSProcess
    :docstring:
    :skiplines: 1
+
+.. autoprocess:: raven.processes.RavenHBVECProcess
+   :docstring:
+   :skiplines: 1
+
+
+Diagnostics functions
+---------------------
+
+.. autoprocess:: raven.processes.ObjectiveFunctionProcess
+   :docstring:
+   :skiplines: 1
+
