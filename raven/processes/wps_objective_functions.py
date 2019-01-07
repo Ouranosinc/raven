@@ -37,12 +37,13 @@ class ObjectiveFunctionProcess(Process):
         super(ObjectiveFunctionProcess, self).__init__(
             self._handler,
             identifier="objective-function",
-            title="",
+            title="Compute objective functions provided by SPOTPY.",
             version="1.0",
             abstract="",
-            metadata=[],
+            metadata=[Metadata("SPOTPY Documentation", "http://fb09-pasig.umwelt.uni-giessen.de/spotpy/")],
             inputs=inputs,
             outputs=outputs,
+            keywords=["objective functions", "hydrological signatures", "optimization"] + list(funcs.keys()),
             status_supported=True,
             store_supported=True)
 
