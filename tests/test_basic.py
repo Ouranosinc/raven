@@ -14,7 +14,7 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
-        model.run([ts, ], )
+        model.run(ts)
 
     def test_mohyse(self):
         rvs = TESTDATA['raven-mohyse-rv']
@@ -26,7 +26,7 @@ class TestRaven:
 
     def test_hmets(self):
         rvs = TESTDATA['raven-hmets-rv']
-        ts = list(TESTDATA['raven-hmets-ts'])
+        ts = TESTDATA['raven-hmets-ts']
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
@@ -34,7 +34,7 @@ class TestRaven:
 
     def test_hbvec(self):
         rvs = TESTDATA['raven-hbv-ec-rv']
-        ts = list(TESTDATA['raven-hbv-ec-ts'])
+        ts = TESTDATA['raven-hbv-ec-ts']
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
@@ -81,6 +81,30 @@ class TestGR4JCemaneige:
         assert a
 
     def test_assign(self):
-        model = GR4JCemaneige(tempfile.mkdtemp())
+        model = GR4JCemaneige()
         model.assign('run_name', 'test')
         assert model.rvi.run_name == 'test'
+
+        model.assign('params', np.array([0.529, -3.396, 407.29, 1.072, 16.9, 0.947]))
+        assert model.rvp.params.GR4J_X1 == 0.529
+
+        model.assign('params', [0.529, -3.396, 407.29, 1.072, 16.9, 0.947])
+        assert model.rvp.params.GR4J_X1 == 0.529
+
+        model.assign('params', (0.529, -3.396, 407.29, 1.072, 16.9, 0.947))
+        assert model.rvp.params.GR4J_X1 == 0.529
+
+    def test_run(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        model = GR4JCemaneige()
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+              )
+        d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
