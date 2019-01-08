@@ -215,6 +215,5 @@ class RVI(RV):
 
 def isinstance_namedtuple(x):
     a = isinstance(x, tuple)
-    b = isinstance(getattr(x, '__dict__', None), collections.Mapping)
-    c = getattr(x, '_fields', None) is not None
-    return a and b and c
+    b = getattr(x, '_fields', None) is not None
+    return a and b

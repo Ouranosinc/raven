@@ -1,5 +1,5 @@
 import pytest
-from raven.models.rv import RV, RVI
+from raven.models.rv import RV, RVI, isinstance_namedtuple
 import datetime as dt
 from collections import namedtuple
 
@@ -50,3 +50,16 @@ class TestRV:
 
         rv.c = 1
         assert rv['c'] == 1
+
+    def test_namedtuple(self):
+        class Mod(RV):
+            params = namedtuple('params', 'x1, x2, x3')
+
+        m = Mod(params=Mod.params(1, 2, 3))
+        assert m.params.x1 == 1
+
+def test_isinstance_namedtuple():
+    X = namedtuple('params', 'x1, x2, x3')
+    x = X(1, 2, 3)
+    assert isinstance_namedtuple(x)
+    assert not isinstance_namedtuple([1, 2, 3])
