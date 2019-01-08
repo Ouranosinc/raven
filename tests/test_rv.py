@@ -58,6 +58,7 @@ class TestRV:
         m = Mod(params=Mod.params(1, 2, 3))
         assert m.params.x1 == 1
 
+
 def test_isinstance_namedtuple():
     X = namedtuple('params', 'x1, x2, x3')
     x = X(1, 2, 3)
