@@ -4,15 +4,17 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- pywps>=4.1.17
+- pywps>=4.1
 - jinja2
 - click
 - psutil
 - xarray
 - pandas
 - bumpversion
+- libnetcdf=4.4.1
 - gdal=2.2.2
-- fiona=1.7.10
+- libgdal=2.2.2
+- fiona>=1.7.10
 - pycrs
 - pyproj
 - rasterio
