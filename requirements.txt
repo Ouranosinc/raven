@@ -4,8 +4,8 @@ click
 psutil
 numpy
 scipy
-# xarray
-# pandas
+xarray
+pandas
 netCDF4
 dask
 pathlib
@@ -14,7 +14,7 @@ six
 spotpy
 
 # gdal --- Not compatible with rasterio!
-# fiona
+fiona
 pycrs
 pyproj
 # pysheds --- Not compatible with rasterio
