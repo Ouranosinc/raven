@@ -11,7 +11,7 @@ dependencies:
 - xarray
 - pandas
 - bumpversion
-- gdal
+- gdal=2.2.2
 - fiona
 - pycrs
 - pyproj
