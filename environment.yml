@@ -12,6 +12,11 @@ dependencies:
 - xarray
 - pandas
 - bumpversion
+- netcdf4
+- cartopy # salem
+- geopandas # salem
+- matplotlib # salem
+- scikit-image # salem
 - libnetcdf
 - gdal
 - libgdal
@@ -23,3 +28,6 @@ dependencies:
 - shapely
 - pip:
   - spotpy
+  - salem # salem
+  - joblib # salem
+  - descartes # salem
