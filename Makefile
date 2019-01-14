@@ -59,7 +59,8 @@ anaconda:
 .PHONY: conda_env
 conda_env: anaconda
 	@echo "Creating conda environment $(CONDA_ENV) ..."
-	"$(ANACONDA_HOME)/bin/conda" create -n $(CONDA_ENV) -f environment.yml python=$(PYTHON_VERSION)
+	"$(ANACONDA_HOME)/bin/conda" create -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 ## Build targets
 
