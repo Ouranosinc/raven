@@ -5,6 +5,7 @@ APP_NAME := raven
 # Anaconda
 ANACONDA_HOME ?= $(HOME)/miniconda
 CONDA_ENV ?= $(APP_NAME)
+PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
@@ -12,7 +13,6 @@ RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
 RAVEN_SRC = $(CURDIR)/src/RAVEN
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
-PYTHON_VERSION = 3.6
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
@@ -58,9 +58,8 @@ anaconda:
 
 .PHONY: conda_env
 conda_env: anaconda
-	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(ANACONDA_HOME)/bin/conda" info -a
-	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml python=$(PYTHON_VERSION)
+	@echo "Creating conda environment $(CONDA_ENV) ..."
+	"$(ANACONDA_HOME)/bin/conda" create -n $(CONDA_ENV) -f environment.yml python=$(PYTHON_VERSION)
 
 ## Build targets
 
@@ -143,11 +142,13 @@ distclean: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
+	@bash $(ANACONDA_HOME)/bin/conda info -a
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
 
 .PHONY: testall
 testall:
 	@echo "Running all tests (including slow and online tests) ..."
+	@bash $(ANACONDA_HOME)/bin/conda info -a
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pytest -v"
 
 .PHONY: pep8
