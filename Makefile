@@ -3,7 +3,7 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-ANACONDA_HOME ?= $(HOME)/miniconda3
+ANACONDA_HOME ?= $(HOME)/miniconda
 CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
@@ -60,7 +60,7 @@ anaconda:
 conda_env: anaconda
 	@echo "Updating conda environment $(CONDA_ENV) ..."
 	"$(ANACONDA_HOME)/bin/conda" info -a
-	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
+	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml python=$(PYTHON_VERSION)
 
 ## Build targets
 
