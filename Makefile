@@ -8,7 +8,7 @@ CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev157.zip
+RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
 RAVEN_SRC = $(CURDIR)/src/RAVEN
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
@@ -85,6 +85,15 @@ raven_dev:
 	@test -d bin || mkdir bin
 	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
 
+
+.PHONY: raven_clean
+raven_clean:
+	@echo "Removing src and executable"
+	@test -f $(CURDIR)/src/RAVEN.zip && rm -v "$(CURDIR)/src/RAVEN.zip" || echo "No zip to remove"
+	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
+	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
+
+
 .PHONY: install
 install: bootstrap raven_dev
 	@echo "Installing application ..."
@@ -142,7 +151,7 @@ testall:
 .PHONY: pep8
 pep8:
 	@echo "Running pep8 code style checks ..."
-	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && flake8"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && flake8 raven tests"
 
 ##  Sphinx targets
 

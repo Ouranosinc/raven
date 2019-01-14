@@ -22,4 +22,5 @@ def test_wps_caps():
                   'raven-hbv-ec',
                   'shape-area',
                   'shape-selection',
+                  'objective-function',
                   }

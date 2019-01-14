@@ -15,7 +15,7 @@ class TestRavenMOHYSEProcess:
         client = client_for(Service(processes=[RavenMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
         params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453'
-        hrus = '0.9039, 5.6167'
+        hrus = '0.9039, 5.6179775'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params};" \
@@ -31,7 +31,7 @@ class TestRavenMOHYSEProcess:
             .format(ts=TESTDATA['raven-mohyse-nc-ts'],
                     params=params,
                     hrus=hrus,
-                    start_date=dt.datetime(1954, 1, 1),
+                    start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
                     run_name='test-mohyse',
@@ -52,14 +52,14 @@ class TestRavenMOHYSEProcess:
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # checking correctness of NSE (full period 1954-2011 would be NSE=0.391107 as template in Wiki)
+        # checking correctness of NSE (full period 1954-2011 would be NSE=0.391103 as template in Wiki)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 0.3837, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.194612, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2011 would be RMSE=36.7012 as template in wiki)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 37.1292, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 32.2197, 4, err_msg='RMSE is not matching expected value')

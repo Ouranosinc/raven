@@ -11,6 +11,7 @@ dask
 pathlib
 toolz
 six
+spotpy
 
 # gdal --- Not compatible with rasterio!
 fiona
@@ -19,3 +20,4 @@ pyproj
 rasterio
 rasterstats
 shapely
+

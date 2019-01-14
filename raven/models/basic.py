@@ -13,13 +13,15 @@ automatically filled in.
 import raven
 from pathlib import Path
 from collections import OrderedDict, namedtuple
-import os
+import os, errno
 import subprocess
 import csv
 import datetime as dt
 import six
 import xarray as xr
 from .rv import RV, RVI
+import numpy as np
+import pdb
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -105,7 +107,7 @@ class Raven:
         """Read configuration files."""
         for fn in fns:
             name, ext = self.split_ext(fn)
-            self.name = name
+            self._name = name
 
             if ext not in self._rvext:
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
@@ -169,10 +171,23 @@ class Raven:
 
         # Create symbolic link to input files
         for fn in ts:
-            os.symlink(fn, self.model_path / Path(fn).name)
+            # Patch to catch and deal with existing files (overwrite does not work, so delete existing file first)
+            try:
+                os.symlink(fn, self.model_path / Path(fn).name)
+            except OSError as e:
+                if e.errno == errno.EEXIST:
+                    os.remove(self.model_path / Path(fn).name)
+                    os.symlink(fn, self.model_path / Path(fn).name)
 
         # Create symbolic link to executable
-        os.symlink(raven_exec, self.cmd)
+        try:
+            os.symlink(raven_exec, self.cmd)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+               os.remove(self.cmd)
+               os.symlink(raven_exec, self.cmd)
+
+#        os.symlink(raven_exec, self.cmd)
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
