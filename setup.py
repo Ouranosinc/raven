@@ -4,7 +4,6 @@
 """The setup script."""
 
 import os
-
 from setuptools import setup, find_packages
 
 version = __import__('raven').__version__

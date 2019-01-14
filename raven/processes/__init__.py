@@ -7,6 +7,7 @@ from .wps_raven_hbv_ec import RavenHBVECProcess
 from .wps_shape_area import ShapeAreaProcess
 from .wps_shape_selection import ShapeSelectionProcess
 from .wps_zonal_stats import ZonalStatisticsProcess
+from .wps_objective_functions import ObjectiveFunctionProcess
 
 processes = [
     RavenProcess(),
@@ -18,4 +19,5 @@ processes = [
     ShapeAreaProcess(),
     ShapeSelectionProcess(),
     ZonalStatisticsProcess(),
+    ObjectiveFunctionProcess(),
 ]
