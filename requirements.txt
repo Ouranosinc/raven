@@ -17,7 +17,7 @@ spotpy
 fiona
 pycrs
 pyproj
-pysheds
+# pysheds --- Not compatible with rasterio
 rasterio
 rasterstats
 shapely
