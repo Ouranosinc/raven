@@ -143,13 +143,11 @@ distclean: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
-	@bash $(ANACONDA_HOME)/bin/conda info -a
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
 
 .PHONY: testall
 testall:
 	@echo "Running all tests (including slow and online tests) ..."
-	@bash $(ANACONDA_HOME)/bin/conda info -a
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pytest -v"
 
 .PHONY: pep8
