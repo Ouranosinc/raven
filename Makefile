@@ -3,7 +3,7 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-ANACONDA_HOME ?= $(HOME)/miniconda
+ANACONDA_HOME ?= $(HOME)/miniconda3
 CONDA_ENV ?= $(APP_NAME)
 
 # Choose Anaconda installer depending on your OS
@@ -12,6 +12,7 @@ RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
 RAVEN_SRC = $(CURDIR)/src/RAVEN
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
+PYTHON_VERSION = 3.6
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
@@ -58,6 +59,7 @@ anaconda:
 .PHONY: conda_env
 conda_env: anaconda
 	@echo "Updating conda environment $(CONDA_ENV) ..."
+	"$(ANACONDA_HOME)/bin/conda" info -a
 	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 ## Build targets
