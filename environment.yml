@@ -12,7 +12,7 @@ dependencies:
 - pandas
 - bumpversion
 - gdal=2.2.2
-- fiona
+- fiona=1.7.10
 - pycrs
 - pyproj
 - rasterio
