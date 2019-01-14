@@ -11,5 +11,6 @@ dependencies:
 - xarray
 - pandas
 - bumpversion
+- statsmodel
 - pip:
   - spotpy
