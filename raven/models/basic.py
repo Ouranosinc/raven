@@ -13,7 +13,7 @@ automatically filled in.
 import raven
 from pathlib import Path
 from collections import OrderedDict, namedtuple
-import os
+import os, errno
 import subprocess
 import tempfile
 import csv
@@ -22,6 +22,7 @@ import six
 import xarray as xr
 from .rv import RV, RVI, isinstance_namedtuple
 import numpy as np
+import pdb
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -191,11 +192,11 @@ class Raven:
            output/
 
         """
-
+        
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
         os.makedirs(self.model_path, exist_ok=overwrite)
-
+        
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
         self.rvt.update(files, force=True)
@@ -209,10 +210,23 @@ class Raven:
 
         # Create symbolic link to input files
         for fn in ts:
-            os.symlink(fn, self.model_path / Path(fn).name)
+            # Patch to catch and deal with existing files (overwrite does not work, so delete existing file first)
+            try:
+                os.symlink(fn, self.model_path / Path(fn).name)
+            except OSError as e:
+                if e.errno == errno.EEXIST:
+                    os.remove(self.model_path / Path(fn).name)
+                    os.symlink(fn, self.model_path / Path(fn).name)
+                    
+        # Create symbolic link to executable        
+        try:
+            os.symlink(raven_exec, self.cmd)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+               os.remove(self.cmd)
+               os.symlink(raven_exec, self.cmd)
 
-        # Create symbolic link to executable
-        os.symlink(raven_exec, self.cmd)
+#        os.symlink(raven_exec, self.cmd)
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -252,13 +266,14 @@ class Raven:
                     raise ValueError("A dictionary or an RV instance is expected to update the values "
                                      "for {}.".format(key))
             else:
+
                 self.assign(key, val)
 
         if self.rvi:
             self.handle_date_defaults(ts)
 
         self.setup_model(tuple(map(Path, ts)), overwrite)
-
+        
         # Run the model
         subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
 
@@ -298,7 +313,7 @@ class Raven:
                                 files[var] = fn
                                 var_names[var + '_var'] = alt_name
                                 break
-
+        
         for var in variables:
             if var not in files.keys():
                 raise ValueError("{} not found in files.".format(var))
