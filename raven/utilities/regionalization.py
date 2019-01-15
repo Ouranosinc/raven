@@ -7,7 +7,7 @@ Provide various tools for hydrological regionalization.
 from pathlib import Path
 import numpy as np
 import pandas as pd
-#import statsmodels.api as sm
+import statsmodels.api as sm
 import xarray as xr
 from raven.models import get_model
 
@@ -50,14 +50,14 @@ def regionalize(method, model, latitude, longitude, size=5, min_NSE=0.6, propert
     ungauged_properties = pd.DataFrame(props, index=['target'])
 
     if properties is None:
-        properties = tuple(props.keys())
+        properties = list(props.keys())
     else:
         ungauged_properties = ungauged_properties[properties]
 
     # Load gauged catchments properties and hydrological model parameters.
     gauged_prop = read_gauged_properties().drop(columns=['NAME', 'STATE', 'COUNTRY'])
     gauged_prop = gauged_prop[properties]
-    gauged_nash, gauged_params = read_gauged_params()
+    gauged_nash, gauged_params = read_gauged_params(model)
 
     # Filter on NSE
     valid = gauged_nash > min_NSE
@@ -78,7 +78,7 @@ def regionalize(method, model, latitude, longitude, size=5, min_NSE=0.6, propert
         dist = distance(filtered_prop, ungauged_properties)
 
     # Series of distances for the first `size` best donors
-    sdist = dist.sort_values().iloc[:, size]
+    sdist = dist.sort_values().iloc[:size]
 
     # Pick the donors' model parameters and catchment properties
     sparams = filtered_params.loc[sdist.index]
@@ -116,9 +116,8 @@ def read_gauged_properties():
     pd.DataFrame
       Catchment properties keyed by catchment ID.
     """
-    df = pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
+    return pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
                        index_col='ID')
-    return df.set_index(np.arange(1, len(df)+1))  # TODO: Remove when real file is available.
 
 
 def read_gauged_params(model):
@@ -168,8 +167,8 @@ def haversine(lon1, lat1, lon2, lat2):
 
 def distance(gauged, ungauged):
     """Return geographic distance between ungauged and database of gauged catchments."""
-    lon, lat = ungauged.CENTROID_LONGITUDE, ungauged.CENTROID_LATITUDE
-    lons, lats = gauged.CENTROID_LONGITUDE, gauged.CENTROID_LATITUDE
+    lon, lat = ungauged.longitude, ungauged.latitude
+    lons, lats = gauged.latitude, gauged.latitude
 
     return pd.Series(data=haversine(lons.values, lats.values, lon.values, lat.values), index=gauged.index)
 
@@ -307,10 +306,10 @@ def multiple_linear_regression(source, params, target):
       A named tuple of the estimated model parameters and the R2 of the linear regression.
     """
     # Add constants to the gauged predictors
-    x = sm.add_constant(gauged_properties)
+    x = sm.add_constant(source)
 
     # Add the constant 1 for the ungauged catchment predictors
-    predictors = sm.add_constant(ungauged_properties, prepend=True, has_constant='add')
+    predictors = sm.add_constant(target, prepend=True, has_constant='add')
 
     # Perform regression for each parameter
     regression = [sm.OLS(params[param].values, x).fit() for param in params]
