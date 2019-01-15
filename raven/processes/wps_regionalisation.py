@@ -94,8 +94,10 @@ class RegionalisationProcess(RavenProcess):
         props = read_gauged_properties()[variables]
 
         # TODO: Replace by function determining catchment properties from DEM and land use file and Hydrosheds data.
-        # catchment_props = get_catchment_properties(latitude, longitude)
-        catchment_props = {'longitude': .7, 'latitude': .7, 'area': '4250.6', 'elevation': '843.0'}
+        def get_catchment_properties(lat, lon):
+            return {'longitude': .7, 'latitude': .7, 'area': '4250.6', 'elevation': '843.0'}
+
+        catchment_props = get_catchment_properties(latitude, longitude)
         properties = ['longitude', 'latitude']
         ungauged_props = {key: catchment_props[key] for key in properties}
         kwds.update(catchment_props)
