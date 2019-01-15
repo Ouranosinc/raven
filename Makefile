@@ -5,6 +5,7 @@ APP_NAME := raven
 # Anaconda
 ANACONDA_HOME ?= $(HOME)/miniconda
 CONDA_ENV ?= $(APP_NAME)
+PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
@@ -57,7 +58,8 @@ anaconda:
 
 .PHONY: conda_env
 conda_env: anaconda
-	@echo "Updating conda environment $(CONDA_ENV) ..."
+	@echo "Creating conda environment $(CONDA_ENV) ..."
+	"$(ANACONDA_HOME)/bin/conda" env create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
 	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 ## Build targets
@@ -70,7 +72,7 @@ bootstrap: conda_env bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
 	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx"
-	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
+####	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
 

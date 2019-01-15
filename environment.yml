@@ -5,6 +5,7 @@ channels:
 - defaults
 dependencies:
 - pywps>=4.1.17
+- poppler<0.62
 - jinja2
 - click
 - psutil
