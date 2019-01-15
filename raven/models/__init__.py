@@ -24,9 +24,9 @@ def get_model(name):
     Raven model instance
     """
     from raven.models import basic
-    M = basic.get(name, None)
+    model_cls = getattr(basic, name, None)
 
-    if M is None:
-        raise ValueError("Model {} is not recognized.".format(model))
+    if model_cls is None:
+        raise ValueError("Model {} is not recognized.".format(model_cls))
 
-    return M()
+    return model_cls()
