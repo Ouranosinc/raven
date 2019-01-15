@@ -123,10 +123,10 @@ elevation = LiteralInput('elevation', 'Elevation (m)',
                          min_occurs=1)
 
 model_name = LiteralInput('model_name', 'Hydrological model identifier',
-                         abstract="Hydrological model identifier: {HMETS, GR4JCN, MOHYSE}",
-                         data_type='string',
-                         allowed_values=('HMETS', 'GR4JCN', 'MOHYSE'),
-                         min_occurs=1)
+                          abstract="Hydrological model identifier: {HMETS, GR4JCN, MOHYSE}",
+                          data_type='string',
+                          allowed_values=('HMETS', 'GR4JCN', 'MOHYSE'),
+                          min_occurs=1)
 
 
 # --- #
@@ -144,15 +144,15 @@ hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
 
 # TODO: adjust abstract
 ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (mm)',
-                           supported_formats=[FORMATS.NETCDF],
-                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
-                                    'specified as `gauged` in the .rvh file. It reports period-ending time-'
-                                    'averaged flows for the preceding time step, as is consistent with most '
-                                    'measured stream gauge data (again, the initial flow conditions at the '
-                                    'start of the first time step are included). If observed hydrographs are '
-                                    'specified, they will be output adjacent to the corresponding modelled  '
-                                    'hydrograph. ',
-                           as_reference=True)
+                         supported_formats=[FORMATS.NETCDF],
+                         abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
+                                  'specified as `gauged` in the .rvh file. It reports period-ending time-'
+                                  'averaged flows for the preceding time step, as is consistent with most '
+                                  'measured stream gauge data (again, the initial flow conditions at the '
+                                  'start of the first time step are included). If observed hydrographs are '
+                                  'specified, they will be output adjacent to the corresponding modelled  '
+                                  'hydrograph. ',
+                         as_reference=True)
 
 
 storage = ComplexOutput('storage', 'Watershed storage time series (mm)',

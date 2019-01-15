@@ -45,21 +45,20 @@ class RegionalisationProcess(RavenProcess):
     version = '0.1'
 
     method = LiteralInput('method', 'Regionalisation method',
-                                          abstract="Regionalisation method to use, one of MLR, SP, PS, SP_IDW, "
-                                                   "PS_IDW, SP_IDW_RA,"
-                                                   "PS_IDW_RA.",
-                                          data_type='string',
-                                          allowed_values=(
-                                          'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'),
-                                          default='SP_IDW',
-                                          min_occurs=0)
+                          abstract="Regionalisation method to use, one of MLR, SP, PS, SP_IDW, "
+                                   "PS_IDW, SP_IDW_RA, PS_IDW_RA.",
+                          data_type='string',
+                          allowed_values=(
+                              'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'),
+                          default='SP_IDW',
+                          min_occurs=0)
 
     ndonors = LiteralInput('ndonors', 'Number of gauged catchments to use for the regionalizaion.',
-                            abstract="Number of close or similar catchments to use to generate the representative "
-                                     "hydrograph at the ungauged site.",
-                            data_type='integer',
-                            default=5,
-                            min_occurs=0)
+                           abstract="Number of close or similar catchments to use to generate the representative "
+                                    "hydrograph at the ungauged site.",
+                           data_type='integer',
+                           default=5,
+                           min_occurs=0)
 
     min_NSE = LiteralInput('min_NSE', 'NSE Score (unitless)',
                            abstract="Minimum calibration NSE value required to be considered in the regionalization.",
@@ -75,33 +74,32 @@ class RegionalisationProcess(RavenProcess):
     def _handler(self, request, response):
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
-        keys = request.inputs.keys()
-
-        ts = [e.file for e in keys.pop('ts')]
-        model_name = keys.pop('model_name')[0].data
-        method = keys.pop('method')[0].data
-        ndonors = keys.pop('ndonors')[0].data
-        latitude = keys.pop('latitude')[0].data
-        longitude = keys.pop('longitude')[0].data
-        min_NSE = keys.pop('min_NSE')[0].data
+        ts = [e.file for e in request.inputs.pop('ts')]
+        model_name = request.inputs.pop('model_name')[0].data
+        method = request.inputs.pop('method')[0].data
+        ndonors = request.inputs.pop('ndonors')[0].data
+        latitude = request.inputs.pop('latitude')[0].data
+        longitude = request.inputs.pop('longitude')[0].data
+        min_NSE = request.inputs.pop('min_NSE')[0].data
 
         kwds = {}
-        for key in keys:
+        for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 
         qsim, ensemble = regionalize(method, model_name,
-                                         latitude=latitude, longitude=longitude,
-                                         size=ndonors,
-                                         min_NSE=min_NSE,
-                                         **kwds)
+                                     latitude=latitude, longitude=longitude,
+                                     size=ndonors,
+                                     min_NSE=min_NSE,
+                                     ts=ts,
+                                     **kwds)
 
         # Write output
         nc_qsim = Path(self.workdir) / 'qsim.nc'
-        qsim.to_dataset(nc_qsim)
-        response.ouputs['hydrograph'].file = nc_qsim
+        qsim.to_netcdf(nc_qsim)
+        response.outputs['hydrograph'].file = str(nc_qsim)
 
         nc_ensemble = Path(self.workdir) / 'ensemble.nc'
-        qsim.to_dataset(nc_ensemble)
-        response.ouputs['ensemble'].file = nc_ensemble
+        ensemble.to_netcdf(nc_ensemble)
+        response.outputs['ensemble'].file = str(nc_ensemble)
 
         return response
