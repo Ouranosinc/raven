@@ -1,7 +1,5 @@
 """
 This module contains the WPS inputs and outputs that are reused across multiple WPS processes.
-
-
 """
 
 from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
@@ -123,28 +121,30 @@ elevation = LiteralInput('elevation', 'Elevation (m)',
                          min_occurs=1)
 
 model_name = LiteralInput('model_name', 'Hydrological model identifier',
-                         abstract="Hydrological model indetifier: {HMETS, GR4JCN, MOHYSE}",
-                         data_type='string',
-                         default='HMETS',
-                         min_occurs=0)
+                          abstract="Hydrological model indetifier: {HMETS, GR4JCN, MOHYSE}",
+                          data_type='string',
+                          default='HMETS',
+                          min_occurs=0)
 
-regionalisationMethod = LiteralInput('regionalisationMethod','String of desired regionalisation method',
-                         abstract="regionalisation method to use (SEE DOC FOR LIST OF METHODS):{MLR,SP,PS,SP_IDW,PS_IDW,SP_IDW_RA,PS_IDW_RA}",
-                         data_type='string',
-                         default='SP_IDW',
-                         min_occurs=0)
+regionalisation_method = LiteralInput('regionalisationMethod', 'String of desired regionalisation method',
+                                     abstract="regionalisation method to use (SEE DOC FOR LIST OF METHODS):"
+                                              "{MLR,SP,PS,SP_IDW,PS_IDW,SP_IDW_RA,PS_IDW_RA}",
+                                     data_type='string',
+                                     default='SP_IDW',
+                                     min_occurs=0)
 
-number_donors = LiteralInput('number_donors','Number of parameter donors to use',
-                         abstract="Number of closest or most similar catchments to use to generate the average hydrograph at ungauged site",
-                         data_type='integer',
-                         default=5,
-                         min_occurs=0)
+number_donors = LiteralInput('number_donors', 'Number of parameter donors to use',
+                             abstract="Number of closest or most similar catchments to use "
+                                      "to generate the average hydrograph at ungauged site",
+                             data_type='integer',
+                             default=5,
+                             min_occurs=0)
 
-min_NSE = LiteralInput('min_NSE','NSE Score (unitless)',
-                         abstract="Minimum calibration NSE value required to be considered as a donor",
-                         data_type='float',
-                         default=0.6,
-                         min_occurs=0)
+min_NSE = LiteralInput('min_NSE', 'NSE Score (unitless)',
+                       abstract="Minimum calibration NSE value required to be considered as a donor",
+                       data_type='float',
+                       default=0.6,
+                       min_occurs=0)
 
 # --- #
 
