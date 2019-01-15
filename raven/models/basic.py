@@ -22,7 +22,6 @@ import six
 import xarray as xr
 from .rv import RV, RVI, isinstance_namedtuple
 import numpy as np
-import pdb
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -192,11 +191,11 @@ class Raven:
            output/
 
         """
-        
+
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
         os.makedirs(self.model_path, exist_ok=overwrite)
-        
+
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
         self.rvt.update(files, force=True)
@@ -217,14 +216,14 @@ class Raven:
                 if e.errno == errno.EEXIST:
                     os.remove(self.model_path / Path(fn).name)
                     os.symlink(fn, self.model_path / Path(fn).name)
-                    
-        # Create symbolic link to executable        
+
+        # Create symbolic link to executable
         try:
             os.symlink(raven_exec, self.cmd)
         except OSError as e:
             if e.errno == errno.EEXIST:
-               os.remove(self.cmd)
-               os.symlink(raven_exec, self.cmd)
+                os.remove(self.cmd)
+                os.symlink(raven_exec, self.cmd)
 
 #        os.symlink(raven_exec, self.cmd)
 
@@ -273,7 +272,7 @@ class Raven:
             self.handle_date_defaults(ts)
 
         self.setup_model(tuple(map(Path, ts)), overwrite)
-        
+
         # Run the model
         subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
 
@@ -313,7 +312,7 @@ class Raven:
                                 files[var] = fn
                                 var_names[var + '_var'] = alt_name
                                 break
-        
+
         for var in variables:
             if var not in files.keys():
                 raise ValueError("{} not found in files.".format(var))
