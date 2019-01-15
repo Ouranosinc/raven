@@ -52,222 +52,108 @@ OUTPUT:
 
 from . import wpsio as wio
 import logging
-from pywps import Process
-import numpy as np
-from netCDF4 import Dataset
-
+from pywps import Process, LiteralInput
+from pathlib import Path
+from . regionalization_tools import regionalization
+from .wps_raven import RavenProcess
 LOGGER = logging.getLogger("PYWPS")
 
-from . regionalization_tools import (
-        get_array_of_gauged_properties,
-        filter_array_by_NSE,
-        rank_donor_catchments,
-        get_ungauged_properties,
-        IDW
-)
 
-from . regionalization_methods import (
-        MLR_parameters_regionalization,
-        distance_only_regionalization,
-        distance_MLR_regionalization
-)
+class RegionalisationProcess(RavenProcess):
+    """
+    TODO: Include a description of each method.
+    Notes
+    -----
+    The available regionalization methods are:
 
+    .. glossary::
 
+        Multiple linear regression (MLR)
+            Ungauged catchment parameters are estimated individually by a linear regression
+            against catchment properties.
 
-class RegionalisationProcess(Process):
-    identifier = 'RegionalisationProcess'
-    abstract = 'Regionalisation methods to predict streamflow at ungauged locations'
-    title = "Process to predict streamflow at ungauged sites based on surrounding or similar gauged catchments"
+        Spatial proximity (SP)
+            The ungauged hydrograph is an average of the `n` closest catchments' hydrographs.
+
+        Physical similarity (PS)
+            The ungauged hydrograph is an average of the `n` most similar catchments' hydrographs.
+
+        Spatial proximity with inverse distance weighting (SP_IDW)
+            ...
+
+        Physical similarity with inverse distance weighting (PS_IDW)
+            ...
+
+        Spatial proximity with IDW and regression-based augmentation (SP_IDW_RA)
+            ...
+
+        Physical Similarity with IDW and regression-based augmentation (PS_IDW_RA)
+            ...
+
+    """
+    identifier = "regionalisation"
+    title = "Simulate streamflow at an ungauged site based on surrounding or similar gauged catchments."
+    abstract = "Compute the hydrograph for an ungauged catchment using a regionalization method."
     version = '0.1'
 
-    inputs = [wio.ts, wio.start_date, wio.end_date, wio.area, wio.elevation, wio.latitude, wio.longitude, wio.model_name, wio.number_donors, wio.min_NSE, wio.regionalisationMethod]
+    method = LiteralInput('method', 'Regionalisation method',
+                                          abstract="Regionalisation method to use, one of MLR, SP, PS, SP_IDW, "
+                                                   "PS_IDW, SP_IDW_RA,"
+                                                   "PS_IDW_RA.",
+                                          data_type='string',
+                                          allowed_values=(
+                                          'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'),
+                                          default='SP_IDW',
+                                          min_occurs=0)
 
-    outputs = [wio.hydrograph]
+    ndonors = LiteralInput('ndonors', 'Number of gauged catchments to use for the regionalizaion.',
+                            abstract="Number of close or similar catchments to use to generate the representative "
+                                     "hydrograph at the ungauged site.",
+                            data_type='integer',
+                            default=5,
+                            min_occurs=0)
 
-    
+    min_NSE = LiteralInput('min_NSE', 'NSE Score (unitless)',
+                           abstract="Minimum calibration NSE value required to be considered in the regionalization.",
+                           data_type='float',
+                           default=0.6,
+                           min_occurs=0)
 
-    def __init__(self):
-       
+    inputs = [wio.ts, wio.start_date, wio.end_date, wio.area, wio.elevation, wio.latitude, wio.longitude,
+              wio.model_name, ndonors, min_NSE, method]
 
-
-        super(RegionalisationProcess, self).__init__(
-            self._handler,
-            identifier="RegionalisationProcess",
-            title="Methods to predict streamflow at ungauged sites",
-            version="0.1",
-            abstract="Use this method to generate streamflow at ungauged sites using a rich database of catchments over North America.",
-            metadata=[],
-            inputs=self.inputs,
-            outputs=self.outputs,
-            status_supported=True,
-            store_supported=True)
-       
-        
+    outputs = [wio.hydrograph, wio.ensemble]
 
     def _handler(self, request, response):
-
-       
-        
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
-        
-      
-        # Model name
-        if 'model_name' in request.inputs:
-            model_name=request.inputs['model_name'][0].data
-        else:
-            raise ValueError('Model Name is not optional')
 
-        if model_name not in ['GR4JCN','HMETS','MOHYSE']: 
-            raise ValueError("Hydrological model " + model_name + " is not supported for regionalization.")
+        keys = request.inputs.keys()
 
-        #Regionalisation Method
-         
-        if 'regionalisationMethod' in request.inputs:
-            regionalisationMethod=request.inputs['regionalisationMethod'][0].data
-        else:
-            regionalisationMethod='SP_IDW'
-            print('regionalisationMethod not provided, set to SP_IDW by default')
-             
-        # Number Donors
-        if 'number_donors' in request.inputs:
-            number_donors=request.inputs['number_donors'][0].data
-        else:
-            number_donors=5
-            print('Number of donors not provided, set to 5 by default')
+        ts = [e.file for e in keys.pop('ts')]
+        model_name = keys.pop('model_name')[0].data
+        method = keys.pop('method')[0].data
+        ndonors = keys.pop('ndonors')[0].data
+        latitude = keys.pop('latitude')[0].data
+        longitude = keys.pop('longitude')[0].data
+        min_NSE = keys.pop('min_NSE')[0].data
 
-        # Minimum NSE filter
-        if 'min_NSE' in request.inputs:
-            min_NSE=request.inputs['min_NSE'][0].data
-        else:
-            min_NSE=0.6
-            print('minimum NSE not provided, set to 0.6 by default')
+        kwds = {}
+        for key in keys:
+            kwds[key] = request.inputs[key][0].data
 
-        # Model inputs
-        ts=[f.file for f in request.inputs['ts']]
+        qsim, ensemble = regionalization(method, model_name,
+                                         latitude=latitude, longitude=longitude,
+                                         size=ndonors,
+                                         min_NSE=min_NSE,
+                                         **kwds)
 
-        
-        ncfilename=request.inputs['ts'][0].file
-        start_date=request.inputs['start_date'][0].data
-        end_date=request.inputs['end_date'][0].data
-        latitude=request.inputs['latitude'][0].data
-        longitude=request.inputs['longitude'][0].data
-        elevation=request.inputs['elevation'][0].data
-        area=request.inputs['area'][0].data
-        
-        # Find the properties we wish to use for multiple linear regression (MLR)
-        # and similarity.
-        """
-        properties_to_use = ['centroid_latitude',
-                         'centroid_longitude',
-                         'surface_area',
-                         'avg_elevation',
-                         'avg_slope',
-                         'land_forest',
-                         'land_grass',
-                         'land_impervious',
-                         'land_urban']
-        """
-        properties_to_use=['CENTROID_LATITUDE','CENTROID_LONGITUDE']
-        # Get the ungauged catchment properties from the inputs_file for the
-        # regionalization scheme.
-        ungauged_properties = get_ungauged_properties(ts,properties_to_use,latitude,longitude)
-        
+        # Write output
+        nc_qsim = Path(self.workdir) / 'qsim.nc'
+        qsim.to_dataset(nc_qsim)
+        response.ouputs['hydrograph'].file = nc_qsim
 
-        # Load gauged catchments properties and hydrological model parameters.
-        gauged_properties, model_parameters = get_array_of_gauged_properties(
-                                            model_name)
+        nc_ensemble = Path(self.workdir) / 'ensemble.nc'
+        qsim.to_dataset(nc_ensemble)
+        response.ouputs['ensemble'].file = nc_ensemble
 
-        # Filter arrays according to the minimum value allowed.
-        gauged_properties, model_parameters = filter_array_by_NSE(
-                                            gauged_properties,
-                                            model_parameters,
-                                            min_NSE)
-
-        # Check to see if we have enough data, otherwise raise error
-        if (gauged_properties.shape[0] < number_donors and
-                regionalisationMethod != 'MLR'):
-            raise ValueError("hydrological_model and minimum NSE threshold \
-                             combination is too strict for the number of donor \
-                             basins. Please reduce the number of donor basins OR \
-                             reduce the minimum NSE threshold")
-
-        # Rank the matrix according to the similarity or distance.
-        if (regionalisationMethod == 'PS' or regionalisationMethod == 'PS_IDW' or regionalisationMethod == 'PS_IDW_RA' ):  # physical similarity
-            regionalisation_tag = 'similarity'
-        else:
-            # Filter by distance if MLR (option 1) is selected, it is faster
-            # than by similarity.
-            regionalisation_tag = 'distance'
-
-
-            # Create a dataframe that is identical to gauged_properties arrays.
-        gauged_properties, model_parameters = rank_donor_catchments(
-                                              ungauged_properties,
-                                              model_parameters,
-                                              gauged_properties,
-                                              properties_to_use,
-                                              regionalisation_tag
-                                              )
-
-        if regionalisationMethod == 'MLR':
-            # Multiple linear regression (MLR)
-            Qsim = MLR_parameters_regionalization(ncfilename,start_date, end_date, latitude, longitude, elevation, area,
-                                                  model_name, ts,
-                                                  ungauged_properties,
-                                                  model_parameters,
-                                                  gauged_properties,
-                                                  properties_to_use)
-            best_estimate = Qsim
-
-        elif (regionalisationMethod == 'SP') or (regionalisationMethod == 'PS'):
-            # Simple averaging
-            Qsim = distance_only_regionalization(ncfilename,start_date, end_date, latitude, longitude, elevation, area,
-                                                 model_name,
-                                                 ts,
-                                                 number_donors,
-                                                 model_parameters)
-            best_estimate = np.average(Qsim, 1)
-
-        elif (regionalisationMethod == 'SP_IDW') or (regionalisationMethod == 'PS_IDW'):
-            # Inverse distance weighting (IDW)
-            Qsim = distance_only_regionalization(ncfilename,start_date, end_date, latitude, longitude, elevation, area,
-                                                 model_name,
-                                                 ts,
-                                                 number_donors,
-                                                 model_parameters)
-         
-            
-            best_estimate = IDW(Qsim, number_donors, gauged_properties['distance'])
-
-        elif (regionalisationMethod == 'SP_IDW_RA') or (regionalisationMethod == 'PS_IDW_RA'):
-            # Inverse distance weighting with regression-augmentation (IDW_RA)
-            Qsim = distance_MLR_regionalization(ncfilename,start_date, end_date, latitude, longitude, elevation, area,
-                                                model_name, ts,
-                                                number_donors,
-                                                ungauged_properties,
-                                                model_parameters,
-                                                gauged_properties,
-                                                properties_to_use)
-            
-            best_estimate = IDW(Qsim, number_donors, gauged_properties['distance'])
-
-        else:
-            print("Unknown regionalization method")
-
-
-        # Write utput
-        indexfile = 'RegionalisationHydrograph.nc'
-     
-        with Dataset(indexfile, 'w', format='NETCDF4') as nc_file:
-            nc_file.createDimension('time', Qsim.shape[0])
-            nc_file.createDimension('donor_number', Qsim.shape[1])
-
-            vars_list = nc_file.createVariable('Qsim', 'float32', ('time', 'donor_number'))
-            vars_list[:] = Qsim
-            vars_list2=nc_file.createVariable('BestEstimate','float32',('time'))
-            vars_list2[:]=best_estimate
-      
-        
-        response.outputs['hydrograph'].file=indexfile
         return response
-    

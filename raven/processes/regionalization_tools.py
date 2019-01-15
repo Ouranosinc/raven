@@ -7,162 +7,245 @@ Provide various tools for hydrological regionalization.
 from pathlib import Path
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
+#import statsmodels.api as sm
 from netCDF4 import Dataset
+import xarray as xr
+from raven.models import get_model
 
 import logging
 LOGGER = logging.getLogger("PYWPS")
+DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
 
 
+def regionalization(method, model, latitude, longitude, size=5, min_NSE=0.6, properties=None, **kwds):
+    """Perform regionalization.
 
-def get_array_of_gauged_properties(hydrological_model):
+    Parameters
+    ----------
+    method : {'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'}
+      Name of the regionalization method to use.
+    model : {'HMETS', 'GR4JCN', 'MOHYSE'}
+      Model name.
+    latitude : float
+      Coordinate of the catchment's outlet.
+    longitude : float
+      Coordinate of the catchment's outlet.
+    size : int
+      Number of catchments to use in the regionalization.
+    min_NSE : float
+      Minimum calibration NSE value required to be considered as a donor.
+    properties : sequence
+      Name of catchment properties to include in analysis. Defaults to all.
+
+    Returns
+    -------
+    (qsim, ensemble)
+
+
     """
-    get_array_or_gauged_properties
+    # TODO: Include list of available properties in docstring.
 
-    INPUTS:
-        hydrological_model -- String of the selected hydrological model
+    # Get the ungauged catchment properties from the inputs_file for the regionalization scheme.
+    ungauged_properties = get_ungauged_properties(latitude, longitude)
+    kwds.update(ungauged_properties)
 
-    This function return an array of gauged catchments properties as well as
-    model NSE and optimal parameters of the hydrological model.
+    if properties is None:
+        properties = tuple(ungauged_properties.keys())
+    else:
+        ungauged_properties = ungauged_properties[properties]
+
+    # Load gauged catchments properties and hydrological model parameters.
+    gauged_prop = read_gauged_properties().drop(columns=['NAME', 'STATE', 'COUNTRY'])
+    gauged_prop = gauged_prop[properties]
+    gauged_nash, gauged_params = read_gauged_params()
+
+    # Filter on NSE
+    valid = gauged_nash > min_NSE
+    filtered_params = gauged_params.where(valid).dropna()
+    filtered_prop = gauged_prop.where(valid).dropna()
+
+    # Check to see if we have enough data, otherwise raise error
+    if len(filtered_prop) < size and method != 'MLR':
+        raise ValueError("Hydrological_model and minimum NSE threshold \
+                         combination is too strict for the number of donor \
+                         basins. Please reduce the number of donor basins OR \
+                         reduce the minimum NSE threshold.")
+
+    # Rank the matrix according to the similarity or distance.
+    if method in ['PS', 'PS_IDW', 'PS_IDW_RA']:  # Physical similarity
+        dist = similarity(filtered_prop, ungauged_properties)
+    else:  # Geographical distance.
+        dist = distance(filtered_prop, ungauged_properties)
+
+    # Series of distances for the first `size` best donors
+    sdist = dist.sort_values().iloc[:, size]
+
+    # Pick the donors' model parameters and catchment properties
+    sparams = filtered_params.loc[sdist.index]
+    sprop = filtered_prop.loc[sdist.index]
+
+    # Get the list of parameters to run
+    reg_params = regionalization_params(method, sparams, sprop, ungauged_properties)
+
+    # Run the model over all parameters and create ensemble DataArray
+    m = get_model(model)
+    qsims = []
+    for params in reg_params:
+        kwds['params'] = params
+        m.run(overwrite=True, **kwds)
+        qsims.append(m.hydrograph)
+
+    qsims = xr.concat(qsims, 'ens')
+
+    # 3. Aggregate runs into a single result
+    if method in ['MLR', 'SP', 'PS']:  # Average (one realization for MLR, so no effect).
+        qsim = qsims.mean(dim='ens')
+    elif 'IWD' in method:
+        qsim = IDW(qsims, dist)
+    else:
+        raise ValueError('No matching algorithm for {}'.format(method))
+
+    return qsim, qsims
+
+
+def read_gauged_properties():
+    """Return table of gauged catchments properties over North America.
+
+    Returns
+    -------
+    pd.DataFrame
+      Catchment properties keyed by catchment ID.
     """
-    
-    # Load general gauged catchment properties and create dataframe df.
-    gauged_properties=pd.read_csv(Path(__file__).parent.parent.parent / 'tests/testdata/regionalisation_data/gauged_catchment_properties.csv',dtype=float)
-    types_dict = {'NAME':str, 'STATE':str, 'COUNTRY':str}
-    for col, col_type in types_dict.items():
-       gauged_properties[col] = gauged_properties[col].astype(col_type)
-
-    gauged_properties=gauged_properties.drop('ID', 1)
-    gauged_properties=gauged_properties.drop('NAME', 1)
-    gauged_properties=gauged_properties.drop('STATE', 1)
-    gauged_properties=gauged_properties.drop('COUNTRY', 1)
-    
-    # Get data for the hydrological_model
-    filepath= str(Path(__file__).parent.parent.parent) + '/tests/testdata/regionalisation_data/'+ hydrological_model + '_parameters.csv'
-    model_parameters=pd.read_csv(filepath,dtype=float)
-    model_parameters=model_parameters.drop('ID', 1)
-    
-    # Make sure that the matrices are the same length, else raise error.
-    if np.size(gauged_properties, 0) != np.size(model_parameters, 0):
-        raise ValueError("gauged_properties and model_parameters for \
-                         hydrological model " + hydrological_model +
-                         " do not have the same number of gauged catchments. \
-                         Check for mismatch.")
-
-    return gauged_properties, model_parameters
+    df = pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
+                       index_col='ID')
+    return df.set_index(np.arange(1, len(df)+1))  # TODO: Remove when real file is available.
 
 
-def filter_array_by_NSE(gauged_properties, model_parameters, min_NSE):
+def read_gauged_params(model):
+    """Return table of NASH-Stucliffe Efficiency values and model parameters for North American catchments.
+
+    Returns
+    -------
+    pd.DataFrame
+      Nash-Sutcliffe Efficiency keyed by catchment ID.
+    pd.DataFrame
+      Model parameters keyed by catchment ID.
     """
-    filter_array_by_NSE
+    params = pd.read_csv(DATA_DIR / '{}_parameters.csv'.format(model),
+                         index_col='ID')
 
-    INPUTS:
-        gauged_properties -- Properties of all gauged catchments available
-        model_parameters -- Hydrological model calibrated parameters
-        min_NSE -- Minimum Nash-Sutcliffe (NSE) value to select a catchment
+    return params['NASH'], params.iloc[:, 1:]
 
-    Function to filter the arrays of gauged catchments properties and model
-    parameters according to minimum NSE required by the user.
+
+def haversine(lon1, lat1, lon2, lat2):
     """
-    
-    gauged_properties_filtered = \
-        gauged_properties.loc[model_parameters['NASH'] >= min_NSE]
-    model_parameters_filtered = \
-        model_parameters.loc[model_parameters['NASH'] >= min_NSE]
-    gauged_properties_filtered.reset_index(inplace=True)
-    model_parameters_filtered.reset_index(inplace=True)
+    Return the great circle distance between two points on the earth.
 
-    return gauged_properties_filtered, model_parameters_filtered
+    Parameters
+    ----------
+    lon1, lat1 : ndarray
+        Longitude and latitude coordinates in decimal degrees.
+    lon2, lat2 : ndarray
+        Longitude and latitude coordinates in decimal degrees.
 
+    Returns
+    -------
+    ndarray
+      Distance between points 1 and 2 [km].
 
-def rank_donor_catchments(ungauged_properties,
-                          model_parameters,
-                          gauged_properties,
-                          properties_to_use,
-                          rank_type='distance'):
     """
-    rank_donor_catchments
+    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
 
-    INPUTS:
-        model_parameters -- Selected hydrological model calibrated parameters
-        ungauged_properties -- Properties of the ungauged catchment
-        rank_type -- Regionalization method for the ranking of the catchments
-        properties_to_use -- The catchments' properties to use if
-                             rank_type='Similarity'
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
 
-    Function to sort arrays according to the type of sorting (distance or
-    similarity) selected by the user.
+    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+
+    c = 2 * np.arcsin(np.sqrt(a))
+    km = 6367 * c
+    return km
+
+
+def distance(gauged, ungauged):
+    """Return geographic distance between ungauged and database of gauged catchments."""
+    lon, lat = ungauged.CENTROID_LONGITUDE, ungauged.CENTROID_LATITUDE
+    lons, lats = gauged.CENTROID_LONGITUDE, gauged.CENTROID_LATITUDE
+
+    return pd.Series(data=haversine(lons.values, lats.values, lon.values, lat.values), index=gauged.index)
+
+
+def similarity(gauged, ungauged, columns=None):
+    """Return similarity measure between gauged and ungauged catchments."""
+
+    stats = gauged.describe()
+    spread = stats['max'] - stats['min']
+    # spread = stats['std']
+    # spread = stats['75%'] - stats['25%']
+    return (np.abs(ungauged[columns] - gauged[columns]) / spread).sum()
+
+
+def regionalization_params(method, gauged_params, gauged_properties, ungauged_properties):
+    """Return the model parameters to use for the regionalization.
+
+    Parameters
+    ----------
+    method : {'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'}
+      Name of the regionalization method to use.
+
+
+    Returns
+    -------
+    list
+      List of model parameters to be used for the regionalization.
     """
 
-    # Calculate distance between ungauged and database of gauged catchments.
-    dist = np.empty([gauged_properties.shape[0], 1])
- 
-    
-    # For the spatial distance:
-    if (rank_type == 'distance'):
-        # Calculate the spatial distance between the donor catchments and the
-        # ungauged catchment
- 
-        
-        for i in range(0, gauged_properties.shape[0]):
-            dist[i] = ((gauged_properties.CENTROID_LONGITUDE[i] -
-                        ungauged_properties.CENTROID_LONGITUDE)**2 +
-                       (gauged_properties.CENTROID_LATITUDE[i] -
-                        ungauged_properties.CENTROID_LATITUDE)**2)**0.5
+    if method == 'MLR' or 'RA' in method:
+        mlr_params, r2 = multiple_linear_regression(gauged_properties, gauged_params, ungauged_properties)
 
-        # Add the physical distance to the dataframe
-        gauged_properties = gauged_properties.assign(distance=dist)
+        if method == 'MLR':  # Return the multiple linear regression parameters.
+            out = [mlr_params, ]
 
-    # For the physical similarity:
-    elif (rank_type == 'similarity'):
-        # Get the values from the arrays, convert to numpy array
-        similar_properties = gauged_properties[properties_to_use].values
-        similar_targets = np.tile(
-                            ungauged_properties[properties_to_use].values,
-                            (similar_properties.shape[0], 1))
+        elif 'RA' in method:
+            gp = gauged_params.copy()
 
-        # Calculate deltas in the database
-        delta_max = np.amax(similar_properties, axis=0, keepdims=True)
-        delta_min = np.amin(similar_properties, axis=0, keepdims=True)
-        deltas = delta_max - delta_min
+            for p, r, col in zip(mlr_params, r2, gauged_params):
+                # If we have an R2 > 0.5 then we consider this to be a better estimator
+                if r > 0.5:
+                    gp[col] = p
 
-        # Compute similarity distance
-        dist = np.sum(abs(similar_properties - similar_targets) / deltas, 1)
-        gauged_properties = gauged_properties.assign(distance=dist)
+            out = gp.tolist()
 
     else:
-        raise ValueError("Regionalization method " + rank_type +
-                         " not recognized")
+        out = gauged_params.tolist()
 
-    # The distance is now in the vectors. It has to be sorted, keep the index
-    # and also sort the model_parameters matrix
-    gauged_properties = gauged_properties.sort_values(by=['distance'])
-    model_parameters = model_parameters.reindex(gauged_properties.index)
-    gauged_properties.reset_index(drop=True, inplace=True)
-    model_parameters.reset_index(drop=True, inplace=True)
-
-    return gauged_properties, model_parameters
+    return out
 
 
-def get_ungauged_properties(inputs_file, properties_to_use,latitude,longitude):
+def get_ungauged_properties(latitude, longitude):
     """
-    get_ungauged_properties
+    Return the properties of the watershed whose outlet location is given.
 
-    INPUTS:
-        inputs_file -- The ungauged catchment inputs file to work with
-        properties_to_use -- The catchments' properties to use
+    Parameters
+    ----------
+    latitude : float
+      Coordinate of the catchment's outlet.
+    longitude : float
+      Coordinate of the catchment's outlet.
 
-    Function to get the ungauged catchment's properties from the netCDF file.
+    Returns
+    -------
+    dict
+      Catchment properties: area, mean elevation, centroid latitude and longitude, average slope, ...
     """
     
     # Read the netCDF file
-    nc_file = Dataset(inputs_file[0], 'r')
+    # nc_file = Dataset(inputs_file[0], 'r')
 
     """
     # For now, until we test for real and pass the parameter
-    properties_to_use = ['CENTROID_LATITUDE',
-                         'CENTROID_LONGITUDE',
-                         'AREA',
+    properties_to_use = ['latitude',
+                         'longitude',
+                         'area',
                          'avg_elevation',
                          'avg_slope',
                          'land_forest',
@@ -170,87 +253,71 @@ def get_ungauged_properties(inputs_file, properties_to_use,latitude,longitude):
                          'land_impervious',
                          'land_urban']
     """
-    # Defile the ungauged catchment properties
-    ungauged_properties = pd.DataFrame({'CENTROID_LATITUDE':[latitude],'CENTROID_LONGITUDE':[longitude]})
+
+    return {'latitude': latitude, 'longitude': longitude}
 
 
-    return ungauged_properties
-
-
-def IDW(Qsim, number_donors, distance):
+def IDW(qsims, dist):
     """
-    IDW - Inverse Distance Weighting
+    Inverse distance weighting.
 
-    INPUTS:
-        Qsim -- Simulated streamflow
-        number_donors -- The number of gauged catchments to use
-        distance -- The distance between the ungauged and the gauged catchments
+    Parameters
+    ----------
+    qsims : DataArray
+      Ensemble of hydrogram stacked along the `ens` dimension.
+    dist : pd.Series
+      Distance from catchment which generated each hydrogram to target catchment.
 
-    Function to calculate and weight the Qsim by the distance factor
+    Returns
+    -------
+    DataArray
+      Inverse distance weighted average of ensemble.
     """
     
     # In IDW, weights are 1 / distance
-    weights = 1.0 / distance[0:number_donors]
+    weights = xr.DataArray(1.0 / dist, dims='ens')
 
     # Make weights sum to one
     weights /= weights.sum(axis=0)
 
     # Calculate weighted average
-    best_estimate = np.dot(Qsim, weights)
-
-    return best_estimate
+    return qsims.dot(weights, dims='ens')
 
 
-def MLR(ungauged_properties,
-        model_parameters,
-        gauged_properties,
-        properties_to_use):
+def multiple_linear_regression(source, params, target):
     """
-    MLR - Multiple Linear Regression
+    Multiple Linear Regression for model parameters over catchment properties.
 
-    INPUTS:
-        ungauged_properties -- Properties of the ungauged catchment
-        model_parameters -- Selected hydrological model calibrated parameters
-        gauged_properties -- Properties of all gauged catchments available
-        properties_to_use -- The catchments' properties to use
+    Uses known catchment properties and model parameters to estimate model parameter over an
+    ungauged catchment using its properties.
 
-    Function to compute regionalization using MLR.
+    Parameters
+    ----------
+    source : DataFrame
+      Properties of gauged catchments.
+    params : DataFrame
+      Model parameters of gauged catchments.
+    target : DataFrame
+      Properties of the ungauged catchment.
+
+
+    Returns
+    -------
+    (mrl_params, r2)
+      A named tuple of the estimated model parameters and the R2 of the linear regression.
     """
-
-    # Define X predictors and Y targets for parameters
-    properties_to_use_with_const = properties_to_use[:]
-    # Add the constant column for the intercept
-    properties_to_use_with_const.insert(0, 'const')
-    X = gauged_properties[properties_to_use]
-    # Add the constant 1 for the ungauged catchment predictors
-    predictors=sm.add_constant(ungauged_properties,prepend=True,has_constant='add')
-
     # Add constants to the gauged predictors
-    X = sm.add_constant(X)
-    MLR_parameters = []
-    r_squared = []
+    x = sm.add_constant(gauged_properties)
 
-    # Convert to matrix
-    model_parameters = model_parameters.iloc[:, :].values
+    # Add the constant 1 for the ungauged catchment predictors
+    predictors = sm.add_constant(ungauged_properties, prepend=True, has_constant='add')
 
-    # Loop each parameter
-    for j in range(2, model_parameters.shape[1]):
-        
-        # Define predictands and fit statistical model
-        Y = model_parameters[:, j]
-        regression_model = sm.OLS(Y, X).fit()
-        
-        # Collect R-squared (adjusted) and estimated parameters for the gauged
-        # catchment
-        r_squared.append(regression_model.rsquared_adj)
-        tmp=regression_model.predict(exog=predictors)
-        MLR_parameters.append(tmp[0])
+    # Perform regression for each parameter
+    regression = [sm.OLS(params[param].values, x).fit() for param in params]
 
-    # Convert to arrays
-    MLR_parameters=np.array(MLR_parameters)
-    r_squared=np.array(r_squared)
-    
-    
-    return MLR_parameters, r_squared
+    mlr_parameters = [r.predict(exog=predictors) for r in regression]
+    r2 = [r.rsquared_adj for r in regression]
+
+    return mlr_parameters, r2
 
 
