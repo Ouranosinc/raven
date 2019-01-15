@@ -1,6 +1,6 @@
 import pytest
 from . common import TESTDATA
-from raven.models import Raven, GR4JCemaneige, RVI, RV
+from raven.models import Raven, GR4JCemaneige, HMETS, RVI, RV
 import tempfile
 import datetime as dt
 import numpy as np
@@ -108,3 +108,25 @@ class TestGR4JCemaneige:
               )
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
+
+
+class TestHMETS:
+
+    def test_simple(self):
+        ts = TESTDATA['raven-hmets-nc-ts']
+        model = HMETS()
+        params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
+                  2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
+
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=params
+              )
+
+        d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)

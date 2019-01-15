@@ -9,6 +9,7 @@ dependencies:
 - click
 - psutil
 - xarray
+- dask
 - pandas
 - bumpversion
 - pip:
