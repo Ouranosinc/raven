@@ -11,10 +11,8 @@ datainputs = "ts=files@xlink:href=file://{ts};" \
              "start_date={start_date};" \
              "end_date={end_date};" \
              "name={name};" \
-             "area={area};" \
              "latitude={latitude};" \
              "longitude={longitude};" \
-             "elevation={elevation};" \
              "model_name={model_name};" \
              "min_NSE={min_NSE};" \
              "ndonors={ndonors};" \
@@ -24,10 +22,8 @@ inputs = dict(start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2002, 1, 1),
               name='Salmon',
               run_name='test',
-              area='4250.6',
-              elevation='843.0',
-              latitude=40.4848,
-              longitude=-103.3659,
+              latitude=.7,
+              longitude=.7,
               min_NSE=0.6,
               )
 
