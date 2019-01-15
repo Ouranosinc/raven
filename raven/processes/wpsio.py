@@ -126,7 +126,7 @@ model_name = LiteralInput('model_name', 'Hydrological model identifier',
                           default='HMETS',
                           min_occurs=0)
 
-regionalisation_method = LiteralInput('regionalisationMethod', 'String of desired regionalisation method',
+regionalisation_method = LiteralInput('regionalisation_method', 'String of desired regionalisation method',
                                      abstract="regionalisation method to use (SEE DOC FOR LIST OF METHODS):"
                                               "{MLR,SP,PS,SP_IDW,PS_IDW,SP_IDW_RA,PS_IDW_RA}",
                                      data_type='string',

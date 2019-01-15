@@ -78,7 +78,7 @@ class RegionalisationProcess(Process):
     version = '0.1'
 
     inputs = [wio.ts, wio.start_date, wio.end_date, wio.area, wio.elevation, wio.latitude, wio.longitude,
-              wio.model_name, wio.number_donors, wio.min_NSE, wio.regionalisationMethod]
+              wio.model_name, wio.number_donors, wio.min_NSE, wio.regionalisation_method]
 
     outputs = [wio.hydrograph]
 
@@ -112,11 +112,11 @@ class RegionalisationProcess(Process):
 
         # Regionalisation Method
 
-        if 'regionalisationMethod' in request.inputs:
-            regionalisationMethod = request.inputs['regionalisationMethod'][0].data
+        if 'regionalisation_method' in request.inputs:
+            regionalisation_method = request.inputs['regionalisation_method'][0].data
         else:
-            regionalisationMethod = 'SP_IDW'
-            print('regionalisationMethod not provided, set to SP_IDW by default')
+            regionalisation_method = 'SP_IDW'
+            print('regionalisation_method not provided, set to SP_IDW by default')
 
         # Number Donors
         if 'number_donors' in request.inputs:
@@ -172,15 +172,15 @@ class RegionalisationProcess(Process):
             min_NSE)
 
         # Check to see if we have enough data, otherwise raise error
-        if (gauged_properties.shape[0] < number_donors) and (regionalisationMethod != 'MLR'):
+        if (gauged_properties.shape[0] < number_donors) and (regionalisation_method != 'MLR'):
             raise ValueError("hydrological_model and minimum NSE threshold \
                              combination is too strict for the number of donor \
                              basins. Please reduce the number of donor basins OR \
                              reduce the minimum NSE threshold")
 
         # Rank the matrix according to the similarity or distance.
-        if (regionalisationMethod == 'PS') or (regionalisationMethod == 'PS_IDW') or\
-                (regionalisationMethod == 'PS_IDW_RA'):
+        if (regionalisation_method == 'PS') or (regionalisation_method == 'PS_IDW') or\
+                (regionalisation_method == 'PS_IDW_RA'):
             # physical similarity
             regionalisation_tag = 'similarity'
         else:
@@ -197,7 +197,7 @@ class RegionalisationProcess(Process):
             regionalisation_tag
         )
 
-        if regionalisationMethod == 'MLR':
+        if regionalisation_method == 'MLR':
             # Multiple linear regression (MLR)
             Qsim = MLR_parameters_regionalization(ncfilename, start_date, end_date, latitude, longitude, elevation,
                                                   area,
@@ -208,7 +208,7 @@ class RegionalisationProcess(Process):
                                                   properties_to_use)
             best_estimate = Qsim
 
-        elif (regionalisationMethod == 'SP') or (regionalisationMethod == 'PS'):
+        elif (regionalisation_method == 'SP') or (regionalisation_method == 'PS'):
             # Simple averaging
             Qsim = distance_only_regionalization(ncfilename, start_date, end_date, latitude, longitude, elevation, area,
                                                  model_name,
@@ -217,7 +217,7 @@ class RegionalisationProcess(Process):
                                                  model_parameters)
             best_estimate = np.average(Qsim, 1)
 
-        elif (regionalisationMethod == 'SP_IDW') or (regionalisationMethod == 'PS_IDW'):
+        elif (regionalisation_method == 'SP_IDW') or (regionalisation_method == 'PS_IDW'):
             # Inverse distance weighting (IDW)
             Qsim = distance_only_regionalization(ncfilename, start_date, end_date, latitude, longitude, elevation, area,
                                                  model_name,
@@ -227,7 +227,7 @@ class RegionalisationProcess(Process):
 
             best_estimate = IDW(Qsim, number_donors, gauged_properties['distance'])
 
-        elif (regionalisationMethod == 'SP_IDW_RA') or (regionalisationMethod == 'PS_IDW_RA'):
+        elif (regionalisation_method == 'SP_IDW_RA') or (regionalisation_method == 'PS_IDW_RA'):
             # Inverse distance weighting with regression-augmentation (IDW_RA)
             Qsim = distance_MLR_regionalization(ncfilename, start_date, end_date, latitude, longitude, elevation, area,
                                                 model_name, ts,
