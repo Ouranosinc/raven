@@ -14,7 +14,8 @@ LOGGER = logging.getLogger("PYWPS")
 DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
 
 
-def regionalize(method, model, latitude, longitude, size=5, min_NSE=0.6, properties=None, **kwds):
+def regionalize(method, model, nash, params=None, props=None, target_props=None, size=5,
+                min_NSE=0.6, **kwds):
     """Perform regionalization for catchment whose outlet is defined by coordinates.
 
     Parameters
@@ -23,16 +24,20 @@ def regionalize(method, model, latitude, longitude, size=5, min_NSE=0.6, propert
       Name of the regionalization method to use.
     model : {'HMETS', 'GR4JCN', 'MOHYSE'}
       Model name.
-    latitude : float
-      Coordinate of the catchment's outlet.
-    longitude : float
-      Coordinate of the catchment's outlet.
+    nash : pd.Series
+      NSE values for the parameters of gauged catchments.
+    params : pd.DataFrame
+      Model parameters of gauged catchments. Needed for all but MRL method.
+    props : pd.DataFrame
+      Properties of gauged catchments to be analyzed for the regionalization. Needed for MLR and RA methods.
+    target_props : pd.Series or dict
+      Properties of ungauged catchment. Needed for MLR and RA methods.
     size : int
       Number of catchments to use in the regionalization.
     min_NSE : float
       Minimum calibration NSE value required to be considered as a donor.
-    properties : sequence
-      Name of catchment properties to include in analysis. Defaults to all.
+    kwds : {}
+      Model configuration parameters, including the forcing files (ts).
 
     Returns
     -------
@@ -41,26 +46,22 @@ def regionalize(method, model, latitude, longitude, size=5, min_NSE=0.6, propert
 
     """
     # TODO: Include list of available properties in docstring.
+    # TODO: Add error checking for source, target stuff wrt method chosen.
 
-    # Get the ungauged catchment properties from the inputs_file for the regionalization scheme.
-    props = get_ungauged_properties(latitude, longitude)
-    kwds.update(props)
-    ungauged_properties = pd.DataFrame(props, index=['target'])
-
-    if properties is None:
-        properties = list(props.keys())
+    # Select properties based on those available in the ungauged properties DataFrame.
+    if isinstance(target_props, dict):
+        ungauged_properties = pd.Series(target_props)
+    elif isinstance(target_props, pd.Series):
+        ungauged_properties = target_props
+    elif isinstance(target_props, pd.DataFrame):
+        ungauged_properties = target_props.to_series()
     else:
-        ungauged_properties = ungauged_properties[properties]
-
-    # Load gauged catchments properties and hydrological model parameters.
-    gauged_prop = read_gauged_properties().drop(columns=['NAME', 'STATE', 'COUNTRY'])
-    gauged_prop = gauged_prop[properties]
-    gauged_nash, gauged_params = read_gauged_params(model)
+        raise ValueError
 
     # Filter on NSE
-    valid = gauged_nash > min_NSE
-    filtered_params = gauged_params.where(valid).dropna()
-    filtered_prop = gauged_prop.where(valid).dropna()
+    valid = nash > min_NSE
+    filtered_params = params.where(valid).dropna()
+    filtered_prop = props.where(valid).dropna()
 
     # Check to see if we have enough data, otherwise raise error
     if len(filtered_prop) < size and method != 'MLR':
@@ -164,11 +165,20 @@ def haversine(lon1, lat1, lon2, lat2):
 
 
 def distance(gauged, ungauged):
-    """Return geographic distance between ungauged and database of gauged catchments."""
+    """Return geographic distance [km] between ungauged and database of gauged catchments.
+
+    Parameters
+    ----------
+    gauged : pd.DataFrame
+      Table containing columns for longitude and latitude of catchment's centroid.
+    ungauged : pd.Series
+      Coordinates of the ungauged catchment.
+
+    """
     lon, lat = ungauged.longitude, ungauged.latitude
     lons, lats = gauged.latitude, gauged.latitude
 
-    return pd.Series(data=haversine(lons.values, lats.values, lon.values, lat.values), index=gauged.index)
+    return pd.Series(data=haversine(lons.values, lats.values, lon, lat), index=gauged.index)
 
 
 def similarity(gauged, ungauged, kind='ptp'):

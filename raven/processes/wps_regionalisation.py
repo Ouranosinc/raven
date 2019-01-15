@@ -2,9 +2,12 @@ from . import wpsio as wio
 import logging
 from pywps import Process, LiteralInput
 from pathlib import Path
-from raven.utilities import regionalize
+from raven.utilities import regionalize, read_gauged_properties, read_gauged_params
 from .wps_raven import RavenProcess
 LOGGER = logging.getLogger("PYWPS")
+
+# TODO: latitude and longitude have a different meaning here if we're using them to get the catchment properties.
+#  Normally for other WPS Raven processes, they refer to the centroid, here they'd refer to the outlet, correct ?
 
 
 class RegionalisationProcess(RavenProcess):
@@ -66,7 +69,7 @@ class RegionalisationProcess(RavenProcess):
                            default=0.6,
                            min_occurs=0)
 
-    inputs = [wio.ts, wio.start_date, wio.end_date, wio.area, wio.elevation, wio.latitude, wio.longitude,
+    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
               wio.model_name, ndonors, min_NSE, method]
 
     outputs = [wio.hydrograph, wio.ensemble]
@@ -86,8 +89,19 @@ class RegionalisationProcess(RavenProcess):
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 
-        qsim, ensemble = regionalize(method, model_name,
-                                     latitude=latitude, longitude=longitude,
+        nash, params = read_gauged_params(model_name)
+        variables = ['longitude', 'latitude']
+        props = read_gauged_properties()[variables]
+
+        # TODO: Replace by function determining catchment properties from DEM and land use file and Hydrosheds data.
+        # catchment_props = get_catchment_properties(latitude, longitude)
+        catchment_props = {'longitude': .7, 'latitude': .7, 'area': '4250.6', 'elevation': '843.0'}
+        properties = ['longitude', 'latitude']
+        ungauged_props = {key: catchment_props[key] for key in properties}
+        kwds.update(catchment_props)
+
+        qsim, ensemble = regionalize(method, model_name, nash, params,
+                                     props, ungauged_props,
                                      size=ndonors,
                                      min_NSE=min_NSE,
                                      ts=ts,

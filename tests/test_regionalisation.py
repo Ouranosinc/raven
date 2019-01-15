@@ -4,7 +4,14 @@ from .common import TESTDATA
 
 
 def test_regionalization():
-    reg.regionalize('SP', 'GR4JCN',
+    model = 'GR4JCN'
+    nash, params = reg.read_gauged_params(model)
+    variables = ['longitude', 'latitude']
+    props = reg.read_gauged_properties()[variables]
+    ungauged_props = {'longitude': .7, 'latitude': .7}
+
+    reg.regionalize('SP', model, nash, params,
+                    props, ungauged_props,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
