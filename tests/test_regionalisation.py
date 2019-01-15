@@ -3,22 +3,27 @@
 
 import datetime as dt
 
+
 from pywps import Service
 from pywps.tests import assert_response_success
 from raven.processes import RegionalisationProcess
 from tests.common import client_for, TESTDATA, get_output, urlretrieve
 from netCDF4 import Dataset
-# import pdb
+import pdb
 
 
 # @pytest.mark.skip
 class TestRegionalisation:
+    
+  
+    
+    def testRegionalisationHMETS_1(self):
+         
+        number_donors=1
+        
 
-    def test_regionalisation_HMETS_1(self):
-        number_donors = 1
-
-        client = client_for(Service(processes=[RegionalisationProcess(), ]))
-
+        client = client_for(Service(processes=[RegionalisationProcess(),]))
+             
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
@@ -30,8 +35,8 @@ class TestRegionalisation:
                      "model_name={model_name};" \
                      "min_NSE={min_NSE};" \
                      "number_donors={number_donors};" \
-                     "regionalisationMethod={regionalisationMethod};" \
-            .format(ts=TESTDATA['raven-hmets-nc-ts'],
+                     "regionalisationMethod={regionalisationMethod};"\
+                .format(ts=TESTDATA['raven-hmets-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -45,23 +50,29 @@ class TestRegionalisation:
                     number_donors=number_donors,
                     regionalisationMethod='PS_IDW_RA',
                     )
-
-        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess',
-                          datainputs=datainputs)
-
+             
+         
+        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess', datainputs=datainputs)
+         
+         
         assert_response_success(resp)
-
+         
+         
         out = get_output(resp.xml)
         assert 'hydrograph' in out
         tmp_file, _ = urlretrieve(out['hydrograph'])
-        nc_file = Dataset(tmp_file)
-        assert (nc_file.variables['Qsim'].shape[1] == number_donors)
-
-    def test_regionalisation_HMETS_2(self):
-        number_donors = 5
-
-        client = client_for(Service(processes=[RegionalisationProcess(), ]))
-
+        nc_file=Dataset(tmp_file)
+        assert(nc_file.variables['Qsim'].shape[1]==number_donors)
+             
+   
+    def testRegionalisationHMETS_2(self):
+         
+        number_donors=5
+        
+    
+            
+        client = client_for(Service(processes=[RegionalisationProcess(),]))
+    
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
@@ -73,8 +84,8 @@ class TestRegionalisation:
                      "model_name={model_name};" \
                      "min_NSE={min_NSE};" \
                      "number_donors={number_donors};" \
-                     "regionalisationMethod={regionalisationMethod};" \
-            .format(ts=TESTDATA['raven-hmets-nc-ts'],
+                     "regionalisationMethod={regionalisationMethod};"\
+                .format(ts=TESTDATA['raven-hmets-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -89,23 +100,30 @@ class TestRegionalisation:
                     regionalisationMethod='PS_IDW',
                     )
 
-        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess',
-                          datainputs=datainputs)
-
+    
+         
+        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess', datainputs=datainputs)
+         
+         
         assert_response_success(resp)
-
+         
+         
         out = get_output(resp.xml)
         assert 'hydrograph' in out
         tmp_file, _ = urlretrieve(out['hydrograph'])
-        nc_file = Dataset(tmp_file)
-        assert (nc_file.variables['Qsim'].shape[1] == number_donors)
+        nc_file=Dataset(tmp_file)
+        assert(nc_file.variables['Qsim'].shape[1]==number_donors)
 
-    def test_regionalisation_GR4J_1(self):
-        number_donors = 1
 
-        client = client_for(Service(processes=[RegionalisationProcess(), ]))
 
-        datainputs = "ts=files@xlink:href=file://{ts};" \
+
+    def testRegionalisationGR4J_1(self):
+         
+            number_donors=1
+
+            client = client_for(Service(processes=[RegionalisationProcess(),]))
+    
+            datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
@@ -116,8 +134,8 @@ class TestRegionalisation:
                      "model_name={model_name};" \
                      "min_NSE={min_NSE};" \
                      "number_donors={number_donors};" \
-                     "regionalisationMethod={regionalisationMethod};" \
-            .format(ts=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
+                     "regionalisationMethod={regionalisationMethod};"\
+                    .format(ts=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -132,23 +150,28 @@ class TestRegionalisation:
                     regionalisationMethod='SP_IDW',
                     )
 
-        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess',
-                          datainputs=datainputs)
+         
+            resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess', datainputs=datainputs)
+         
+         
+            assert_response_success(resp)
+         
+         
+            out = get_output(resp.xml)
+            assert 'hydrograph' in out
+            tmp_file, _ = urlretrieve(out['hydrograph'])
+            nc_file=Dataset(tmp_file)
+            assert(nc_file.variables['Qsim'].shape[1]==number_donors)
+             
+        
 
-        assert_response_success(resp)
-
-        out = get_output(resp.xml)
-        assert 'hydrograph' in out
-        tmp_file, _ = urlretrieve(out['hydrograph'])
-        nc_file = Dataset(tmp_file)
-        assert (nc_file.variables['Qsim'].shape[1] == number_donors)
-
-    def test_regionalisation_GR4J_2(self):
-        number_donors = 5
-
-        client = client_for(Service(processes=[RegionalisationProcess(), ]))
-
-        datainputs = "ts=files@xlink:href=file://{ts};" \
+    def testRegionalisationGR4J_2(self):
+         
+             number_donors=5
+        
+             client = client_for(Service(processes=[RegionalisationProcess(),]))
+    
+             datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
@@ -159,8 +182,8 @@ class TestRegionalisation:
                      "model_name={model_name};" \
                      "min_NSE={min_NSE};" \
                      "number_donors={number_donors};" \
-                     "regionalisationMethod={regionalisationMethod};" \
-            .format(ts=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
+                     "regionalisationMethod={regionalisationMethod};"\
+                    .format(ts=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -175,23 +198,30 @@ class TestRegionalisation:
                     regionalisationMethod='SP_IDW_RA',
                     )
 
-        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess',
-                          datainputs=datainputs)
+    
+         
+             resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess', datainputs=datainputs)
+         
+         
+             assert_response_success(resp)
+         
+         
+             out = get_output(resp.xml)
+             assert 'hydrograph' in out
+             tmp_file, _ = urlretrieve(out['hydrograph'])
+             nc_file=Dataset(tmp_file)
+             assert(nc_file.variables['Qsim'].shape[1]==number_donors)
+                          
+             
+    def testRegionalisationMOHYSE_1(self):
+         
+             number_donors=1
+        
+        
 
-        assert_response_success(resp)
-
-        out = get_output(resp.xml)
-        assert 'hydrograph' in out
-        tmp_file, _ = urlretrieve(out['hydrograph'])
-        nc_file = Dataset(tmp_file)
-        assert (nc_file.variables['Qsim'].shape[1] == number_donors)
-
-    def test_regionalisation_MOHYSE_1(self):
-        number_donors = 1
-
-        client = client_for(Service(processes=[RegionalisationProcess(), ]))
-
-        datainputs = "ts=files@xlink:href=file://{ts};" \
+             client = client_for(Service(processes=[RegionalisationProcess(),]))
+    
+             datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
@@ -202,8 +232,8 @@ class TestRegionalisation:
                      "model_name={model_name};" \
                      "min_NSE={min_NSE};" \
                      "number_donors={number_donors};" \
-                     "regionalisationMethod={regionalisationMethod};" \
-            .format(ts=TESTDATA['raven-mohyse-nc-ts'],
+                     "regionalisationMethod={regionalisationMethod};"\
+                    .format(ts=TESTDATA['raven-mohyse-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -218,23 +248,28 @@ class TestRegionalisation:
                     regionalisationMethod='SP',
                     )
 
-        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess',
-                          datainputs=datainputs)
+         
+             resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess', datainputs=datainputs)
+         
+         
+             assert_response_success(resp)
+         
+         
+             out = get_output(resp.xml)
+             assert 'hydrograph' in out
+             tmp_file, _ = urlretrieve(out['hydrograph'])
+             nc_file=Dataset(tmp_file)
+             assert(nc_file.variables['Qsim'].shape[1]==number_donors)
+             
+        
 
-        assert_response_success(resp)
-
-        out = get_output(resp.xml)
-        assert 'hydrograph' in out
-        tmp_file, _ = urlretrieve(out['hydrograph'])
-        nc_file = Dataset(tmp_file)
-        assert (nc_file.variables['Qsim'].shape[1] == number_donors)
-
-    def test_regionalisation_MOHYSE2_2(self):
-        number_donors = 5
-
-        client = client_for(Service(processes=[RegionalisationProcess(), ]))
-
-        datainputs = "ts=files@xlink:href=file://{ts};" \
+    def testRegionalisationMOHYSE2_2(self):
+         
+             number_donors=5
+         
+             client = client_for(Service(processes=[RegionalisationProcess(),]))
+    
+             datainputs = "ts=files@xlink:href=file://{ts};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
@@ -245,8 +280,8 @@ class TestRegionalisation:
                      "model_name={model_name};" \
                      "min_NSE={min_NSE};" \
                      "number_donors={number_donors};" \
-                     "regionalisationMethod={regionalisationMethod};" \
-            .format(ts=TESTDATA['raven-mohyse-nc-ts'],
+                     "regionalisationMethod={regionalisationMethod};"\
+                    .format(ts=TESTDATA['raven-mohyse-nc-ts'],
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -261,13 +296,17 @@ class TestRegionalisation:
                     regionalisationMethod='PS',
                     )
 
-        resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess',
-                          datainputs=datainputs)
-
-        assert_response_success(resp)
-
-        out = get_output(resp.xml)
-        assert 'hydrograph' in out
-        tmp_file, _ = urlretrieve(out['hydrograph'])
-        nc_file = Dataset(tmp_file)
-        assert (nc_file.variables['Qsim'].shape[1] == number_donors)
+    
+         
+             resp = client.get(service='WPS', request='execute', version='1.0.0', identifier='RegionalisationProcess', datainputs=datainputs)
+         
+         
+             assert_response_success(resp)
+         
+         
+             out = get_output(resp.xml)
+             assert 'hydrograph' in out
+             tmp_file, _ = urlretrieve(out['hydrograph'])
+             nc_file=Dataset(tmp_file)
+             assert(nc_file.variables['Qsim'].shape[1]==number_donors)
+    
