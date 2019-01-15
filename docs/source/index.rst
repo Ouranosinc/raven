@@ -8,6 +8,7 @@
    configuration
    processes
    changes
+   developer
 
 Indices and tables
 ==================
