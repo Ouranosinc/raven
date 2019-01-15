@@ -1,9 +1,7 @@
-
 """
-regionalization_tools.py
-
-Provide various tools for hydrological regionalization.
+Tools for hydrological regionalization
 """
+
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -158,7 +156,7 @@ def haversine(lon1, lat1, lon2, lat2):
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+    a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2
 
     c = 2 * np.arcsin(np.sqrt(a))
     km = 6367 * c
@@ -254,7 +252,7 @@ def get_ungauged_properties(latitude, longitude):
     dict
       Catchment properties: area, mean elevation, centroid latitude and longitude, average slope, ...
     """
-    
+
     # Read the netCDF file
     # nc_file = Dataset(inputs_file[0], 'r')
 
@@ -290,7 +288,7 @@ def IDW(qsims, dist):
     DataArray
       Inverse distance weighted average of ensemble.
     """
-    
+
     # In IDW, weights are 1 / distance
     weights = xr.DataArray(1.0 / dist, dims='ens')
 
@@ -336,5 +334,3 @@ def multiple_linear_regression(source, params, target):
     r2 = [r.rsquared_adj for r in regression]
 
     return mlr_parameters, r2
-
-

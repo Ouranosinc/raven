@@ -96,7 +96,7 @@ class TestGR4JCemaneige:
 
     def test_run(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-        model = GR4JCemaneige()
+        model = GR4JCN()
         model(ts,
               start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2002, 1, 1),
@@ -106,6 +106,30 @@ class TestGR4JCemaneige:
               longitude=-123.3659,
               params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
               )
+        d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
+
+    def test_overwrite(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        model = GR4JCN()
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+              )
+
+        qsim1 = model.hydrograph
+
+        model(ts, params=(0.528, -3.4, 407.3, 1.07, 17, .95), overwrite=True)
+
+        qsim2 = model.hydrograph
+
+        np.testing.assert_almost_equal(qsim1.q_sim.mean(), qsim2.q_sim.mean(), 1)
+
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
 

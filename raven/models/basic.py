@@ -192,11 +192,14 @@ class Raven:
            output/
 
         """
-        if overwrite:
-            os.removedirs(self.output_path)
-            os.removedirs(self.model_path)
-        elif self.output_path.exists():
-            raise IOError("Directory already exists. Either set overwrite to `True` or create a new model instance.")
+        import shutil
+
+        if self.output_path.exists():
+            if overwrite:
+                shutil.rmtree(str(self.workdir))
+            else:
+                raise IOError(
+                    "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
         os.makedirs(str(self.output_path))

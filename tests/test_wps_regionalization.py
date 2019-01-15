@@ -41,11 +41,11 @@ class TestRegionalisation:
         inp = inputs.copy()
         inp['ts'] = TESTDATA['raven-hmets-nc-ts']
         inp['model_name'] = 'HMETS'
-        inp['ndonors'] = 4
-        inp['method'] = 'MLR'
+        inp['ndonors'] = 2
+        inp['method'] = 'SP'
 
         resp = client.get(service='WPS', request='execute', version='1.0.0',
-                          identifier='RegionalisationProcess',
+                          identifier='regionalisation',
                           datainputs=datainputs.format(**inp))
 
         assert_response_success(resp)
@@ -55,7 +55,7 @@ class TestRegionalisation:
         ensemble, _ = urlretrieve(out['ensemble'])
 
         with xr.open_dataset(hydrograph) as ds:
-            assert 'Qsim' in ds
+            assert 'q_sim' in ds
 
         with xr.open_dataset(ensemble) as ds:
-            assert 'ens' in ds.Qsim.dims
+            assert 'ens' in ds.q_sim.dims
