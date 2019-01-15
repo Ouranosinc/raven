@@ -1,6 +1,6 @@
 import pytest
 from . common import TESTDATA
-from raven.models import Raven, GR4JCemaneige, RVI, RV
+from raven.models import Raven, GR4JCN, RVI, RV
 import tempfile
 import datetime as dt
 import numpy as np
@@ -46,7 +46,7 @@ class TestGR4JCemaneige:
     def test_simple(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 
-        model = GR4JCemaneige(tempfile.mkdtemp())
+        model = GR4JCN(tempfile.mkdtemp())
 
         model.rvi.start_date = dt.datetime(2000, 1, 1)
         model.rvi.end_date = dt.datetime(2002, 1, 1)
@@ -70,17 +70,17 @@ class TestGR4JCemaneige:
         assert 'q_sim' in hds.data_vars
 
     def test_tags(self):
-        model = GR4JCemaneige(tempfile.mkdtemp())
+        model = GR4JCN(tempfile.mkdtemp())
 
         tags = model.tags
         assert 'run_name' in tags['rvi']
 
     def test_rvobjs(self):
-        model = GR4JCemaneige(tempfile.mkdtemp())
+        model = GR4JCN(tempfile.mkdtemp())
         a = model.rvobjs
         assert a
 
     def test_assign(self):
-        model = GR4JCemaneige(tempfile.mkdtemp())
+        model = GR4JCN(tempfile.mkdtemp())
         model.assign('run_name', 'test')
         assert model.rvi.run_name == 'test'

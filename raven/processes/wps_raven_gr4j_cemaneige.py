@@ -1,5 +1,5 @@
 from .wps_raven import RavenProcess
-from raven.models import GR4JCemaneige
+from raven.models import GR4JCN
 from . import wpsio as wio
 import logging
 from collections import OrderedDict as Odict
@@ -16,12 +16,12 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = GR4JCemaneige.RVP.params(GR4J_X1=0.529,
-                                           GR4J_X2=-3.396,
-                                           GR4J_X3=407.29,
-                                           GR4J_X4=1.072,
-                                           CEMANEIGE_X1=16.9,
-                                           CEMANEIGE_X2=0.947)
+params_defaults = GR4JCN.RVP.params(GR4J_X1=0.529,
+                                    GR4J_X2=-3.396,
+                                    GR4J_X3=407.29,
+                                    GR4J_X4=1.072,
+                                    CEMANEIGE_X1=16.9,
+                                    CEMANEIGE_X2=0.947)
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(params_defaults._fields),
@@ -45,8 +45,8 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
     abstract = 'Raven GR4J + CEMANEIGE hydrological model'
     title = ''
     version = ''
-    model_cls = GR4JCemaneige
-    tuple_inputs = {'params': GR4JCemaneige.RVP.params}
+    model_cls = GR4JCN
+    tuple_inputs = {'params': GR4JCN.RVP.params}
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

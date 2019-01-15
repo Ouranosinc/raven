@@ -123,28 +123,11 @@ elevation = LiteralInput('elevation', 'Elevation (m)',
                          min_occurs=1)
 
 model_name = LiteralInput('model_name', 'Hydrological model identifier',
-                         abstract="Hydrological model indetifier: {HMETS, GR4JCN, MOHYSE}",
+                         abstract="Hydrological model identifier: {HMETS, GR4JCN, MOHYSE}",
                          data_type='string',
-                         default='HMETS',
-                         min_occurs=0)
+                         allowed_values=('HMETS', 'GR4JCN', 'MOHYSE'),
+                         min_occurs=1)
 
-regionalisationMethod = LiteralInput('regionalisationMethod','String of desired regionalisation method',
-                         abstract="regionalisation method to use (SEE DOC FOR LIST OF METHODS):{MLR,SP,PS,SP_IDW,PS_IDW,SP_IDW_RA,PS_IDW_RA}",
-                         data_type='string',
-                         default='SP_IDW',
-                         min_occurs=0)
-
-number_donors = LiteralInput('number_donors','Number of parameter donors to use',
-                         abstract="Number of closest or most similar catchments to use to generate the average hydrograph at ungauged site",
-                         data_type='integer',
-                         default=5,
-                         min_occurs=0)
-
-min_NSE = LiteralInput('min_NSE','NSE Score (unitless)',
-                         abstract="Minimum calibration NSE value required to be considered as a donor",
-                         data_type='float',
-                         default=0.6,
-                         min_occurs=0)
 
 # --- #
 
@@ -158,6 +141,19 @@ hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                                     'specified, they will be output adjacent to the corresponding modelled  '
                                     'hydrograph. ',
                            as_reference=True)
+
+# TODO: adjust abstract
+ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (mm)',
+                           supported_formats=[FORMATS.NETCDF],
+                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
+                                    'specified as `gauged` in the .rvh file. It reports period-ending time-'
+                                    'averaged flows for the preceding time step, as is consistent with most '
+                                    'measured stream gauge data (again, the initial flow conditions at the '
+                                    'start of the first time step are included). If observed hydrographs are '
+                                    'specified, they will be output adjacent to the corresponding modelled  '
+                                    'hydrograph. ',
+                           as_reference=True)
+
 
 storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
                         abstract='A netCDF file describing the total storage of water (in mm) in all water '

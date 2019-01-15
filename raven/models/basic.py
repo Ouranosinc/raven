@@ -369,7 +369,7 @@ class Raven:
         return (fn.stem, fn.suffix[1:])
 
 
-class GR4JCemaneige(Raven):
+class GR4JCN(Raven):
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
     class RVP(RV):
@@ -405,7 +405,7 @@ class MOHYSE(Raven):
         self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
 
 
-class HMETS(GR4JCemaneige):
+class HMETS(GR4JCN):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
     class RVP(RV):
@@ -431,7 +431,7 @@ class HMETS(GR4JCemaneige):
         self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
 
 
-class HBVEC(GR4JCemaneige):
+class HBVEC(GR4JCN):
     templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
 
     class RVP(RV):
