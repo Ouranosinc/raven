@@ -1,60 +1,8 @@
-
-"""
-entrypoint_regionalization.py
-
-INPUTS:
-    hydrological_model -- The hydrological model to use, limited as of now to:
-                          'HMETS', 'MOHYSE', 'GR4J'.
-    inputs_file -- Ungauged catchment inputs file containing the following fields:
-        rain (extracted from boundaries beforehand)
-        snow (extracted from boundaries beforehand)
-        tasmax (extracted from boundaries beforehand)
-        tasmin (extracted from boundaries beforehand)
-        surface_area (extracted from GIS beforehand)
-        day of year (extracted from dataset used for meteo)
-        dates (extracted from dataset used for meteo)
-        latitude (centroid, extracted from GIS beforehand)
-        longitude (centroid, extracted from GIS beforehand)
-        land cover fractions (determined by GIS tools beforehand)
-        avg slope (determined by GIS beforehand)
-        avg elevation (determined by GIS beforehand)
-
-    regionalization_method -- An integer with the value-argument pairs:
-        1- Multiple Linear Regression (MLR)
-        2- Spatial Proximity (SP)
-        3- Spatial Proximity with Inverse Distance Weighting (IDW) of
-           donor basins (SP_IDW)
-        4- Spatial Proximity with IDW and regression-based augmentation (RA)
-            (SP_IDW_RA)
-        5- Physical Similarity (PS)
-        6- Physical Similarity with IDW of donor basins (PS_IDW)
-        7- Physical Similarity with IDW and RA (PS_IDW_RA)
-
-    number_donors -- A positive integer from [1:10] that allows averaging the
-        hydrographs of number_donors donors. For example, a value of 5
-        indicates that we take the average hydrograph of the 5 closest or most
-        similar donors. No impact when used for MLR. IDW computes the average 
-        using inverse weighting.
-
-    min_NSE -- The minimum calibration NSE required for a donor catchment to be
-        considered. If the closest or most similar catchment has an NSE below
-        the min_NSE, then it is skipped and the next closest/similar catchment
-        is selected.
-
-OUTPUT:
-    This function returns two arrays. Qsim = [n_days x number_donors] 
-    in which the columns are the individual hydrographs used to produce the 
-    averaged hydrograph, in order of closest to farthest (or most to least similar)
-    The second is "best_estimate", which is the average (or IDW average) of the 
-    Qsim hydrographs.
-"""
-
-
 from . import wpsio as wio
 import logging
 from pywps import Process, LiteralInput
 from pathlib import Path
-from . regionalization_tools import regionalization
+from raven.utilities import regionalize
 from .wps_raven import RavenProcess
 LOGGER = logging.getLogger("PYWPS")
 
@@ -141,7 +89,7 @@ class RegionalisationProcess(RavenProcess):
         for key in keys:
             kwds[key] = request.inputs[key][0].data
 
-        qsim, ensemble = regionalization(method, model_name,
+        qsim, ensemble = regionalize(method, model_name,
                                          latitude=latitude, longitude=longitude,
                                          size=ndonors,
                                          min_NSE=min_NSE,

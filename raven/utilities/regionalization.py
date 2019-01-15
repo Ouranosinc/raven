@@ -8,7 +8,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 #import statsmodels.api as sm
-from netCDF4 import Dataset
 import xarray as xr
 from raven.models import get_model
 
@@ -17,8 +16,8 @@ LOGGER = logging.getLogger("PYWPS")
 DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
 
 
-def regionalization(method, model, latitude, longitude, size=5, min_NSE=0.6, properties=None, **kwds):
-    """Perform regionalization.
+def regionalize(method, model, latitude, longitude, size=5, min_NSE=0.6, properties=None, **kwds):
+    """Perform regionalization for catchment whose outlet is defined by coordinates.
 
     Parameters
     ----------
@@ -46,11 +45,12 @@ def regionalization(method, model, latitude, longitude, size=5, min_NSE=0.6, pro
     # TODO: Include list of available properties in docstring.
 
     # Get the ungauged catchment properties from the inputs_file for the regionalization scheme.
-    ungauged_properties = get_ungauged_properties(latitude, longitude)
-    kwds.update(ungauged_properties)
+    props = get_ungauged_properties(latitude, longitude)
+    kwds.update(props)
+    ungauged_properties = pd.DataFrame(props, index=['target'])
 
     if properties is None:
-        properties = tuple(ungauged_properties.keys())
+        properties = tuple(props.keys())
     else:
         ungauged_properties = ungauged_properties[properties]
 
