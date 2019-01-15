@@ -5,6 +5,7 @@ psutil
 numpy
 scipy
 xarray
+dask
 netCDF4
 dask
 toolz
