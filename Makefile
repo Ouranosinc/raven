@@ -79,6 +79,7 @@ bootstrap_dev:
 .PHONY: raven_dev
 raven_dev:
 	@echo "Downloading RAVEN hydrological framework ..."
+	@test -d src || mkdir src
 	@test -f $(CURDIR)/src/RAVEN.zip || curl $(RAVEN_URL) --output "$(CURDIR)/src/RAVEN.zip"
 	@echo "Unzipping RAVEN ..."
 	@test -d $(RAVEN_SRC) || unzip -j $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
