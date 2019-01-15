@@ -149,7 +149,7 @@ class RVI(RV):
             raise ValueError("Must be datetime")
 
         if x != dt.datetime(1, 1, 1):
-            self._update_end_date()
+            self._update_duration()
 
     @property
     def end_date(self):
