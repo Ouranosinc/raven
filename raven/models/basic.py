@@ -20,9 +20,8 @@ import datetime as dt
 import six
 import xarray as xr
 from .rv import RV, RVI
-
-# import numpy as np
-# import pdb
+import numpy as np
+import pdb
 
 raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
 
@@ -126,7 +125,7 @@ class Raven:
     def derived_parameters(self):
         return
 
-    def _dump_rv(self):
+    def _dump_rv(self, ts):
         """Write configuration files to disk."""
 
         # Merge all parameter dictionaries
@@ -154,11 +153,11 @@ class Raven:
            output/
 
         """
-
+        
         # Create subdirectory
         os.makedirs(self.output_path, exist_ok=overwrite)
         os.makedirs(self.model_path, exist_ok=overwrite)
-
+        
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
         self.rvt.update(files, force=True)
@@ -179,16 +178,16 @@ class Raven:
                 if e.errno == errno.EEXIST:
                     os.remove(self.model_path / Path(fn).name)
                     os.symlink(fn, self.model_path / Path(fn).name)
-
+                    
         # Create symbolic link to executable        
         try:
             os.symlink(raven_exec, self.cmd)
         except OSError as e:
             if e.errno == errno.EEXIST:
-                os.remove(self.cmd)
-                os.symlink(raven_exec, self.cmd)
+               os.remove(self.cmd)
+               os.symlink(raven_exec, self.cmd)
 
-    #        os.symlink(raven_exec, self.cmd)
+#        os.symlink(raven_exec, self.cmd)
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -209,7 +208,7 @@ class Raven:
         Example
         -------
         >>> r = Raven('/tmp/test')
-        >>> r.configure(rvi='/path/to/tenmplate', rvp=...}
+        >>> r.configure(rvi=<path to template>, rvp=...}
         >>> r.run(rvp={'param1': val1, ...}, rcv={...})
         """
         # Update parameter objects
@@ -219,12 +218,12 @@ class Raven:
                 obj.update(val)
             else:
                 obj.values = val
-
+        
         if self.rvi:
             self.handle_date_defaults(ts)
 
         self.setup_model(tuple(map(Path, ts)), overwrite)
-
+        
         # Run the model
         subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
 
@@ -264,7 +263,7 @@ class Raven:
                                 files[var] = fn
                                 var_names[var + '_var'] = alt_name
                                 break
-
+        
         for var in variables:
             if var not in files.keys():
                 raise ValueError("{} not found in files.".format(var))
@@ -396,7 +395,7 @@ class MOHYSE(Raven):
     class RVH(RV):
         hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
 
-    rvp = RVP(params=RVP.params(*((None,) * 8)))
+    rvp = RVP(params=RVP.params(*((None, ) * 8)))
     rvh = RVH(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=RVH.hrus(None, None))
     rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()

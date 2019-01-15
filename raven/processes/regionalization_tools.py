@@ -1,3 +1,4 @@
+
 """
 regionalization_tools.py
 
@@ -10,8 +11,8 @@ import statsmodels.api as sm
 from netCDF4 import Dataset
 
 import logging
-
 LOGGER = logging.getLogger("PYWPS")
+
 
 
 def get_array_of_gauged_properties(hydrological_model):
@@ -24,26 +25,23 @@ def get_array_of_gauged_properties(hydrological_model):
     This function return an array of gauged catchments properties as well as
     model NSE and optimal parameters of the hydrological model.
     """
-
+    
     # Load general gauged catchment properties and create dataframe df.
-    gauged_properties = pd.read_csv(
-        Path(__file__).parent.parent.parent / 'tests/testdata/regionalisation_data/gauged_catchment_properties.csv',
-        dtype=float)
-    types_dict = {'NAME': str, 'STATE': str, 'COUNTRY': str}
+    gauged_properties=pd.read_csv(Path(__file__).parent.parent.parent / 'tests/testdata/regionalisation_data/gauged_catchment_properties.csv',dtype=float)
+    types_dict = {'NAME':str, 'STATE':str, 'COUNTRY':str}
     for col, col_type in types_dict.items():
-        gauged_properties[col] = gauged_properties[col].astype(col_type)
+       gauged_properties[col] = gauged_properties[col].astype(col_type)
 
-    gauged_properties = gauged_properties.drop('ID', 1)
-    gauged_properties = gauged_properties.drop('NAME', 1)
-    gauged_properties = gauged_properties.drop('STATE', 1)
-    gauged_properties = gauged_properties.drop('COUNTRY', 1)
-
+    gauged_properties=gauged_properties.drop('ID', 1)
+    gauged_properties=gauged_properties.drop('NAME', 1)
+    gauged_properties=gauged_properties.drop('STATE', 1)
+    gauged_properties=gauged_properties.drop('COUNTRY', 1)
+    
     # Get data for the hydrological_model
-    filepath = str(Path(
-        __file__).parent.parent.parent) + '/tests/testdata/regionalisation_data/' + hydrological_model + '_parameters.csv'
-    model_parameters = pd.read_csv(filepath, dtype=float)
-    model_parameters = model_parameters.drop('ID', 1)
-
+    filepath= str(Path(__file__).parent.parent.parent) + '/tests/testdata/regionalisation_data/'+ hydrological_model + '_parameters.csv'
+    model_parameters=pd.read_csv(filepath,dtype=float)
+    model_parameters=model_parameters.drop('ID', 1)
+    
     # Make sure that the matrices are the same length, else raise error.
     if np.size(gauged_properties, 0) != np.size(model_parameters, 0):
         raise ValueError("gauged_properties and model_parameters for \
@@ -66,7 +64,7 @@ def filter_array_by_NSE(gauged_properties, model_parameters, min_NSE):
     Function to filter the arrays of gauged catchments properties and model
     parameters according to minimum NSE required by the user.
     """
-
+    
     gauged_properties_filtered = \
         gauged_properties.loc[model_parameters['NASH'] >= min_NSE]
     model_parameters_filtered = \
@@ -98,28 +96,30 @@ def rank_donor_catchments(ungauged_properties,
 
     # Calculate distance between ungauged and database of gauged catchments.
     dist = np.empty([gauged_properties.shape[0], 1])
-
+ 
+    
     # For the spatial distance:
-    if rank_type == 'distance':
+    if (rank_type == 'distance'):
         # Calculate the spatial distance between the donor catchments and the
         # ungauged catchment
-
+ 
+        
         for i in range(0, gauged_properties.shape[0]):
             dist[i] = ((gauged_properties.CENTROID_LONGITUDE[i] -
-                        ungauged_properties.CENTROID_LONGITUDE) ** 2 +
+                        ungauged_properties.CENTROID_LONGITUDE)**2 +
                        (gauged_properties.CENTROID_LATITUDE[i] -
-                        ungauged_properties.CENTROID_LATITUDE) ** 2) ** 0.5
+                        ungauged_properties.CENTROID_LATITUDE)**2)**0.5
 
         # Add the physical distance to the dataframe
         gauged_properties = gauged_properties.assign(distance=dist)
 
     # For the physical similarity:
-    elif rank_type == 'similarity':
+    elif (rank_type == 'similarity'):
         # Get the values from the arrays, convert to numpy array
         similar_properties = gauged_properties[properties_to_use].values
         similar_targets = np.tile(
-            ungauged_properties[properties_to_use].values,
-            (similar_properties.shape[0], 1))
+                            ungauged_properties[properties_to_use].values,
+                            (similar_properties.shape[0], 1))
 
         # Calculate deltas in the database
         delta_max = np.amax(similar_properties, axis=0, keepdims=True)
@@ -144,7 +144,7 @@ def rank_donor_catchments(ungauged_properties,
     return gauged_properties, model_parameters
 
 
-def get_ungauged_properties(inputs_file, properties_to_use, latitude, longitude):
+def get_ungauged_properties(inputs_file, properties_to_use,latitude,longitude):
     """
     get_ungauged_properties
 
@@ -154,7 +154,7 @@ def get_ungauged_properties(inputs_file, properties_to_use, latitude, longitude)
 
     Function to get the ungauged catchment's properties from the netCDF file.
     """
-
+    
     # Read the netCDF file
     nc_file = Dataset(inputs_file[0], 'r')
 
@@ -171,7 +171,8 @@ def get_ungauged_properties(inputs_file, properties_to_use, latitude, longitude)
                          'land_urban']
     """
     # Defile the ungauged catchment properties
-    ungauged_properties = pd.DataFrame({'CENTROID_LATITUDE': [latitude], 'CENTROID_LONGITUDE': [longitude]})
+    ungauged_properties = pd.DataFrame({'CENTROID_LATITUDE':[latitude],'CENTROID_LONGITUDE':[longitude]})
+
 
     return ungauged_properties
 
@@ -187,7 +188,7 @@ def IDW(Qsim, number_donors, distance):
 
     Function to calculate and weight the Qsim by the distance factor
     """
-
+    
     # In IDW, weights are 1 / distance
     weights = 1.0 / distance[0:number_donors]
 
@@ -222,7 +223,7 @@ def MLR(ungauged_properties,
     properties_to_use_with_const.insert(0, 'const')
     X = gauged_properties[properties_to_use]
     # Add the constant 1 for the ungauged catchment predictors
-    predictors = sm.add_constant(ungauged_properties, prepend=True, has_constant='add')
+    predictors=sm.add_constant(ungauged_properties,prepend=True,has_constant='add')
 
     # Add constants to the gauged predictors
     X = sm.add_constant(X)
@@ -234,18 +235,22 @@ def MLR(ungauged_properties,
 
     # Loop each parameter
     for j in range(2, model_parameters.shape[1]):
+        
         # Define predictands and fit statistical model
         Y = model_parameters[:, j]
         regression_model = sm.OLS(Y, X).fit()
-
+        
         # Collect R-squared (adjusted) and estimated parameters for the gauged
         # catchment
         r_squared.append(regression_model.rsquared_adj)
-        tmp = regression_model.predict(exog=predictors)
+        tmp=regression_model.predict(exog=predictors)
         MLR_parameters.append(tmp[0])
 
     # Convert to arrays
-    MLR_parameters = np.array(MLR_parameters)
-    r_squared = np.array(r_squared)
-
+    MLR_parameters=np.array(MLR_parameters)
+    r_squared=np.array(r_squared)
+    
+    
     return MLR_parameters, r_squared
+
+
