@@ -173,14 +173,32 @@ def distance(gauged, ungauged):
     return pd.Series(data=haversine(lons.values, lats.values, lon.values, lat.values), index=gauged.index)
 
 
-def similarity(gauged, ungauged, columns=None):
-    """Return similarity measure between gauged and ungauged catchments."""
+def similarity(gauged, ungauged, kind='ptp'):
+    """Return similarity measure between gauged and ungauged catchments.
+
+    Parameters
+    ----------
+    gauged : DataFrame
+      Gauged catchment properties.
+    ungauged : DataFrame
+      Ungauged catchment properties
+    kind : {'ptp', 'std', 'iqr'}
+      Normalization method: peak to peak (maximum - minimum), standard deviation, interquartile range.
+
+    """
 
     stats = gauged.describe()
-    spread = stats['max'] - stats['min']
-    # spread = stats['std']
-    # spread = stats['75%'] - stats['25%']
-    return (np.abs(ungauged[columns] - gauged[columns]) / spread).sum()
+
+    if kind == 'ptp':
+        spread = stats.loc['max'] - stats.loc['min']
+    elif kind == 'std':
+        spread = stats.loc['std']
+    elif kind == 'iqr':
+        spread = stats.loc['75%'] - stats.loc['25%']
+
+    d = ungauged.values - gauged.values
+    n = np.abs(d) / spread.values
+    return pd.Series(data=n.sum(axis=1), index=gauged.index)
 
 
 def regionalization_params(method, gauged_params, gauged_properties, ungauged_properties):
@@ -212,10 +230,10 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
                 if r > 0.5:
                     gp[col] = p
 
-            out = gp.tolist()
+            out = gp.values
 
     else:
-        out = gauged_params.tolist()
+        out = gauged_params.values
 
     return out
 
@@ -314,7 +332,7 @@ def multiple_linear_regression(source, params, target):
     # Perform regression for each parameter
     regression = [sm.OLS(params[param].values, x).fit() for param in params]
 
-    mlr_parameters = [r.predict(exog=predictors) for r in regression]
+    mlr_parameters = [r.predict(exog=predictors)[0] for r in regression]
     r2 = [r.rsquared_adj for r in regression]
 
     return mlr_parameters, r2
