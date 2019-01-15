@@ -31,7 +31,7 @@ Simulation end date and duration are updated automatically when duration, start 
 """
 
 
-class RV(collections.abc.Mapping):
+class RV(collections.Mapping):
     """Generic configuration class.
 
     RV provides two mechanisms to set values, a dictionary-like interface and an object-like interface::
@@ -215,6 +215,5 @@ class RVI(RV):
 
 def isinstance_namedtuple(x):
     a = isinstance(x, tuple)
-    b = isinstance(getattr(x, '__dict__', None), collections.Mapping)
-    c = getattr(x, '_fields', None) is not None
-    return a and b and c
+    b = getattr(x, '_fields', None) is not None
+    return a and b
