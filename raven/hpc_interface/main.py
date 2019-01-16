@@ -11,7 +11,8 @@ import time
 import os
 import shutil
 import tempfile
-
+import re
+import subprocess
 #src_data_path = "./data/"
 #do_cleanup = True
 #template_dir = None
@@ -119,11 +120,36 @@ class HPCConnection(object):
             output = self.client.run_command("cp "+stdout_file+" "+ absolute_output_data_path)
             print("copy_data_from_remote: running tar")
             output = self.client.run_command("tar cf "+absolute_tar_fname+" -C "+absolute_output_data_path+" .")
-            print("copy_data_from_remote: recv")
+            time.sleep(30)  # patch since run_command sems non-blocking
+            output = self.client.run_command("du -sb " + absolute_tar_fname)
+            print(output)
+            line = ""
+            for l in output[self.hostname].stdout:
+                line += l
+            print(line)
+            tar_size = int(re.match("[0-9]*",line).group(0))
+
+
+            print("copy_data_from_remote: {} bytes".format(tar_size))
             local_tar = "/tmp/"+self.remote_working_folder + "_out.tar"
-            #g = c.scp_recv(absolute_tar_fname, path.join(absolute_local_out_dir,jobname+"_out.tar"))
-            g = self.client.copy_remote_file(absolute_tar_fname, local_tar)  #scp_recv
-            joinall(g, raise_error=True)
+           # g = self.client.scp_recv(absolute_tar_fname, local_tar)
+            print("absolute tar fname={}".format(absolute_tar_fname))
+            tries = 0
+            while tries < 3:
+                g = self.client.copy_remote_file(absolute_tar_fname, local_tar)  #scp_recv
+                joinall(g, raise_error=True)
+                print("end copy")
+                output = subprocess.check_output("du -sb "+local_tar+"_"+self.hostname, shell=True)
+                recv_tar_size = int(re.match("[0-9]*",output.decode('utf-8')).group(0))
+
+                print("received: {} bytes".format(recv_tar_size))
+                if recv_tar_size == tar_size:
+                    break
+                tries += 1
+
+            if tries==3:
+                raise Exception("Unable to copy tar file from remote end")
+
             if not os.path.exists(absolute_local_out_dir):
                 #shutil.rmtree(absolute_local_out_dir)
                 os.mkdir(absolute_local_out_dir)
