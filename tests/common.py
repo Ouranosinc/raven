@@ -19,7 +19,7 @@ xpath_ns = get_xpath_ns(VERSION)
 
 TESTS_HOME = Path(__file__).parent
 TD = TESTS_HOME / 'testdata'
-CFG_FILE = TESTS_HOME / 'test.cfg'
+CFG_FILE = [str(TESTS_HOME / 'test.cfg'), ]
 
 TESTDATA = {}
 TESTDATA['gr4j-cemaneige'] = \

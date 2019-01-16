@@ -2,7 +2,6 @@ from .wps_raven import RavenProcess
 from raven.models import GR4JCemaneige
 from . import wpsio as wio
 import logging
-from collections import OrderedDict as Odict
 from pywps import LiteralInput
 
 LOGGER = logging.getLogger("PYWPS")
