@@ -11,8 +11,10 @@ from raven.models import get_model
 
 import logging
 LOGGER = logging.getLogger("PYWPS")
-DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
 
+
+# Added directory for test data (smaller database wth only 10 donor catchments)
+DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'/ 'tests'
 
 def regionalize(method, model, nash, params=None, props=None, target_props=None, size=5,
                 min_NSE=0.6, **kwds):
@@ -42,7 +44,8 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     Returns
     -------
     (qsim, ensemble)
-
+    qsim = multi-donor averaged predicted streamflow
+    ensemble = ensemble of members based on number of donors.
 
     """
     # TODO: Include list of available properties in docstring.
@@ -58,11 +61,13 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     else:
         raise ValueError
 
+    
     # Filter on NSE
     valid = nash > min_NSE
     filtered_params = params.where(valid).dropna()
     filtered_prop = props.where(valid).dropna()
-
+    
+    
     # Check to see if we have enough data, otherwise raise error
     if len(filtered_prop) < size and method != 'MLR':
         raise ValueError("Hydrological_model and minimum NSE threshold \
@@ -82,28 +87,33 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     # Pick the donors' model parameters and catchment properties
     sparams = filtered_params.loc[sdist.index]
     sprop = filtered_prop.loc[sdist.index]
-
+    
+    
     # Get the list of parameters to run
-    reg_params = regionalization_params(method, sparams, sprop, ungauged_properties)
-
+    reg_params = regionalization_params(method, sparams, sprop, ungauged_properties,filtered_params,filtered_prop)
+  
     # Run the model over all parameters and create ensemble DataArray
     m = get_model(model)
     qsims = []
+  
     for params in reg_params:
+    
+        # GENERATES N TIMES SAME HYDROGRAPH BUT USES DIFFERENT PARAMETERS???, TRIED TO FIX BUT AM UNABLE
         kwds['params'] = params
         m.run(overwrite=True, **kwds)
         qsims.append(m.hydrograph)
-
+    
     qsims = xr.concat(qsims, 'ens')
 
     # 3. Aggregate runs into a single result
     if method in ['MLR', 'SP', 'PS']:  # Average (one realization for MLR, so no effect).
         qsim = qsims.mean(dim='ens')
-    elif 'IWD' in method:
-        qsim = IDW(qsims, dist)
+    elif 'IDW' in method:
+        qsim = IDW(qsims, sdist)
     else:
         raise ValueError('No matching algorithm for {}'.format(method))
 
+    
     return qsim, qsims
 
 
@@ -129,6 +139,7 @@ def read_gauged_params(model):
     pd.DataFrame
       Model parameters keyed by catchment ID.
     """
+
     params = pd.read_csv(DATA_DIR / '{}_parameters.csv'.format(model),
                          index_col='ID')
 
@@ -157,7 +168,7 @@ def haversine(lon1, lat1, lon2, lat2):
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2
+    a = np.sin(dlat / 2.0) ** 2 + np.cos(lat1) * np.cos(lat2) * (np.sin(dlon / 2.0) ** 2)
 
     c = 2 * np.arcsin(np.sqrt(a))
     km = 6367 * c
@@ -176,7 +187,8 @@ def distance(gauged, ungauged):
 
     """
     lon, lat = ungauged.longitude, ungauged.latitude
-    lons, lats = gauged.latitude, gauged.latitude
+    lons, lats = gauged.longitude, gauged.latitude
+    
 
     return pd.Series(data=haversine(lons.values, lats.values, lon, lat), index=gauged.index)
 
@@ -209,15 +221,24 @@ def similarity(gauged, ungauged, kind='ptp'):
     return pd.Series(data=n.sum(axis=1), index=gauged.index)
 
 
-def regionalization_params(method, gauged_params, gauged_properties, ungauged_properties):
+def regionalization_params(method, gauged_params, gauged_properties, ungauged_properties, filtered_params, filtered_prop):
     """Return the model parameters to use for the regionalization.
 
     Parameters
     ----------
     method : {'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'}
       Name of the regionalization method to use.
-
-
+    gauged_params
+      DataFrame of parameters for donor catchments (size = number of donors)
+    gauged_properties
+      DataFrame of properties of the donor catchments  (size = number of donors)
+    ungauged_properties
+      DataFrame of properties of the ungauged catchment (size = 1)
+    filtered_params --> Required for MLR
+      DataFrame of parameters of all filtered catchments (size = all catchments with NSE > min_NSE)
+    filtered_prop --> Required for MLR
+      DataFrame of properties of all filtered catchments (size = all catchments with NSE > min_NSE)
+    
     Returns
     -------
     list
@@ -225,8 +246,8 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
     """
 
     if method == 'MLR' or 'RA' in method:
-        mlr_params, r2 = multiple_linear_regression(gauged_properties, gauged_params, ungauged_properties)
-
+        mlr_params, r2 = multiple_linear_regression(filtered_prop, filtered_params, ungauged_properties.to_frame().T)
+        
         if method == 'MLR':  # Return the multiple linear regression parameters.
             out = [mlr_params, ]
 
@@ -235,14 +256,16 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
 
             for p, r, col in zip(mlr_params, r2, gauged_params):
                 # If we have an R2 > 0.5 then we consider this to be a better estimator
+             
                 if r > 0.5:
                     gp[col] = p
-
+              
             out = gp.values
-
+            
     else:
         out = gauged_params.values
-
+   
+  
     return out
 
 
@@ -305,10 +328,15 @@ def IDW(qsims, dist):
     # Make weights sum to one
     weights /= weights.sum(axis=0)
 
-    # Calculate weighted average
-    return qsims.dot(weights, dims='ens')
-
-
+    # Calculate weighted average. 
+    # I GET ERROR WITH INITIAL CODE:
+    # AttributeError: 'Dataset' object has no attribute 'dot'
+    # return qsims.dot(weights, dims='ens')
+    
+    # This seems to work but then the output is not a DataArray anymore... 
+    # IDW and non_IDW return different structures with this.
+    return qsims.q_sim.dot(weights.reset_index('ens'),dims='ens')
+    
 def multiple_linear_regression(source, params, target):
     """
     Multiple Linear Regression for model parameters over catchment properties.
@@ -333,14 +361,17 @@ def multiple_linear_regression(source, params, target):
     """
     # Add constants to the gauged predictors
     x = sm.add_constant(source)
-
+    
     # Add the constant 1 for the ungauged catchment predictors
     predictors = sm.add_constant(target, prepend=True, has_constant='add')
 
     # Perform regression for each parameter
     regression = [sm.OLS(params[param].values, x).fit() for param in params]
-
+    
+    # Perform prediction on each parameter based on the predictors    
     mlr_parameters = [r.predict(exog=predictors)[0] for r in regression]
+    
+    # Extract the adjusted r_squared value for each parameter
     r2 = [r.rsquared_adj for r in regression]
-
+        
     return mlr_parameters, r2
