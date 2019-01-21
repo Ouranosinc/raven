@@ -15,19 +15,32 @@ from pathlib import Path
 from collections import OrderedDict, namedtuple
 import os, errno
 import subprocess
+import tempfile
 import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RV, RVI
+from .rv import RV, RVI, isinstance_namedtuple
 import numpy as np
-import pdb
 
-raven_exec = Path(raven.__file__).parent.parent / 'bin' / 'raven'
+raven_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'raven')
 
 
 class Raven:
-    """Generic class for the Raven model."""
+    """RAVEN hydrological model wrapper
+
+    This class is used to run the RAVEN model from user-provided configuration files. It can also be subclassed with
+    configuration templates for emulated models, allowing direct calls to the models.
+
+    Usage
+    -----
+    >>> r = Raven('/tmp/testdir')
+    >>> r.configure()
+
+
+
+
+    """
     identifier = 'generic-raven'
     templates = ()
     rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
@@ -49,12 +62,22 @@ class Raven:
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                        }
 
-    def __init__(self, workdir):
+    def __init__(self, workdir=None):
+        """Initialize the RAVEN model.
+
+        Parameters
+        ----------
+        workdir : str, Path
+          Directory for the model configuration and outputs. If None, a temporary directory will be created.
+        """
+        workdir = workdir or tempfile.mkdtemp()
         self.workdir = Path(workdir)
         self.outputs = {}
-        self._name = None
 
+        self._name = None
         self._defaults = {}
+
+        # Configuration file extensions + rvd for derived parameters.
         self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd')
 
         # The configuration file content is stored in conf.
@@ -63,19 +86,23 @@ class Raven:
         # Model parameters - dictionary representation of rv attributes.
         self._parameters = dict.fromkeys(self._rvext, OrderedDict())
 
+        # For subclasses where the configuration file templates are known in advance.
         if self.templates:
             self.configure(self.templates)
 
     @property
     def cmd(self):
+        """RAVEN executable path."""
         return self.model_path / 'raven'
 
     @property
     def model_path(self):
+        """Path to the model executable and configuration files. """
         return self.workdir / 'model'
 
     @property
     def name(self):
+        """Name of the model configuration."""
         return self._name
 
     @name.setter
@@ -87,20 +114,22 @@ class Raven:
 
     @property
     def output_path(self):
+        """Path to the model outputs and logs."""
         return self.workdir / 'output'
 
     @property
-    def parameters(self):
+    def configuration(self):
+        """Configuration dictionaries."""
         return {ext: OrderedDict(getattr(self, ext).to_dict()) for ext in self._rvext}
 
     @property
     def rv(self):
-        """Return a dictionary of the configuration files."""
+        """Dictionary of the configuration files."""
         return {ext: self._conf[ext] for ext in self._rvext}
 
     @property
     def rvobjs(self):
-        """Return a generator for (ext, rv object)."""
+        """Generator for (ext, rv object)."""
         return {ext: getattr(self, ext) for ext in self._rvext}
 
     def configure(self, fns):
@@ -112,17 +141,27 @@ class Raven:
             if ext not in self._rvext:
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
 
-            self._conf[ext] = open(fn).read()
+            self._conf[ext] = open(str(fn)).read()
 
     def assign(self, key, value):
         """Assign parameter to rv object that has a key with the same name."""
+        assigned = False
         for ext, obj in self.rvobjs.items():
-            try:
-                obj[key] = value
-            except AttributeError:
-                pass
+            if hasattr(obj, key):
+                att = getattr(obj, key)
+                # If the object is a namedtuple, we get its class and try to instantiate it with the values passed.
+                if isinstance_namedtuple(att) and isinstance(value, (list, tuple, np.ndarray)):
+                    p = getattr(getattr(self, ext.upper()), key)(*value)
+                    setattr(obj, key, p)
+                else:
+                    setattr(obj, key, value)
+                assigned = True
+
+        if not assigned:
+            raise AttributeError("No configuration key named {}".format(key))
 
     def derived_parameters(self):
+        """Subclassed by emulators. Defines model parameters that are a function of other parameters."""
         return
 
     def _dump_rv(self, ts):
@@ -130,11 +169,11 @@ class Raven:
 
         # Merge all parameter dictionaries
         params = {}
-        for key, val in self.parameters.items():
+        for key, val in self.configuration.items():
             params.update(val)
 
         for ext, txt in self.rv.items():
-            fn = self.model_path / (self.name + '.' + ext)
+            fn = str(self.model_path / (self.name + '.' + ext))
 
             with open(fn, 'w') as f:
                 # Write parameters into template.
@@ -154,9 +193,15 @@ class Raven:
 
         """
 
+        if overwrite:
+            os.removedirs(self.output_path)
+            os.removedirs(self.model_path)
+        elif self.output_path.exists():
+            raise IOError("Directory already exists. Either set overwrite to `True` or create a new model instance.")
+
         # Create subdirectory
-        os.makedirs(self.output_path, exist_ok=overwrite)
-        os.makedirs(self.model_path, exist_ok=overwrite)
+        os.makedirs(str(self.output_path))
+        os.makedirs(str(self.model_path))
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
@@ -173,28 +218,27 @@ class Raven:
         for fn in ts:
             # Patch to catch and deal with existing files (overwrite does not work, so delete existing file first)
             try:
-                os.symlink(fn, self.model_path / Path(fn).name)
+                os.symlink(str(fn), str(self.model_path / Path(fn).name))
             except OSError as e:
                 if e.errno == errno.EEXIST:
-                    os.remove(self.model_path / Path(fn).name)
-                    os.symlink(fn, self.model_path / Path(fn).name)
+                    os.remove(str(self.model_path / Path(fn).name))
+                    os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # Create symbolic link to executable
         try:
-            os.symlink(raven_exec, self.cmd)
+            os.symlink(raven_exec, str(self.cmd))
         except OSError as e:
             if e.errno == errno.EEXIST:
-               os.remove(self.cmd)
-               os.symlink(raven_exec, self.cmd)
+               os.remove(str(self.cmd))
+               os.symlink(raven_exec, str(self.cmd))
 
-#        os.symlink(raven_exec, self.cmd)
-
+              
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
 
         Parameters
         ----------
-        ts : sequence
+        ts : path or sequence
           Sequence of input file paths. Symbolic links to those files will be created in the model directory.
         overwrite : bool
           Whether or not to overwrite existing model and output files.
@@ -209,15 +253,26 @@ class Raven:
         -------
         >>> r = Raven('/tmp/test')
         >>> r.configure(rvi=<path to template>, rvp=...)
-        >>> r.run(rvp={'param1': val1, ...}, rcv={...})
+        >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
+
         """
+        if isinstance(ts, (six.string_types, Path)):
+            ts = [ts, ]
+
         # Update parameter objects
         for key, val in kwds.items():
-            obj = getattr(self, key)
-            if isinstance(val, dict):
-                obj.update(val)
+
+            if key in self._rvext:
+                obj = getattr(self, key)
+                if isinstance(val, dict):
+                    obj.update(val)
+                elif isinstance(val, RV):
+                    setattr(self, key, val)
+                else:
+                    raise ValueError("A dictionary or an RV instance is expected to update the values "
+                                     "for {}.".format(key))
             else:
-                obj.values = val
+                self.assign(key, val)
 
         if self.rvi:
             self.handle_date_defaults(ts)
@@ -284,7 +339,7 @@ class Raven:
         if len(files) > 1:
             raise IOError("Multiple matching files found for {}.".format(fn))
 
-        return files[0].absolute()
+        return str(files[0].absolute())
 
     @staticmethod
     def start_end_date(fns):
@@ -302,10 +357,8 @@ class Raven:
         end : datetime
           The last datetime of the forcing files.
         """
-        try:
-            ds = xr.open_mfdataset(fns)
-        except OSError:
-            raise NotImplementedError
+
+        ds = xr.open_mfdataset(fns)
         return ds.indexes['time'][0], ds.indexes['time'][-1]
 
     def handle_date_defaults(self, ts):

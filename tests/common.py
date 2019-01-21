@@ -21,7 +21,7 @@ xpath_ns = get_xpath_ns(VERSION)
 # TODO: pathlib is python3 only and this seems to be the only call from it.
 TESTS_HOME = Path(__file__).parent
 TD = TESTS_HOME / 'testdata'
-CFG_FILE = TESTS_HOME / 'test.cfg'
+CFG_FILE = [str(TESTS_HOME / 'test.cfg'), ]
 
 TESTDATA = {}
 TESTDATA['gr4j-cemaneige'] = \
