@@ -10,7 +10,7 @@ def test_regionalization():
     props = reg.read_gauged_properties()[variables]
     ungauged_props = {'longitude': .7, 'latitude': .7}
 
-    qsim, ensemble = reg.regionalize('SP_IDW', model, nash, params,
+    qsim, ens, par = reg.regionalize('SP_IDW', model, nash, params,
                                      props, ungauged_props,
                                      start_date=dt.datetime(2000, 1, 1),
                                      end_date=dt.datetime(2002, 1, 1),
@@ -25,4 +25,6 @@ def test_regionalization():
                                      ts=TESTDATA['raven-hmets-nc-ts'])
 
     assert(qsim.max() > 1)
-    assert(len(ensemble) == 2)
+    assert(len(ens) == 2)
+    assert 'realization' in ens.dims
+    assert 'param' in par.dims

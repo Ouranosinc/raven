@@ -8,7 +8,7 @@ import pandas as pd
 import statsmodels.api as sm
 import xarray as xr
 from raven.models import get_model
-
+from . import coords
 import logging
 LOGGER = logging.getLogger("PYWPS")
 
@@ -44,10 +44,13 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
 
     Returns
     -------
-    (qsim, ensemble)
-    qsim = multi-donor averaged predicted streamflow
-    ensemble = ensemble of members based on number of donors.
-
+    (qsim, ensemble, params)
+    qsim : DataArray (time, )
+      Multi-donor averaged predicted streamflow.
+    ensemble : DataArray  (realization, time)
+      Ensemble of members based on number of donors.
+    param : DataArray (realization, param)
+      Parameters used to run the model.
     """
     # TODO: Include list of available properties in docstring.
     # TODO: Add error checking for source, target stuff wrt method chosen.
@@ -61,6 +64,9 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
         ungauged_properties = target_props.to_series()
     else:
         raise ValueError
+
+    cr = coords.realization(size)
+    cp = coords.param(model)
 
     # Filter on NSE
     valid = nash > min_NSE
@@ -99,20 +105,25 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
         m.run(overwrite=True, **kwds)
         qsims.append(m.hydrograph)
 
-    qsims = xr.concat(qsims, 'ens')
-
-    # TODO: Add `ens` dimension. Check CF-Conventions.
-    # ens = xr.Coordinate('ens', range(len(reg_params)),
+    qsims = xr.concat(qsims, dim=cr)
 
     # 3. Aggregate runs into a single result -> dataset
     if method in ['MLR', 'SP', 'PS']:  # Average (one realization for MLR, so no effect).
-        qsim = qsims.mean(dim='ens', keep_attrs=True)
+        qsim = qsims.mean(dim='realization', keep_attrs=True)
     elif 'IDW' in method:  # Here we are replacing the mean by the IDW average, keeping attributes and dimensions.
         qsim = IDW(qsims, sdist)
     else:
         raise ValueError('No matching algorithm for {}'.format(method))
 
-    return qsim, qsims
+    # Create a DataArray for the parameters used in the regionalization
+    param_da = xr.DataArray(reg_params,
+                            dims=('realization', 'param'),
+                            coords={'param': cp, 'realization': cr},
+                            attrs={'long_name': 'Model parameters used in the regionalization.'})
+
+    # TODO: Bundle these variables into an xr.Dataset ?
+    # TODO: Add global attributes (model name, date, version, etc)
+    return qsim, qsims, param_da
 
 
 def read_gauged_properties():
@@ -304,7 +315,7 @@ def IDW(qsims, dist):
     Parameters
     ----------
     qsims : DataArray
-      Ensemble of hydrogram stacked along the `ens` dimension.
+      Ensemble of hydrogram stacked along the `realization` dimension.
     dist : pd.Series
       Distance from catchment which generated each hydrogram to target catchment.
 
@@ -315,13 +326,13 @@ def IDW(qsims, dist):
     """
 
     # In IDW, weights are 1 / distance
-    weights = xr.DataArray(1.0 / dist, dims='ens')
+    weights = xr.DataArray(1.0 / dist, dims='realization', coords={'realization': qsims.realization})
 
     # Make weights sum to one
     weights /= weights.sum(axis=0)
 
     # Calculate weighted average.
-    return qsims.dot(weights.reset_index('ens'), dims='ens')
+    return qsims.dot(weights)
 
 
 def multiple_linear_regression(source, params, target):
