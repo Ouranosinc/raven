@@ -1,8 +1,5 @@
-import os
 from pywps import Process
-import subprocess
 from raven.models import Raven
-from . import ravenio
 from . import wpsio as wio
 import logging
 from pathlib import Path
@@ -43,31 +40,40 @@ class RavenProcess(Process):
 
         # Model configuration
         if 'conf' in request.inputs:
-            config = self.get_config(request)
+            conf = request.inputs.pop('conf')
+            config = self.get_config(conf)
             model.configure(config.values())
+
+        # Input data files
+        ts = [f.file for f in request.inputs.pop('ts')]
 
         # Parse all other input parameters
         for name, obj in request.inputs.items():
+
+            # Namedtuples
             if name in self.tuple_inputs:
                 arr = map(float, obj[0].data.split(','))
                 data = self.tuple_inputs[name](*arr)
+
+            # Other parameters
             else:
                 data = obj[0].data
+
             model.assign(name, data)
 
         # Launch model with input files
-        ts = [f.file for f in request.inputs['ts']]
         model.run(ts=ts)
 
         for key, val in model.outputs.items():
-            response.outputs[key].file = val
+            response.outputs[key].file = str(val)
 
         return response
 
-    def get_config(self, request):
-        # Read configuration files
+    @staticmethod
+    def get_config(conf):
+        """Return a dictionary storing the configuration files content."""
         config = defaultdict(dict)
-        for obj in request.inputs['conf']:
+        for obj in conf:
             fn = Path(obj.file)
             config[fn.stem][fn.suffix[1:]] = fn
 
@@ -75,26 +81,3 @@ class RavenProcess(Process):
             raise NotImplementedError("Multi-model simulations are not yet supported.")
 
         return config[fn.stem]
-
-    def _match_outputs(self, expected):
-        """Match actual output files to known expected files.
-
-        Return a dictionary of file paths for each expected input.
-        """
-        import glob
-
-        out = {}
-        out_dir = os.path.join(self.workdir, 'output')
-        files = glob.glob(os.path.join(out_dir, '*'))
-
-        # Assign the response outputs to the full names
-        for name in expected:
-            fn = ravenio.output_filenames[name]
-            for f in files:
-                if fn in f:
-                    out[name] = os.path.join(out_dir, f)
-
-            if name not in out:
-                raise ValueError("No file named {} was found in output directory.".format(fn))
-
-        return out

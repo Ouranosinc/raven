@@ -12,7 +12,7 @@ def parse_configuration(fn):
     # sub_param = re.compile(r"^  :(\w+)\s+([^#]*)")
     out = OrderedDict()
     # cat = None
-    with open(fn) as f:
+    with open(str(fn)) as f:
         for line in f.readlines():
             match = main_param.search(line)
             if not match:

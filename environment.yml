@@ -10,6 +10,7 @@ dependencies:
 - click
 - psutil
 - xarray
+- dask
 - pandas
 - netcdf4
 - libnetcdf

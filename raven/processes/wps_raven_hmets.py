@@ -1,4 +1,3 @@
-from collections import OrderedDict as Odict
 from raven.processes import RavenProcess
 from pywps import LiteralInput
 from raven.models import HMETS

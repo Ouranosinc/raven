@@ -4,8 +4,10 @@ import xarray as xr
 
 from raven import models
 from .common import TESTDATA
+import pytest
 
 
+@pytest.mark.skip
 class TestGR4JCemaneige():
 
     def test_simple(self):
