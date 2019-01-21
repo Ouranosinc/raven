@@ -28,7 +28,7 @@ class ZonalStatisticsProcess(Process):
             ComplexInput('shape', 'Vector Shape',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, GeoJSON, or any other file in a'
                                   ' standard vector format. The ESRI Shapefile must be zipped and contain the .shp,'
-                                  ' .shx, and .dbf. The shape CRS definition should also match the DEM CRS.',
+                                  ' .shx, and .dbf. The shape and raster should have a matching CRS.',
                          min_occurs=1, supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             ComplexInput('raster', 'Gridded Raster Data set',
                          abstract='An URL pointing at the DEM to be queried. Defaults to the USGS HydroSHEDS DEM.',
@@ -38,7 +38,7 @@ class ZonalStatisticsProcess(Process):
                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from'
                                        ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
-                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF])]
+                         min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF])]
 
         outputs = [
             ComplexOutput('properties', 'DEM properties within the region defined by `shape`.',
@@ -99,6 +99,8 @@ class ZonalStatisticsProcess(Process):
         if not raster_file:
             raster_file = raster_url
 
+        properties = []
+
         try:
             stats = zonal_stats(
                 vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
@@ -115,7 +117,8 @@ class ZonalStatisticsProcess(Process):
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics: {}'.format(e)
-            raise Exception(msg)
+            LOGGER.error(msg)
+            response.outputs['properties'].file = json.dumps(properties)
 
         return response
 
