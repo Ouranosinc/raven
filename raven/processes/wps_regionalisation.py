@@ -10,8 +10,11 @@ LOGGER = logging.getLogger("PYWPS")
 # TODO: latitude and longitude have a different meaning here if we're using them to get the catchment properties.
 #  Normally for other WPS Raven processes, they refer to the centroid, here they'd refer to the outlet, correct ?
 #  ANSWER: No, we're still talking about the centroid! basically the closer the center of mass of the catchment, the
-#          more likely the catchments will be physically and hydrologically similar, according to the philosophy 
+#          more likely the catchments will be physically and hydrologically similar, according to the philosophy
 #          behind the method.
+# But I mean in this process, aren't we passing lat, lon to extract properties for a new watershed? And then we'll
+# extract the centroid lat and lon for the analysis.
+
 
 class RegionalisationProcess(RavenProcess):
     """
@@ -33,21 +36,21 @@ class RegionalisationProcess(RavenProcess):
             The ungauged hydrograph is an average of the `n` most similar catchments' hydrographs.
 
         Spatial proximity with inverse distance weighting (SP_IDW)
-            The ungauged hydrograph is an average of the `n` closest catchments' hydrographs, but 
+            The ungauged hydrograph is an average of the `n` closest catchments' hydrographs, but
             the average is weighted using inverse distance weighting
 
         Physical similarity with inverse distance weighting (PS_IDW)
-            The ungauged hydrograph is an average of the `n` most similar catchments' hydrographs, but 
+            The ungauged hydrograph is an average of the `n` most similar catchments' hydrographs, but
             the average is weighted using inverse distance weighting
 
         Spatial proximity with IDW and regression-based augmentation (SP_IDW_RA)
-            The ungauged hydrograph is an average of the `n` closest catchments' hydrographs, but 
+            The ungauged hydrograph is an average of the `n` closest catchments' hydrographs, but
             the average is weighted using inverse distance weighting. Furthermore, the method uses the CANOPEX/USGS
             dataset to estimate model parameters using Multiple Linear Regression. Parameters whose regression r-squared
             is higher than 0.5 are replaced by the MLR-estimated value.
 
         Physical Similarity with IDW and regression-based augmentation (PS_IDW_RA)
-            The ungauged hydrograph is an average of the `n` most similar catchments' hydrographs, but 
+            The ungauged hydrograph is an average of the `n` most similar catchments' hydrographs, but
             the average is weighted using inverse distance weighting. Furthermore, the method uses the CANOPEX/USGS
             dataset to estimate model parameters using Multiple Linear Regression. Parameters whose regression r-squared
             is higher than 0.5 are replaced by the MLR-estimated value.
@@ -119,7 +122,7 @@ class RegionalisationProcess(RavenProcess):
                                      min_NSE=min_NSE,
                                      ts=ts,
                                      **kwds)
-        
+
         # Write output
         nc_qsim = Path(self.workdir) / 'qsim.nc'
         qsim.to_netcdf(nc_qsim)

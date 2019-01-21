@@ -67,7 +67,7 @@ class TestGR4JCemaneige:
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
 
         hds = model.hydrograph
-        assert 'q_sim' in hds.data_vars
+        assert hds.attrs['long_name'] == 'Simulated outflows'
 
     def test_tags(self):
         model = GR4JCN(tempfile.mkdtemp())
@@ -123,12 +123,14 @@ class TestGR4JCemaneige:
               )
 
         qsim1 = model.hydrograph
+        m1 = qsim1.mean()
 
         model(ts, params=(0.528, -3.4, 407.3, 1.07, 17, .95), overwrite=True)
 
         qsim2 = model.hydrograph
-
-        np.testing.assert_almost_equal(qsim1.q_sim.mean(), qsim2.q_sim.mean(), 1)
+        m2 = qsim2.mean()
+        assert m1 != m2
+        np.testing.assert_almost_equal(m1, m2, 1)
 
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)

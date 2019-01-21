@@ -367,8 +367,10 @@ class Raven:
     @property
     def hydrograph(self):
         import xarray as xr
-        return xr.open_dataset(self.outputs['hydrograph'])
+        with xr.open_dataset(self.outputs['hydrograph']) as ds:
+            return ds.q_sim.copy(deep=True)
 
+    # TODO: Return copy of dataArray
     @property
     def storage(self):
         import xarray as xr
