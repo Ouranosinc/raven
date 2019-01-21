@@ -88,13 +88,13 @@ class ZonalStatisticsProcess(Process):
         if any(ext in shape_url for ext in archive_types):
             extracted = extract_archive(shape_url, self.workdir)
             for potential_vector in extracted:
-                if any(ext in potential_vector for ext in allowed_vector):
+                if any(potential_vector.endswith(ext) for ext in allowed_vector):
                     vector_file = potential_vector
 
         if any(dem in str(raster_url) for dem in archive_types):
             extracted = extract_archive(raster_url, self.workdir)
             for potential_raster in extracted:
-                if any(ext in potential_raster for ext in allowed_raster):
+                if any(potential_raster.endswith(ext) for ext in allowed_raster):
                     raster_file = potential_raster
         if not raster_file:
             raster_file = raster_url
