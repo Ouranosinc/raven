@@ -140,6 +140,11 @@ test:
 	@echo "Running tests (skip slow and online tests) ..."
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
 
+.PHONY: test_pdb
+test_pdb:
+	@echo "Running tests (skip slow and online tests) with --pdb ..."
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online' --pdb"
+
 .PHONY: testall
 testall:
 	@echo "Running all tests (including slow and online tests) ..."

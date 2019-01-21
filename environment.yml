@@ -5,7 +5,7 @@ channels:
 - defaults
 dependencies:
 - pywps>=4.1
-- poppler<0.62
+- poppler
 - jinja2
 - click
 - psutil
@@ -13,8 +13,7 @@ dependencies:
 - pandas
 - netcdf4
 - libnetcdf
-- gdal
-- libgdal
+- gdal>=2.3
 - fiona
 - pycrs
 - pyproj
