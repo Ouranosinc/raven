@@ -71,10 +71,7 @@ bootstrap: conda_env bootstrap_dev
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
-	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx"
-#	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
-
 
 .PHONY: raven_dev
 raven_dev:
@@ -87,14 +84,12 @@ raven_dev:
 	@test -d bin || mkdir bin
 	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
 
-
 .PHONY: raven_clean
 raven_clean:
 	@echo "Removing src and executable"
 	@test -f $(CURDIR)/src/RAVEN.zip && rm -v "$(CURDIR)/src/RAVEN.zip" || echo "No zip to remove"
 	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
 	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
-
 
 .PHONY: install
 install: bootstrap raven_dev
