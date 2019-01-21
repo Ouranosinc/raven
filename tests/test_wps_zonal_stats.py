@@ -45,4 +45,4 @@ class TestZonalStatsProcess:
         assert 'median' in out
         assert 'sum' in out
         assert 'nodata' in out
-        assert 'categories' in out
+        assert 'categories' not in out
