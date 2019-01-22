@@ -2,7 +2,7 @@ from random import sample
 from string import digits, ascii_uppercase, ascii_lowercase
 
 from pssh.clients import ParallelSSHClient
-from pssh.exceptions import AuthenticationException, UnknownHostException, ConnectionErrorException
+from pssh.exceptions import AuthenticationException, UnknownHostException, ConnectionErrorException, SessionError, SFTPIOError
 
 import pprint
 import sys
@@ -12,6 +12,7 @@ import os
 import shutil
 import tempfile
 import re
+import json
 import subprocess
 #src_data_path = "./data/"
 #do_cleanup = True
@@ -122,7 +123,6 @@ class HPCConnection(object):
             output = self.client.run_command("tar cf "+absolute_tar_fname+" -C "+absolute_output_data_path+" .")
             time.sleep(30)  # patch since run_command sems non-blocking
             output = self.client.run_command("du -sb " + absolute_tar_fname)
-            print(output)
             line = ""
             for l in output[self.hostname].stdout:
                 line += l
@@ -174,7 +174,7 @@ class HPCConnection(object):
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
         tmplt = tmplt.replace("ACCOUNT","def-fouchers")
-        tmplt = tmplt.replace("DURATION","00:20:00")
+        tmplt = tmplt.replace("DURATION","00:25:00")
         tmplt = tmplt.replace("TEMP_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("INPUT_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("OUTPUT_PATH", abs_remote_output_dir)
@@ -221,19 +221,19 @@ class HPCConnection(object):
 
         return self.live_job_id
 
-    def get_status(self, jobid):
+    def get_status(self, jobid, progressfile=None):
 
         cmd = "squeue -o '%T' -j {} --noheader".format(jobid)
 
         output = self.client.run_command(cmd)
         pp = pprint.PrettyPrinter(indent=4)
-    #    pp.pprint(output)
+#        pp.pprint(output)
         status_output = []  # 1 line expected
 
         errmsg = next(output[self.hostname]["stderr"], None)
         if errmsg is not None:
             if errmsg.find("Invalid job id specified"):
-                return "DONE"
+                return "ERR", None
             print("stderr: "+errmsg)
             raise Exception("Error: "+errmsg)
 
@@ -242,13 +242,43 @@ class HPCConnection(object):
             status_output.append(line)
 
         if len(status_output) == 0:
-            return "DONE"
+            return "DONE", None
         elif len(status_output) >1:
             print("too many outputs:")
             pp.pprint(status_output)
             raise Exception("Error: too many outputs")
+        s = status_output[0]
 
-        return status_output[0]
+        progress = None
+        if progressfile is not None:
+
+            got_json = False
+            try:
+                    local_progress_file = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
+                    print("Trying to read progress file ->"+local_progress_file)
+                    g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, progressfile), local_progress_file)  # scp_recv
+                    joinall(g, raise_error=True)
+
+                #load json
+
+                    with open(local_progress_file+"_"+self.hostname) as f:
+                        for line in f:
+                            matchObj = re.search(r'progress\": (\d*)', line, re.M | re.I)
+                            if matchObj:
+                                progress = matchObj.group(1)
+                        #progress_data = json.load(f)
+
+            except SFTPIOError:
+                print("SFTPIOError")
+                pass
+            except SessionError as e:
+                    print(e)
+
+        return s, progress
+
+    def reconnect(self):
+
+        self.client = ParallelSSHClient([self.hostname], user=self.user)
 
     def cleanup(self, jobid):
 
@@ -309,7 +339,21 @@ class RavenHPCProcess(object):
 
     def monitor(self):
 
-        return self.hpc_connection.get_status(self.live_job_id)
+        #job_status, progressfilecontent
+        progressfile = None
+        if self.process_name == 'raven':
+            progressfile = 'Raven.txt'
+        if self.process_name == 'ostrich':
+            progressfile = 'OstProgress0.txt'
+        s = p = progress = None
+        try:
+
+            s, progress = self.hpc_connection.get_status(self.live_job_id, progressfile)
+        except SessionError:
+            print("reconnecting")
+            self.hpc_connection.reconnect()
+
+        return s, progress
 
     def cleanup(self):
 
@@ -427,16 +471,25 @@ def newmainfct(argv):
     job_finished = False
     while(not job_finished):
 
-        time.sleep(60)
+        time.sleep(20)
         try:
 
-            out = raven_process.monitor()
+            out, p = raven_process.monitor()
             if out == "PENDING":
                 print("Still pending")
             if out == "RUNNING":
-                print("Running")
+                if p is not None:
+                    print("Running ({}%)".format(p))
+                else:
+                    print("Running (?%)")
             if out == "DONE":
                 job_finished = True
+            if out == "ERR":
+                print("error")
+                job_finished = True
+            if out is None:
+                print("Temp error")
+
         except Exception as e:
             print("Exception @monitor")
             print(e)
