@@ -45,7 +45,8 @@
 #                                   'to the HydroSheds DEM.',  # TODO: Include details (resolution, version).
 #                          metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
 #                                    Metadata(
-#                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from '
+#                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global '
+#                                        'hydrography derived from '
 #                                        'spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
 #                                        'https://doi.org/10.1029/2008EO100001')],
 #                          min_occurs=0,
@@ -58,7 +59,8 @@
 #                          # TODO: Include details (resolution, version).
 #                          metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
 #                                    Metadata(
-#                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from '
+#                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global '
+#                                        'hydrography derived from '
 #                                        'spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
 #                                        'https://doi.org/10.1029/2008EO100001')],
 #                          min_occurs=0,

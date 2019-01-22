@@ -10,7 +10,8 @@ class TestShapeSelectionProcess:
     def test_simple(self):
         client = client_for(Service(processes=[ShapeSelectionProcess(), ], cfgfiles=CFG_FILE))
 
-        fields = ['collect_upstream={collect_upstream}', 'lonlat_coordinate={lonlat_coordinate}', 'crs={crs}', 'shape=file@xlink:href=file://{shape}']
+        fields = ['collect_upstream={collect_upstream}', 'lonlat_coordinate={lonlat_coordinate}', 'crs={crs}',
+                  'shape=file@xlink:href=file://{shape}']
         datainputs = ';'.join(fields).format(
             collect_upstream=False,
             lonlat_coordinate="(-68.724444, 50.646667)",

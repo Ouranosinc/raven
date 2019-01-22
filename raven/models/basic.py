@@ -229,10 +229,9 @@ class Raven:
             os.symlink(raven_exec, str(self.cmd))
         except OSError as e:
             if e.errno == errno.EEXIST:
-               os.remove(str(self.cmd))
-               os.symlink(raven_exec, str(self.cmd))
+                os.remove(str(self.cmd))
+                os.symlink(raven_exec, str(self.cmd))
 
-              
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
 
@@ -252,7 +251,7 @@ class Raven:
         Example
         -------
         >>> r = Raven('/tmp/test')
-        >>> r.configure(rvi=<path to template>, rvp=...)
+        >>> r.configure(rvi='/path/to/template', rvp=...)
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
 
         """

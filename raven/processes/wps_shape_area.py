@@ -27,11 +27,11 @@ class ShapeAreaProcess(Process):
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
                          min_occurs=1,
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
-            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG)',
+            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG code; Default: 4326)',
                          data_type='integer',
                          default=4326),
             LiteralInput('projected_crs',
-                         'Coordinate Reference System for area calculation (EPSG; Default:32198)',
+                         'Coordinate Reference System for area calculation (EPSG code; Default:32198)',
                          data_type='integer',
                          default=32198)
         ]
@@ -62,7 +62,7 @@ class ShapeAreaProcess(Process):
         projected_crs = request.inputs['projected_crs'][0].data
 
         archive_types = ['.nc', '.tar', '.zip']
-        allowed_types = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
+        allowed_types = ['.gml', '.shp', '.geojson', '.json',]  # '.gpkg' requires more handlers
 
         # TODO: I know this is ugly. Suggestions welcome.
         if any(ext in shape_url for ext in archive_types):
