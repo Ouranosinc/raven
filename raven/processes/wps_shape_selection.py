@@ -1,20 +1,15 @@
-import logging
-from raven.utils import archive_sniffer
 import json
-import fiona
+import logging
 import re
 
-from fiona.crs import from_epsg, from_string
-from pyproj import Proj, transform
+import fiona as fio
+from fiona.crs import from_epsg
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
+from raven.utils import archive_sniffer
 from shapely.geometry import shape, Point
 
 LOGGER = logging.getLogger("PYWPS")
-
-LAEA = '+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
-WORLDMOLL = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
-ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
 
 
 class ShapeSelectionProcess(Process):
@@ -76,6 +71,7 @@ class ShapeSelectionProcess(Process):
         lonlat = request.inputs['lonlat_coordinate'][0].data
         crs = request.inputs['crs'][0].data
         shape_url = request.inputs['shape'][0].file
+
         try:
             lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
         except Exception as e:
@@ -85,37 +81,39 @@ class ShapeSelectionProcess(Process):
 
         types = ['.tar', '.zip', '.7z']
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
-
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=extensions)
 
-        basin = []
         # pfaf = ''
+
+        basin = []
         upstream_basins = []
         properties = []
         location = Point(lon, lat)
 
         try:
-            with fiona.open(shape_url, 'r', crs=from_epsg(crs)) as src:
+            with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
                 for feature in src:
-                    geometry = shape(feature['geometry'])
+                    geom = shape(feature['geometry'])
 
-                    if geometry.contains(location):
-                        basin = [feature['properties']['HYBAS_ID']]
+                    if geom.contains(location):
                         # pfaf = feature['properties']['PFAF_ID']
+
+                        basin = [feature['properties']['HYBAS_ID']]
                         prop = {'id': feature['id']}
                         prop.update(feature['properties'])
                         prop.update(feature['geometry'])
                         properties.append(prop)
+
                     else:
                         continue
 
                 if collect_upstream:
-                    # This can also technically be used to described the drainage network. See HydroBASINS docs.
+                    # 'PFAF_ID' can also technically be used to described the drainage network. See HydroBASINS docs.
                     # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
 
-                    up = filter(lambda feature: feature['properties']['NEXT_DOWN'] == basin[0], src)
-                    for f in iter(up):
-                        upstream_basins.append(f['properties']['HYBAS_ID'])
+                    upstream = filter(lambda f: feature['properties']['NEXT_DOWN'] == basin[0], src)
+                    for up in iter(upstream):
+                        upstream_basins.append(up['properties']['HYBAS_ID'])
 
                 src.close()
 
@@ -124,13 +122,12 @@ class ShapeSelectionProcess(Process):
             LOGGER.error(msg)
             return response
 
-        response.outputs['feature'].data = json.dumps(properties)
-        response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
         # response['feature'] = json.dumps(properties)
         # response['upstream_basins'] = upstream_basins
+        response.outputs['feature'].data = json.dumps(properties)
+        response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
 
         return response
-
 
 # if __name__ == '__main__':
 #     from tests.common import TESTDATA

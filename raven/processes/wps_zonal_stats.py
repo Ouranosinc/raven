@@ -87,8 +87,6 @@ class ZonalStatisticsProcess(Process):
         if not raster_file:
             raster_file = raster_url
 
-        properties = []
-
         try:
             stats = zonal_stats(
                 vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
@@ -106,7 +104,6 @@ class ZonalStatisticsProcess(Process):
         except Exception as e:
             msg = 'Failed to perform zonal statistics: {}'.format(e)
             LOGGER.error(msg)
-            response.outputs['properties'].file = json.dumps(properties)
 
         return response
 

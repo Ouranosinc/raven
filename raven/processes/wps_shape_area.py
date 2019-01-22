@@ -1,20 +1,13 @@
-import logging
-from functools import partial
-from raven.utils import archive_sniffer, geom_prop, equal_area_geom_prop
-import json
 import fiona
-import shapely.ops as ops
-from fiona.crs import from_epsg, from_string
-from pyproj import Proj, transform
+import json
+import logging
+from fiona.crs import from_epsg
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
+from raven.utils import archive_sniffer, geom_transform, geom_prop, equal_area_geom_prop
 from shapely.geometry import shape
 
 LOGGER = logging.getLogger("PYWPS")
-
-LAEA = '+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
-WORLDMOLL = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
-ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
 
 
 class ShapeAreaProcess(Process):
@@ -57,6 +50,10 @@ class ShapeAreaProcess(Process):
 
     def _handler(self, request, response):
 
+        # shape_url = request['shape']
+        # shape_crs = request['crs']
+        # projected_crs = request['projected_crs']
+
         shape_url = request.inputs['shape'][0].file
         shape_crs = request.inputs['crs'][0].data
         projected_crs = request.inputs['projected_crs'][0].data
@@ -71,25 +68,36 @@ class ShapeAreaProcess(Process):
         try:
             with fiona.open(shape_url, 'r', crs=from_epsg(shape_crs)) as src:
                 for feature in src:
-
                     geom = shape(feature['geometry'])
-                    transformed = ops.transform(
-                        partial(
-                            transform,
-                            Proj(src.crs),
-                            Proj(from_epsg(projected_crs))),
-                        geom)
 
+                    transformed = geom_transform(geom, source_crs=shape_crs, target_crs=projected_crs)
                     prop = {'id': feature['id']}
                     prop.update(feature['properties'])
                     prop.update(geom_prop(geom))
                     prop.update(equal_area_geom_prop(transformed))
+
                     properties.append(prop)
+                    break
 
         except Exception as e:
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
 
+        # response['properties'] = properties
         response.outputs['properties'].data = json.dumps(properties)
 
         return response
+
+
+# if __name__ == '__main__':
+#     from tests.common import TESTDATA
+#
+#     request = {
+#         'shape': TESTDATA['hydrobasins_12'],
+#         'crs': 4326,
+#         'projected_crs': 32198
+#     }
+#     response = {}
+#
+#     s = ShapeAreaProcess()._handler(request, response)
+#     print(response['properties'])
