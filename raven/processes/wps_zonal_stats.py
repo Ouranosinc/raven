@@ -7,7 +7,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import extract_archive
+from raven.utils import archive_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -70,32 +70,20 @@ class ZonalStatisticsProcess(Process):
 
     def _handler(self, request, response):
 
-        raster_url = request.inputs['raster'][0].file
         shape_url = request.inputs['shape'][0].file
+        raster_url = request.inputs['raster'][0].file
         band = request.inputs['band'][0].data
         touches = request.inputs['select_all_touching'][0].data
         geojson_out = request.inputs['return_geometry'][0].data
         categorical = request.inputs['categorical'][0].data
 
-        archive_types = ['.nc', '.tar', '.zip']
-        allowed_vector = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
-        allowed_raster = ['.tiff', '.tif']
+        types = ['.tar', '.zip', '.7z']
+        vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+        rasters = ['.tiff', '.tif']
 
-        vector_file = []
-        raster_file = []
+        vector_file = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=vectors)
+        raster_file = archive_sniffer(raster_url, working_dir=self.workdir, archive_types=types, extensions=rasters)
 
-        # TODO: I know this is ugly. Suggestions welcome.
-        if any(ext in shape_url for ext in archive_types):
-            extracted = extract_archive(shape_url, self.workdir)
-            for potential_vector in extracted:
-                if any(potential_vector.endswith(ext) for ext in allowed_vector):
-                    vector_file = potential_vector
-
-        if any(dem in str(raster_url) for dem in archive_types):
-            extracted = extract_archive(raster_url, self.workdir)
-            for potential_raster in extracted:
-                if any(potential_raster.endswith(ext) for ext in allowed_raster):
-                    raster_file = potential_raster
         if not raster_file:
             raster_file = raster_url
 

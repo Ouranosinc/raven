@@ -1,6 +1,6 @@
 import logging
 from functools import partial
-from raven.utils import extract_archive, geom_prop, equal_area_geom_prop
+from raven.utils import archive_sniffer, geom_prop, equal_area_geom_prop
 import json
 import fiona
 import shapely.ops as ops
@@ -61,15 +61,10 @@ class ShapeAreaProcess(Process):
         shape_crs = request.inputs['crs'][0].data
         projected_crs = request.inputs['projected_crs'][0].data
 
-        archive_types = ['.nc', '.tar', '.zip']
-        allowed_types = ['.gml', '.shp', '.geojson', '.json',]  # '.gpkg' requires more handlers
+        types = ['.tar', '.zip', '.7z']
+        extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
 
-        # TODO: I know this is ugly. Suggestions welcome.
-        if any(ext in shape_url for ext in archive_types):
-            extracted = extract_archive(shape_url, self.workdir)
-            for potential_vector in extracted:
-                if any(ext in potential_vector for ext in allowed_types):
-                    shape_url = potential_vector
+        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=extensions)
 
         properties = []
 

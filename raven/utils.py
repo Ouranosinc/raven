@@ -67,6 +67,14 @@ def extract_archive(resources, output_dir=None):
     return files
 
 
+def archive_sniffer(file, working_dir, archive_types, extensions):
+    if any(ext in file for ext in archive_types):
+        extracted = extract_archive(file, working_dir)
+        for potential_file in extracted:
+            if any(potential_file.endswith(ext) for ext in extensions):
+                return potential_file
+
+
 def geom_prop(geom):
     """Return a dictionary of properties for the given geometry.
 

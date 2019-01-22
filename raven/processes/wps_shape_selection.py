@@ -1,12 +1,12 @@
 import logging
-from raven.utils import extract_archive
+from raven.utils import archive_sniffer
 import json
 import fiona
 import re
 
 from fiona.crs import from_epsg, from_string
 from pyproj import Proj, transform
-from pywps import LiteralInput, ComplexInput, ComplexOutput, LiteralOutput
+from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from shapely.geometry import shape, Point
 
@@ -80,19 +80,13 @@ class ShapeSelectionProcess(Process):
             lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
         except Exception as e:
             msg = 'Failed to parse geo-coordinates {0}: {1}'.format(lonlat, e)
-            print(msg)
-            logging.error(msg)
+            LOGGER.error(msg)
             return response
 
-        archive_types = ['.nc', '.tar', '.zip']
-        allowed_types = ['.gml', '.shp', '.geojson', '.json', '.gpkg']
+        types = ['.tar', '.zip', '.7z']
+        extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
 
-        # TODO: I know this is ugly. Suggestions welcome.
-        if any(ext in str(shape_url) for ext in archive_types):
-            extracted = extract_archive(str(shape_url), self.workdir)
-            for potential_vector in extracted:
-                if any(potential_vector.endswith(ext) for ext in allowed_types):
-                    shape_url = potential_vector
+        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=extensions)
 
         basin = []
         # pfaf = ''
@@ -128,6 +122,7 @@ class ShapeSelectionProcess(Process):
         except Exception as e:
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
+            return response
 
         response.outputs['feature'].data = json.dumps(properties)
         response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
