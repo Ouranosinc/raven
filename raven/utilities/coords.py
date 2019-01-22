@@ -13,7 +13,7 @@ def realization(n):
     """
     return xr.IndexVariable('realization',
                             data=range(n),
-                            attrs={'standard_name': 'realization', 'axis': 'E', 'units': 1,
+                            attrs={'standard_name': 'realization', 'axis': 'E', 'units': '1',
                                    'long_name': 'Label identifying the ensemble member'})
 
 

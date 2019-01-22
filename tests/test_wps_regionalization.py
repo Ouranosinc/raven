@@ -54,4 +54,4 @@ class TestRegionalisation:
             assert 'q_sim' in ds
 
         with xr.open_dataset(ensemble) as ds:
-            assert 'ens' in ds.q_sim.dims
+            assert 'realization' in ds.q_sim.dims

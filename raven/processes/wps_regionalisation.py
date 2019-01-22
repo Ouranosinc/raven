@@ -1,3 +1,4 @@
+import xarray as xr
 from . import wpsio as wio
 import logging
 from pywps import Process, LiteralInput
@@ -128,6 +129,7 @@ class RegionalisationProcess(RavenProcess):
         qsim.to_netcdf(nc_qsim)
         response.outputs['hydrograph'].file = str(nc_qsim)
 
+        # TODO: Commplete attributes
         nc_ensemble = Path(self.workdir) / 'ensemble.nc'
         ensemble.to_netcdf(nc_ensemble)
         response.outputs['ensemble'].file = str(nc_ensemble)

@@ -12,7 +12,7 @@ class TestRaven:
         rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 
-        model = Raven(tempfile.mkdtemp())
+        model = Raven()
         model.configure(rvs)
         model.run(ts)
 
@@ -66,7 +66,7 @@ class TestGR4JCemaneige:
         # yields NSE=0.5112 for full period 1954-2010
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
 
-        hds = model.hydrograph
+        hds = model.q_sim
         assert hds.attrs['long_name'] == 'Simulated outflows'
 
     def test_tags(self):
@@ -122,18 +122,26 @@ class TestGR4JCemaneige:
               params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
               )
 
-        qsim1 = model.hydrograph
+        qsim1 = model.q_sim.copy(deep=True)
         m1 = qsim1.mean()
 
         model(ts, params=(0.528, -3.4, 407.3, 1.07, 17, .95), overwrite=True)
 
-        qsim2 = model.hydrograph
+        qsim2 = model.q_sim.copy(deep=True)
         m2 = qsim2.mean()
         assert m1 != m2
+
         np.testing.assert_almost_equal(m1, m2, 1)
 
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
+
+    def test_version(self):
+        model = Raven()
+        assert model.version == '2.9'
+
+        model = GR4JCN()
+        assert model.version == '2.9'
 
 
 class TestHMETS:

@@ -44,13 +44,14 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
 
     Returns
     -------
-    (qsim, ensemble, params)
+    (qsim, ensemble)
     qsim : DataArray (time, )
       Multi-donor averaged predicted streamflow.
-    ensemble : DataArray  (realization, time)
-      Ensemble of members based on number of donors.
-    param : DataArray (realization, param)
-      Parameters used to run the model.
+    ensemble : Dataset
+      q_sim : DataArray  (realization, time)
+        Ensemble of members based on number of donors.
+      parameter : DataArray (realization, param)
+        Parameters used to run the model.
     """
     # TODO: Include list of available properties in docstring.
     # TODO: Add error checking for source, target stuff wrt method chosen.
@@ -103,7 +104,7 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     for params in reg_params:
         kwds['params'] = params
         m.run(overwrite=True, **kwds)
-        qsims.append(m.hydrograph)
+        qsims.append(m.q_sim.copy(deep=True))
 
     qsims = xr.concat(qsims, dim=cr)
 
@@ -115,15 +116,26 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     else:
         raise ValueError('No matching algorithm for {}'.format(method))
 
+    # Metadata handling
+    # TODO: Store the basin_name
+
     # Create a DataArray for the parameters used in the regionalization
     param_da = xr.DataArray(reg_params,
                             dims=('realization', 'param'),
                             coords={'param': cp, 'realization': cr},
                             attrs={'long_name': 'Model parameters used in the regionalization.'})
 
-    # TODO: Bundle these variables into an xr.Dataset ?
+    ens = xr.Dataset(data_vars={'q_sim': qsims, 'parameter': param_da},
+                     attrs={"title": "Regionalization ensemble",
+                            "institution": "",
+                            "source": "RAVEN V.{} - {}".format(m.version, model),
+                            "history": "Created by raven regionalize.",
+                            "references": "",
+                            "comment": "Regionalization method: {}".format(method)
+                            })
+
     # TODO: Add global attributes (model name, date, version, etc)
-    return qsim, qsims, param_da
+    return qsim, ens
 
 
 def read_gauged_properties():

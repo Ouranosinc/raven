@@ -91,6 +91,16 @@ class Raven:
             self.configure(self.templates)
 
     @property
+    def version(self):
+        import re
+        out = subprocess.check_output([raven_exec, ])
+        match = re.search(r"Version (\S+) ", out.decode('utf-8'))
+        if match:
+            return match.groups()[0]
+        else:
+            raise AttributeError("Version not found: {}".format(out))
+
+    @property
     def cmd(self):
         """RAVEN executable path."""
         return self.model_path / 'raven'
@@ -365,16 +375,28 @@ class Raven:
                 rvi.end_date = end
 
     @property
-    def hydrograph(self):
-        import xarray as xr
-        with xr.open_dataset(self.outputs['hydrograph']) as ds:
-            return ds.q_sim.copy(deep=True)
+    def q_sim(self):
+        """Return a view of the hydrograph time series.
 
-    # TODO: Return copy of dataArray
+        This view will be overwritten by successive calls to `run`. To make a copy of this DataArray that will
+        persist in memory, use `q_sim.copy(deep=True)`.
+        """
+        return self.hydrograph.q_sim
+
+    @property
+    def hydrograph(self):
+        """Return a view of the current output file.
+
+        If the model is run multiple times, hydrograph will point to the latest version. To store the results of
+        multiple runs, either create different model instances or explicitly copy the file to another disk location.
+        """
+        with xr.open_dataset(self.outputs['hydrograph']) as ds:
+            return ds
+
     @property
     def storage(self):
-        import xarray as xr
-        return xr.open_dataset(self.outputs['storage'])
+        with xr.open_dataset(self.outputs['storage']) as ds:
+            return ds
 
     @property
     def diagnostics(self):
