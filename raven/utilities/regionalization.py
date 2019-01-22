@@ -94,7 +94,7 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     sprop = filtered_prop.loc[sdist.index]
 
     # Get the list of parameters to run
-    reg_params = regionalization_params(method, sparams, sprop, ungauged_properties)
+    reg_params = regionalization_params(method, sparams, sprop, ungauged_properties, filtered_params, filtered_prop)
 
     # Run the model over all parameters and create ensemble DataArray
     m = get_model(model)
@@ -229,7 +229,8 @@ def similarity(gauged, ungauged, kind='ptp'):
     return pd.Series(data=n.sum(axis=1), index=gauged.index)
 
 
-def regionalization_params(method, gauged_params, gauged_properties, ungauged_properties):
+def regionalization_params(method, gauged_params, gauged_properties, ungauged_properties,
+                           filtered_params, filtered_prop):
     """Return the model parameters to use for the regionalization.
 
     Parameters
@@ -242,6 +243,10 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
       DataFrame of properties of the donor catchments  (size = number of donors)
     ungauged_properties
       DataFrame of properties of the ungauged catchment (size = 1)
+    filtered_params
+      DataFrame of parameters of all filtered catchments (size = all catchments with NSE > min_NSE)
+    filtered_prop
+      DataFrame of properties of all filtered catchments (size = all catchments with NSE > min_NSE)
 
     Returns
     -------
@@ -250,7 +255,7 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
     """
 
     if method == 'MLR' or 'RA' in method:
-        mlr_params, r2 = multiple_linear_regression(gauged_properties, gauged_params, ungauged_properties.to_frame().T)
+        mlr_params, r2 = multiple_linear_regression(filtered_prop, filtered_params, ungauged_properties.to_frame().T)
 
         if method == 'MLR':  # Return the multiple linear regression parameters.
             out = [mlr_params, ]
