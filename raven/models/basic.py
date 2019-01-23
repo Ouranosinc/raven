@@ -228,21 +228,10 @@ class Raven:
 
         # Create symbolic link to input files
         for fn in ts:
-            # Patch to catch and deal with existing files (overwrite does not work, so delete existing file first)
-            try:
-                os.symlink(str(fn), str(self.model_path / Path(fn).name))
-            except OSError as e:
-                if e.errno == errno.EEXIST:
-                    os.remove(str(self.model_path / Path(fn).name))
-                    os.symlink(str(fn), str(self.model_path / Path(fn).name))
+            os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # Create symbolic link to executable
-        try:
-            os.symlink(raven_exec, str(self.cmd))
-        except OSError as e:
-            if e.errno == errno.EEXIST:
-                os.remove(str(self.cmd))
-                os.symlink(raven_exec, str(self.cmd))
+        os.symlink(raven_exec, str(self.cmd))
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -262,7 +251,7 @@ class Raven:
 
         Example
         -------
-        >>> r = Raven('/tmp/test')
+        >>> r = Raven()
         >>> r.configure(rvi='/path/to/template', rvp=...)
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
 
