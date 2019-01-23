@@ -20,5 +20,5 @@ def test_wps_caps():
                   'raven-hmets',
                   'raven-hbv-ec',
                   'objective-function',
-                  'regionalisation',
+                  # 'regionalisation',
                   }

@@ -15,5 +15,5 @@ processes = [
     RavenHMETSProcess(),
     RavenHBVECProcess(),
     ObjectiveFunctionProcess(),
-    RegionalisationProcess(),
+    # RegionalisationProcess(),
 ]
