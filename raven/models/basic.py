@@ -91,6 +91,16 @@ class Raven:
             self.configure(self.templates)
 
     @property
+    def version(self):
+        import re
+        out = subprocess.check_output([raven_exec, ])
+        match = re.search(r"Version (\S+) ", out.decode('utf-8'))
+        if match:
+            return match.groups()[0]
+        else:
+            raise AttributeError("Version not found: {}".format(out))
+
+    @property
     def cmd(self):
         """RAVEN executable path."""
         return self.model_path / 'raven'
@@ -192,11 +202,14 @@ class Raven:
            output/
 
         """
-        if overwrite:
-            os.removedirs(self.output_path)
-            os.removedirs(self.model_path)
-        elif self.output_path.exists():
-            raise IOError("Directory already exists. Either set overwrite to `True` or create a new model instance.")
+        import shutil
+
+        if self.output_path.exists():
+            if overwrite:
+                shutil.rmtree(str(self.workdir))
+            else:
+                raise IOError(
+                    "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
         os.makedirs(str(self.output_path))
@@ -362,14 +375,28 @@ class Raven:
                 rvi.end_date = end
 
     @property
+    def q_sim(self):
+        """Return a view of the hydrograph time series.
+
+        This view will be overwritten by successive calls to `run`. To make a copy of this DataArray that will
+        persist in memory, use `q_sim.copy(deep=True)`.
+        """
+        return self.hydrograph.q_sim
+
+    @property
     def hydrograph(self):
-        import xarray as xr
-        return xr.open_dataset(self.outputs['hydrograph'])
+        """Return a view of the current output file.
+
+        If the model is run multiple times, hydrograph will point to the latest version. To store the results of
+        multiple runs, either create different model instances or explicitly copy the file to another disk location.
+        """
+        with xr.open_dataset(self.outputs['hydrograph']) as ds:
+            return ds
 
     @property
     def storage(self):
-        import xarray as xr
-        return xr.open_dataset(self.outputs['storage'])
+        with xr.open_dataset(self.outputs['storage']) as ds:
+            return ds
 
     @property
     def diagnostics(self):
@@ -409,7 +436,7 @@ class Raven:
         return (fn.stem, fn.suffix[1:])
 
 
-class GR4JCemaneige(Raven):
+class GR4JCN(Raven):
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
     class RVP(RV):
@@ -445,7 +472,7 @@ class MOHYSE(Raven):
         self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
 
 
-class HMETS(GR4JCemaneige):
+class HMETS(GR4JCN):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
     class RVP(RV):
@@ -471,7 +498,7 @@ class HMETS(GR4JCemaneige):
         self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
 
 
-class HBVEC(GR4JCemaneige):
+class HBVEC(GR4JCN):
     templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
 
     class RVP(RV):
