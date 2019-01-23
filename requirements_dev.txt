@@ -1,7 +1,6 @@
 -r requirements.txt
 pytest
 flake8
-six
 bumpversion
 sphinx>=1.7
 sphinx-autoapi

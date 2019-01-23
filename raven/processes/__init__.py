@@ -8,6 +8,7 @@ from .wps_shape_area import ShapeAreaProcess
 from .wps_shape_selection import ShapeSelectionProcess
 from .wps_zonal_stats import ZonalStatisticsProcess
 from .wps_objective_functions import ObjectiveFunctionProcess
+from .wps_regionalisation import RegionalisationProcess
 
 processes = [
     RavenProcess(),
@@ -20,4 +21,5 @@ processes = [
     ShapeSelectionProcess(),
     ZonalStatisticsProcess(),
     ObjectiveFunctionProcess(),
+    # RegionalisationProcess(),
 ]

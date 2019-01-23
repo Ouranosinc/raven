@@ -21,6 +21,9 @@ dependencies:
 - rasterio
 - rasterstats
 - shapely
+- bumpversion
+- statsmodels
+
 - pip:
   - spotpy
 

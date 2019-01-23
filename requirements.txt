@@ -1,3 +1,4 @@
+six
 pywps>=4.1
 jinja2
 click
@@ -11,7 +12,6 @@ dask
 pathlib
 toolz
 spotpy
-
 # gdal --- Not compatible with rasterio!
 fiona
 pycrs
@@ -20,4 +20,6 @@ pyproj
 rasterio
 rasterstats
 shapely
+statsmodels
+
 

@@ -23,4 +23,5 @@ def test_wps_caps():
                   'shape-area',
                   'shape-selection',
                   'objective-function',
+                  # 'regionalisation',
                   }
