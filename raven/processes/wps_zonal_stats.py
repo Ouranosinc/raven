@@ -46,15 +46,6 @@ class ZonalStatisticsProcess(Process):
                           supported_formats=(FORMATS.JSON, FORMATS.GEOJSON),
                           as_reference=False),
         ]
-        #            LiteralOutput('count', 'Feature Count', data_type='integer', abstract='Number of features in
-        #            shape', ),
-        #            LiteralOutput('min', 'Minimum pixel value', data_type='float', abstract='Minimum raster value'),
-        #            LiteralOutput('max', 'Maximum pixel value', data_type='float', abstract='Maximum raster value'),
-        #            LiteralOutput('mean', 'Mean pixel value', data_type='float', abstract='Mean raster value'),
-        #            LiteralOutput('median', 'Median pixel value', data_type='float', abstract='Median raster value'),
-        #            LiteralOutput('sum', 'Sum of pixels', data_type='integer', abstract='Sum of all pixel values'),
-        #            LiteralOutput('nodata', 'Number of null data pixels', data_type='integer',
-        #                          abstract='Number of null data pixels'),
 
         super(ZonalStatisticsProcess, self).__init__(
             self._handler,

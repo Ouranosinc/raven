@@ -1,7 +1,7 @@
 from pywps import Service
 from pywps.tests import assert_response_success
 from .common import client_for, TESTDATA, CFG_FILE, get_output
-
+import json
 from raven.processes import ShapeAreaProcess
 
 
@@ -24,5 +24,6 @@ class TestShapeAreaProcess:
         out = get_output(resp.xml)
 
         assert 'properties' in out
-
+        props = json.loads(out['properties'])
+        assert {'centroid', 'area', 'perimeter', 'gravelius'}.issubset(props[0].keys())
         # TODO: add a couple of explicit tests that properties are computed.

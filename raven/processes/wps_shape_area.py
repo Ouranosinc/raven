@@ -16,7 +16,7 @@ class ShapeAreaProcess(Process):
     def __init__(self):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
-                         abstract='An URL pointing to either an ESRI Shapefile, GML, JSON, GeoJSON.'
+                         abstract='An URL pointing to either an ESRI Shapefile, GML, JSON or GeoJSON file.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
                          min_occurs=1,
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
@@ -49,10 +49,6 @@ class ShapeAreaProcess(Process):
             store_supported=True)
 
     def _handler(self, request, response):
-
-        # shape_url = request['shape']
-        # shape_crs = request['crs']
-        # projected_crs = request['projected_crs']
 
         shape_url = request.inputs['shape'][0].file
         shape_crs = request.inputs['crs'][0].data
@@ -87,17 +83,3 @@ class ShapeAreaProcess(Process):
         response.outputs['properties'].data = json.dumps(properties)
 
         return response
-
-
-# if __name__ == '__main__':
-#     from tests.common import TESTDATA
-#
-#     request = {
-#         'shape': TESTDATA['hydrobasins_12'],
-#         'crs': 4326,
-#         'projected_crs': 32198
-#     }
-#     response = {}
-#
-#     s = ShapeAreaProcess()._handler(request, response)
-#     print(response['properties'])

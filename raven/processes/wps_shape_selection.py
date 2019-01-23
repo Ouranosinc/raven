@@ -17,18 +17,13 @@ class ShapeSelectionProcess(Process):
 
     def __init__(self):
         inputs = [
-
-            # LiteralInput, coordinates, type string:lat, lon
-            # ComplexInput: features, shapefile with multiple features from which one will be selected
-            # ComplexOutput: polygonfeature in format that can be easily worked with on the web frontend.
-
+            LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
+                         data_type='string',
+                         default='(-68.724444, 50.646667)'),
             LiteralInput('collect_upstream',
                          'Attempt to capture both containing basin and all upstream basins from point',
                          data_type='boolean',
                          default='false'),
-            LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
-                         data_type='string',
-                         default='(-68.724444, 50.646667)'),
             LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
                          data_type='integer',
                          default=4326),
@@ -83,8 +78,6 @@ class ShapeSelectionProcess(Process):
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=extensions)
 
-        # pfaf = ''
-
         basin = []
         upstream_basins = []
         properties = []
@@ -128,17 +121,3 @@ class ShapeSelectionProcess(Process):
         response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
 
         return response
-
-# if __name__ == '__main__':
-#     from tests.common import TESTDATA
-#
-#     request = {
-#         'collect_upstream': True,
-#         'lonlat_coordinate': '(-68.724444, 50.646667)',
-#         'crs': 4326,
-#         'shape': TESTDATA['hydrobasins_12']
-#     }
-#     response = {}
-#
-#     s = ShapeSelectionProcess()._handler(request, response)
-#     print(response)
