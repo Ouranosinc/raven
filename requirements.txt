@@ -11,3 +11,5 @@ dask
 toolz
 pandas
 spotpy
+statsmodels
+
