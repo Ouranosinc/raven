@@ -66,7 +66,7 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     else:
         raise ValueError
 
-    cr = coords.realization(size)
+    cr = coords.realization(1 if method == 'MLR' else size)
     cp = coords.param(model)
 
     # Filter on NSE
@@ -349,7 +349,10 @@ def IDW(qsims, dist):
     weights /= weights.sum(axis=0)
 
     # Calculate weighted average.
-    return qsims.dot(weights)
+    out = qsims.dot(weights)
+    out.name = qsims.name
+    out.attrs = qsims.attrs
+    return out
 
 
 def multiple_linear_regression(source, params, target):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import pytest
 import datetime as dt
 from pywps import Service
 from pywps.tests import assert_response_success
@@ -30,7 +31,8 @@ inputs = dict(start_date=dt.datetime(2000, 1, 1),
 
 class TestRegionalisation:
 
-    def testRegionalisationHMETS(self):
+    @pytest.mark.parametrize("method", ('MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'))
+    def testRegionalisationHMETS(self, method):
 
         client = client_for(Service(processes=[RegionalisationProcess(), ], cfgfiles=CFG_FILE))
 
@@ -38,7 +40,7 @@ class TestRegionalisation:
         inp['ts'] = TESTDATA['raven-hmets-nc-ts']
         inp['model_name'] = 'HMETS'
         inp['ndonors'] = 2
-        inp['method'] = 'SP'
+        inp['method'] = method
 
         resp = client.get(service='WPS', request='execute', version='1.0.0',
                           identifier='regionalisation',
