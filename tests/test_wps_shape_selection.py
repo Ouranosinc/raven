@@ -13,7 +13,7 @@ class TestShapeSelectionProcess:
         fields = ['collect_upstream={collect_upstream}', 'lonlat_coordinate={lonlat_coordinate}', 'crs={crs}',
                   'shape=file@xlink:href=file://{shape}']
         datainputs = ';'.join(fields).format(
-            collect_upstream=False,
+            collect_upstream=True,
             lonlat_coordinate="(-68.724444, 50.646667)",
             crs=4326,
             shape=TESTDATA['hydrobasins_12'],
@@ -26,7 +26,9 @@ class TestShapeSelectionProcess:
         out = get_output(resp.xml)
 
         # TODO: add a couple of explicit tests that properties are computed.
-        assert 'feature' in out
+
+        assert 'properties' in out['properties']
+        assert len(out['geometry']) > 1
         assert 'upstream_basins' in out
 
         # For local testing only; relies on git-lfs stored files

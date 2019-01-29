@@ -43,7 +43,7 @@ class ZonalStatisticsProcess(Process):
         outputs = [
             ComplexOutput('properties', 'DEM properties within the region defined by `shape`.',
                           abstract='Elevation statistics: min, max, mean, median, sum, nodata',
-                          supported_formats=(FORMATS.JSON, FORMATS.GEOJSON),
+                          supported_formats=[FORMATS.JSON, FORMATS.GEOJSON],
                           as_reference=False),
         ]
 
@@ -68,12 +68,11 @@ class ZonalStatisticsProcess(Process):
         geojson_out = request.inputs['return_geometry'][0].data
         categorical = request.inputs['categorical'][0].data
 
-        types = ['.tar', '.zip', '.7z']
         vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
         rasters = ['.tiff', '.tif']
 
-        vector_file = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=vectors)
-        raster_file = archive_sniffer(raster_url, working_dir=self.workdir, archive_types=types, extensions=rasters)
+        vector_file = archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
+        raster_file = archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters)
 
         if not raster_file:
             raster_file = raster_url

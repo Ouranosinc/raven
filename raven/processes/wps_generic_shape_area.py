@@ -54,10 +54,9 @@ class ShapeAreaProcess(Process):
         shape_crs = request.inputs['crs'][0].data
         projected_crs = request.inputs['projected_crs'][0].data
 
-        types = ['.tar', '.zip', '.7z']
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
 
-        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=extensions)
+        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
 
         properties = []
 
@@ -71,7 +70,6 @@ class ShapeAreaProcess(Process):
                     prop.update(feature['properties'])
                     prop.update(geom_prop(geom))
                     prop.update(equal_area_geom_prop(transformed))
-
                     properties.append(prop)
                     break
 

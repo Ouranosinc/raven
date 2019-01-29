@@ -35,8 +35,11 @@ class ShapeSelectionProcess(Process):
         ]
 
         outputs = [
-            ComplexOutput('feature', 'Watershed feature geometry',
-                          abstract='Geographic representations and descriptions of shape properties.',
+            ComplexOutput('properties', 'Watershed feature properties',
+                          abstract='Descriptions of shape properties.',
+                          supported_formats=[FORMATS.JSON]),
+            ComplexOutput('geometry', 'Watershed feature geometry',
+                          abstract='Geographic representations of shape properties.',
                           supported_formats=[FORMATS.GEOJSON]),
             ComplexOutput('upstream_basins', 'IDs for all immediate upstream basins',
                           abstract='List of all first-level tributary basins by their HydroBASINS ID',
@@ -57,15 +60,15 @@ class ShapeSelectionProcess(Process):
 
     def _handler(self, request, response):
 
-        # collect_upstream = request['collect_upstream']
-        # lonlat = request['lonlat_coordinate']
-        # crs = request['crs']
-        # shape_url = request['shape']
+        collect_upstream = request['collect_upstream']
+        lonlat = request['lonlat_coordinate']
+        crs = request['crs']
+        shape_url = request['shape']
 
-        collect_upstream = request.inputs['collect_upstream'][0].data
-        lonlat = request.inputs['lonlat_coordinate'][0].data
-        crs = request.inputs['crs'][0].data
-        shape_url = request.inputs['shape'][0].file
+        # collect_upstream = request.inputs['collect_upstream'][0].data
+        # lonlat = request.inputs['lonlat_coordinate'][0].data
+        # crs = request.inputs['crs'][0].data
+        # shape_url = request.inputs['shape'][0].file
 
         try:
             lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
@@ -74,50 +77,68 @@ class ShapeSelectionProcess(Process):
             LOGGER.error(msg)
             return response
 
-        types = ['.tar', '.zip', '.7z']
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
-        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, archive_types=types, extensions=extensions)
+        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
 
         basin = []
+        geometry = []
         upstream_basins = []
         properties = []
         location = Point(lon, lat)
 
         try:
-            with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
-                for feature in src:
-                    geom = shape(feature['geometry'])
+            try:
+                src = fio.open(shape_url, 'r')
+            except Exception as e:
+                msg = '{}: Unable to read crs from {}. Proceeding with crs={}'.format(e, shape_url, crs)
+                LOGGER.warning(msg)
+                src = fio.open(shape_url, 'r', crs=from_epsg(crs))
 
-                    if geom.contains(location):
-                        # pfaf = feature['properties']['PFAF_ID']
+            for feature in iter(src):
+                geom = shape(feature['geometry'])
 
-                        basin = [feature['properties']['HYBAS_ID']]
-                        prop = {'id': feature['id']}
-                        prop.update(feature['properties'])
-                        prop.update(feature['geometry'])
-                        properties.append(prop)
+                if geom.contains(location):
+                    # pfaf = feature['properties']['PFAF_ID']
 
-                    else:
-                        continue
-
-                if collect_upstream:
-                    # 'PFAF_ID' can also technically be used to described the drainage network. See HydroBASINS docs.
-                    # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
-
-                    upstream = filter(lambda f: feature['properties']['NEXT_DOWN'] == basin[0], src)
-                    for up in iter(upstream):
-                        upstream_basins.append(up['properties']['HYBAS_ID'])
-
+                    basin = [feature['properties']['HYBAS_ID']]
+                    prop = {'id': feature['id']}
+                    prop.update(feature['properties'])
+                    properties.append(prop)
+                    geometry.append(feature['geometry'])
+                else:
+                    continue
                 src.close()
+
+            # if collect_upstream:
+            #     with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
+            #         # 'PFAF_ID' can also technically be used to described the drainage network. See HydroBASINS docs.
+            #         # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
+            #         print(len(src))
+            #         upstream = filter(lambda f: feature['properties']['NEXT_DOWN'] == basin[0], src)
+            #
+            #         for up in iter(upstream):
+            #             print(up, 'test')
+            #             upstream_basins.append(up['properties']['HYBAS_ID'])
 
         except Exception as e:
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
             return response
 
-        # response['feature'] = json.dumps(properties)
-        # response['upstream_basins'] = upstream_basins
-        response.outputs['feature'].data = json.dumps(properties)
+        response.outputs['properties'].data = json.dumps(properties)
+        response.outputs['geometry'].data = json.dumps(geometry)
         response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
 
         return response
+
+
+if __name__ == '__main__':
+
+    inputs = dict(collect_upstream=True,
+                  lonlat_coordinate="(-68.724444, 50.646667)",
+                  crs=4326,
+                  shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev12_v1c.zip')
+    outputs = {}
+    c = ShapeSelectionProcess()._handler(inputs)
+
+    print(outputs)

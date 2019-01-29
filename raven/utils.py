@@ -42,117 +42,124 @@ def address_append(address):
         LOGGER.error(msg)
 
 
-def extract_archive(resources, output_dir=None):
+def generic_extract_archive(resources, output_dir=None):
     """
-    extracts archives (tar/zip)
+    Extracts archives (tar/zip) to a working directory
     :param resources: list of archive files (if netCDF files are in list,
                      they are passed and returned as well in the return).
-    :param output_dir: define a directory to store the results (default: tempory folder).
+    :param output_dir: string or Path to a working location (default: temporary folder).
     :return list: [list of extracted files]
     """
+    archive_types = ['.tar', '.zip', '.7z']
     output_dir = output_dir or tempfile.gettempdir()
 
     if not isinstance(resources, list):
         resources = list([resources])
+
     files = []
 
     for arch in resources:
-        try:
-            LOGGER.debug("archive=%s", arch)
-            file = os.path.basename(arch)
+        if any(ext in str(arch).lower() for ext in archive_types):
+            try:
+                LOGGER.debug("archive=%s", arch)
+                file = os.path.basename(arch)
 
-            if file.endswith('.nc'):
-                files.append(os.path.join(output_dir, arch))
-            elif file.endswith('.tar'):
-                with tarfile.open(arch, mode='r') as tar:
-                    tar.extractall(path=output_dir)
-                    files.extend([os.path.join(output_dir, f) for f in tar.getnames()])
-            elif file.endswith('.zip'):
-                with zipfile.ZipFile(arch, mode='r') as zf:
-                    zf.extractall(path=output_dir)
-                    files.extend([os.path.join(output_dir, f) for f in zf.namelist()])
-            else:
-                LOGGER.warning('file extension "{}" unknown'.format(file))
-        except Exception as e:
-            LOGGER.error('failed to extract sub archive {}: {}'.format(arch, e))
+                if file.endswith('.nc'):
+                    files.append(os.path.join(output_dir, arch))
+                elif file.endswith('.tar'):
+                    with tarfile.open(arch, mode='r') as tar:
+                        tar.extractall(path=output_dir)
+                        files.extend([os.path.join(output_dir, f) for f in tar.getnames()])
+                elif file.endswith('.zip'):
+                    with zipfile.ZipFile(arch, mode='r') as zf:
+                        zf.extractall(path=output_dir)
+                        files.extend([os.path.join(output_dir, f) for f in zf.namelist()])
+                elif file.endswith('.7z'):
+                    LOGGER.warning('7z file extraction is not supported at this time')
+                else:
+                    LOGGER.debug('File extension "{}" unknown'.format(file))
+            except Exception as e:
+                LOGGER.error('Failed to extract sub archive {}: {}'.format(arch, e))
+        else:
+            LOGGER.warning('No archives found. Continuing...')
+            return resources
+
     return files
 
 
-def archive_sniffer(file, working_dir, archive_types, extensions):
-    if any(ext in str(file).lower() for ext in archive_types):
-        extracted = extract_archive(file, working_dir)
-        for potential_file in extracted:
-            if any(str(potential_file).lower().endswith(ext) for ext in extensions):
-                return potential_file
-
-
-def multipolygon_check(geom):
-    """Perform a check to verify a geometry is a MultiPolygon
-
-    Parameters
-    ----------
-    geom : shapely.geometry
+def archive_sniffer(archives, working_dir, extensions):
     """
-    if isinstance(sgeo.shape(geom), sgeo.multipolygon.MultiPolygon):
-        LOGGER.warning("Shape is a Multipolygon.")
-    return
+    Return a list of locally unarchived files that match the desired extensions
+    :param archives : archive location or list of archive locations
+    :param working_dir: string or Path to a working location
+    :param extensions: [list of accepted extensions]
+    :return:
+    """
+    potential_files = []
+
+    decompressed_files = generic_extract_archive(archives, output_dir=working_dir)
+    for file in decompressed_files:
+        if any(ext in os.path.splitext(file) for ext in extensions):
+            return file
+    return potential_files
 
 
+def multipolygon_check(f):
+    pass
+    # def wrapper(*args, **kwargs):
+    #     """Perform a check to verify a geometry is a MultiPolygon
+    #
+    #        :params *args: shapely.geometry
+    #        """
+    #     if isinstance(type(*args), sgeo.multipolygon.MultiPolygon):
+    #         LOGGER.warning("Shape is a Multipolygon.")
+    #     print('ok!')
+    # return wrapper
+
+
+# @multipolygon_check
 def geom_prop(geom):
-    """Return a dictionary of properties for the given geometry.
-
-    Parameters
-    ----------
-    geom : shapely.geometry
     """
-    multipolygon_check(geom)
-
-    geom = sgeo.shape(geom)
-    out = {'centroid': (geom.centroid.x, geom.centroid.y)}
+    Return a dictionary of properties for the given geometry.
+    :param geom : shapely.geometry
+    :return dict : centroid with lon, lat fields
+    """
+    print('here')
+    shape = sgeo.shape(geom)
+    out = {'centroid': (shape.centroid.x, shape.centroid.y)}
+    if (out['centroid'][0] > 180) or (out['centroid'][0] < -180)\
+            or (out['centroid'][1] > 90) or (out['centroid'][1] < -90):
+        LOGGER.warning('Shape centroid is not in decimal degrees.')
     return out
 
 
-def geom_transform(geom, source_crs, target_crs):
-    """Return a projected geometry based on source and target CRS
-
-    Parameters
-    ----------
-    geom : shapely.geometry
-    source_crs : EPSG code (Default: 4326)
-    target_crs : EPSG code
-
-    Returns
-    -------
-    shapely.geometry
-      A projected shapely.geometry
+# @multipolygon_check
+def geom_transform(geom, source_crs=4326, target_crs=None):
     """
-    if not source_crs:
-        source_crs = 4326
-
+    Return a projected geometry based on source and target CRS
+    :param geom : shapely.geometry
+    :param source_crs : EPSG code (Default: 4326)
+    :param target_crs : EPSG code
+    :return shapely.geometry:
+    """
+    geom = sgeo.shape(geom)
     projected = ops.transform(
         partial(
             pyproj.transform,
             pyproj.Proj(from_epsg(source_crs)),
             pyproj.Proj(from_epsg(target_crs))),
         geom)
-
     return projected
 
 
+# @multipolygon_check
 def equal_area_geom_prop(geom):
-    """Return a dictionary of properties for the given equal area geometry.
-
-    Parameters
-    ----------
-    geom : shapely.geometry
-
-    Returns
-    -------
-    dict
-      Dictionary storing polygon area, perimeter and gravelius shape index.
     """
-    multipolygon_check(geom)
-
+    Return a dictionary of properties for the given equal area geometry.
+    :param geom : shapely.geometry
+    :return dict : Dictionary storing polygon area, perimeter and gravelius shape index.
+    """
+    print('over here')
     geom = sgeo.shape(geom)
     area = geom.area
     length = geom.length
