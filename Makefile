@@ -9,8 +9,11 @@ PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
-RAVEN_SRC = $(CURDIR)/src/RAVEN
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
+RAVEN_SRC    = $(CURDIR)/src/RAVEN
+OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
+OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
+OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 
@@ -89,16 +92,37 @@ raven_dev:
 	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
 
 
+.PHONY: ostrich_dev
+ostrich_dev:
+	@echo "Downloading OSTRICH calibration framework ..."
+	@test -d src || mkdir src
+	@test -f $(CURDIR)/src/OSTRICH.zip || curl $(OSTRICH_URL) --output "$(CURDIR)/src/OSTRICH.zip"
+	@echo "Unzipping OSTRICH ..."
+	@test -d $(OSTRICH_SRC) || unzip -j $(CURDIR)/src/OSTRICH.zip -d "$(OSTRICH_SRC)"
+	@echo "Compiling OSTRICH ..."
+	@test -f $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) || $(MAKE) $(OSTRICH_TARGET) -C $(OSTRICH_SRC) -j4
+	@test -d bin || mkdir bin
+	@-bash -c "cp $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) ./bin/ostrich"
+
+
 .PHONY: raven_clean
 raven_clean:
-	@echo "Removing src and executable"
+	@echo "Removing src and executable for RAVEN"
 	@test -f $(CURDIR)/src/RAVEN.zip && rm -v "$(CURDIR)/src/RAVEN.zip" || echo "No zip to remove"
 	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
 	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
 
 
+.PHONY: ostrich_clean
+ostrich_clean:
+	@echo "Removing src and executable for OSTRICH"
+	@test -f $(CURDIR)/src/OSTRICH.zip && rm -v "$(CURDIR)/src/OSTRICH.zip" || echo "No zip to remove"
+	@test -d $(OSTRICH_SRC) && rm -rfv $(OSTRICH_SRC) || echo "No src directory to remove"
+	@test -f ./bin/ostrich && rm -v ./bin/ostrich || echo "No executable to remove"
+
+
 .PHONY: install
-install: bootstrap raven_dev
+install: bootstrap raven_dev ostrich_dev
 	@echo "Installing application ..."
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && python setup.py develop"
 	@echo "\nStart service with \`make start'"
