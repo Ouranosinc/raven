@@ -142,6 +142,7 @@ class Ostrich:
     def configure(self, fns):
         """Read configuration files."""
         for fn in fns:
+            print(">>>>>>>>>>> fn = ",fn)
             name, ext = self.split_ext(fn)
             self._name = name
 
@@ -151,7 +152,10 @@ class Ostrich:
             self._conf[ext] = open(str(fn)).read()
 
     def assign(self, key, value):
-        """Assign parameter to rv object that has a key with the same name."""
+        """
+        Assign parameter to rv object that has a key with the same name.
+        For example, {run_name}, {longitude}, {elevation}.
+        """
         assigned = False
         for ext, obj in self.rvobjs.items():
             if hasattr(obj, key):
@@ -180,7 +184,28 @@ class Ostrich:
             params.update(val)
 
         for ext, txt in self.rv.items():
-            fn = str(self.model_path / (self.name + '.' + ext))
+            print("model_path                :: ", str(self.model_path))
+            print("model_path/model          :: ", str(self.model_path / 'model'))
+            print("name                      :: ", self.name)  # EMPTY :(
+
+            #fn = str(self.model_path / 'model' / (self.name + '.' + ext))  # this would be the correct version
+            fn = str(self.model_path / 'model' / ('raven-gr4j-cemaneige' + '.' + ext))   # this is a hack
+            
+            # ----------------------
+            # original file in raven-run-folder "model_path/model"
+            # ----------------------
+            with open(fn, 'w') as f:
+                # Write parameters into template.
+                if params:
+                    txt = txt.format(**params)
+
+                f.write(txt)
+
+            # ----------------------
+            # template files in ostrich folder "model_path"
+            # ----------------------
+            # fn = str(self.model_path / (self.name + '.' + ext + '.tpl'))     # this would be the correct version
+            fn = str(self.model_path / ('raven-gr4j-cemaneige' + '.' + ext + '.tpl'))   # this is a hack
 
             with open(fn, 'w') as f:
                 # Write parameters into template.
@@ -214,6 +239,9 @@ class Ostrich:
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
+
+        print("HAaaaaaaaaa :: files     = ",files)
+        print("HAaaaaaaaaa :: var_names = ",var_names)
         self.rvt.update(files, force=True)
         self.rvd.update(var_names, force=True)
 
@@ -225,7 +253,7 @@ class Ostrich:
         # needs to fill in information {calib_alg}, {calib_budget}, {calib_ranges} --> model/ostIn.txt
 
         # Write configuration files in model directory
-        # self._dump_rv(ts)    # RAVEN specific
+        self._dump_rv(ts)    # RAVEN specific
 
         # Create symbolic link to input files
         for fn in ts:
@@ -233,7 +261,9 @@ class Ostrich:
 
         # get OSTRICH setup file
 
-        files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh', 'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl']
+        files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh',
+                     'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl',
+                     'raven-gr4j-cemaneige.rvi', 'raven-gr4j-cemaneige.rvt', 'raven-gr4j-cemaneige.rvh']
         for ff in files:
             shutil.copy( str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / ff), str(self.model_path / ff))
         dirs = ['model']
@@ -242,6 +272,11 @@ class Ostrich:
 
             # Raven executable
             os.symlink(str(raven_exec), str(self.model_path / dd / Path(raven_exec).name))
+
+        # shutil.copytree(str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' ), str(self.model_path ))
+
+        # # Raven executable
+        # os.symlink(str(raven_exec), str(self.model_path / 'model' / Path(raven_exec).name))
         
         # Create symbolic link to executable
         os.symlink(ostrich_exec, str(self.cmd))
@@ -288,6 +323,8 @@ class Ostrich:
             else:
 
                 self.assign(key, val)
+
+            print("KJDHSSSSSSSSSSS: ",key, "   ", val)
 
         if self.rvi:
             self.handle_date_defaults(ts)
