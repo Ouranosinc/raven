@@ -189,12 +189,14 @@ class Ostrich:
             print("name                      :: ", self.name)  # EMPTY :(
 
             #fn = str(self.model_path / 'model' / (self.name + '.' + ext))  # this would be the correct version
-            fn = str(self.model_path / 'model' / ('raven-gr4j-cemaneige' + '.' + ext))   # this is a hack
+            fn = str(self.model_path / ('raven-gr4j-cemaneige' + '.' + ext))   # this is a hack
             
             # ----------------------
             # original file in raven-run-folder "model_path/model"
             # ----------------------
             with open(fn, 'w') as f:
+                print('fn: ',fn)
+                
                 # Write parameters into template.
                 if params:
                     txt = txt.format(**params)
@@ -205,9 +207,11 @@ class Ostrich:
             # template files in ostrich folder "model_path"
             # ----------------------
             # fn = str(self.model_path / (self.name + '.' + ext + '.tpl'))     # this would be the correct version
-            fn = str(self.model_path / ('raven-gr4j-cemaneige' + '.' + ext + '.tpl'))   # this is a hack
+            fn = str(self.model_path.parent / ('raven-gr4j-cemaneige' + '.' + ext + '.tpl'))   # this is a hack
 
             with open(fn, 'w') as f:
+                print('fn: ',fn)
+                
                 # Write parameters into template.
                 if params:
                     txt = txt.format(**params)
@@ -240,8 +244,6 @@ class Ostrich:
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
 
-        print("HAaaaaaaaaa :: files     = ",files)
-        print("HAaaaaaaaaa :: var_names = ",var_names)
         self.rvt.update(files, force=True)
         self.rvd.update(var_names, force=True)
 
@@ -260,10 +262,9 @@ class Ostrich:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # get OSTRICH setup file
-
         files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh',
-                     'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl',
-                     'raven-gr4j-cemaneige.rvi', 'raven-gr4j-cemaneige.rvt', 'raven-gr4j-cemaneige.rvh']
+                     'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl']
+                #     'model/raven-gr4j-cemaneige.rvi', 'model/raven-gr4j-cemaneige.rvt', 'model/raven-gr4j-cemaneige.rvh']
         for ff in files:
             shutil.copy( str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / ff), str(self.model_path / ff))
         dirs = ['model']
@@ -272,11 +273,6 @@ class Ostrich:
 
             # Raven executable
             os.symlink(str(raven_exec), str(self.model_path / dd / Path(raven_exec).name))
-
-        # shutil.copytree(str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' ), str(self.model_path ))
-
-        # # Raven executable
-        # os.symlink(str(raven_exec), str(self.model_path / 'model' / Path(raven_exec).name))
         
         # Create symbolic link to executable
         os.symlink(ostrich_exec, str(self.cmd))
