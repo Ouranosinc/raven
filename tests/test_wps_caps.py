@@ -19,6 +19,7 @@ def test_wps_caps():
                   'raven-mohyse',
                   'raven-hmets',
                   'raven-hbv-ec',
+                  'ostrich-gr4j-cemaneige',
                   'objective-function',
                   # 'regionalisation',
                   }
