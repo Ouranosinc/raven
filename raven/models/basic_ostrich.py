@@ -24,7 +24,7 @@ from .rv import RV, RVI, isinstance_namedtuple
 import numpy as np
 
 ostrich_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'ostrich')
-
+raven_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'raven')
 
 class Ostrich:
     """Wrapper for OSTRICH calibration of RAVEN hydrological model
@@ -220,13 +220,29 @@ class Ostrich:
         # Compute derived parameters
         self.derived_parameters()
 
+        # needs to fill in {run_name}, {start_date}, {duration}, {time_step}, etc. --> model/model/*.rv*  OR model/*.rv*.tpl
+
+        # needs to fill in information {calib_alg}, {calib_budget}, {calib_ranges} --> model/ostIn.txt
+
         # Write configuration files in model directory
-        self._dump_rv(ts)
+        # self._dump_rv(ts)    # RAVEN specific
 
         # Create symbolic link to input files
         for fn in ts:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
+        # get OSTRICH setup file
+
+        files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh', 'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl']
+        for ff in files:
+            shutil.copy( str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / ff), str(self.model_path / ff))
+        dirs = ['model']
+        for dd in dirs:
+            shutil.copytree(str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / dd), str(self.model_path / dd))
+
+            # Raven executable
+            os.symlink(str(raven_exec), str(self.model_path / dd / Path(raven_exec).name))
+        
         # Create symbolic link to executable
         os.symlink(ostrich_exec, str(self.cmd))
 
@@ -252,6 +268,8 @@ class Ostrich:
         >>> r.configure(rvi=<path to template>, rvp=...}
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
         """
+        import shutil
+        
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
@@ -276,12 +294,15 @@ class Ostrich:
 
         self.setup_model(tuple(map(Path, ts)), overwrite)
 
-        # Run the model
-        print('JMJMJM :: ',map(str, [self.cmd, self.model_path / self.name]))
-        subprocess.call(map(str, [self.cmd, self.model_path / self.name]))
+        # Run the model (OSTRICH needs to be executed in directory of executable)
+        prevdir = os.getcwd()
+        os.chdir(self.model_path)
+        subprocess.call(map(str, [self.cmd]))
+        os.chdir(prevdir)
         
-        stop
-
+        # make a secure copy
+        shutil.copytree(str(self.model_path), '/Users/j6mai/Downloads/__WPS_save')
+        
         # Store output file names in dict
         for key in self._output_fn.keys():
             self.outputs[key] = self._get_output(key)
