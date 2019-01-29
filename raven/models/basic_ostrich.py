@@ -20,7 +20,7 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RV, RVI, isinstance_namedtuple
+from raven.models.rv import RV, RVI, isinstance_namedtuple
 import numpy as np
 
 ostrich_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'ostrich')
@@ -75,7 +75,7 @@ class Ostrich:
         self._defaults = {}
 
         # Configuration file extensions + rvd for derived parameters.
-        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd')
+        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd', 'sh', 'tpl', 'txt')
 
         # The configuration file content is stored in conf.
         self._conf = dict.fromkeys(self._rvext, "")
@@ -189,8 +189,8 @@ class Ostrich:
             print("name                      :: ", self.name)  # EMPTY :(
 
             #fn = str(self.model_path / 'model' / (self.name + '.' + ext))  # this would be the correct version
-            fn = str(self.model_path / ('raven-gr4j-cemaneige' + '.' + ext))   # this is a hack
-            
+            fn = str(self.model_path / 'model' / ('raven-gr4j-cemaneige' + '.' + ext))   # this is a hack
+
             # ----------------------
             # original file in raven-run-folder "model_path/model"
             # ----------------------
@@ -262,8 +262,8 @@ class Ostrich:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # get OSTRICH setup file
-        files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh',
-                     'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl']
+        files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh'] #,
+                #     'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl']
                 #     'model/raven-gr4j-cemaneige.rvi', 'model/raven-gr4j-cemaneige.rvt', 'model/raven-gr4j-cemaneige.rvh']
         for ff in files:
             shutil.copy( str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / ff), str(self.model_path / ff))
@@ -273,7 +273,7 @@ class Ostrich:
 
             # Raven executable
             os.symlink(str(raven_exec), str(self.model_path / dd / Path(raven_exec).name))
-        
+
         # Create symbolic link to executable
         os.symlink(ostrich_exec, str(self.cmd))
 
@@ -300,7 +300,7 @@ class Ostrich:
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
         """
         import shutil
-        
+
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
@@ -332,10 +332,10 @@ class Ostrich:
         os.chdir(self.model_path)
         subprocess.call(map(str, [self.cmd]))
         os.chdir(prevdir)
-        
+
         # make a secure copy
         shutil.copytree(str(self.model_path), '/Users/j6mai/Downloads/__WPS_save')
-        
+
         # Store output file names in dict
         for key in self._output_fn.keys():
             self.outputs[key] = self._get_output(key)
@@ -491,7 +491,7 @@ class Ostrich:
 
 
 class GR4JCN_OST(Ostrich):
-    
+
     templates = (     tuple( Path('ostrich-gr4j-cemaneige').glob("*.sh")) +
                       tuple( Path('ostrich-gr4j-cemaneige').glob("*.tpl")) +
                       tuple( Path('ostrich-gr4j-cemaneige').glob("*.txt")) +
