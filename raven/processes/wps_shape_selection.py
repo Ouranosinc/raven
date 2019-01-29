@@ -125,9 +125,13 @@ class ShapeSelectionProcess(Process):
             LOGGER.error(msg)
             return response
 
-        response.outputs['properties'].data = json.dumps(properties)
-        response.outputs['geometry'].data = json.dumps(geometry)
-        response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
+        # response.outputs['properties'].data = json.dumps(properties)
+        # response.outputs['geometry'].data = json.dumps(geometry)
+        # response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
+
+        response.outputs['properties'] = properties
+        response.outputs['geometry'] = geometry
+        response.outputs['upstream_basins'] = upstream_basins
 
         return response
 
@@ -138,7 +142,9 @@ if __name__ == '__main__':
                   lonlat_coordinate="(-68.724444, 50.646667)",
                   crs=4326,
                   shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev12_v1c.zip')
+
     outputs = {}
-    c = ShapeSelectionProcess()._handler(inputs)
+
+    c = ShapeSelectionProcess()._handler(request=inputs, response=outputs)
 
     print(outputs)
