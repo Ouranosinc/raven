@@ -1,56 +1,8 @@
-import pytest
 from . common import TESTDATA
-from raven.models import Raven, Ostrich, GR4JCN, HMETS
+from raven.models import Raven, GR4JCN, HMETS
 import tempfile
 import datetime as dt
 import numpy as np
-
-
-class TestRaven:
-
-    def test_gr4j(self):
-        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
-        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-
-        model = Raven()
-        model.configure(rvs)
-        model.run(ts)
-
-    def test_mohyse(self):
-        rvs = TESTDATA['raven-mohyse-rv']
-        ts = list(TESTDATA['raven-mohyse-ts'])
-
-        model = Raven(tempfile.mkdtemp())
-        model.configure(rvs)
-        model.run(ts)
-
-    def test_hmets(self):
-        rvs = TESTDATA['raven-hmets-rv']
-        ts = TESTDATA['raven-hmets-ts']
-
-        model = Raven(tempfile.mkdtemp())
-        model.configure(rvs)
-        model.run(ts)
-
-    def test_hbvec(self):
-        rvs = TESTDATA['raven-hbv-ec-rv']
-        ts = TESTDATA['raven-hbv-ec-ts']
-
-        model = Raven(tempfile.mkdtemp())
-        model.configure(rvs)
-        model.run(ts)
-
-
-class TestOstrich:
-
-    def test_gr4j_with_no_tags(self):
-        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-        ost = TESTDATA['ostrich-gr4j-cemaneige']
-
-        model = Ostrich()
-        model.configure(ost)
-        print(model.exec_path)
-        model.run(ts)
 
 
 class TestGR4JCemaneige:
@@ -85,7 +37,7 @@ class TestGR4JCemaneige:
         model = GR4JCN(tempfile.mkdtemp())
 
         tags = model.tags
-        assert 'run_name' in tags['rvi']
+        assert 'run_name' in tags
 
     def test_rvobjs(self):
         model = GR4JCN(tempfile.mkdtemp())
