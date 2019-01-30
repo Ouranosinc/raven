@@ -1,7 +1,27 @@
 import pytest
-from raven.models.rv import RV, RVI, isinstance_namedtuple
+from raven.models.rv import RV, RVI, RVFile, isinstance_namedtuple
 import datetime as dt
 from collections import namedtuple
+from .common import TESTDATA
+
+
+class TestRVFile:
+
+    def test_simple_rv(self):
+        rvp = TESTDATA['raven-hmets-rv'][0]
+        rvf = RVFile(rvp)
+
+        assert rvf.ext == 'rvp'
+        assert rvf.stem == 'raven-hmets-salmon'
+        assert not rvf.is_tpl
+
+    def test_simple_tpl(self):
+        rvp = TESTDATA['ostrich-gr4j-cemaneige'][-1]
+        rvf = RVFile(rvp)
+
+        assert rvf.ext == 'rvp'
+        assert rvf.stem == 'raven-gr4j-salmon'
+        assert rvf.is_tpl
 
 
 class TestRV:

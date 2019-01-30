@@ -21,11 +21,9 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
+from raven.models import Raven
 from raven.models.rv import RV, RVI, isinstance_namedtuple
 import numpy as np
-
-ostrich_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'ostrich')
-raven_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'raven')
 
 
 def make_executable(fn):
@@ -65,7 +63,7 @@ exit 0
 """
 
 
-class Ostrich:
+class Ostrich(Raven):
     """Wrapper for OSTRICH calibration of RAVEN hydrological model
 
     This class is used to calibrate RAVEN model using OSTRICH from user-provided configuration files. It can also be
@@ -84,91 +82,15 @@ class Ostrich:
     tpl
       The Ostrich templates
 
-
-
     """
     identifier = 'generic-ostrich'
-    templates = ()  # Includes both rv and tpl files.
-    rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
     txt = RV()
-
-    # Output files default names. The actual output file names will be composed of the run_name and the default name.
-    _output_fn = {'hydrograph': 'Hydrographs.nc',
-                  'storage': 'WatershedStorage.nc',
-                  'solution': 'solution.rvc',
-                  'diagnostics': 'Diagnostics.csv'}
-
-    # Dictionary of potential variable names, keyed by CF standard name.
-    # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
-    # PET is the potential evapotranspiration, while evspsbl is the actual evap.
-    _variable_names = {'tasmin': ['tasmin', 'tmin'],
-                       'tasmax': ['tasmax', 'tmax'],
-                       'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
-                       'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
-                       'evspsbl': ['pet', 'evap', 'evapotranspiration'],
-                       'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
-                       }
-
-    def __init__(self, workdir=None):
-        """Initialize the OSTRICH calibration of RAVEN model.
-
-        Parameters
-        ----------
-        workdir : str, Path
-          Directory for the model configuration and outputs. If None, a temporary directory will be created.
-        """
-        workdir = workdir or tempfile.mkdtemp()
-        self.workdir = Path(workdir)
-        self.outputs = {}
-
-        self._name = None
-        self._defaults = {}
-
-        # Configuration file extensions + rvd for derived parameters.
-        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd', 'txt')
-
-        # The configuration file content is stored in conf.
-        self._conf = {}
-
-        # The Ostrich templates
-        self._tpl = {}
-
-        # Model parameters - dictionary representation of rv attributes.
-        self._parameters = dict.fromkeys(self._rvext, OrderedDict())
-
-        # For subclasses where the configuration file templates are known in advance.
-        if self.templates:
-            self.configure(self.templates)
-
-    @property
-    def version(self):
-        import re
-        out = subprocess.check_output([ostrich_exec, ])
-        match = re.search(r"Version (\S+) ", out.decode('utf-8'))
-        if match:
-            return match.groups()[0]
-        else:
-            raise AttributeError("Version not found: {}".format(out))
-
-    @property
-    def raven_cmd(self):
-        """OSTRICH executable path."""
-        return self.model_path / 'raven'
+    ostrich_exec = raven.ostrich_exec
 
     @property
     def ostrich_cmd(self):
         """OSTRICH executable path."""
         return self.run_path / 'ostrich'
-
-    @property
-    def run_path(self):
-        """Path to the Ostrich templates."""
-        return self.workdir / 'ost'
-
-    @property
-    def model_path(self):
-        """Path to the model executable and configuration files. """
-        return self.run_path / 'model'
 
     @property
     def best_path(self):
@@ -181,49 +103,14 @@ class Ostrich:
         return self.best_path
 
     @property
-    def name(self):
-        """Name of the model configuration."""
-        return self._name
-
-    @name.setter
-    def name(self, x):
-        if self._name is None:
-            self._name = x
-        elif x != self._name:
-            raise UserWarning("Model configuration name changed.")
-
-    @property
-    def conf(self):
-        """Dictionary of Raven configuration files content keyed by extension."""
-        return self._conf
-
-    @property
     def tpl(self):
         """Dictionary of Ostrich template files content keyed by extension."""
         return self._tpl
 
     @property
-    def configuration(self):
-        """Configuration dictionaries."""
-        return {ext: OrderedDict(getattr(self, ext).to_dict()) for ext in self._rvext}
-
-    @property
     def rv(self):
         """Dictionary of the configuration files."""
         return {ext: self._conf.get(ext, self._tpl.get(ext, "")) for ext in self._rvext}
-
-    @property
-    def rvobjs(self):
-        """Generator for (ext, rv object)."""
-        return {ext: getattr(self, ext) for ext in self._rvext}
-
-    @staticmethod
-    def split_ext(fn):
-        """Return the name and rv key of the configuration file."""
-        if isinstance(fn, six.string_types):
-            fn = Path(fn)
-
-        return (fn.stem, fn.suffix[1:])
 
     def configure(self, fns):
         """Read configuration files."""
@@ -366,10 +253,10 @@ class Ostrich:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # Raven executable
-        os.symlink(raven_exec, str(self.raven_cmd))
+        os.symlink(self.raven_exec, str(self.raven_cmd))
 
         # Create symbolic link to executable
-        os.symlink(ostrich_exec, str(self.ostrich_cmd))
+        os.symlink(self.ostrich_exec, str(self.ostrich_cmd))
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -574,11 +461,10 @@ class Ostrich:
 
 
 class GR4JCN_OST(Ostrich):
-    templates = (tuple(Path('ostrich-gr4j-cemaneige').glob("*.sh")) +
-                 tuple(Path('ostrich-gr4j-cemaneige').glob("*.tpl")) +
+    """templates = (tuple(Path('ostrich-gr4j-cemaneige').glob("*.tpl")) +
                  tuple(Path('ostrich-gr4j-cemaneige').glob("*.txt")) +
                  tuple(Path('ostrich-gr4j-cemaneige/model').glob("*.rv*")))
-
+    """
     class RVP(RV):
         params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
 

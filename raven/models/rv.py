@@ -1,7 +1,7 @@
 import six
 import datetime as dt
 import collections
-
+from pathlib import Path
 
 """
 Raven configuration
@@ -29,6 +29,43 @@ values can then be modified either using attributes or properties::
 Simulation end date and duration are updated automatically when duration, start date or end date are changed.
 
 """
+
+
+class RVFile:
+
+    def __init__(self, fn):
+        self.fn = Path(fn)
+
+        self.ext = ""
+        self._store_ext()
+
+        self.content = ""
+        self._store_content()
+
+    def _store_content(self):
+        with open(self.fn) as f:
+            self.content = f.read()
+
+    def _store_ext(self):
+        self.ext = self.fn.suffixes[0][1:]
+
+    @property
+    def is_tpl(self):
+        return self.fn.suffix == '.tpl'
+
+    @property
+    def stem(self):
+        return Path(self.fn.stem).stem
+
+    def write(self, path, **kwds):
+        fn = path / self.fn.name
+
+        content = self.content
+        if kwds:
+            content = content.format(**kwds)
+
+        with open(fn, 'w') as f:
+            f.write(content)
 
 
 class RV(collections.Mapping):
@@ -109,7 +146,6 @@ class RV(collections.Mapping):
 
 
 class RVI(RV):
-    """Configuration class for rvp, rvh, rvc"""
     def __init__(self, **kwargs):
         self.name = None
         self.area = None
