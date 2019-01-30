@@ -6,6 +6,10 @@ Classes
 
 Raven : A generic class that knows how to launch the model from completed rv files.
 
+
+
+
+
 GR4JCemaneige: The Raven emulator for GR4J-Cemaneige. Uses template configuration files whose value can be
 automatically filled in.
 
@@ -20,10 +24,8 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RV, RVI, isinstance_namedtuple
+from .rv import RVFile, RV, RVI, isinstance_namedtuple
 import numpy as np
-
-raven_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'raven')
 
 
 class Raven:
@@ -36,9 +38,6 @@ class Raven:
     -----
     >>> r = Raven('/tmp/testdir')
     >>> r.configure()
-
-
-
 
     """
     identifier = 'generic-raven'
@@ -73,18 +72,13 @@ class Raven:
         workdir = workdir or tempfile.mkdtemp()
         self.workdir = Path(workdir)
         self.outputs = {}
-
+        self.raven_exec = raven.raven_exec
         self._name = None
         self._defaults = {}
+        self.rvfiles = []
 
         # Configuration file extensions + rvd for derived parameters.
         self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd')
-
-        # The configuration file content is stored in conf.
-        self._conf = dict.fromkeys(self._rvext, "")
-
-        # Model parameters - dictionary representation of rv attributes.
-        self._parameters = dict.fromkeys(self._rvext, OrderedDict())
 
         # For subclasses where the configuration file templates are known in advance.
         if self.templates:
@@ -93,7 +87,7 @@ class Raven:
     @property
     def version(self):
         import re
-        out = subprocess.check_output([raven_exec, ])
+        out = subprocess.check_output([self.raven_exec, ])
         match = re.search(r"Version (\S+) ", out.decode('utf-8'))
         if match:
             return match.groups()[0]
@@ -102,13 +96,23 @@ class Raven:
 
     @property
     def cmd(self):
-        """RAVEN executable path."""
+        """OSTRICH executable path."""
         return self.model_path / 'raven'
+
+    @property
+    def run_path(self):
+        """Path to the Ostrich templates."""
+        return self.workdir / 'exec'
 
     @property
     def model_path(self):
         """Path to the model executable and configuration files. """
-        return self.workdir / 'model'
+        return self.run_path / 'model'
+
+    @property
+    def output_path(self):
+        """Path to the model outputs and logs."""
+        return self.model_path / 'output'
 
     @property
     def name(self):
@@ -123,19 +127,17 @@ class Raven:
             raise UserWarning("Model configuration name changed.")
 
     @property
-    def output_path(self):
-        """Path to the model outputs and logs."""
-        return self.workdir / 'output'
-
-    @property
     def configuration(self):
         """Configuration dictionaries."""
         return {ext: OrderedDict(getattr(self, ext).to_dict()) for ext in self._rvext}
 
     @property
-    def rv(self):
-        """Dictionary of the configuration files."""
-        return {ext: self._conf[ext] for ext in self._rvext}
+    def parameters(self):
+        """Dictionary storing all parameters."""
+        params = {}
+        for key, val in self.configuration.items():
+            params.update(val)
+        return params
 
     @property
     def rvobjs(self):
@@ -145,13 +147,12 @@ class Raven:
     def configure(self, fns):
         """Read configuration files."""
         for fn in fns:
-            name, ext = self.split_ext(fn)
-            self._name = name
-
-            if ext not in self._rvext:
-                raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
-
-            self._conf[ext] = open(str(fn)).read()
+            rvf = RVFile(fn)
+            if rvf.ext not in self._rvext:
+                raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(rvf.ext))
+            else:
+                setattr(self, 'name', rvf.stem)
+                self.rvfiles.append(rvf)
 
     def assign(self, key, value):
         """Assign parameter to rv object that has a key with the same name."""
@@ -176,21 +177,11 @@ class Raven:
 
     def _dump_rv(self, ts):
         """Write configuration files to disk."""
+        params = self.parameters
 
-        # Merge all parameter dictionaries
-        params = {}
-        for key, val in self.configuration.items():
-            params.update(val)
-
-        for ext, txt in self.rv.items():
-            fn = str(self.model_path / (self.name + '.' + ext))
-
-            with open(fn, 'w') as f:
-                # Write parameters into template.
-                if params:
-                    txt = txt.format(**params)
-
-                f.write(txt)
+        for rvf in self.rvfiles:
+            p = self.run_path if rvf.is_tpl else self.model_path
+            rvf.write(p, **params)
 
     def setup_model(self, ts, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
@@ -212,8 +203,9 @@ class Raven:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
-        os.makedirs(str(self.output_path))
-        os.makedirs(str(self.model_path))
+        os.makedirs(str(self.run_path))
+        os.makedirs(str(self.model_path), exist_ok=True)
+        os.makedirs(str(self.output_path), exist_ok=True)
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
@@ -231,7 +223,7 @@ class Raven:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # Create symbolic link to executable
-        os.symlink(raven_exec, str(self.cmd))
+        os.symlink(self.raven_exec, str(self.cmd))
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
