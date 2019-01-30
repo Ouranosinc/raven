@@ -6,14 +6,15 @@ Classes
 
 Ostrich : A generic class that knows how calibrate a model if ostIn.txt and all required files are given.
 
-GR4JCemaneige: The Ostrich calibration of a Raven emulator for GR4J-Cemaneige. Uses template configuration files whose value can be
+GR4JCemaneige: The Ostrich calibration of a Raven emulator for GR4J-Cemaneige. Uses template configuration files
+whose value can be
 automatically filled in.
 
 """
 import raven
 from pathlib import Path
 from collections import OrderedDict, namedtuple
-import os, errno
+import os, stat
 import subprocess
 import tempfile
 import csv
@@ -26,10 +27,49 @@ import numpy as np
 ostrich_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'ostrich')
 raven_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'raven')
 
+
+def make_executable(fn):
+    """Make file executable."""
+    st = os.stat(fn)
+    os.chmod(fn, st.st_mode | stat.S_IEXEC)
+
+
+save_best = """#!/bin/bash
+
+set -e
+
+echo "saving input files for the best solution found ..."
+
+if [ ! -e best ] ; then
+    mkdir best
+fi
+
+cp ./model/*.rv?  ../best/
+cp ./model/output/* ../best/
+
+exit 0
+"""
+
+ostric_runs_raven = """
+#!/bin/bash
+
+set -e
+
+echo "Running raven ..."
+
+cp ./*.rv? model/
+
+./model/raven ./model/raven-gr4j-salmon -o ./model/output/
+
+exit 0
+"""
+
+
 class Ostrich:
     """Wrapper for OSTRICH calibration of RAVEN hydrological model
 
-    This class is used to calibrate RAVEN model using OSTRICH from user-provided configuration files. It can also be subclassed with
+    This class is used to calibrate RAVEN model using OSTRICH from user-provided configuration files. It can also be
+    subclassed with
     configuration templates for emulated models, allowing direct calls to the models.
 
     Usage
@@ -37,10 +77,20 @@ class Ostrich:
     >>> r = Ostrich('/tmp/testdir')
     >>> r.configure()
 
+    Attributes
+    ----------
+    conf
+      The rv configuration files + Ostrict ostIn.txt
+    tpl
+      The Ostrich templates
+
+
+
     """
     identifier = 'generic-ostrich'
-    templates = ()
+    templates = ()  # Includes both rv and tpl files.
     rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
+    txt = RV()
 
     # Output files default names. The actual output file names will be composed of the run_name and the default name.
     _output_fn = {'hydrograph': 'Hydrographs.nc',
@@ -75,10 +125,13 @@ class Ostrich:
         self._defaults = {}
 
         # Configuration file extensions + rvd for derived parameters.
-        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd', 'sh', 'tpl', 'txt')
+        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd', 'txt')
 
         # The configuration file content is stored in conf.
-        self._conf = dict.fromkeys(self._rvext, "")
+        self._conf = {}
+
+        # The Ostrich templates
+        self._tpl = {}
 
         # Model parameters - dictionary representation of rv attributes.
         self._parameters = dict.fromkeys(self._rvext, OrderedDict())
@@ -98,14 +151,34 @@ class Ostrich:
             raise AttributeError("Version not found: {}".format(out))
 
     @property
-    def cmd(self):
+    def raven_cmd(self):
         """OSTRICH executable path."""
-        return self.model_path / 'ostrich'
+        return self.model_path / 'raven'
+
+    @property
+    def ostrich_cmd(self):
+        """OSTRICH executable path."""
+        return self.run_path / 'ostrich'
+
+    @property
+    def run_path(self):
+        """Path to the Ostrich templates."""
+        return self.workdir / 'ost'
 
     @property
     def model_path(self):
         """Path to the model executable and configuration files. """
-        return self.workdir / 'model'
+        return self.run_path / 'model'
+
+    @property
+    def best_path(self):
+        """Path to the best output."""
+        return self.run_path / 'best'
+
+    @property
+    def output_path(self):
+        """Path to the model outputs and logs."""
+        return self.best_path
 
     @property
     def name(self):
@@ -120,9 +193,14 @@ class Ostrich:
             raise UserWarning("Model configuration name changed.")
 
     @property
-    def output_path(self):
-        """Path to the model outputs and logs."""
-        return self.workdir / 'output'
+    def conf(self):
+        """Dictionary of Raven configuration files content keyed by extension."""
+        return self._conf
+
+    @property
+    def tpl(self):
+        """Dictionary of Ostrich template files content keyed by extension."""
+        return self._tpl
 
     @property
     def configuration(self):
@@ -132,24 +210,40 @@ class Ostrich:
     @property
     def rv(self):
         """Dictionary of the configuration files."""
-        return {ext: self._conf[ext] for ext in self._rvext}
+        return {ext: self._conf.get(ext, self._tpl.get(ext, "")) for ext in self._rvext}
 
     @property
     def rvobjs(self):
         """Generator for (ext, rv object)."""
         return {ext: getattr(self, ext) for ext in self._rvext}
 
+    @staticmethod
+    def split_ext(fn):
+        """Return the name and rv key of the configuration file."""
+        if isinstance(fn, six.string_types):
+            fn = Path(fn)
+
+        return (fn.stem, fn.suffix[1:])
+
     def configure(self, fns):
         """Read configuration files."""
+
         for fn in fns:
-            print(">>>>>>>>>>> fn = ",fn)
+            print(">>>>>>>>>>> fn = ", fn)
             name, ext = self.split_ext(fn)
+
+            if ext == 'tpl':  # Ostrich template
+                name, ext = self.split_ext(name)
+                store = self._tpl
+            else:
+                store = self._conf
+
             self._name = name
 
             if ext not in self._rvext:
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
 
-            self._conf[ext] = open(str(fn)).read()
+            store[ext] = open(str(fn)).read()
 
     def assign(self, key, value):
         """
@@ -183,49 +277,54 @@ class Ostrich:
         for key, val in self.configuration.items():
             params.update(val)
 
-        for ext, txt in self.rv.items():
-            print("model_path                :: ", str(self.model_path))
-            print("model_path/model          :: ", str(self.model_path / 'model'))
-            print("name                      :: ", self.name)  # EMPTY :(
+        for ext in self._rvext:
+            if ext in self.conf:
+                txt = self.conf[ext]
 
-            #fn = str(self.model_path / 'model' / (self.name + '.' + ext))  # this would be the correct version
-            fn = str(self.model_path / 'model' / ('raven-gr4j-cemaneige' + '.' + ext))   # this is a hack
+                if ext == 'txt':
+                    fn = str(self.run_path / 'ostIn.txt')
+                else:
+                    fn = str(self.model_path / (self.name + '.' + ext))
 
-            # ----------------------
-            # original file in raven-run-folder "model_path/model"
-            # ----------------------
+            elif ext in self.tpl:
+                txt = self.tpl[ext]
+                fn = str(self.run_path / (self.name + '.' + ext + '.tpl'))
+
+            else:
+                continue
+
             with open(fn, 'w') as f:
-                print('fn: ',fn)
-                
                 # Write parameters into template.
                 if params:
                     txt = txt.format(**params)
 
                 f.write(txt)
 
-            # ----------------------
-            # template files in ostrich folder "model_path"
-            # ----------------------
-            # fn = str(self.model_path / (self.name + '.' + ext + '.tpl'))     # this would be the correct version
-            fn = str(self.model_path.parent / ('raven-gr4j-cemaneige' + '.' + ext + '.tpl'))   # this is a hack
+    def write_save_best(self):
+        fn = self.run_path / 'save_best.sh'
+        with open(fn, 'w') as f:
+            f.write(save_best)
+        make_executable(fn)
 
-            with open(fn, 'w') as f:
-                print('fn: ',fn)
-                
-                # Write parameters into template.
-                if params:
-                    txt = txt.format(**params)
-
-                f.write(txt)
+    def write_ostrich_runs_raven(self):
+        fn = self.run_path / 'ostrich-runs-raven.sh'
+        with open(fn, 'w') as f:
+            f.write(ostric_runs_raven)
+        make_executable(fn)
 
     def setup_model(self, ts, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
 
         Model configuration files and time series inputs are stored directly in the working directory.
 
-        workdir/  # Created by PyWPS. Is considered the model path.
+        workdir/  # Created by PyWPS.
+           *.rv?
+           *.tpl
+           ostIn.txt
            model/
            output/
+
+        At each Ostrich loop, configuration files (original and created from templates are copied into model/.
 
         """
         import shutil
@@ -238,8 +337,13 @@ class Ostrich:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
-        os.makedirs(str(self.output_path))
-        os.makedirs(str(self.model_path))
+        os.makedirs(str(self.run_path))
+        os.makedirs(str(self.model_path), exist_ok=True)
+        os.makedirs(str(self.output_path), exist_ok=True)
+        os.makedirs(str(self.best_path), exist_ok=True)
+
+        self.write_ostrich_runs_raven()
+        self.write_save_best()
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
@@ -250,32 +354,22 @@ class Ostrich:
         # Compute derived parameters
         self.derived_parameters()
 
-        # needs to fill in {run_name}, {start_date}, {duration}, {time_step}, etc. --> model/model/*.rv*  OR model/*.rv*.tpl
-
+        # needs to fill in {run_name}, {start_date}, {duration}, {time_step}, etc. --> model/model/*.rv*  OR
+        # model/*.rv*.tpl
         # needs to fill in information {calib_alg}, {calib_budget}, {calib_ranges} --> model/ostIn.txt
 
         # Write configuration files in model directory
-        self._dump_rv(ts)    # RAVEN specific
+        self._dump_rv(ts)  # RAVEN specific
 
         # Create symbolic link to input files
         for fn in ts:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
-        # get OSTRICH setup file
-        files = ['ostIn.txt', 'ostrich-runs-raven.sh', 'save_best.sh'] #,
-                #     'raven-gr4j-cemaneige.rvc.tpl', 'raven-gr4j-cemaneige.rvp.tpl']
-                #     'model/raven-gr4j-cemaneige.rvi', 'model/raven-gr4j-cemaneige.rvt', 'model/raven-gr4j-cemaneige.rvh']
-        for ff in files:
-            shutil.copy( str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / ff), str(self.model_path / ff))
-        dirs = ['model']
-        for dd in dirs:
-            shutil.copytree(str(Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'ostrich-gr4j-cemaneige' / dd), str(self.model_path / dd))
-
-            # Raven executable
-            os.symlink(str(raven_exec), str(self.model_path / dd / Path(raven_exec).name))
+        # Raven executable
+        os.symlink(raven_exec, str(self.raven_cmd))
 
         # Create symbolic link to executable
-        os.symlink(ostrich_exec, str(self.cmd))
+        os.symlink(ostrich_exec, str(self.ostrich_cmd))
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -320,7 +414,7 @@ class Ostrich:
 
                 self.assign(key, val)
 
-            print("KJDHSSSSSSSSSSS: ",key, "   ", val)
+            print("KJDHSSSSSSSSSSS: ", key, "   ", val)
 
         if self.rvi:
             self.handle_date_defaults(ts)
@@ -329,12 +423,9 @@ class Ostrich:
 
         # Run the model (OSTRICH needs to be executed in directory of executable)
         prevdir = os.getcwd()
-        os.chdir(self.model_path)
-        subprocess.call(map(str, [self.cmd]))
+        os.chdir(self.run_path)
+        subprocess.call(map(str, [self.ostrich_cmd]))
         os.chdir(prevdir)
-
-        # make a secure copy
-        shutil.copytree(str(self.model_path), '/Users/j6mai/Downloads/__WPS_save')
 
         # Store output file names in dict
         for key in self._output_fn.keys():
@@ -481,21 +572,12 @@ class Ostrich:
 
         return out
 
-    @staticmethod
-    def split_ext(fn):
-        """Return the name and rv key of the configuration file."""
-        if isinstance(fn, six.string_types):
-            fn = Path(fn)
-
-        return (fn.stem, fn.suffix[1:])
-
 
 class GR4JCN_OST(Ostrich):
-
-    templates = (     tuple( Path('ostrich-gr4j-cemaneige').glob("*.sh")) +
-                      tuple( Path('ostrich-gr4j-cemaneige').glob("*.tpl")) +
-                      tuple( Path('ostrich-gr4j-cemaneige').glob("*.txt")) +
-                      tuple( Path('ostrich-gr4j-cemaneige/model').glob("*.rv*") ) )
+    templates = (tuple(Path('ostrich-gr4j-cemaneige').glob("*.sh")) +
+                 tuple(Path('ostrich-gr4j-cemaneige').glob("*.tpl")) +
+                 tuple(Path('ostrich-gr4j-cemaneige').glob("*.txt")) +
+                 tuple(Path('ostrich-gr4j-cemaneige/model').glob("*.rv*")))
 
     class RVP(RV):
         params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
@@ -509,7 +591,6 @@ class GR4JCN_OST(Ostrich):
     def derived_parameters(self):
         self.rvd.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
         self.rvd.one_minus_CEMANEIGE_X2 = 1.0 - self.rvp.params.CEMANEIGE_X2
-
 
 # class MOHYSE(Raven):
 #     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))

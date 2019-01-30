@@ -1,6 +1,6 @@
 import pytest
 from . common import TESTDATA
-from raven.models import Raven, GR4JCN, HMETS
+from raven.models import Raven, Ostrich, GR4JCN, HMETS
 import tempfile
 import datetime as dt
 import numpy as np
@@ -38,6 +38,18 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
+        model.run(ts)
+
+
+class TestOstrich:
+
+    def test_gr4j_with_no_tags(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        ost = TESTDATA['ostrich-gr4j-cemaneige']
+
+        model = Ostrich()
+        model.configure(ost)
+        print(model.run_path)
         model.run(ts)
 
 
