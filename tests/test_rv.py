@@ -1,8 +1,10 @@
 import pytest
+import raven
 from raven.models.rv import RV, RVI, RVFile, isinstance_namedtuple
 import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
+from pathlib import Path
 
 
 class TestRVFile:
@@ -22,6 +24,21 @@ class TestRVFile:
         assert rvf.ext == 'rvp'
         assert rvf.stem == 'raven-gr4j-salmon'
         assert rvf.is_tpl
+
+    def test_ostIn(self):
+        rvp = TESTDATA['ostrich-gr4j-cemaneige'][0]
+        rvf = RVFile(rvp)
+
+        assert rvf.ext == 'txt'
+        assert rvf.stem == 'ostIn'
+        assert rvf.is_tpl
+
+    def test_tags(self):
+        rvp = list((Path(raven.__file__).parent / 'models' / 'raven-gr4j-cemaneige').glob("*.rvp"))[0]
+        rvf = RVFile(rvp)
+
+        assert isinstance(rvf.tags, list)
+        assert 'GR4J_X3' in rvf.tags
 
 
 class TestRV:

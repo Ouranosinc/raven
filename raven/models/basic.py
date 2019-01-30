@@ -73,6 +73,7 @@ class Raven:
         self.workdir = Path(workdir)
         self.outputs = {}
         self.raven_exec = raven.raven_exec
+        self.ostrich_exec = raven.ostrich_exec
         self._name = None
         self._defaults = {}
         self.rvfiles = []
@@ -83,6 +84,20 @@ class Raven:
         # For subclasses where the configuration file templates are known in advance.
         if self.templates:
             self.configure(self.templates)
+
+        # Directory logic
+
+        # Top directory inside workdir. This is where Ostrich and its config and templates are stored.
+        self.exec_path = self.workdir / 'exec'
+
+        # Path to the Raven executable and configuration files.
+        self.model_path = self.exec_path / 'model'
+        self.raven_cmd = self.model_path / 'raven'
+
+    @property
+    def output_path(self):
+        """Path to the model outputs and logs."""
+        return self.model_path / 'output'
 
     @property
     def version(self):
@@ -96,23 +111,13 @@ class Raven:
 
     @property
     def cmd(self):
-        """OSTRICH executable path."""
-        return self.model_path / 'raven'
+        """This is the main executable."""
+        return self.raven_cmd
 
     @property
-    def run_path(self):
-        """Path to the Ostrich templates."""
-        return self.workdir / 'exec'
-
-    @property
-    def model_path(self):
-        """Path to the model executable and configuration files. """
-        return self.run_path / 'model'
-
-    @property
-    def output_path(self):
-        """Path to the model outputs and logs."""
-        return self.model_path / 'output'
+    def cmd_path(self):
+        """This is the main executable."""
+        return self.model_path
 
     @property
     def name(self):
@@ -148,10 +153,11 @@ class Raven:
         """Read configuration files."""
         for fn in fns:
             rvf = RVFile(fn)
-            if rvf.ext not in self._rvext:
+            if rvf.ext not in self._rvext + ('txt',):
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(rvf.ext))
             else:
-                setattr(self, 'name', rvf.stem)
+                if rvf.ext != 'txt':
+                    setattr(self, 'name', rvf.stem)
                 self.rvfiles.append(rvf)
 
     def assign(self, key, value):
@@ -180,7 +186,7 @@ class Raven:
         params = self.parameters
 
         for rvf in self.rvfiles:
-            p = self.run_path if rvf.is_tpl else self.model_path
+            p = self.exec_path if rvf.is_tpl else self.model_path
             rvf.write(p, **params)
 
     def setup_model(self, ts, overwrite=False):
@@ -203,7 +209,7 @@ class Raven:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
-        os.makedirs(str(self.run_path))
+        os.makedirs(str(self.exec_path))
         os.makedirs(str(self.model_path), exist_ok=True)
         os.makedirs(str(self.output_path), exist_ok=True)
 
@@ -222,8 +228,8 @@ class Raven:
         for fn in ts:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
-        # Create symbolic link to executable
-        os.symlink(self.raven_exec, str(self.cmd))
+        # Create symbolic link to Raven executable
+        os.symlink(self.raven_exec, str(self.raven_cmd))
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -272,7 +278,14 @@ class Raven:
         self.setup_model(tuple(map(Path, ts)), overwrite)
 
         # Run the model
-        subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
+        try:
+            cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+            proc = subprocess.Popen(cmd, cwd=self.cmd_path)
+            proc.wait()
+        except Exception as e:
+            msg = (' '.join(map(str, cmd)))
+            print("Executed: \n {}\n in `{}`".format(msg, self.cmd_path))
+            raise e
 
         # Store output file names in dict
         for key in self._output_fn.keys():
@@ -409,13 +422,9 @@ class Raven:
     @property
     def tags(self):
         """Return a list of tags within the templates."""
-        import re
-        pattern = re.compile(r"{(\w+)}")
-
-        out = {}
-        if self.templates:
-            for key, conf in self.rv.items():
-                out[key] = pattern.findall(conf)
+        out = []
+        for rvf in self.rvfiles:
+            out.extend(rvf.tags)
 
         return out
 

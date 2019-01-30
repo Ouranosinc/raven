@@ -43,15 +43,14 @@ class RVFile:
         self._store_content()
 
     def _store_content(self):
-        with open(self.fn) as f:
-            self.content = f.read()
+        self.content = self.fn.read_text()
 
     def _store_ext(self):
         self.ext = self.fn.suffixes[0][1:]
 
     @property
     def is_tpl(self):
-        return self.fn.suffix == '.tpl'
+        return self.fn.suffix in ['.tpl', '.txt']
 
     @property
     def stem(self):
@@ -64,8 +63,15 @@ class RVFile:
         if kwds:
             content = content.format(**kwds)
 
-        with open(fn, 'w') as f:
-            f.write(content)
+        fn.write_text(content)
+
+    @property
+    def tags(self):
+        """Return a list of tags within the templates."""
+        import re
+        pattern = re.compile(r"{(\w+)}")
+
+        return pattern.findall(self.content)
 
 
 class RV(collections.Mapping):

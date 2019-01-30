@@ -49,7 +49,7 @@ class TestOstrich:
 
         model = Ostrich()
         model.configure(ost)
-        print(model.run_path)
+        print(model.exec_path)
         model.run(ts)
 
 
