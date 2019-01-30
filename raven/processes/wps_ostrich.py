@@ -10,7 +10,8 @@ LOGGER = logging.getLogger("PYWPS")
 class OstrichProcess(Process):
     identifier = 'ostrich'
     abstract = 'Ostrich calibration framework'
-    title = "Run an Ostrich calibration of a hydrologic model setup using the Raven hydrological framework with model configuration files and forcing time series. In " \
+    title = "Run an Ostrich calibration of a hydrologic model setup using the Raven hydrological framework with model" \
+            "configuration files and forcing time series. In " \
             "the `rvt` file, only provide the name of the forcing file, not an absolute or relative path."
     version = '0.1'
 
