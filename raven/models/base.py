@@ -50,10 +50,10 @@ class Raven:
     rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
 
     # Output files default names. The actual output file names will be composed of the run_name and the default name.
-    _output_fn = {'hydrograph': 'Hydrographs.nc',
-                  'storage': 'WatershedStorage.nc',
-                  'solution': 'solution.rvc',
-                  'diagnostics': 'Diagnostics.csv',
+    _output_fn = {'hydrograph': '*_Hydrographs.nc',
+                  'storage': '*_WatershedStorage.nc',
+                  'solution': '*_solution.rvc',
+                  'diagnostics': '*_Diagnostics.csv',
                   }
 
     # Dictionary of potential variable names, keyed by CF standard name.
@@ -306,7 +306,7 @@ class Raven:
                 self.outputs[key] = str(self._get_output(pattern))
 
         except UserWarning as e:
-            print("Work directory: ", self.exec_path)
+            print("\n{0}\nWork directory: {1}\n{0}\n".format(40 * '*', self.exec_path))
             msg = self._get_error_message()
             print(msg)
             raise e
@@ -354,12 +354,13 @@ class Raven:
     def _get_error_message(self):
         return self._get_output('Raven_errors.txt').read_text()
 
-    def _get_output(self, pattern):
+    def _get_output(self, pattern, path=None):
         """Match actual output files to known expected files.
 
         Return a dictionary of file paths for each expected input.
         """
-        files = list(self.output_path.glob(pattern))
+        path = path or self.output_path
+        files = list(path.glob(pattern))
 
         if len(files) == 0:
             raise UserWarning("No output files for {}.".format(pattern))
@@ -513,6 +514,11 @@ class Ostrich(Raven):
         """Path to the model outputs and logs."""
         return self.best_path
 
+    @property
+    def proc_path(self):
+        """Path to parallel process directory."""
+        return self.exec_path / 'processor_0'
+
     def write_save_best(self):
         fn = self.exec_path / 'save_best.sh'
         fn.write_text(save_best)
@@ -520,7 +526,7 @@ class Ostrich(Raven):
 
     def write_ostrich_runs_raven(self):
         fn = self.exec_path / 'ostrich-runs-raven.sh'
-        fn.write_text(ostrich_runs_raven)
+        fn.write_text(ostrich_runs_raven.format(name=self.name))
         make_executable(fn)
 
     def setup_model(self, ts, overwrite=False):
@@ -549,8 +555,13 @@ class Ostrich(Raven):
         os.symlink(self.ostrich_exec, str(self.cmd))
 
     def _get_error_message(self):
-        raven_err = self._get_output('OstExeOut.txt').read_text()
-        ost_err = self._get_output('OstErrors?.txt').read_text()
+        try:
+            raven_err = self._get_output('OstExeOut.txt').read_text()
+            ost_err = self._get_output('OstErrors?.txt').read_text()
+        except UserWarning:
+            raven_err = self._get_output('OstExeOut.txt', self.proc_path).read_text()
+            ost_err = self._get_output('OstErrors?.txt', self.proc_path).read_text()
+
         return "{}\n{}".format(ost_err, raven_err)
 
 
@@ -579,7 +590,7 @@ set -e
 
 cp ./*.rv? model/
 
-./model/raven ./model/raven-gr4j-salmon -o ./model/output/
+./model/raven ./model/{name} -o ./model/output/
 
 exit 0
 """
