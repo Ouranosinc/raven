@@ -1,5 +1,5 @@
 from . common import TESTDATA
-from raven.models import Raven, GR4JCN, HMETS
+from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC
 import tempfile
 import datetime as dt
 import numpy as np
@@ -22,7 +22,7 @@ class TestGR4JCemaneige:
         model.rvh.latitude = 54.4848
         model.rvh.longitude = -123.3659
 
-        model.rvp.params = model.RVP.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+        model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
 
         model.run([ts, ])
 
@@ -127,4 +127,52 @@ class TestHMETS:
               )
 
         d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
+
+
+class TestMOHYSE:
+
+    def test_simple(self):
+        ts = TESTDATA['raven-mohyse-nc-ts']
+        model = MOHYSE()
+        params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453)
+        hrus = (0.9039, 5.6167)
+
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=params,
+              hrus=hrus,
+              )
+
+        d = model.diagnostics
+        # TODO: Correct expected NSE
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
+
+
+class TestHBVEC:
+
+    def test_simple(self):
+        ts = TESTDATA['raven-hbv-ec-nc-ts']
+        model = HBVEC()
+        params = (0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.506052, 3.438486, 38.32455, 0.4606565,
+                  0.06303738, 2.277781, 4.873686, 0.5718813, 0.04505643, 0.877607, 18.94145, 2.036937, 0.4452843,
+                  0.6771759, 1.141608, 1.024278)
+
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=params,
+              )
+
+        d = model.diagnostics
+        # TODO: Correct expected NSE
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
