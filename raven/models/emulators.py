@@ -23,11 +23,14 @@ class GR4JCN(Raven):
 
 class GR4JCN_OST(Ostrich, GR4JCN):
 
-    templates = tuple((Path(__file__).parent / 'ostrich-gr4j-cemaneige').glob("**/*.rv?"))
+    templates = tuple((Path(__file__).parent / 'ostrich-gr4j-cemaneige').glob("**/*.*"))
 
-    txt = Ost(low=GR4JCN.params(None, None, None, None, None, None),
-              high=GR4JCN.params(None, None, None, None, None, None),
-              max_iterations=None)
+    low = GR4JCN.params
+    high = GR4JCN.params
+    txt = RV(max_iterations=None,
+             low=low(None, None, None, None, None, None),
+             high=high(None, None, None, None, None, None),
+             )
 
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
