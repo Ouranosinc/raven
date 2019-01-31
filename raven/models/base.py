@@ -43,13 +43,18 @@ class Raven:
     """
     identifier = 'generic-raven'
     templates = ()
+
+    # Allowed configuration file extensions
+    _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
+
     rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
 
     # Output files default names. The actual output file names will be composed of the run_name and the default name.
     _output_fn = {'hydrograph': 'Hydrographs.nc',
                   'storage': 'WatershedStorage.nc',
                   'solution': 'solution.rvc',
-                  'diagnostics': 'Diagnostics.csv'}
+                  'diagnostics': 'Diagnostics.csv',
+                  }
 
     # Dictionary of potential variable names, keyed by CF standard name.
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
@@ -80,7 +85,7 @@ class Raven:
         self.rvfiles = []
 
         # Configuration file extensions + rvd for derived parameters.
-        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd')
+        self._rvext = self._rvext + ('rvd', )
 
         # For subclasses where the configuration file templates are known in advance.
         if self.templates:
@@ -131,8 +136,11 @@ class Raven:
             self._name = x
         elif x != self._name:
             raise UserWarning("Model configuration name changed.")
-        if self.rvi.run_name is None:
-            self.rvi.run_name = x
+        try:
+            if self.rvi.run_name is None:
+                self.rvi.run_name = x
+        except AttributeError:
+            pass
 
     @property
     def configuration(self):
@@ -286,14 +294,23 @@ class Raven:
             cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
             proc = subprocess.Popen(cmd, cwd=self.cmd_path)
             proc.wait()
+
         except Exception as e:
             msg = (' '.join(map(str, cmd)))
             print("Executed: \n {}\n in `{}`".format(msg, self.cmd_path))
             raise e
 
-        # Store output file names in dict
-        for key in self._output_fn.keys():
-            self.outputs[key] = self._get_output(key)
+        try:
+            # Store output file names in dict
+            for key, pattern in self._output_fn.items():
+                self.outputs[key] = str(self._get_output(pattern))
+
+        except UserWarning as e:
+            print("Work directory: ", self.exec_path)
+            msg = self._get_error_message()
+            print(msg)
+            raise e
+
 
     __call__ = run
 
@@ -334,21 +351,23 @@ class Raven:
 
         return files, var_names
 
-    def _get_output(self, key):
+    def _get_error_message(self):
+        return self._get_output('Raven_errors.txt').read_text()
+
+    def _get_output(self, pattern):
         """Match actual output files to known expected files.
 
         Return a dictionary of file paths for each expected input.
         """
-        fn = self._output_fn[key]
-        files = list(self.output_path.glob('*' + fn))
+        files = list(self.output_path.glob(pattern))
 
         if len(files) == 0:
-            raise UserWarning("No output files for {}".format(fn))
+            raise UserWarning("No output files for {}.".format(pattern))
 
         if len(files) > 1:
-            raise IOError("Multiple matching files found for {}.".format(fn))
+            raise IOError("Multiple matching files found for {}.".format(pattern))
 
-        return str(files[0].absolute())
+        return files[0].absolute()
 
     @staticmethod
     def start_end_date(fns):
@@ -462,7 +481,12 @@ class Ostrich(Raven):
 
     """
     identifier = 'generic-ostrich'
+    _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'txt')
     txt = RV()
+
+    @staticmethod
+    def _allowed_extensions():
+        return Raven._allowed_extensions() + ('txt', )
 
     @property
     def cmd(self):
@@ -523,6 +547,11 @@ class Ostrich(Raven):
 
         # Create symbolic link to executable
         os.symlink(self.ostrich_exec, str(self.cmd))
+
+    def _get_error_message(self):
+        raven_err = self._get_output('OstExeOut.txt').read_text()
+        ost_err = self._get_output('OstErrors?.txt').read_text()
+        return "{}\n{}".format(ost_err, raven_err)
 
 
 def make_executable(fn):

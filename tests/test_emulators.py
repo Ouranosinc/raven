@@ -1,11 +1,11 @@
 from . common import TESTDATA
-from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC
+from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST
 import tempfile
 import datetime as dt
 import numpy as np
 
 
-class TestGR4JCemaneige:
+class TestGR4JCN:
 
     def test_simple(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
@@ -106,6 +106,26 @@ class TestGR4JCemaneige:
 
         model = GR4JCN()
         assert model.version == '2.9'
+
+
+class TestGR4JCN_OST:
+    def test_simple(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        model = GR4JCN_OST()
+        low = (0.4, -5, 200, 0, 10, 0)
+        high = (1, 5, 800, 2, 20, 3)
+
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              low=low,
+              high=high,
+              max_iterations=20,
+              )
 
 
 class TestHMETS:
