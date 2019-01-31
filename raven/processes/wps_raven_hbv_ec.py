@@ -4,7 +4,7 @@ from raven.models import HBVEC
 from . import wpsio as wio
 
 # Defaults for this process
-params_defaults = HBVEC.RVP.params(par_x01=0.05984519,
+params_defaults = HBVEC.params(par_x01=0.05984519,
                                    par_x02=4.072232,
                                    par_x03=2.001574,
                                    par_x04=0.03473693,
@@ -40,7 +40,7 @@ class RavenHBVECProcess(RavenProcess):
     title = ''
     version = ''
     model_cls = HBVEC
-    tuple_inputs = {'params': HBVEC.RVP.params}
+    tuple_inputs = {'params': HBVEC.params}
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

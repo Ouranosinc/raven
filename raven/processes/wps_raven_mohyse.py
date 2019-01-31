@@ -4,7 +4,7 @@ from raven.models import MOHYSE
 from . import wpsio as wio
 
 # Defaults for this process
-params_defaults = MOHYSE.RVP.params(par_x01=1.0000,
+params_defaults = MOHYSE.params(par_x01=1.0000,
                                     par_x02=0.0468,
                                     par_x03=4.2952,
                                     par_x04=2.6580,
@@ -13,7 +13,7 @@ params_defaults = MOHYSE.RVP.params(par_x01=1.0000,
                                     par_x07=0.0273,
                                     par_x08=0.0453)
 
-hrus_defaults = MOHYSE.RVH.hrus(par_x09=0.9039, par_x10=5.6167)
+hrus_defaults = MOHYSE.hrus(par_x09=0.9039, par_x10=5.6167)
 
 params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(params_defaults._fields),
@@ -31,10 +31,10 @@ hrus = LiteralInput('hrus', 'Comma separated list of HRU parameters',
 class RavenMOHYSEProcess(RavenProcess):
     identifier = 'raven-mohyse'
     abstract = 'MOHYSE hydrological model'
-    title = ''
+    title = 'TODO'
     version = ''
     model_cls = MOHYSE
-    tuple_inputs = {'params': MOHYSE.RVP.params, 'hrus': MOHYSE.RVH.hrus}
+    tuple_inputs = {'params': MOHYSE.params, 'hrus': MOHYSE.hrus}
 
     inputs = [wio.ts, params, hrus, wio.start_date, wio.end_date, wio.duration, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

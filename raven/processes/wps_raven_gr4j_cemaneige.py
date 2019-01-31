@@ -15,7 +15,7 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = GR4JCN.RVP.params(GR4J_X1=0.529,
+params_defaults = GR4JCN.params(GR4J_X1=0.529,
                                     GR4J_X2=-3.396,
                                     GR4J_X3=407.29,
                                     GR4J_X4=1.072,
@@ -45,7 +45,7 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
     title = ''
     version = ''
     model_cls = GR4JCN
-    tuple_inputs = {'params': GR4JCN.RVP.params}
+    tuple_inputs = {'params': GR4JCN.params}
 
     inputs = [wio.ts, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

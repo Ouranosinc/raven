@@ -11,7 +11,7 @@ model
 #best
 EndExtraDirs
 
-BeginFilePairs    
+BeginFilePairs
   raven-gr4j-cemaneige.rvp.tpl;    raven-gr4j-cemaneige.rvp
   raven-gr4j-cemaneige.rvc.tpl;    raven-gr4j-cemaneige.rvc
   #can be multiple (.rvh, .rvi)
@@ -19,13 +19,13 @@ EndFilePairs
 
 #Parameter/DV Specification
 BeginParams
-  #parameter    init.    low    high     tx_in  tx_ost   tx_out  
-  par_x1        random   0.01    2.5     none   none     none  
-  par_x2        random   -15     10      none   none     none 
-  par_x3        random   10      700     none   none     none  
-  par_x4        random   0       7       none   none     none
-  par_x5        random   1       30      none   none     none
-  par_x6        random   0       1       none   none     none
+  #parameter    init.    low                 high                 tx_in  tx_ost   tx_out
+  par_x1        random   {low.GR4J_X1}       {high.GR4J_X1}        none   none     none
+  par_x2        random   {low.GR4J_X2}       {high.GR4J_X2}        none   none     none
+  par_x3        random   {low.GR4J_X3}       {high.GR4J_X3}        none   none     none
+  par_x4        random   {low.GR4J_X4}       {high.GR4J_X4}        none   none     none
+  par_x5        random   {low.CEMANEIGE_X1}  {high.CEMANEIGE_X1}   none   none     none
+  par_x6        random   {low.CEMANEIGE_X2}  {high.CEMANEIGE_X2}   none   none     none
 EndParams
 
 BeginTiedParams
@@ -47,7 +47,7 @@ EndTiedParams
 BeginResponseVars
   #name   filename                              keyword         line    col     token
   NS      ./model/output/Diagnostics.csv;       OST_NULL        1       3       ','
-EndResponseVars 
+EndResponseVars
 
 BeginTiedRespVars
   NegNS 1 NS wsum -1.00
@@ -70,7 +70,7 @@ RandomSeed 123
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations 50
+        MaxIterations {max_iterations}
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

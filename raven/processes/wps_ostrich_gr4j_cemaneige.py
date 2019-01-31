@@ -11,27 +11,26 @@ LOGGER = logging.getLogger("PYWPS")
 """
 Notes
 -----
-
 The configuration files for a OSTRICH calibration of the GR4J-Cemaneige model and in models/ostrich-gr4j-cemaneige.
 All parameters that could potentially be user-defined are tagged using {}. These tags need to be replaced by
 actual values before the model is launched.
 """
 
-params_defaults = GR4JCN_OST.RVP.params(GR4J_X1=0.529,
+params_defaults = GR4JCN_OST.params(GR4J_X1=0.529,
                                         GR4J_X2=-3.396,
                                         GR4J_X3=407.29,
                                         GR4J_X4=1.072,
                                         CEMANEIGE_X1=16.9,
                                         CEMANEIGE_X2=0.947)
 
-Uparams_defaults = GR4JCN_OST.RVP.params(GR4J_X1=0.9,
+Uparams_defaults = GR4JCN_OST.params(GR4J_X1=0.9,
                                          GR4J_X2=0.,
                                          GR4J_X3=500.,
                                          GR4J_X4=1.1,
                                          CEMANEIGE_X1=20.,
                                          CEMANEIGE_X2=1.)
 
-Lparams_defaults = GR4JCN_OST.RVP.params(GR4J_X1=0.1,
+Lparams_defaults = GR4JCN_OST.params(GR4J_X1=0.1,
                                          GR4J_X2=-5.,
                                          GR4J_X3=100.,
                                          GR4J_X4=1.,
@@ -93,7 +92,7 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     title = '',
     version = '',
     model_cls = GR4JCN_OST,
-    tuple_inputs = {'params': GR4JCN_OST.RVP.params},
+    tuple_inputs = {'params': GR4JCN_OST.params},
     inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
               wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

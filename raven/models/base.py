@@ -131,11 +131,13 @@ class Raven:
             self._name = x
         elif x != self._name:
             raise UserWarning("Model configuration name changed.")
+        if self.rvi.run_name is None:
+            self.rvi.run_name = x
 
     @property
     def configuration(self):
         """Configuration dictionaries."""
-        return {ext: OrderedDict(getattr(self, ext).to_dict()) for ext in self._rvext}
+        return {ext: OrderedDict(getattr(self, ext).items()) for ext in self._rvext}
 
     @property
     def parameters(self):
@@ -167,9 +169,10 @@ class Raven:
         for ext, obj in self.rvobjs.items():
             if hasattr(obj, key):
                 att = getattr(obj, key)
+
                 # If the object is a namedtuple, we get its class and try to instantiate it with the values passed.
                 if isinstance_namedtuple(att) and isinstance(value, (list, tuple, np.ndarray)):
-                    p = getattr(getattr(self, ext.upper()), key)(*value)
+                    p = getattr(self, key)(*value)
                     setattr(obj, key, p)
                 else:
                     setattr(obj, key, value)

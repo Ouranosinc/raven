@@ -123,16 +123,6 @@ class RV(collections.Mapping):
         for attribute in self.keys():
             yield attribute, getattr(self, attribute)
 
-    def to_dict(self):
-        """Return dictionary of content and namedtuple fields."""
-        out = {}
-        for key, val in self.items():
-            if hasattr(val, '_fields'):
-                out.update(val._asdict())
-            else:
-                out[key] = val
-        return out
-
     def update(self, items, force=False):
         """Update values from dictionary items.
 
@@ -253,6 +243,24 @@ class RVI(RV):
     def _update_end_date(self):
         if self.start_date is not None and self.duration is not None:
             self._end_date = self.start_date + dt.timedelta(days=self.duration)
+
+
+class Ost(RV):
+    def __init__(self, **kwargs):
+        self._max_iterations = None
+
+        super(Ost, self).__init__(**kwargs)
+
+    @property
+    def max_iteration(self):
+        return self._max_iterations
+
+    @max_iteration.setter
+    def max_iteration(self, x):
+        if x < 1:
+            raise ValueError("Max iteration should be a positive integer: {}".format(x))
+        else:
+            self._max_iterations = x
 
 
 def isinstance_namedtuple(x):
