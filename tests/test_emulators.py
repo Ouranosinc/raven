@@ -171,7 +171,7 @@ class TestMOHYSE:
 
         d = model.diagnostics
         # TODO: Correct expected NSE
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.194612, 4)
 
 
 class TestHBVEC:
@@ -195,4 +195,4 @@ class TestHBVEC:
 
         d = model.diagnostics
         # TODO: Correct expected NSE
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.075407, 4)
