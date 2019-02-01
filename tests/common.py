@@ -47,7 +47,7 @@ TESTDATA['raven-hbv-ec-rv'] = tuple((TD / 'raven-hbv-ec').glob('raven-hbv-ec-sal
 TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
 TESTDATA['ostrich-gr4j-cemaneige'] = TD / 'ostrich-gr4j-cemaneige'
-TESTDATA['ostrich-gr4j-cemaneige-rv'] = tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob('*'))
+TESTDATA['ostrich-gr4j-cemaneige-rv'] = tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob("*.rv?")) + tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.t??'))
 
 
 class WpsTestClient(WpsClient):
