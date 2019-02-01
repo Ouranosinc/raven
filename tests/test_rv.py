@@ -10,24 +10,24 @@ from pathlib import Path
 class TestRVFile:
 
     def test_simple_rv(self):
-        rvp = TESTDATA['raven-hmets-rv'][0]
-        rvf = RVFile(rvp)
+        fn = list(TESTDATA['raven-hmets'].glob('*.rvp'))[0]
+        rvf = RVFile(fn)
 
         assert rvf.ext == 'rvp'
         assert rvf.stem == 'raven-hmets-salmon'
         assert not rvf.is_tpl
 
     def test_simple_tpl(self):
-        rvp = TESTDATA['ostrich-gr4j-cemaneige'][-1]
-        rvf = RVFile(rvp)
+        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.rvp.tpl'))[0]
+        rvf = RVFile(fn)
 
         assert rvf.ext == 'rvp'
         assert rvf.stem == 'raven-gr4j-salmon'
         assert rvf.is_tpl
 
     def test_ostIn(self):
-        rvp = TESTDATA['ostrich-gr4j-cemaneige'][0]
-        rvf = RVFile(rvp)
+        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.txt'))[0]
+        rvf = RVFile(fn)
 
         assert rvf.ext == 'txt'
         assert rvf.stem == 'ostIn'
@@ -39,6 +39,11 @@ class TestRVFile:
 
         assert isinstance(rvf.tags, list)
         assert 'params.GR4J_X3' in rvf.tags
+
+    def test_fail(self):
+        fn = Path(raven.__file__).parent
+        with pytest.raises(ValueError):
+            RVFile(fn)
 
 
 class TestRV:
