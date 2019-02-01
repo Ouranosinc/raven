@@ -46,7 +46,11 @@ class RVFile:
         self.content = self.fn.read_text()
 
     def _store_ext(self):
-        self.ext = self.fn.suffixes[0][1:]
+        try:
+            self.ext = self.fn.suffixes[0][1:]
+        except IndexError as e:
+            msg = "\nFile {} does not look like a valid Raven/Ostrich config file.".format(self.fn)
+            raise ValueError(msg) from e
 
     @property
     def is_tpl(self):
