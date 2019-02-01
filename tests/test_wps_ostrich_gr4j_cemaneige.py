@@ -30,7 +30,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(ts=TESTDATA['raven-gr4j-cemaneige-nc-ts'],
+            .format(ts=TESTDATA['ostrich-gr4j-cemaneige-nc-ts'],
                     params=params,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
