@@ -42,7 +42,7 @@ class TestOstrich:
 
     def test_gr4j_with_no_tags(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-        ost = TESTDATA['ostrich-gr4j-cemaneige']
+        ost = TESTDATA['ostrich-gr4j-cemaneige-rv']
 
         model = Ostrich()
         model.configure(ost)
