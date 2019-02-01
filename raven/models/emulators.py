@@ -22,8 +22,8 @@ class GR4JCN(Raven):
 
 
 class GR4JCN_OST(Ostrich, GR4JCN):
-
-    templates = tuple((Path(__file__).parent / 'ostrich-gr4j-cemaneige').glob("**/*.*"))
+    _p = Path(__file__).parent / 'ostrich-gr4j-cemaneige'
+    templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
     low = GR4JCN.params
     high = GR4JCN.params
