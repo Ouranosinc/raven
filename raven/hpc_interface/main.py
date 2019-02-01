@@ -121,8 +121,12 @@ class HPCConnection(object):
             output = self.client.run_command("cp "+stdout_file+" "+ absolute_output_data_path)
             print("copy_data_from_remote: running tar")
             output = self.client.run_command("tar cf "+absolute_tar_fname+" -C "+absolute_output_data_path+" .")
+            print("output of tar: ")
+            print(output)
             time.sleep(30)  # patch since run_command sems non-blocking
             output = self.client.run_command("du -sb " + absolute_tar_fname)
+            print("output of du: ")
+            print(output)
             line = ""
             for l in output[self.hostname].stdout:
                 line += l
@@ -174,7 +178,7 @@ class HPCConnection(object):
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
         tmplt = tmplt.replace("ACCOUNT","def-fouchers")
-        tmplt = tmplt.replace("DURATION","00:25:00")
+        tmplt = tmplt.replace("DURATION","00:45:00")
         tmplt = tmplt.replace("TEMP_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("INPUT_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("OUTPUT_PATH", abs_remote_output_dir)
@@ -280,6 +284,36 @@ class HPCConnection(object):
 
         self.client = ParallelSSHClient([self.hostname], user=self.user)
 
+
+    def check_slurmoutput_for(self, substr, jobid):
+
+            slurmfname = "slurm-" + jobid + ".out"
+            local_slurmfname = os.path.join("/tmp",slurmfname)
+            stdout_file = os.path.join(self.home_dir, slurmfname)
+            found = False
+            try:
+                g = self.client.copy_remote_file(stdout_file, local_slurmfname)
+                joinall(g, raise_error=True)
+                # scan file for substr
+                with open(local_slurmfname + "_" + self.hostname) as f:
+                    for line in f:
+                        #print("comparing {} with {}".format(substr,line))
+                        matchObj = re.search(substr, line)
+
+                        if matchObj:
+                            found = True
+                            print("found")
+
+                os.remove(local_slurmfname + "_" + self.hostname)
+
+            except Exception as e:
+                print("Exception inside check_slurmoutput_for")
+                print(e)
+                pass
+
+            return found
+
+
     def cleanup(self, jobid):
 
         output1 = self.client.run_command("rm -rf {}".format(self.remote_abs_working_folder))
@@ -336,6 +370,16 @@ class RavenHPCProcess(object):
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
         self.hpc_connection.copy_data_from_remote(self.live_job_id, output_folder)
+
+    def job_ended_normally(self):
+
+        output_ok = True
+
+        # Check for string such as DUE TO TIME LIMIT in slurm output file
+        if self.hpc_connection.check_slurmoutput_for(r'DUE TO TIME LIMIT', self.live_job_id, ):
+            output_ok = False
+        print("todo: provide slurm output")
+        return output_ok
 
     def monitor(self):
 
@@ -495,7 +539,13 @@ def newmainfct(argv):
             print(e)
             job_finished = True
 
-    raven_process.retrieve(out_dir)
+
+    # Check if job ended  normally
+    if raven_process.job_ended_normally():
+        raven_process.retrieve(out_dir)
+    else:
+        print("Job ended abnormally")
+
     raven_process.cleanup()
 
     print("done.")
