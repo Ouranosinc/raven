@@ -72,5 +72,4 @@ class TestOstrich:
         # np.testing.assert_almost_equal( opt_para, [0.3243268,3.034247,407.2890,2.722774,12.18124,0.9468769], 4, err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal( opt_func, -0.5779910, 4, err_msg='calibrated NSE is not matching expected value')
 
-        print("hydrograph: ",model.hydrograph)
 

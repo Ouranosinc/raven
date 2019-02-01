@@ -110,22 +110,43 @@ class TestGR4JCN:
 
 class TestGR4JCN_OST:
     def test_simple(self):
-        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        ts = TESTDATA['ostrich-gr4j-cemaneige-nc-ts']
         model = GR4JCN_OST()
-        low = (0.4, -5, 200, 0, 10, 0)
-        high = (1, 5, 800, 2, 20, 3)
+        low = (0.01, -15.0, 10.0, 0.0, 1.0, 0.0)
+        high = (2.5, 10.0, 700.0, 7.0, 30.0, 1.0)  
 
         model(ts,
-              start_date=dt.datetime(2000, 1, 1),
-              end_date=dt.datetime(2002, 1, 1),
+              start_date=dt.datetime(1954,1,1),
+              duration=208,
               area=4250.6,
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
               low=low,
               high=high,
-              max_iterations=20,
+              max_iterations=10
               )
+
+        d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.5078130, 4)
+
+        # Random number seed: 123
+        # Budget:             10
+        # Algorithm:          DDS
+        # :StartDate          1954-01-01 00:00:00                                                                   
+        # :Duration           208
+        opt_para = model.calibrated_params
+        opt_func = model.obj_func
+        np.testing.assert_almost_equal( opt_para, [2.424726,3.758972,204.3856,5.866946,16.60408,0.3728098], 4, err_msg='calibrated parameter set is not matching expected value')
+        np.testing.assert_almost_equal( opt_func, -0.5078130, 4, err_msg='calibrated NSE is not matching expected value')
+
+        # # Random number seed: 123
+        # # Budget:             50
+        # # Algorithm:          DDS
+        # # :StartDate          1954-01-01 00:00:00                                                                   
+        # # :Duration           20819 
+        # np.testing.assert_almost_equal( opt_para, [0.3243268,3.034247,407.2890,2.722774,12.18124,0.9468769], 4, err_msg='calibrated parameter set is not matching expected value')
+        # np.testing.assert_almost_equal( opt_func, -0.5779910, 4, err_msg='calibrated NSE is not matching expected value')
 
 
 class TestHMETS:
