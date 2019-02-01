@@ -214,9 +214,9 @@ class Raven:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
-        os.makedirs(str(self.exec_path))
-        os.makedirs(str(self.model_path), exist_ok=True)
-        os.makedirs(str(self.output_path), exist_ok=True)
+        os.makedirs(str(self.exec_path))                   # exec
+        os.makedirs(str(self.model_path), exist_ok=True)   # exec/model
+        os.makedirs(str(self.output_path), exist_ok=True)  # exec/model/output
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
@@ -303,10 +303,12 @@ Executed: \n $ {cmd}\n from {dir}
 
     __call__ = run
 
-    def parse_results(self):
+    def parse_results(self, path=None):
         """Store output files in the self.outputs dictionary."""
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
+        path = path or self.output_path
+        
         patterns = {'hydrograph': '*Hydrographs.nc',
                     'storage': '*WatershedStorage.nc',
                     'solution': '*solution.rvc',
@@ -315,7 +317,7 @@ Executed: \n $ {cmd}\n from {dir}
 
         # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern))
+            self.outputs[key] = str(self._get_output(pattern,path=path))
 
     def parse_errors(self):
         return self._get_output('Raven_errors.txt').read_text()
@@ -515,7 +517,8 @@ class Ostrich(Raven):
     @property
     def output_path(self):
         """Path to the model outputs and logs."""
-        return self.best_path
+        return self.model_path / 'output'
+        # return self.best_path
 
     @property
     def proc_path(self):
@@ -542,7 +545,8 @@ class Ostrich(Raven):
            *.tpl
            ostIn.txt
            model/
-           output/
+           model/output/
+           best/
 
         At each Ostrich loop, configuration files (original and created from templates are copied into model/.
 
@@ -561,7 +565,7 @@ class Ostrich(Raven):
         """Store output files in the self.outputs dictionary."""
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
-        Raven.parse_results(self)
+        Raven.parse_results(self,path=self.best_path) 
 
         patterns = {'params_seq': 'OstModel?.txt'
                     }
@@ -572,11 +576,14 @@ class Ostrich(Raven):
 
     def parse_errors(self):
         try:
-            raven_err = self._get_output('OstExeOut.txt').read_text()
-            ost_err = self._get_output('OstErrors?.txt').read_text()
+            raven_err = self._get_output('OstExeOut.txt',path=self.exec_path).read_text()            
         except UserWarning:  # Read in processor_0 directory instead.
-            raven_err = self._get_output('OstExeOut.txt', self.proc_path).read_text()
-            ost_err = self._get_output('OstErrors?.txt', self.proc_path).read_text()
+            raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+
+        try:
+            ost_err = self._get_output('OstErrors?.txt', path=self.exec_path).read_text()
+        except UserWarning:  # Read in processor_0 directory instead.
+            ost_err = self._get_output('OstErrors?.txt',  path=self.proc_path).read_text()
 
         return "{}\n{}".format(ost_err, raven_err)
 
