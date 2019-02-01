@@ -38,7 +38,7 @@ class TestRVFile:
         rvf = RVFile(rvp)
 
         assert isinstance(rvf.tags, list)
-        assert 'GR4J_X3' in rvf.tags
+        assert 'params.GR4J_X3' in rvf.tags
 
 
 class TestRV:
@@ -61,9 +61,6 @@ class TestRV:
         rvp = RVP()
         rvp.params = RVP.params(1, 2)
         assert rvp.params.x == 1
-
-        d = rvp.to_dict()
-        assert 'x' in d
 
     def test_dict_interface(self):
         rv = RV(run_name='test')

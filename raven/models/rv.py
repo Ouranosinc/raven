@@ -69,7 +69,7 @@ class RVFile:
     def tags(self):
         """Return a list of tags within the templates."""
         import re
-        pattern = re.compile(r"{(\w+)}")
+        pattern = re.compile(r"{([\.\w]+)}")
 
         return pattern.findall(self.content)
 

@@ -48,3 +48,5 @@ class TestOstrich:
         model.configure(ost)
         print(model.exec_path)
         model.run(ts)
+        assert len(model.calibrated_params) == 6
+        assert isinstance(model.obj_func, float)

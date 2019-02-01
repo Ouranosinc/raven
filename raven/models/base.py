@@ -49,13 +49,6 @@ class Raven:
 
     rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
 
-    # Output files default names. The actual output file names will be composed of the run_name and the default name.
-    _output_fn = {'hydrograph': '*_Hydrographs.nc',
-                  'storage': '*_WatershedStorage.nc',
-                  'solution': '*_solution.rvc',
-                  'diagnostics': '*_Diagnostics.csv',
-                  }
-
     # Dictionary of potential variable names, keyed by CF standard name.
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
     # PET is the potential evapotranspiration, while evspsbl is the actual evap.
@@ -290,29 +283,42 @@ class Raven:
         self.setup_model(tuple(map(Path, ts)), overwrite)
 
         # Run the model
-        try:
-            cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
-            proc = subprocess.Popen(cmd, cwd=self.cmd_path)
-            proc.wait()
-
-        except Exception as e:
-            msg = (' '.join(map(str, cmd)))
-            print("Executed: \n {}\n in `{}`".format(msg, self.cmd_path))
-            raise e
+        cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+        proc = subprocess.Popen(cmd, cwd=self.cmd_path)
+        proc.wait()
 
         try:
-            # Store output file names in dict
-            for key, pattern in self._output_fn.items():
-                self.outputs[key] = str(self._get_output(pattern))
+            self.parse_results()
 
         except UserWarning as e:
-            print("\n{0}\nWork directory: {1}\n{0}\n".format(40 * '*', self.exec_path))
-            msg = self._get_error_message()
+            err = self.parse_errors()
+            msg = """
+**************************************************************
+Executed: \n $ {cmd}\n from {dir}
+**************************************************************
+{err}
+""".format(cmd=' '.join(map(str, cmd)), dir=self.cmd_path, err=err)
             print(msg)
             raise e
 
-
     __call__ = run
+
+    def parse_results(self):
+        """Store output files in the self.outputs dictionary."""
+        # Output files default names. The actual output file names will be composed of the run_name and the default
+        # name.
+        patterns = {'hydrograph': '*Hydrographs.nc',
+                    'storage': '*WatershedStorage.nc',
+                    'solution': '*solution.rvc',
+                    'diagnostics': '*Diagnostics.csv',
+                    }
+
+        # Store output file names in dict
+        for key, pattern in patterns.items():
+            self.outputs[key] = str(self._get_output(pattern))
+
+    def parse_errors(self):
+        return self._get_output('Raven_errors.txt').read_text()
 
     def _assign_files(self, fns, variables):
         """Find for each variable the file storing it's data and the name of the netCDF variable.
@@ -350,9 +356,6 @@ class Raven:
                 raise ValueError("{} not found in files.".format(var))
 
         return files, var_names
-
-    def _get_error_message(self):
-        return self._get_output('Raven_errors.txt').read_text()
 
     def _get_output(self, pattern, path=None):
         """Match actual output files to known expected files.
@@ -554,15 +557,36 @@ class Ostrich(Raven):
         # Create symbolic link to executable
         os.symlink(self.ostrich_exec, str(self.cmd))
 
-    def _get_error_message(self):
+    def parse_results(self):
+        """Store output files in the self.outputs dictionary."""
+        # Output files default names. The actual output file names will be composed of the run_name and the default
+        # name.
+        Raven.parse_results(self)
+
+        patterns = {'params_seq': 'OstModel?.txt'
+                    }
+
+        # Store output file names in dict
+        for key, pattern in patterns.items():
+            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path))
+
+    def parse_errors(self):
         try:
             raven_err = self._get_output('OstExeOut.txt').read_text()
             ost_err = self._get_output('OstErrors?.txt').read_text()
-        except UserWarning:
+        except UserWarning:  # Read in processor_0 directory instead.
             raven_err = self._get_output('OstExeOut.txt', self.proc_path).read_text()
             ost_err = self._get_output('OstErrors?.txt', self.proc_path).read_text()
 
         return "{}\n{}".format(ost_err, raven_err)
+
+    @property
+    def calibrated_params(self):
+        return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 2:]
+
+    @property
+    def obj_func(self):
+        return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 1]
 
 
 def make_executable(fn):

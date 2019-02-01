@@ -27,8 +27,8 @@ def get_model(name):
     -------
     Raven model instance
     """
-    from raven.models import basic
-    model_cls = getattr(basic, name, None)
+    from raven.models import emulators
+    model_cls = getattr(emulators, name, None)
 
     if model_cls is None:
         raise ValueError("Model {} is not recognized.".format(model_cls))

@@ -15,7 +15,7 @@ processes = [
     RavenMOHYSEProcess(),
     RavenHMETSProcess(),
     RavenHBVECProcess(),
-    OstrichGR4JCemaNeigeProcess(),
+    # OstrichGR4JCemaNeigeProcess(),
     ObjectiveFunctionProcess(),
     # RegionalisationProcess(),
 ]
