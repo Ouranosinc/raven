@@ -1,6 +1,7 @@
 from . common import TESTDATA
 from raven.models import Raven, Ostrich
 import tempfile
+import numpy as np
 
 
 class TestRaven:
@@ -49,8 +50,27 @@ class TestOstrich:
         print(model.exec_path)
         model.run(ts)
 
-        print(">>>>>>>>>>>>>>>>> Final: ", model.calibrated_params)
-        print(">>>>>>>>>>>>>>>>> Final: ", model.obj_func)
+        opt_para = model.calibrated_params
+        opt_func = model.obj_func
         
-        assert len(model.calibrated_params) == 6
-        assert isinstance(model.obj_func, float)
+        assert len(opt_para) == 6
+        assert isinstance(opt_func, float)
+
+        # Random number seed: 123
+        # Budget:             10
+        # Algorithm:          DDS
+        # :StartDate          1954-01-01 00:00:00                                                                   
+        # :Duration           208 
+        np.testing.assert_almost_equal( opt_para, [2.424726,3.758972,204.3856,5.866946,16.60408,0.3728098], 4, err_msg='calibrated parameter set is not matching expected value')
+        np.testing.assert_almost_equal( opt_func, -0.5078130, 4, err_msg='calibrated NSE is not matching expected value')
+
+        # # Random number seed: 123
+        # # Budget:             50
+        # # Algorithm:          DDS
+        # # :StartDate          1954-01-01 00:00:00                                                                   
+        # # :Duration           20819 
+        # np.testing.assert_almost_equal( opt_para, [0.3243268,3.034247,407.2890,2.722774,12.18124,0.9468769], 4, err_msg='calibrated parameter set is not matching expected value')
+        # np.testing.assert_almost_equal( opt_func, -0.5779910, 4, err_msg='calibrated NSE is not matching expected value')
+
+        print("hydrograph: ",model.hydrograph)
+
