@@ -167,10 +167,10 @@ class HPCConnection(object):
 
 
     # executable_ is either raven or ostrich
-    def copy_batchscript(self,executable_, datafile_basename, template_dir, batch_tmplt_fname, shub_hostname):
+    def copy_batchscript(self,executable_, datafile_basename, batch_tmplt_fname, shub_hostname):
 
 
-        template_file = open(os.path.join(template_dir, batch_tmplt_fname), "r")
+        template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
         tmplt = tmplt.replace("ACCOUNT","def-fouchers")
@@ -325,7 +325,7 @@ class RavenHPCProcess(object):
 
         self.hpc_connection.copy_data_to_remote(dataset)
 
-        remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, dataset, "./", "batch_template.txt", self.shub_hostname)
+        remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, dataset, "batch_template.txt", self.shub_hostname)
         print("Running " + remote_abs_script_fname)
         jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
         print("job id = " + jobid)
@@ -342,7 +342,7 @@ class RavenHPCProcess(object):
         #job_status, progressfilecontent
         progressfile = None
         if self.process_name == 'raven':
-            progressfile = 'Raven.txt'
+            progressfile = 'out/RavenProgress.txt'
         if self.process_name == 'ostrich':
             progressfile = 'OstProgress0.txt'
         s = p = progress = None
@@ -471,7 +471,7 @@ def newmainfct(argv):
     job_finished = False
     while(not job_finished):
 
-        time.sleep(20)
+        time.sleep(60)
         try:
 
             out, p = raven_process.monitor()
