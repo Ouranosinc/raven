@@ -50,7 +50,9 @@ TESTDATA['ostrich-gr4j-cemaneige'] = TD / 'ostrich-gr4j-cemaneige'
 TESTDATA['ostrich-gr4j-cemaneige-rv'] = tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob("*.rv?")) + tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.t??'))
 TESTDATA['ostrich-gr4j-cemaneige-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
 
+
 class WpsTestClient(WpsClient):
+
 
     def get(self, *args, **kwargs):
         query = "?"
