@@ -308,7 +308,7 @@ Executed: \n $ {cmd}\n from {dir}
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
         path = path or self.output_path
-        
+
         patterns = {'hydrograph': '*Hydrographs.nc',
                     'storage': '*WatershedStorage.nc',
                     'solution': '*solution.rvc',
@@ -317,7 +317,7 @@ Executed: \n $ {cmd}\n from {dir}
 
         # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern,path=path))
+            self.outputs[key] = str(self._get_output(pattern, path=path))
 
     def parse_errors(self):
         return self._get_output('Raven_errors.txt').read_text()
@@ -565,7 +565,7 @@ class Ostrich(Raven):
         """Store output files in the self.outputs dictionary."""
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
-        Raven.parse_results(self,path=self.best_path) 
+        Raven.parse_results(self, path=self.best_path)
 
         patterns = {'params_seq': 'OstModel?.txt'
                     }
@@ -576,14 +576,14 @@ class Ostrich(Raven):
 
     def parse_errors(self):
         try:
-            raven_err = self._get_output('OstExeOut.txt',path=self.exec_path).read_text()            
+            raven_err = self._get_output('OstExeOut.txt', path=self.exec_path).read_text()
         except UserWarning:  # Read in processor_0 directory instead.
             raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
 
         try:
             ost_err = self._get_output('OstErrors?.txt', path=self.exec_path).read_text()
         except UserWarning:  # Read in processor_0 directory instead.
-            ost_err = self._get_output('OstErrors?.txt',  path=self.proc_path).read_text()
+            ost_err = self._get_output('OstErrors?.txt', path=self.proc_path).read_text()
 
         return "{}\n{}".format(ost_err, raven_err)
 
