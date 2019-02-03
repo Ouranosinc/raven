@@ -20,12 +20,12 @@ EndFilePairs
 #Parameter/DV Specification
 BeginParams
   #parameter    init.    low                 high                 tx_in  tx_ost   tx_out
-  par_x1        random   {low.GR4J_X1}       {high.GR4J_X1}        none   none     none
-  par_x2        random   {low.GR4J_X2}       {high.GR4J_X2}        none   none     none
-  par_x3        random   {low.GR4J_X3}       {high.GR4J_X3}        none   none     none
-  par_x4        random   {low.GR4J_X4}       {high.GR4J_X4}        none   none     none
-  par_x5        random   {low.CEMANEIGE_X1}  {high.CEMANEIGE_X1}   none   none     none
-  par_x6        random   {low.CEMANEIGE_X2}  {high.CEMANEIGE_X2}   none   none     none
+  par_x1        random   {lowerBounds.GR4J_X1}       {upperBounds.GR4J_X1}        none   none     none
+  par_x2        random   {lowerBounds.GR4J_X2}       {upperBounds.GR4J_X2}        none   none     none
+  par_x3        random   {lowerBounds.GR4J_X3}       {upperBounds.GR4J_X3}        none   none     none
+  par_x4        random   {lowerBounds.GR4J_X4}       {upperBounds.GR4J_X4}        none   none     none
+  par_x5        random   {lowerBounds.CEMANEIGE_X1}  {upperBounds.CEMANEIGE_X1}   none   none     none
+  par_x6        random   {lowerBounds.CEMANEIGE_X2}  {upperBounds.CEMANEIGE_X2}   none   none     none
 EndParams
 
 BeginTiedParams
@@ -70,7 +70,7 @@ RandomSeed 123
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations {max_iterations}
+        MaxIterations {MaxEvals}
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

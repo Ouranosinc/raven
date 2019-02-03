@@ -112,8 +112,8 @@ class TestGR4JCN_OST:
     def test_simple(self):
         ts = TESTDATA['ostrich-gr4j-cemaneige-nc-ts']
         model = GR4JCN_OST()
-        low = (0.01, -15.0, 10.0, 0.0, 1.0, 0.0)
-        high = (2.5, 10.0, 700.0, 7.0, 30.0, 1.0)
+        low = (0.1, -5.0, 100.0, 1.0, 10.0, 0.1)
+        high = (0.9, 0.0, 500.0, 1.1, 20.0, 1.0)
 
         model(ts,
               start_date=dt.datetime(1954, 1, 1),
