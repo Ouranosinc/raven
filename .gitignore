@@ -28,6 +28,7 @@ __pycache__
 .tox
 nosetests.xml
 unit_tests/testdata.json
+Raven_errors.txt
 
 # R
 *.Rhistory

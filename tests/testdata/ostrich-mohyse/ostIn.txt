@@ -1,6 +1,6 @@
 ProgramType         DDS
 ObjectiveFunction   GCOP
-ModelExecutable     ./Ost-RAVEN.sh
+ModelExecutable     ./ostrich-runs-raven.sh
 PreserveBestModel   ./save_best.sh
 #OstrichWarmStart   yes
 
@@ -30,17 +30,16 @@ BeginParams
   par_x08         random    0.01     1.0     none   none     none 
   par_x09         random    0.01    15.0     none   none     none  
   par_x10         random    0.01    15.0     none   none     none
-  par_x11         random    1.0      1.0     none   none     none
 EndParams
 
 BeginTiedParams
   # 2-parameter ratio (par_rezi_x10 = 1.0 / par_x10 )
-  # Xtied =(c3 * par_x11 + c2)/(c1 * par_x10 + c0)
+  # Xtied =(c3 * par_x10 + c2)/(c1 * par_x10 + c0)
   #   --> c3 = 0.0
   #   --> c2 = 1.0
   #   --> c1 = 1.0
   #   --> c0 = 0.0
-  par_rezi_x10 2 par_x11 par_x10 ratio 0.00 1.00 1.00 0.00 free
+  par_rezi_x10 2 par_x10 par_x10 ratio 0.00 1.00 1.00 0.00 free
 EndTiedParams
 
 BeginResponseVars
@@ -69,7 +68,7 @@ RandomSeed 123
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations 50
+        MaxIterations 10
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

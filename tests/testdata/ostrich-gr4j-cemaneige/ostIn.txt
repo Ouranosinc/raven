@@ -69,7 +69,7 @@ RandomSeed 123
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations 10
+        MaxIterations 10 
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

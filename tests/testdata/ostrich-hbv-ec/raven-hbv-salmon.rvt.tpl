@@ -10,8 +10,8 @@
    :Latitude    54.4848
    :Longitude -123.3659
    :Elevation  843.0
-   :RainCorrection         1.141608   # HBV_PAR_20 == RFCF
-   :SnowCorrection         1.024278   # HBV_PAR_21 == SFCF
+   :RainCorrection         par_x20 # 1.141608   # HBV_PAR_20 == RFCF
+   :SnowCorrection         par_x21 # 1.024278   # HBV_PAR_21 == SFCF
    #                       Jan    Feb    Mar    Apr    May    Jun    Jul    Aug    Sep    Oct    Nov    Dec
    :MonthlyAveEvaporation, 0.028, 0.089, 0.315, 1.003, 2.077, 2.959, 3.190, 2.548, 1.382, 0.520, 0.101, 0.023,
    :MonthlyAveTemperature, -11.4, -7.2,  -2.8,  2.8,   8.1,   12.2,  14.4,  13.5,  8.9,   3.4,   -4.0,  -9.3,

@@ -47,12 +47,27 @@ TESTDATA['raven-hbv-ec-rv'] = tuple((TD / 'raven-hbv-ec').glob('raven-hbv-ec-sal
 TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
 TESTDATA['ostrich-gr4j-cemaneige'] = TD / 'ostrich-gr4j-cemaneige'
-TESTDATA['ostrich-gr4j-cemaneige-rv'] = tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob("*.rv?")) + tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.t??'))
+TESTDATA['ostrich-gr4j-cemaneige-rv'] = \
+    tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob("*.rv?")) + tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.t??'))
 TESTDATA['ostrich-gr4j-cemaneige-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+
+TESTDATA['ostrich-mohyse'] = TD / 'ostrich-mohyse'
+TESTDATA['ostrich-mohyse-rv'] = \
+    tuple(TESTDATA['ostrich-mohyse'].glob("*.rv?")) + tuple(TESTDATA['ostrich-mohyse'].glob('*.t??'))
+TESTDATA['ostrich-mohyse-nc-ts'] = TESTDATA['raven-mohyse-nc-ts']
+
+TESTDATA['ostrich-hmets'] = TD / 'ostrich-hmets'
+TESTDATA['ostrich-hmets-rv'] = \
+    tuple(TESTDATA['ostrich-hmets'].glob("*.rv?")) + tuple(TESTDATA['ostrich-hmets'].glob('*.t??'))
+TESTDATA['ostrich-hmets-nc-ts'] = TESTDATA['raven-hmets-nc-ts']
+
+TESTDATA['ostrich-hbv-ec'] = TD / 'ostrich-hbv-ec'
+TESTDATA['ostrich-hbv-ec-rv'] = \
+    tuple(TESTDATA['ostrich-hbv-ec'].glob("*.rv?")) + tuple(TESTDATA['ostrich-hbv-ec'].glob('*.t??'))
+TESTDATA['ostrich-hbv-ec-nc-ts'] = TESTDATA['raven-hbv-ec-nc-ts']
 
 
 class WpsTestClient(WpsClient):
-
 
     def get(self, *args, **kwargs):
         query = "?"

@@ -1,6 +1,6 @@
 ProgramType         DDS
 ObjectiveFunction   GCOP
-ModelExecutable     ./Ost-RAVEN.sh
+ModelExecutable     ./ostrich-runs-raven.sh
 PreserveBestModel   ./save_best.sh
 #OstrichWarmStart   yes
 
@@ -86,7 +86,7 @@ RandomSeed 123
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations 50
+        MaxIterations 10
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

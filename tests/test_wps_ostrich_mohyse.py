@@ -6,22 +6,18 @@ from pywps import Service
 from pywps.tests import assert_response_success
 
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
-from raven.processes import OstrichGR4JCemaNeigeProcess
+from raven.processes import OstrichMOHYSEProcess
 
 
 # @pytest.mark.skip
-class TestOstrichGR4JCemaNeigeProcess:
+class TestOstrichMOHYSEProcess:
 
     def test_simple(self):
-        client = client_for(Service(processes=[OstrichGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
+        client = client_for(Service(processes=[OstrichMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.947'
-        lowerBounds = '0.1, -5.0, 100.0, 1.0, 10.0, 0.1'
-        upperBounds = '0.9, 0.0, 500.0, 1.1, 20.0, 1.0'
-
-        # some params in Raven input files are derived from those 21 parameters
-        # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0
-        # pdefaults.update({'one_minus_CEMANEIGE_X2': 1.0 - pdefaults['CEMANEIGE_X2']})   --> 1.0 - x6
+        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6179775'   # params and hrus
+        lowerBounds = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01'
+        upperBounds = '20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0, 15.0, 15.0'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
@@ -37,14 +33,14 @@ class TestOstrichGR4JCemaNeigeProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(ts=TESTDATA['ostrich-gr4j-cemaneige-nc-ts'],
+            .format(ts=TESTDATA['ostrich-mohyse-nc-ts'],
                     algorithm='DDS',
                     MaxEvals=10,
                     params=params,
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,
                     start_date=dt.datetime(1954, 1, 1),
-                    duration=20819,
+                    duration=208,
                     name='Salmon',
                     run_name='test',
                     area='4250.6',
@@ -54,7 +50,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                     )
 
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='ostrich-gr4j-cemaneige',
+            service='WPS', request='Execute', version='1.0.0', identifier='ostrich-mohyse',
             datainputs=datainputs)
 
         assert_response_success(resp)
@@ -64,16 +60,14 @@ class TestOstrichGR4JCemaNeigeProcess:
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # TODO Julie :: values not adjusted yet!!! WPS needs to work first ...
-
-        # checking correctness of NSE (full period 1954-2010 would be NSE=0.511214)
+        # checking correctness of NSE (full period 1954-2010 would be NSE=0.385701)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -0.130318, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.382681, 4, err_msg='NSE is not matching expected value')
 
-        # checking correctness of RMSE (full period 1954-2010 would be RMSE=32.8827)
+        # checking correctness of RMSE (full period 1954-2010 would be RMSE=36.8637)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 38.1697, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 40.7086, 4, err_msg='RMSE is not matching expected value')
