@@ -87,12 +87,12 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     rain, snow minimum and maximum temperature as well as potential evapotranspiration. To run diagnostics, observed
     stream flows are also required.
     """
-    identifier = 'ostrich-gr4j-cemaneige',
-    abstract = 'OSTRICH calibration of RAVEN GR4J + CEMANEIGE hydrological model',
-    title = '',
-    version = '',
-    model_cls = GR4JCN_OST,
-    tuple_inputs = {'params': GR4JCN_OST.params},
+    identifier = 'ostrich-gr4j-cemaneige'
+    abstract = 'OSTRICH calibration of RAVEN GR4J + CEMANEIGE hydrological model'
+    title = ''
+    version = ''
+    model_cls = GR4JCN_OST
+    tuple_inputs = {'params': GR4JCN_OST.params}
     inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
               wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

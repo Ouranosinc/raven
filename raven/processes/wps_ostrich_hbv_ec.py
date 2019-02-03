@@ -132,12 +132,12 @@ class OstrichHBVECProcess(OstrichProcess):
     rain, snow minimum and maximum temperature as well as potential evapotranspiration. To run diagnostics, observed
     stream flows are also required.
     """
-    identifier = 'ostrich-hmets',
-    abstract = 'OSTRICH calibration of RAVEN HBV-EC hydrological model',
-    title = '',
-    version = '',
-    model_cls = HBVEC_OST,
-    tuple_inputs = {'params': HBVEC_OST.params},
+    identifier = 'ostrich-hbv-ec'
+    abstract = 'OSTRICH calibration of RAVEN HBV-EC hydrological model'
+    title = ''
+    version = ''
+    model_cls = HBVEC_OST
+    tuple_inputs = {'params': HBVEC_OST.params}
     inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
               wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
@@ -168,12 +168,8 @@ class OstrichHBVECProcess(OstrichProcess):
         # Write output
         FPath = Path(self.workdir) / 'CalibrationResults.txt'
         with open(FPath, 'w') as f:
-            params.to_csv(f, header=['GAMMA_SHAPE', 'GAMMA_SCALE', 'GAMMA_SHAPE2', 'GAMMA_SCALE2',
-                                     'MIN_MELT_FACTOR', 'MAX_MELT_FACTOR',
-                                     'DD_MELT_TEMP', 'DD_AGGRADATION', 'SNOW_SWI_MIN', 'SNOW_SWI_MAX',
-                                     'SWI_REDUCT_COEFF', 'DD_REFREEZE_TEMP',
-                                     'REFREEZE_FACTOR', 'REFREEZE_EXP', 'PET_CORRECTION',
-                                     'HMETS_RUNOFF_COEFF', 'PERC_COEFF', 'BASEFLOW_COEFF_1',
-                                     'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'])
+            params.to_csv(f, header=['par_x01', 'par_x02', 'par_x03', 'par_x04', 'par_x05', 'par_x06', 'par_x07', 
+                                     'par_x08', 'par_x09', 'par_x10', 'par_x11', 'par_x12', 'par_x13', 'par_x14', 
+                                     'par_x15', 'par_x16', 'par_x17', 'par_x18', 'par_x19', 'par_x20', 'par_x21'])
         response.outputs['CalibrationResults'].file = str(FPath)
         """
