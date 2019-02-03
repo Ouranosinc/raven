@@ -53,6 +53,22 @@ class MOHYSE(Raven):
         self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
 
 
+class MOHYSE_OST(Ostrich, MOHYSE):
+    _p = Path(__file__).parent / 'ostrich-mohyse'
+    templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
+
+    low = MOHYSE.params   # TODO needs to include MOHYSE.hru as well
+    high = MOHYSE.params  # TODO needs to include MOHYSE.hru as well
+    txt = RV(max_iterations=None,
+             low=low(None, None, None, None, None, None, None, None),     # TODO needs to include MOHYSE.hru as well
+             high=high(None, None, None, None, None, None, None, None),   # TODO needs to include MOHYSE.hru as well
+             )
+
+    def derived_parameters(self):
+        """  Derived parameters are computed by Ostrich.  """
+        pass
+
+
 class HMETS(GR4JCN):
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
@@ -76,6 +92,24 @@ class HMETS(GR4JCN):
         self.rvd['PHREATIC_m'] = self.rvp.params.PHREATIC / 1000.
         self.rvd['SUM_MELT_FACTOR'] = self.rvp.params.MIN_MELT_FACTOR + self.rvp.params.MAX_MELT_FACTOR
         self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
+
+
+class HMETS_OST(Ostrich, HMETS):
+    _p = Path(__file__).parent / 'ostrich-hmets'
+    templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
+
+    low = HMETS.params
+    high = HMETS.params
+    txt = RV(max_iterations=None,
+             low=low(None, None, None, None, None, None, None, None, None, None, None,
+                     None, None, None, None, None, None, None, None, None, None),
+             high=high(None, None, None, None, None, None, None, None, None, None, None,
+                       None, None, None, None, None, None, None, None, None, None),
+             )
+
+    def derived_parameters(self):
+        """Derived parameters are computed by Ostrich."""
+        pass
 
 
 class HBVEC(GR4JCN):
@@ -104,3 +138,21 @@ class HBVEC(GR4JCN):
         tas = (tasmax + tasmin) / 2.
         self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
         self.rvd.mae = self.mae(*evap.groupby('time.month').mean().values)
+
+
+class HBVEC_OST(Ostrich, HBVEC):
+    _p = Path(__file__).parent / 'ostrich-hbv-ec'
+    templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
+
+    low = HBVEC.params
+    high = HBVEC.params
+    txt = RV(max_iterations=None,
+             low=low(None, None, None, None, None, None, None, None, None, None, None,
+                     None, None, None, None, None, None, None, None, None, None),
+             high=high(None, None, None, None, None, None, None, None, None, None, None,
+                       None, None, None, None, None, None, None, None, None, None),
+             )
+
+    def derived_parameters(self):
+        """Derived parameters are computed by Ostrich."""
+        pass

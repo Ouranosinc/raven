@@ -13,13 +13,19 @@ def test_wps_caps():
                             '/wps:Process'
                             '/ows:Identifier')
     sn = set(names.split())
+
+    print(">>>>>>>>>>>>> sn = ",sn)
+
     assert sn == {'gr4j-cemaneige',
                   'raven',
                   'raven-gr4j-cemaneige',
                   'raven-mohyse',
                   'raven-hmets',
                   'raven-hbv-ec',
-                  # 'ostrich-gr4j-cemaneige',
+                  'ostrich-gr4j-cemaneige',
+                  'ostrich-mohyse',
+                  'ostrich-hmets',
+                  'ostrich-hbv-ec',
                   'objective-function',
                   # 'regionalisation',
                   }
