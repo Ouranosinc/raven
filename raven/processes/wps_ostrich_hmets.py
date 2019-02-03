@@ -132,12 +132,12 @@ class OstrichHMETSProcess(OstrichProcess):
     rain, snow minimum and maximum temperature as well as potential evapotranspiration. To run diagnostics, observed
     stream flows are also required.
     """
-    identifier = 'ostrich-hmets',
-    abstract = 'OSTRICH calibration of RAVEN HMETS hydrological model',
-    title = '',
+    identifier = 'ostrich-hmets'
+    abstract = 'OSTRICH calibration of RAVEN HMETS hydrological model'
+    title = ''
     version = '',
-    model_cls = HMETS_OST,
-    tuple_inputs = {'params': HMETS_OST.params},
+    model_cls = HMETS_OST
+    tuple_inputs = {'params': HMETS_OST.params}
     inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
               wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]

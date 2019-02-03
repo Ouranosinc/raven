@@ -130,11 +130,11 @@ class OstrichMOHYSEProcess(OstrichProcess):
     rain, snow minimum and maximum temperature as well as potential evapotranspiration. To run diagnostics, observed
     stream flows are also required.
     """
-    identifier = 'ostrich-mohyse',
-    abstract = 'OSTRICH calibration of RAVEN MOHYSE hydrological model',
-    title = '',
-    version = '',
-    model_cls = MOHYSE_OST,
+    identifier = 'ostrich-mohyse'
+    abstract = 'OSTRICH calibration of RAVEN MOHYSE hydrological model'
+    title = ''
+    version = ''
+    model_cls = MOHYSE_OST
     tuple_inputs = {'params': MOHYSE_OST.params, 'hrus': MOHYSE_OST.hrus},
     inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
               wio.run_name,

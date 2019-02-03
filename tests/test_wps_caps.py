@@ -14,8 +14,6 @@ def test_wps_caps():
                             '/ows:Identifier')
     sn = set(names.split())
 
-    print(">>>>>>>>>>>>> sn = ",sn)
-
     assert sn == {'gr4j-cemaneige',
                   'raven',
                   'raven-gr4j-cemaneige',
