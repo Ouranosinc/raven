@@ -37,12 +37,6 @@ Lparams_defaults = GR4JCN_OST.params(GR4J_X1=0.1,
                                      CEMANEIGE_X1=10,
                                      CEMANEIGE_X2=0.1)
 
-params = LiteralInput('params', 'Comma separated list of model parameters',
-                      abstract='Parameters: ' + ', '.join(params_defaults._fields),
-                      data_type='string',
-                      default=', '.join(str(p) for p in list(params_defaults)),
-                      min_occurs=0)
-
 upperBounds = LiteralInput('upperBounds', 'Comma separated list of model parameters Upper Bounds',
                            abstract='UParameters: ' + ', '.join(Uparams_defaults._fields),
                            data_type='string',
@@ -54,28 +48,6 @@ lowerBounds = LiteralInput('lowerBounds', 'Comma separated list of model paramet
                            data_type='string',
                            default=', '.join(str(p) for p in list(Lparams_defaults)),
                            min_occurs=0)
-
-algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate model parameters',
-                         abstract='Optimization algorithm to implement for this calibration run',
-                         data_type='string',
-                         default='DDS',
-                         allowed_values=('DDS', 'SCEUA'),
-                         min_occurs=0)
-
-MaxEvals = LiteralInput('MaxEvals', 'Maximum number of model evaluations for the calibration run (budget)',
-                        abstract='Maximum number of times OSTRICH can call the hydrological model during the '
-                                 'model parameter calibrationn',
-                        data_type='integer',
-                        default=50,
-                        allowed_values=list(range(25001)),
-                        min_occurs=0)
-
-CalibrationResults = ComplexOutput('CalibrationResults',
-                                   'ObjectiveFunction and calibrated parameters computed by Ostrich',
-                                   abstract="Objective Function value after calibration using user-selected "
-                                            "function, as well as the calibrated parameter set",
-                                   supported_formats=[FORMATS.TEXT],
-                                   as_reference=True)
 
 
 class OstrichGR4JCemaNeigeProcess(OstrichProcess):
@@ -92,37 +64,9 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     title = ''
     version = ''
     model_cls = GR4JCN_OST
-    tuple_inputs = {'params': GR4JCN_OST.params}
-    inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
-              wio.run_name,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
-
-    outputs = [CalibrationResults]
+    tuple_inputs = {'lowerBounds': GR4JCN_OST.params,
+                    'upperBounds': GR4JCN_OST.params}
+    inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.MaxEvals, wio.start_date, wio.end_date,
+              wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
 
     keywords = ["Ostrich", "Calibration", "DDS"],
-
-    def _handler(self, request, response):
-        response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
-        """
-        ts = [e.file for e in request.inputs.pop('ts')]
-        algorithm = request.inputs.pop('algorithm')[0].data
-        MaxEvals = request.inputs.pop('MaxEvals')[0].data
-        params = request.inputs.pop('params')[0].data
-        lowerBounds = request.inputs.pop('lowerBounds')[0].data
-        upperBounds = request.inputs.pop('upperBounds')[0].data
-        start_date = request.inputs.pop('start_date')[0].data
-        end_date = request.inputs.pop('end_date')[0].data
-        longitude = request.inputs.pop('longitude')[0].data
-        run_name = request.inputs.pop('run_name')[0].data
-        name = request.inputs.pop('name')[0].data
-        area = request.inputs.pop('area')[0].data
-        latitude = request.inputs.pop('latitude')[0].data
-        elevation = request.inputs.pop('elevation')[0].data
-
-        pdb.set_trace()
-        # Write output
-        FPath = Path(self.workdir) / 'CalibrationResults.txt'
-        with open(FPath, 'w') as f:
-            params.to_csv(f, header=['X1', 'X2', 'X3', 'X4', 'X5', 'X6'])
-        response.outputs['CalibrationResults'].file = str(FPath)
-        """

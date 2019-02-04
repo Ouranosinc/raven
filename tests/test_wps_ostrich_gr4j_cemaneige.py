@@ -44,7 +44,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,
                     start_date=dt.datetime(1954, 1, 1),
-                    duration=20819,
+                    duration=281,  # DH: Let's keep that low so the test runs rapidly.
                     name='Salmon',
                     run_name='test',
                     area='4250.6',

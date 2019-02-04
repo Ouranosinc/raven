@@ -567,7 +567,8 @@ class Ostrich(Raven):
         # name.
         Raven.parse_results(self, path=self.best_path)
 
-        patterns = {'params_seq': 'OstModel?.txt'
+        patterns = {'params_seq': 'OstModel?.txt',
+                    'calibration': 'OstOutput?.txt',
                     }
 
         # Store output file names in dict

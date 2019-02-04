@@ -1,5 +1,5 @@
-from . common import TESTDATA
-from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST
+from . common import TESTDATA, make_bnds
+from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
 import tempfile
 import datetime as dt
 import numpy as np
@@ -124,7 +124,8 @@ class TestGR4JCN_OST:
               longitude=-123.3659,
               lowerBounds=low,
               upperBounds=high,
-              MaxEvals=10
+              algorithm='DDS',
+              MaxEvals=10,
               )
 
         d = model.diagnostics
@@ -175,6 +176,29 @@ class TestHMETS:
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
 
 
+class TestHMETS_OST:
+
+    def test_simple(self):
+        ts = TESTDATA['raven-hmets-nc-ts']
+        model = HMETS_OST()
+        params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
+                  2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
+        low, high = make_bnds(params, .25)
+
+        model(ts,
+              start_date=dt.datetime(1954, 1, 1),
+              duration=208,
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              lowerBounds=low,
+              upperBounds=high,
+              algorithm='DDS',
+              MaxEvals=10
+              )
+
+
 class TestMOHYSE:
 
     def test_simple(self):
@@ -197,6 +221,41 @@ class TestMOHYSE:
         d = model.diagnostics
         # TODO: Correct expected NSE
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.194612, 4)
+
+
+class TestMOHYSE_OST():
+    def test_simple(self):
+        ts = TESTDATA['ostrich-mohyse-nc-ts']
+        model = MOHYSE_OST()
+        params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453)
+        hrus = (0.9039, 5.6167)
+
+        low_p, high_p = make_bnds(params, .25)
+        low_h, high_h = make_bnds(hrus, .5)
+
+        model(ts,
+              start_date=dt.datetime(1954, 1, 1),
+              duration=208,
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              lowerBounds=low_p,
+              upperBounds=high_p,
+              hruslowerBounds=low_h,
+              hrusupperBounds=high_h,
+              MaxEvals=10
+              )
+
+        d = model.diagnostics
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.5078130, 4)
+
+        opt_para = model.calibrated_params
+        opt_func = model.obj_func
+        np.testing.assert_almost_equal(opt_para, [1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453], 4,
+                                       err_msg='calibrated parameter set is not matching expected value')
+        np.testing.assert_almost_equal(opt_func, -0.5078130, 4,
+                                       err_msg='calibrated NSE is not matching expected value')
 
 
 class TestHBVEC:
