@@ -25,11 +25,11 @@ class GR4JCN_OST(Ostrich, GR4JCN):
     _p = Path(__file__).parent / 'ostrich-gr4j-cemaneige'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    low = GR4JCN.params
-    high = GR4JCN.params
-    txt = RV(max_iterations=None,
-             low=low(None, None, None, None, None, None),
-             high=high(None, None, None, None, None, None),
+    lowerBounds = GR4JCN.params
+    upperBounds = GR4JCN.params
+    txt = RV(MaxEvals=None,
+             lowerBounds=lowerBounds(None, None, None, None, None, None),
+             upperBounds=upperBounds(None, None, None, None, None, None),
              )
 
     def derived_parameters(self):

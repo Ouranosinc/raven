@@ -122,9 +122,9 @@ class TestGR4JCN_OST:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              low=low,
-              high=high,
-              max_iterations=10
+              lowerBounds=low,
+              upperBounds=high,
+              MaxEvals=10
               )
 
         d = model.diagnostics
