@@ -173,7 +173,7 @@ class Raven:
 
                 # If the object is a namedtuple, we get its class and try to instantiate it with the values passed.
                 if isinstance_namedtuple(att) and isinstance(value, (list, tuple, np.ndarray)):
-                    p = getattr(self, key)(*value)
+                    p = att.__class__(*value)
                     setattr(obj, key, p)
                 else:
                     setattr(obj, key, value)
