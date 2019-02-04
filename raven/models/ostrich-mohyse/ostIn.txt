@@ -19,17 +19,17 @@ EndFilePairs
 
 #Parameter/DV Specification
 BeginParams
-  #parameter      init.    low      high    tx_in  tx_ost  tx_out   
-  par_x01         random   {lowerBounds.par_x01}  {upperBounds.par_x01}  none   none     none    
-  par_x02         random   {lowerBounds.par_x02}  {upperBounds.par_x02}  none   none     none    
-  par_x03         random   {lowerBounds.par_x03}  {upperBounds.par_x03}  none   none     none    
-  par_x04         random   {lowerBounds.par_x04}  {upperBounds.par_x04}  none   none     none    
-  par_x05         random   {lowerBounds.par_x05}  {upperBounds.par_x05}  none   none     none    
-  par_x06         random   {lowerBounds.par_x06}  {upperBounds.par_x06}  none   none     none    
-  par_x07         random   {lowerBounds.par_x07}  {upperBounds.par_x07}  none   none     none    
-  par_x08         random   {lowerBounds.par_x08}  {upperBounds.par_x08}  none   none     none    
-  par_x09         random   {lowerBounds.par_x09}  {upperBounds.par_x09}  none   none     none    
-  par_x10         random   {lowerBounds.par_x10}  {upperBounds.par_x10}  none   none     none            
+  #parameter      init.    low      high    tx_in  tx_ost  tx_out
+  par_x01         random   {lowerBounds.par_x01}  {upperBounds.par_x01}  none   none     none
+  par_x02         random   {lowerBounds.par_x02}  {upperBounds.par_x02}  none   none     none
+  par_x03         random   {lowerBounds.par_x03}  {upperBounds.par_x03}  none   none     none
+  par_x04         random   {lowerBounds.par_x04}  {upperBounds.par_x04}  none   none     none
+  par_x05         random   {lowerBounds.par_x05}  {upperBounds.par_x05}  none   none     none
+  par_x06         random   {lowerBounds.par_x06}  {upperBounds.par_x06}  none   none     none
+  par_x07         random   {lowerBounds.par_x07}  {upperBounds.par_x07}  none   none     none
+  par_x08         random   {lowerBounds.par_x08}  {upperBounds.par_x08}  none   none     none
+  par_x09         random   {hruslowerBounds.par_x09}  {hrusupperBounds.par_x09}  none   none     none
+  par_x10         random   {hruslowerBounds.par_x10}  {hrusupperBounds.par_x10}  none   none     none
 EndParams
 
 BeginTiedParams

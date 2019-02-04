@@ -116,3 +116,23 @@ def synthetic_gr4j_inputs(path):
     evap = 3 + 3 * np.cos(-30 + np.arange(len(time)) * 2 * np.pi / 365.)
     evap = xr.DataArray(evap, coords={'time': time}, dims='time', name='evap')
     evap.to_netcdf(os.path.join(path, 'evap.nc'))
+
+
+def make_bnds(params, delta):
+    """Return low and high parameter bounds by substracting and adding delta*params to params.
+
+    Parameters
+    ----------
+    params : sequence
+      Parameters.
+    delta : float [0,1]
+      Relative delta to substract and add to parameters.
+
+    Returns
+    (tuple, tuple)
+      Low and high bounds for parameters.
+
+    """
+    arr = np.asarray(params)
+    d = np.abs(arr * delta)
+    return tuple(arr - d), tuple(arr + d)

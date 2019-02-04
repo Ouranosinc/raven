@@ -2,6 +2,7 @@ from . common import TESTDATA
 from raven.models import Raven, Ostrich
 import tempfile
 import numpy as np
+from pathlib import Path
 
 
 class TestRaven:
@@ -75,6 +76,9 @@ class TestOstrich:
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -0.5779910, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
+
+        assert Path(model.output['calibration']).exists()
+
 
     def test_mohyse_with_no_tags(self):
         ts = TESTDATA['raven-mohyse-nc-ts']

@@ -25,11 +25,10 @@ class GR4JCN_OST(Ostrich, GR4JCN):
     _p = Path(__file__).parent / 'ostrich-gr4j-cemaneige'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    lowerBounds = GR4JCN.params
-    upperBounds = GR4JCN.params
-    txt = RV(MaxEvals=None,
-             lowerBounds=lowerBounds(None, None, None, None, None, None),
-             upperBounds=upperBounds(None, None, None, None, None, None),
+    txt = RV(algorithm=None,
+             MaxEvals=None,
+             lowerBounds=GR4JCN.params(None, None, None, None, None, None),
+             upperBounds=GR4JCN.params(None, None, None, None, None, None),
              )
 
     def derived_parameters(self):
@@ -57,11 +56,12 @@ class MOHYSE_OST(Ostrich, MOHYSE):
     _p = Path(__file__).parent / 'ostrich-mohyse'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    low = MOHYSE.params   # TODO needs to include MOHYSE.hru as well
-    high = MOHYSE.params  # TODO needs to include MOHYSE.hru as well
-    txt = RV(max_iterations=None,
-             low=low(None, None, None, None, None, None, None, None),     # TODO needs to include MOHYSE.hru as well
-             high=high(None, None, None, None, None, None, None, None),   # TODO needs to include MOHYSE.hru as well
+    txt = RV(algorithm=None,
+             MaxEvals=None,
+             lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
+             upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
+             hruslowerBounds=MOHYSE.hrus(None, None),
+             hrusupperBounds=MOHYSE.hrus(None, None)
              )
 
     def derived_parameters(self):
@@ -98,12 +98,11 @@ class HMETS_OST(Ostrich, HMETS):
     _p = Path(__file__).parent / 'ostrich-hmets'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    low = HMETS.params
-    high = HMETS.params
-    txt = RV(max_iterations=None,
-             low=low(None, None, None, None, None, None, None, None, None, None, None,
+    txt = RV(algorithm=None,
+             MaxEvals=None,
+             lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
                      None, None, None, None, None, None, None, None, None, None),
-             high=high(None, None, None, None, None, None, None, None, None, None, None,
+             upperBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
                        None, None, None, None, None, None, None, None, None, None),
              )
 
@@ -146,7 +145,7 @@ class HBVEC_OST(Ostrich, HBVEC):
 
     low = HBVEC.params
     high = HBVEC.params
-    txt = RV(max_iterations=None,
+    txt = RV(MaxEvals=None,
              low=low(None, None, None, None, None, None, None, None, None, None, None,
                      None, None, None, None, None, None, None, None, None, None),
              high=high(None, None, None, None, None, None, None, None, None, None, None,
