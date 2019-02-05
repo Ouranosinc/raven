@@ -56,8 +56,6 @@ class TestOstrichHMETSProcess:
             service='WPS', request='Execute', version='1.0.0', identifier='ostrich-hmets',
             datainputs=datainputs)
 
-        print(resp)
-
         assert_response_success(resp)
 
         out = get_output(resp.xml)

@@ -77,8 +77,7 @@ class TestOstrich:
         # np.testing.assert_almost_equal(opt_func, -0.5779910, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
 
-        assert Path(model.output['calibration']).exists()
-
+        assert Path(model.outputs['calibration']).exists()
 
     def test_mohyse_with_no_tags(self):
         ts = TESTDATA['raven-mohyse-nc-ts']
@@ -118,6 +117,8 @@ class TestOstrich:
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -0.3857010, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
+
+        assert Path(model.outputs['calibration']).exists()
 
     def test_hmets_with_no_tags(self):
         ts = TESTDATA['raven-hmets-nc-ts']
@@ -165,6 +166,8 @@ class TestOstrich:
         # np.testing.assert_almost_equal(opt_func, -6.350490E-01, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
 
+        assert Path(model.outputs['calibration']).exists()
+
     def test_hbvec_with_no_tags(self):
         ts = TESTDATA['raven-hbv-ec-nc-ts']
         ost = TESTDATA['ostrich-hbv-ec-rv']
@@ -209,3 +212,5 @@ class TestOstrich:
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -6.034670E-01, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
+
+        assert Path(model.outputs['calibration']).exists()
