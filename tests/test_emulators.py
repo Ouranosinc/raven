@@ -112,6 +112,7 @@ class TestGR4JCN_OST:
     def test_simple(self):
         ts = TESTDATA['ostrich-gr4j-cemaneige-nc-ts']
         model = GR4JCN_OST()
+        params = (0.529, -3.396, 407.29, 1.072, 16.9, 0.053)
         low = (0.01, -15.0, 10.0, 0.0, 1.0, 0.0)
         high = (2.5, 10.0, 700.0, 7.0, 30.0, 1.0)
 
@@ -122,6 +123,7 @@ class TestGR4JCN_OST:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
+              params=params,
               lowerBounds=low,
               upperBounds=high,
               algorithm='DDS',
@@ -298,6 +300,7 @@ class TestMOHYSE_OST():
               upperBounds=high_p,
               hruslowerBounds=low_h,
               hrusupperBounds=high_h,
+              algorithm='DDS',
               MaxEvals=10
               )
 
@@ -388,6 +391,7 @@ class TestHBVEC_OST():
               params=params,
               lowerBounds=low,
               upperBounds=high,
+              algorithm='DDS',
               MaxEvals=10
               )
 

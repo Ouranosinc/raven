@@ -82,12 +82,6 @@ Uparams_defaults = HMETS_OST.params(GAMMA_SHAPE=20.0,
                                     TOPSOIL=0.5,
                                     PHREATIC=2.0)
 
-params = LiteralInput('params', 'Comma separated list of model parameters',
-                      abstract='Parameters: ' + ', '.join(params_defaults._fields),
-                      data_type='string',
-                      default=', '.join(str(p) for p in list(params_defaults)),
-                      min_occurs=0)
-
 upperBounds = LiteralInput('upperBounds', 'Comma separated list of model parameters Upper Bounds',
                            abstract='UParameters: ' + ', '.join(Uparams_defaults._fields),
                            data_type='string',
@@ -99,28 +93,6 @@ lowerBounds = LiteralInput('lowerBounds', 'Comma separated list of model paramet
                            data_type='string',
                            default=', '.join(str(p) for p in list(Lparams_defaults)),
                            min_occurs=0)
-
-algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate model parameters',
-                         abstract='Optimization algorithm to implement for this calibration run',
-                         data_type='string',
-                         default='DDS',
-                         allowed_values=('DDS', 'SCEUA'),
-                         min_occurs=0)
-
-MaxEvals = LiteralInput('MaxEvals', 'Maximum number of model evaluations for the calibration run (budget)',
-                        abstract='Maximum number of times OSTRICH can call the hydrological model during the '
-                                 'model parameter calibrationn',
-                        data_type='integer',
-                        default=50,
-                        allowed_values=list(range(25001)),
-                        min_occurs=0)
-
-CalibrationResults = ComplexOutput('CalibrationResults',
-                                   'ObjectiveFunction and calibrated parameters computed by Ostrich',
-                                   abstract="Objective Function value after calibration using user-selected "
-                                            "function, as well as the calibrated parameter set",
-                                   supported_formats=[FORMATS.TEXT],
-                                   as_reference=True)
 
 
 class OstrichHMETSProcess(OstrichProcess):
@@ -135,45 +107,11 @@ class OstrichHMETSProcess(OstrichProcess):
     identifier = 'ostrich-hmets'
     abstract = 'OSTRICH calibration of RAVEN HMETS hydrological model'
     title = ''
-    version = '',
+    version = ''
     model_cls = HMETS_OST
-    tuple_inputs = {'params': HMETS_OST.params}
-    inputs = [wio.ts, algorithm, MaxEvals, params, upperBounds, lowerBounds, wio.start_date, wio.end_date,
-              wio.run_name,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
+    tuple_inputs = {'lowerBounds': HMETS_OST.params,
+                    'upperBounds': HMETS_OST.params}
+    inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.MaxEvals, wio.start_date, wio.end_date,
+              wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
 
-    outputs = [CalibrationResults]
-
-    keywords = ["Ostrich", "Calibration", "DDS"],
-
-    def _handler(self, request, response):
-        response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
-        """
-        ts = [e.file for e in request.inputs.pop('ts')]
-        algorithm = request.inputs.pop('algorithm')[0].data
-        MaxEvals = request.inputs.pop('MaxEvals')[0].data
-        params = request.inputs.pop('params')[0].data
-        lowerBounds = request.inputs.pop('lowerBounds')[0].data
-        upperBounds = request.inputs.pop('upperBounds')[0].data
-        start_date = request.inputs.pop('start_date')[0].data
-        end_date = request.inputs.pop('end_date')[0].data
-        longitude = request.inputs.pop('longitude')[0].data
-        run_name = request.inputs.pop('run_name')[0].data
-        name = request.inputs.pop('name')[0].data
-        area = request.inputs.pop('area')[0].data
-        latitude = request.inputs.pop('latitude')[0].data
-        elevation = request.inputs.pop('elevation')[0].data
-
-        pdb.set_trace()
-        # Write output
-        FPath = Path(self.workdir) / 'CalibrationResults.txt'
-        with open(FPath, 'w') as f:
-            params.to_csv(f, header=['GAMMA_SHAPE', 'GAMMA_SCALE', 'GAMMA_SHAPE2', 'GAMMA_SCALE2',
-                                     'MIN_MELT_FACTOR', 'MAX_MELT_FACTOR',
-                                     'DD_MELT_TEMP', 'DD_AGGRADATION', 'SNOW_SWI_MIN', 'SNOW_SWI_MAX',
-                                     'SWI_REDUCT_COEFF', 'DD_REFREEZE_TEMP',
-                                     'REFREEZE_FACTOR', 'REFREEZE_EXP', 'PET_CORRECTION',
-                                     'HMETS_RUNOFF_COEFF', 'PERC_COEFF', 'BASEFLOW_COEFF_1',
-                                     'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'])
-        response.outputs['CalibrationResults'].file = str(FPath)
-        """
+    keywords = ["Ostrich", "Calibration", "DDS"]

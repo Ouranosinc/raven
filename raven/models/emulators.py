@@ -145,7 +145,8 @@ class HBVEC_OST(Ostrich, HBVEC):
 
     low = HBVEC.params
     high = HBVEC.params
-    txt = RV(MaxEvals=None,
+    txt = RV(algorithm=None,
+             MaxEvals=None,
              lowerBounds=low(None, None, None, None, None, None, None, None, None, None, None,
                              None, None, None, None, None, None, None, None, None, None),
              upperBounds=high(None, None, None, None, None, None, None, None, None, None, None,

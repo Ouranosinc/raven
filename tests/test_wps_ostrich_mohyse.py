@@ -15,16 +15,23 @@ class TestOstrichMOHYSEProcess:
     def test_simple(self):
         client = client_for(Service(processes=[OstrichMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6179775'   # params and hrus
-        lowerBounds = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01'
-        upperBounds = '20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0, 15.0, 15.0'
+        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453'
+        low_p = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01'
+        high_p = '20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0, 15.0, 15.0'
+
+        hrus = '0.9039, 5.6179775'
+        low_h = '0.01, 0.01'
+        high_h = '15.0, 15.0'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
                      "MaxEvals={MaxEvals};" \
                      "params={params};" \
-                     "lowerBounds={lowerBounds};" \
-                     "upperBounds={upperBounds};" \
+                     "hrus={hrus};" \
+                     "lowerBounds={low_p};" \
+                     "upperBounds={high_p};" \
+                     "hruslowerBounds={low_h};" \
+                     "hrusupperBounds={high_h};" \
                      "start_date={start_date};" \
                      "duration={duration};" \
                      "name={name};" \
@@ -37,8 +44,11 @@ class TestOstrichMOHYSEProcess:
                     algorithm='DDS',
                     MaxEvals=10,
                     params=params,
-                    lowerBounds=lowerBounds,
-                    upperBounds=upperBounds,
+                    hrus=hrus,
+                    low_p=low_p,
+                    high_p=high_p,
+                    low_h=low_h,
+                    high_h=high_h,
                     start_date=dt.datetime(1954, 1, 1),
                     duration=208,
                     name='Salmon',
@@ -60,13 +70,13 @@ class TestOstrichMOHYSEProcess:
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # checking correctness of NSE (full period 1954-2010 would be NSE=0.385701)
+        # checking correctness of NSE (full period 1954-2010 with budget 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 0.382681, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.3826810, 4, err_msg='NSE is not matching expected value')
 
-        # checking correctness of RMSE (full period 1954-2010 would be RMSE=36.8637)
+        # checking correctness of RMSE (full period 1954-2010 would be RMSE=????)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])

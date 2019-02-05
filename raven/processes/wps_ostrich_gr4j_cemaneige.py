@@ -69,4 +69,4 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.MaxEvals, wio.start_date, wio.end_date,
               wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
 
-    keywords = ["Ostrich", "Calibration", "DDS"],
+    keywords = ["Ostrich", "Calibration", "DDS"]
