@@ -15,9 +15,9 @@ class TestOstrichGR4JCemaNeigeProcess:
     def test_simple(self):
         client = client_for(Service(processes=[OstrichGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.947'
-        lowerBounds = '0.1, -5.0, 100.0, 1.0, 10.0, 0.1'
-        upperBounds = '0.9, 0.0, 500.0, 1.1, 20.0, 1.0'
+        params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.053'
+        lowerBounds = '0.01, -15.0, 10.0, 0.0, 1.0, 0.0'
+        upperBounds = '2.5, 10.0, 700.0, 7.0, 30.0, 1.'
 
         # some params in Raven input files are derived from those 21 parameters
         # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0

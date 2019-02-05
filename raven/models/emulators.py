@@ -101,9 +101,9 @@ class HMETS_OST(Ostrich, HMETS):
     txt = RV(algorithm=None,
              MaxEvals=None,
              lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
-                     None, None, None, None, None, None, None, None, None, None),
+                                      None, None, None, None, None, None, None, None, None, None),
              upperBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
-                       None, None, None, None, None, None, None, None, None, None),
+                                      None, None, None, None, None, None, None, None, None, None),
              )
 
     def derived_parameters(self):
@@ -146,10 +146,10 @@ class HBVEC_OST(Ostrich, HBVEC):
     low = HBVEC.params
     high = HBVEC.params
     txt = RV(MaxEvals=None,
-             low=low(None, None, None, None, None, None, None, None, None, None, None,
-                     None, None, None, None, None, None, None, None, None, None),
-             high=high(None, None, None, None, None, None, None, None, None, None, None,
-                       None, None, None, None, None, None, None, None, None, None),
+             lowerBounds=low(None, None, None, None, None, None, None, None, None, None, None,
+                             None, None, None, None, None, None, None, None, None, None),
+             upperBounds=high(None, None, None, None, None, None, None, None, None, None, None,
+                              None, None, None, None, None, None, None, None, None, None),
              )
 
     def derived_parameters(self):

@@ -6,11 +6,10 @@
 # Emulation of MOHYSE simulation of Salmon River near Prince George                                                             
 #------------------------------------------------------------------------                                   
 #                                                                                                          
-#:RunName              run1                                                                           
-:StartDate             1954-01-01 00:00:00                                                                   
-:Duration              208 # 20819 #                                                                                    
-:TimeStep              1.0                                                                                  
-
+:RunName               {run_name}
+:StartDate             {start_date}
+:Duration              {duration}
+:TimeStep              {time_step}
 #------------------------------------------------------------------------
 # Model options
 #
@@ -73,7 +72,7 @@
 # Output Options
 #
 # manual testing settings
-:EvaluationMetrics NASH_SUTCLIFFE RMSE
+:EvaluationMetrics {evaluation_metrics}
 :WriteNetcdfFormat  yes
 :SilentMode
 :PavicsMode

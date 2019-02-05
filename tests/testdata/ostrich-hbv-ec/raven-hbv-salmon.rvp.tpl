@@ -47,7 +47,7 @@
 
 #---------------------------------------------------------
 # Soil profiles
-# name, layers, {soilClass, thickness} x layers
+# name, layers, (soilClass, thickness) x layers
 #
 :SoilProfiles
 #                        HBV_PARA_17,           CONSTANT,           CONSTANT,
