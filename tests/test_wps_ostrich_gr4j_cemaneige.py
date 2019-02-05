@@ -44,7 +44,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,
                     start_date=dt.datetime(1954, 1, 1),
-                    duration=281,  # DH: Let's keep that low so the test runs rapidly.
+                    duration=208,
                     name='Salmon',
                     run_name='test',
                     area='4250.6',
@@ -64,16 +64,14 @@ class TestOstrichGR4JCemaNeigeProcess:
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # TODO Julie :: values not adjusted yet!!! WPS needs to work first ...
-
-        # checking correctness of NSE (full period 1954-2010 would be NSE=0.511214)
+        # checking correctness of NSE (full period 1954-2010 with budget of 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -0.130318, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.5078130, 4, err_msg='NSE is not matching expected value')
 
-        # checking correctness of RMSE (full period 1954-2010 would be RMSE=32.8827)
+        # checking correctness of RMSE (full period 1954-2010 with budget of 50 would be RMSE=????)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 38.1697, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 36.3493, 4, err_msg='RMSE is not matching expected value')

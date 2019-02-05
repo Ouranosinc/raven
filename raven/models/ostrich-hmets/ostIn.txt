@@ -1,4 +1,4 @@
-ProgramType         DDS
+ProgramType         {algorithm}
 ObjectiveFunction   GCOP
 ModelExecutable     ./ostrich-runs-raven.sh
 PreserveBestModel   ./save_best.sh
