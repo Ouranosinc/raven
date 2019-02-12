@@ -284,8 +284,8 @@ class Raven:
 
         # Run the model
         cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
-        proc = subprocess.Popen(cmd, cwd=self.cmd_path)
-        proc.wait()
+        subprocess.run(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE)
+        # proc.wait()
 
         try:
             self.parse_results()
@@ -523,7 +523,7 @@ class Ostrich(Raven):
     @property
     def proc_path(self):
         """Path to parallel process directory."""
-        return self.exec_path / 'processor_0'
+        return self.exec_path / 'processor_0'  # /'model' / 'output' ?
 
     def write_save_best(self):
         fn = self.exec_path / 'save_best.sh'
