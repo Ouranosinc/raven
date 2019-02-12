@@ -1,5 +1,5 @@
 six
-pywps>=4.1
+pywps>=4.2
 jinja2
 click
 psutil
@@ -12,14 +12,17 @@ dask
 pathlib
 toolz
 spotpy
+statsmodels
+# GIS LIBRARIES
 # gdal --- Not compatible with rasterio!
+# pysheds --- Not compatible with rasterio
+rtree
 fiona
+geopandas
 pycrs
 pyproj
-# pysheds --- Not compatible with rasterio
 rasterio
 rasterstats
 shapely
-statsmodels
 
 

@@ -12,6 +12,7 @@ dependencies:
 - xarray
 - dask
 - pandas
+- geopandas
 - netcdf4
 - libnetcdf
 - gdal>=2.3
@@ -23,7 +24,6 @@ dependencies:
 - shapely
 - bumpversion
 - statsmodels
-
 - pip:
   - spotpy
 
