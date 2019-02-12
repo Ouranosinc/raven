@@ -85,18 +85,24 @@ class Raven:
             self.configure(self.templates)
 
         # Directory logic
-
+        self.iteration = 0
         # Top directory inside workdir. This is where Ostrich and its config and templates are stored.
         self.exec_path = self.workdir / 'exec'
 
-        # Path to the Raven executable and configuration files.
-        self.model_path = self.exec_path / 'model'
-        self.raven_cmd = self.model_path / 'raven'
+    @property
+    def model_path(self):
+        """Path to the model configuration files."""
+        return self.exec_path / 'model_{}'.format(self.iteration)
 
     @property
     def output_path(self):
         """Path to the model outputs and logs."""
         return self.model_path / 'output'
+
+    @property
+    def raven_cmd(self):
+        """Path to the Raven executable."""
+        return self.model_path / 'raven'
 
     @property
     def version(self):
@@ -214,7 +220,7 @@ class Raven:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
-        os.makedirs(str(self.exec_path))                   # exec
+        os.makedirs(str(self.exec_path), exist_ok=True)    # exec
         os.makedirs(str(self.model_path), exist_ok=True)   # exec/model
         os.makedirs(str(self.output_path), exist_ok=True)  # exec/model/output
 
@@ -261,6 +267,9 @@ class Raven:
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
+        # Special case for param to allow looping.
+        params = kwds.pop('params', None)
+
         # Update parameter objects
         for key, val in kwds.items():
 
@@ -274,18 +283,30 @@ class Raven:
                     raise ValueError("A dictionary or an RV instance is expected to update the values "
                                      "for {}.".format(key))
             else:
-
                 self.assign(key, val)
 
         if self.rvi:
             self.handle_date_defaults(ts)
 
-        self.setup_model(tuple(map(Path, ts)), overwrite)
+        if params is not None:
+            arr = np.atleast_2d(params)
+        else:
+            arr = [None, ]
 
-        # Run the model
-        cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
-        subprocess.run(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE)
-        # proc.wait()
+        procs = []
+        for self.iteration, a in enumerate(arr):
+            if a is not None:
+                self.assign('params', a)
+
+            self.setup_model(tuple(map(Path, ts)), overwrite=overwrite if self.iteration == 0 else False)
+
+            # Run the model
+            cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+            procs.append(subprocess.Popen(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE))
+
+        for proc in procs:
+            proc.wait()
+
 
         try:
             self.parse_results()

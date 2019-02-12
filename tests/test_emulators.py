@@ -107,6 +107,19 @@ class TestGR4JCN:
         model = GR4JCN()
         assert model.version == '2.9'
 
+    def test_parallel(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        model = GR4JCN()
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=[(0.529, -3.396, 407.29, 1.072, 16.9, 0.947), (0.528, -3.4, 407.3, 1.07, 17, .95)]
+              )
+
 
 class TestGR4JCN_OST:
     def test_simple(self):
