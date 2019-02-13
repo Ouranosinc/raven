@@ -1,25 +1,25 @@
-#########################################################################                                  
-:FileType          rvi ASCII Raven 2.8.2                                                                              
-:WrittenBy         Juliane Mai & James Craig                                                                             
+#########################################################################
+:FileType          rvi ASCII Raven 2.8.2
+:WrittenBy         Juliane Mai & James Craig
 :CreationDate      Sep 2018
 #
-# Emulation of MOHYSE simulation of Salmon River near Prince George                                                             
-#------------------------------------------------------------------------                                   
-#                                                                                                          
-:RunName               {run_name}
+# Emulation of MOHYSE simulation of Salmon River near Prince George
+#------------------------------------------------------------------------
+#
+:RunName               {run_name}-{run_index}
 :StartDate             {start_date}
 :Duration              {duration}
-:TimeStep              {time_step}                                                                                 
-:Method                ORDERED_SERIES 
+:TimeStep              {time_step}
+:Method                ORDERED_SERIES
 
 :SoilModel             SOIL_TWO_LAYER
 :PotentialMeltMethod   POTMELT_DEGREE_DAY
-:Routing               ROUTE_NONE 
+:Routing               ROUTE_NONE
 :CatchmentRoute        ROUTE_GAMMA_CONVOLUTION
 :Evaporation           PET_MOHYSE
-:DirectEvaporation     
+:DirectEvaporation
 :RainSnowFraction      RAINSNOW_DATA
- 
+
 :HydrologicProcesses
      :SoilEvaporation  SOILEVAP_LINEAR    SOIL[0]            ATMOSPHERE
      :SnowBalance      SNOBAL_SIMPLE_MELT SNOW PONDED_WATER

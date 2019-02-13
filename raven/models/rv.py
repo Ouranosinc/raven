@@ -152,8 +152,9 @@ class RVI(RV):
         self.elevation = None
         self.latitude = None
         self.longitude = None
+        self.run_index = 0
 
-        self._run_name = None
+        self._run_name = 'run'
         self._start_date = None
         self._end_date = None
         self._duration = 1

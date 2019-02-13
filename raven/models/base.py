@@ -16,7 +16,7 @@ automatically filled in.
 """
 import raven
 from pathlib import Path
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import os
 import stat
 import subprocess
@@ -25,7 +25,7 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RVFile, RV, isinstance_namedtuple
+from .rv import RVFile, RV, RVI, isinstance_namedtuple
 import numpy as np
 
 
@@ -47,7 +47,12 @@ class Raven:
     # Allowed configuration file extensions
     _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
 
-    rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
+    rvi = RV()
+    rvp = RV()
+    rvc = RV()
+    rvt = RV()
+    rvh = RV()
+    rvd = RV()  # rvd is for derived parameters
 
     # Dictionary of potential variable names, keyed by CF standard name.
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
@@ -69,8 +74,14 @@ class Raven:
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
         """
         workdir = workdir or tempfile.mkdtemp()
+
+        # Convert rvs into instance attributes, otherwise they'd be instance attributes.
+        for rv in self._rvext:
+            self.rv = getattr(type(self), rv)
+
         self.workdir = Path(workdir)
-        self.outputs = {}
+        self.ind_outputs = {}  # Individual files for all simulations
+        self.outputs = {}  # Aggregated files
         self.raven_exec = raven.raven_exec
         self.ostrich_exec = raven.ostrich_exec
         self._name = None
@@ -88,16 +99,14 @@ class Raven:
         self.iteration = 0
         # Top directory inside workdir. This is where Ostrich and its config and templates are stored.
         self.exec_path = self.workdir / 'exec'
+        self.model_dir = 'model'  # Path to the model configuration files.
+        self.output_dir = 'output'
+        self.output_path = self.exec_path / self.output_dir
+        self._sim = 0
 
     @property
     def model_path(self):
-        """Path to the model configuration files."""
-        return self.exec_path / 'model_{}'.format(self.iteration)
-
-    @property
-    def output_path(self):
-        """Path to the model outputs and logs."""
-        return self.model_path / 'output'
+        return self.exec_path / str(self.sim) / self.model_dir
 
     @property
     def raven_cmd(self):
@@ -113,6 +122,18 @@ class Raven:
             return match.groups()[0]
         else:
             raise AttributeError("Version not found: {}".format(out))
+
+    @property
+    def sim(self):
+        return self._sim
+
+    @sim.setter
+    def sim(self, value):
+        if not isinstance(value, int):
+            raise ValueError
+        if isinstance(self.rvi, RVI):
+            self.rvi.run_index = value
+        self._sim = value
 
     @property
     def cmd(self):
@@ -192,7 +213,7 @@ class Raven:
         """Subclassed by emulators. Defines model parameters that are a function of other parameters."""
         return
 
-    def _dump_rv(self, ts):
+    def _dump_rv(self):
         """Write configuration files to disk."""
         params = self.parameters
 
@@ -200,30 +221,30 @@ class Raven:
             p = self.exec_path if rvf.is_tpl else self.model_path
             rvf.write(p, **params)
 
-    def setup_model(self, ts, overwrite=False):
-        """Create directory structure to store model input files, executable and output results.
-
-        Model configuration files and time series inputs are stored directly in the working directory.
-
-        workdir/  # Created by PyWPS. Is considered the model path.
-           model/
-           output/
-
-        """
+    def setup(self, overwrite=False):
         import shutil
 
-        if self.output_path.exists():
+        if self.exec_path.exists():
             if overwrite:
-                shutil.rmtree(str(self.workdir))
+                shutil.rmtree(str(self.exec_path))
             else:
                 raise IOError(
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
-        # Create subdirectory
-        os.makedirs(str(self.exec_path), exist_ok=True)    # exec
-        os.makedirs(str(self.model_path), exist_ok=True)   # exec/model
-        os.makedirs(str(self.output_path), exist_ok=True)  # exec/model/output
+        # Create general subdirectories
+        os.makedirs(str(self.exec_path))    # exec
+        os.makedirs(str(self.output_path))  # exec/output
 
+    def setup_model_run(self, ts):
+        """Create directory structure to store model input files, executable and output results.
+
+        Parameters
+        ----------
+        ts : sequence
+          Paths to input forcing files.
+        index : int
+          Run index.
+        """
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
         self.rvt.update(files, force=True)
@@ -233,7 +254,8 @@ class Raven:
         self.derived_parameters()
 
         # Write configuration files in model directory
-        self._dump_rv(ts)
+        os.makedirs(self.model_path)
+        self._dump_rv()
 
         # Create symbolic link to input files
         for fn in ts:
@@ -241,6 +263,10 @@ class Raven:
 
         # Create symbolic link to Raven executable
         os.symlink(self.raven_exec, str(self.raven_cmd))
+
+        # Shell command to run the model
+        cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+        return cmd
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -261,9 +287,11 @@ class Raven:
         Example
         -------
         >>> r = Raven()
-        >>> r.configure(rvi=<path to template>, rvp=...}
+        >>> r.configure(rvi='path to template', rvp='...'}
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
         """
+        self.setup(overwrite)
+
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
@@ -294,19 +322,17 @@ class Raven:
             arr = [None, ]
 
         procs = []
-        for self.iteration, a in enumerate(arr):
+        for i, a in enumerate(arr):
+            self.sim = i
+
             if a is not None:
                 self.assign('params', a)
 
-            self.setup_model(tuple(map(Path, ts)), overwrite=overwrite if self.iteration == 0 else False)
-
-            # Run the model
-            cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+            cmd = self.setup_model_run(tuple(map(Path, ts)))
             procs.append(subprocess.Popen(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE))
 
         for proc in procs:
             proc.wait()
-
 
         try:
             self.parse_results()
@@ -336,9 +362,31 @@ Executed: \n $ {cmd}\n from {dir}
                     'diagnostics': '*Diagnostics.csv',
                     }
 
-        # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern, path=path))
+            fns = self._get_output(pattern, path=path)
+            self.ind_outputs[key] = fns
+            self.outputs[key] = self._merge_output(fns, pattern[1:])
+
+    def _merge_output(self, files, name):
+        """Merge multiple output files into one."""
+
+        # If there is only one file, return its name directly.
+        if len(files) == 1:
+            return str(files[0])
+
+        # Otherwise create a new file aggregating all files.
+        outfn = self.output_path / name
+
+        if name.endswith('.nc'):  # We aggregate along the params dimensions. Hard-coded for now.
+            ds = [xr.open_dataset(fn) for fn in files]
+            out = xr.concat(ds, 'params') if len(ds) > 1 else ds[0]
+            out.to_netcdf(outfn)
+
+        else:
+            with open(outfn, 'w') as outfile:
+                for fn in files:
+                    with open(fn) as infile:
+                        outfile.write(infile.read())
 
     def parse_errors(self):
         return self._get_output('Raven_errors.txt').read_text()
@@ -380,21 +428,17 @@ Executed: \n $ {cmd}\n from {dir}
 
         return files, var_names
 
-    def _get_output(self, pattern, path=None):
+    def _get_output(self, pattern, path):
         """Match actual output files to known expected files.
 
         Return a dictionary of file paths for each expected input.
         """
-        path = path or self.output_path
         files = list(path.glob(pattern))
 
         if len(files) == 0:
             raise UserWarning("No output files for {}.".format(pattern))
 
-        if len(files) > 1:
-            raise IOError("Multiple matching files found for {}.".format(pattern))
-
-        return files[0].absolute()
+        return [f.absolute() for f in files]
 
     @staticmethod
     def start_end_date(fns):
@@ -445,29 +489,30 @@ Executed: \n $ {cmd}\n from {dir}
         If the model is run multiple times, hydrograph will point to the latest version. To store the results of
         multiple runs, either create different model instances or explicitly copy the file to another disk location.
         """
-        with xr.open_dataset(self.outputs['hydrograph']) as ds:
-            return ds
+        return xr.open_dataset(self.outputs['hydrograph'])
 
     @property
     def storage(self):
-        with xr.open_dataset(self.outputs['storage']) as ds:
-            return ds
+        return xr.open_dataset(self.outputs['storage'])
 
     @property
     def diagnostics(self):
-        with open(self.outputs['diagnostics']) as f:
-            reader = csv.reader(f.readlines())
-            header = next(reader)
-            content = next(reader)
+        diag = []
+        for fn in self.ind_outputs['diagnostics']:
+            with open(fn) as f:
+                reader = csv.reader(f.readlines())
+                header = next(reader)
+                content = next(reader)
 
-            out = dict(zip(header, content))
-            out.pop('')
+                out = dict(zip(header, content))
+                out.pop('')
 
-        for key, val in out.items():
-            if 'DIAG' in key:
-                out[key] = float(val)
+            for key, val in out.items():
+                if 'DIAG' in key:
+                    out[key] = float(val)
+            diag.append(out)
 
-        return out
+        return diag if len(diag) > 1 else diag[0]
 
     @property
     def tags(self):
@@ -516,6 +561,11 @@ class Ostrich(Raven):
         return Raven._allowed_extensions() + ('txt', )
 
     @property
+    def ostrich_cmd(self):
+        """OSTRICH executable path."""
+        return self.exec_path / 'ostrich'
+
+    @property
     def cmd(self):
         """OSTRICH executable path."""
         return self.ostrich_cmd
@@ -524,11 +574,6 @@ class Ostrich(Raven):
     def cmd_path(self):
         """This is the main executable."""
         return self.exec_path
-
-    @property
-    def ostrich_cmd(self):
-        """OSTRICH executable path."""
-        return self.exec_path / 'ostrich'
 
     @property
     def best_path(self):
@@ -543,7 +588,7 @@ class Ostrich(Raven):
 
     @property
     def proc_path(self):
-        """Path to parallel process directory."""
+        """Path to Ostrich parallel process directory."""
         return self.exec_path / 'processor_0'  # /'model' / 'output' ?
 
     def write_save_best(self):
@@ -629,8 +674,8 @@ save_best = """#!/bin/bash
 
 set -e
 
-cp ./model/*.rv?  ../best/
-cp ./model/output/* ../best/
+cp ./model_0/*.rv?  ../best/
+cp ./model_0/output/* ../best/
 
 exit 0
 """
@@ -641,9 +686,9 @@ ostrich_runs_raven = """
 
 set -e
 
-cp ./*.rv? model/
+cp ./*.rv? model_0/
 
-./model/raven ./model/{name} -o ./model/output/
+./model_0/raven ./model_0/{name} -o ./model_0/output/
 
 exit 0
 """
