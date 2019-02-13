@@ -120,6 +120,10 @@ class TestGR4JCN:
               params=[(0.529, -3.396, 407.29, 1.072, 16.9, 0.947), (0.528, -3.4, 407.3, 1.07, 17, .95)]
               )
 
+        assert len(model.diagnostics) == 2
+        ds = model.hydrograph
+        assert 'params' in ds.dims
+
 
 class TestGR4JCN_OST:
     def test_simple(self):
