@@ -39,7 +39,7 @@ class ShapeSelectionProcess(Process):
         outputs = [
             ComplexOutput('geojson', 'Watershed feature geometry',
                           abstract='Geographic representations of shape properties.',
-                          supported_formats=[FORMATS.GEOJSON]),
+                          supported_formats=[FORMATS.JSON]),
             ComplexOutput('upstream_basins', 'HydroBASINS IDs for all immediate upstream basins',
                           abstract='Exhaustive list of all tributary sub-basins according to their HydroBASINS IDs',
                           supported_formats=[FORMATS.JSON])
@@ -64,15 +64,10 @@ class ShapeSelectionProcess(Process):
             iter_upstream = basin_dataframe[up_str_mask]['HYBAS_ID']
             return iter_upstream
 
-        collect_upstream = request['collect_upstream']
-        lonlat = request['lonlat_coordinate']
-        crs = from_epsg(request['crs'])
-        shape_url = request['shape']
-
-        # collect_upstream = request.inputs['collect_upstream'][0].data
-        # lonlat = request.inputs['lonlat_coordinate'][0].data
-        # crs = from_epsg(request.inputs['crs'][0].data)
-        # shape_url = request.inputs['shape'][0].file
+        collect_upstream = request.inputs['collect_upstream'][0].data
+        lonlat = request.inputs['lonlat_coordinate'][0].data
+        crs = from_epsg(request.inputs['crs'][0].data)
+        shape_url = request.inputs['shape'][0].file
 
         try:
             lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
@@ -85,12 +80,12 @@ class ShapeSelectionProcess(Process):
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
 
         basin = []
-        geojson = tempfile.NamedTemporaryFile(suffix='.json')
+        geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
         upstream_basins = []
         location = Point(lon, lat)
         crs = crs_sniffer(shape_url, crs)
 
-        with fio.Env():  # hacky workaround for pip-installed fiona; Can be removed in conda systems
+        with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
             try:
                 with fio.open(shape_url, 'r', crs=crs) as src:
                     for feat in iter(src):
@@ -101,7 +96,8 @@ class ShapeSelectionProcess(Process):
                             if collect_upstream:
                                 basin = feat['properties']['HYBAS_ID']
                             else:
-                                with open(geojson, 'w') as f:
+                                LOGGER.warning('Writing to {}'.format(geojson.name))
+                                with open(geojson.name, 'w') as f:
                                     json.dump(feat, f)
                             continue
                     src.close()
@@ -120,57 +116,45 @@ class ShapeSelectionProcess(Process):
                             if len(tmp):
                                 all_basins.extend(tmp.values)
 
+                        upstream_basins = [x.item() for x in all_basins]  # Convert from numpy Int64
+
                         df_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
                         for a in all_basins[1:]:
                             df_sub = df_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
                         dissolved = df_sub.dissolve(by='MAIN_BAS').to_json()
-                        upstream_basins = all_basins
 
                         LOGGER.warning('Writing to {}'.format(geojson.name))
                         with open(geojson.name, 'w') as f:
-                            json.dump(dissolved, f) # TODO: Figure out why this doesn't work
-
-                        # fn = os.path.join(self.workdir, 'upstream.json')
-                        # with open(fn, 'w') as f:
-                        #     json.dump(stats, f)
-                        # response.outputs['properties'].file = fn
-
-                        # filename = '{}.shp'.format(basin)
-
-                        # dissolved.to_file('output.json', driver='GeoJSON')
+                            f.write(dissolved)
 
                     # with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
-                    #     # 'PFAF_ID' can also technically be used to described the drainage network. See HydroBASINS docs.
+                    #     # 'PFAF_ID' can also technically be used to described the drainage network
+                    #       See HydroBASINS docs.
                     #     # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
-                    #     print(len(src))
-                    #     upstream = filter(lambda f: feature['properties']['NEXT_DOWN'] == basin[0], src)
 
             except Exception as e:
-                msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
+                msg = 'Failed to write analysis of {} to {}: {}'.format(shape_url, geojson, e)
                 LOGGER.error(msg)
                 return response
 
-        # response.outputs['geojson'].file = geojson
-        # response.outputs['upstream_basins'].data = upstream_basins
-
-        response['geojson'] = geojson
-        response['upstream_basins'] = upstream_basins
+        response.outputs['geojson'].data = json.dumps(geojson.name)
+        response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
 
         return response
 
 
-def testing():
-    inputs = dict(collect_upstream=True,
-                  lonlat_coordinate="(-68.724444, 50.646667)",
-                  crs=4326,
-                  shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev12_v1c.zip')
-    outputs = {}
-    ShapeSelectionProcess()._handler(request=inputs, response=outputs)
-
-    print(outputs['geojson'], outputs['upstream_basins'])
-
-
-if __name__ == '__main__':
-    testing()
-
+# def testing():
+#     inputs = dict(collect_upstream=True,
+#                   lonlat_coordinate="(-68.724444, 50.646667)",
+#                   crs=4326,
+#                   shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev12_v1c.zip')
+#     outputs = {}
+#     ShapeSelectionProcess()._handler(request=inputs, response=outputs)
+#
+#     print(outputs['geojson'], outputs['upstream_basins'])
+#
+#
+# if __name__ == '__main__':
+#     testing()
+#
 
