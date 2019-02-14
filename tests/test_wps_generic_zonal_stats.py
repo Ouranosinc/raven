@@ -6,8 +6,8 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output
 from raven.processes import ZonalStatisticsProcess
 
 
-@pytest.mark.skip
-class TestZonalStatsProcess:
+# @pytest.mark.skip
+class TestGenericZonalStatsProcess:
 
     def test_simple(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
@@ -23,7 +23,7 @@ class TestZonalStatsProcess:
 
         datainputs = ';'.join(fields).format(
             touches=True,
-            return_geometry=False,
+            return_geometry=True,
             categorical=False,
             band=1,
             shape=TESTDATA['watershed_vector'],
@@ -35,6 +35,8 @@ class TestZonalStatsProcess:
 
         assert_response_success(resp)
         out = get_output(resp.xml)
+
+        print(out)
 
         assert 'properties' in out
 
