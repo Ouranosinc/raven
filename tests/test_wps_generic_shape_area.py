@@ -5,7 +5,7 @@ import json
 from raven.processes import ShapeAreaProcess
 
 
-class TestShapeAreaProcess:
+class TestGenericShapeAreaProcess:
 
     def test_simple(self):
         client = client_for(Service(processes=[ShapeAreaProcess(), ], cfgfiles=CFG_FILE))
@@ -25,6 +25,7 @@ class TestShapeAreaProcess:
 
         assert 'properties' in out
         props = json.loads(out['properties'])
+        print(props)
         assert {'centroid', 'area', 'perimeter', 'gravelius'}.issubset(props[0].keys())
         # TODO: add a couple of explicit tests that properties are computed.
 

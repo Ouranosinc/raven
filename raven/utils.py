@@ -141,7 +141,6 @@ def geom_prop(geom):
     :param geom : shapely.geometry
     :return dict : centroid with lon, lat fields
     """
-    print('here')
     shape = sgeo.shape(geom)
     out = {'centroid': (shape.centroid.x, shape.centroid.y)}
     if (out['centroid'][0] > 180) or (out['centroid'][0] < -180)\
@@ -176,7 +175,6 @@ def equal_area_geom_prop(geom):
     :param geom : shapely.geometry
     :return dict : Dictionary storing polygon area, perimeter and gravelius shape index.
     """
-    print('over here')
     geom = sgeo.shape(geom)
     area = geom.area
     length = geom.length
