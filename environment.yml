@@ -4,7 +4,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- pywps>=4.1
+- pywps>=4.2
 - poppler
 - jinja2
 - click
@@ -12,6 +12,7 @@ dependencies:
 - xarray
 - dask
 - pandas
+- geopandas
 - netcdf4
 - libnetcdf
 - gdal>=2.3
@@ -20,10 +21,10 @@ dependencies:
 - pyproj
 - rasterio
 - rasterstats
+- rtree
 - shapely
 - bumpversion
 - statsmodels
-
 - pip:
   - spotpy
 

@@ -10,6 +10,7 @@ import zipfile
 
 import shapely.geometry as sgeo
 import shapely.ops as ops
+import fiona as fio
 from fiona.crs import from_epsg
 import pyproj
 
@@ -102,6 +103,22 @@ def archive_sniffer(archives, working_dir, extensions):
         if any(ext in os.path.splitext(file) for ext in extensions):
             return file
     return potential_files
+
+
+def crs_sniffer(shape, crs):
+    shape_crs = False
+    try:
+        with fio.open(shape, 'r') as src:
+            shape_crs = src.crs
+            src.close()
+    except Exception as e:
+        msg = '{}: Unable to read crs from {}. Proceeding with crs={}'.format(e, shape, crs)
+        LOGGER.warning(msg)
+        return crs
+    finally:
+        if shape_crs:  # Empty strings are treated as False
+            return shape_crs
+        return crs
 
 
 def multipolygon_check(f):

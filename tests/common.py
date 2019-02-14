@@ -54,8 +54,6 @@ TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
 # TODO: Replace the following files with subsets and set originals as production data
 TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_southernQuebec.tiff'
 TESTDATA['hydrosheds_conditioned'] = TD / 'usgs_hydrosheds_conditioned' / 'na_dem_15s_deflate.zip'
-TESTDATA['hydrobasins_10'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev10_v1c.zip'
-TESTDATA['hydrobasins_11'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev11_v1c.zip'
 TESTDATA['hydrobasins_12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
 
 

@@ -32,9 +32,8 @@ class TestZonalStatsProcess:
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raster-stats', datainputs=datainputs)
-        print(resp.response[0])
-        assert_response_success(resp)
 
+        assert_response_success(resp)
         out = get_output(resp.xml)
 
         assert 'properties' in out
