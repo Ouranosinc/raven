@@ -97,29 +97,28 @@ class ZonalStatisticsProcess(Process):
 
         return response
 
-
-def testing():
-
-    from tests.common import TESTDATA
-
-    fields = ['select_all_touching={select_all_touching}', 'categorical={categorical}', 'band={band}',
-              'crs={crs}', 'shape=file@xlink:href=file://{shape}', 'raster=file@xlink:href=file://{raster}']
-
-    inputs = {'select_all_touching': True,
-              'categorical': True,
-              'band': 1,
-              'crs': 4326,
-              'shape': TESTDATA['watershed_vector'],
-              'raster': TESTDATA['hydrosheds_conditioned']}
-
-    datainputs = ';'.join(fields).format(**inputs)
-    outputs = {}
-
-    q = ZonalStatisticsProcess._handler(request=inputs, response=outputs)
-
-    for k in q.keys():
-        print(k, q[k])
-
-
-if __name__ == "__main__":
-    testing()
+# def testing():
+#
+#     from tests.common import TESTDATA
+#
+#     fields = ['select_all_touching={select_all_touching}', 'categorical={categorical}', 'band={band}',
+#               'crs={crs}', 'shape=file@xlink:href=file://{shape}', 'raster=file@xlink:href=file://{raster}']
+#
+#     inputs = {'select_all_touching': True,
+#               'categorical': True,
+#               'band': 1,
+#               'crs': 4326,
+#               'shape': TESTDATA['watershed_vector'],
+#               'raster': TESTDATA['hydrosheds_conditioned']}
+#
+#     datainputs = ';'.join(fields).format(**inputs)
+#     outputs = {}
+#
+#     q = ZonalStatisticsProcess._handler(request=inputs, response=outputs)
+#
+#     for k in q.keys():
+#         print(k, q[k])
+#
+#
+# if __name__ == "__main__":
+#     testing()

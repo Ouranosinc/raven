@@ -28,5 +28,3 @@ class TestGenericShapeAreaProcess:
         print(props)
         assert {'centroid', 'area', 'perimeter', 'gravelius'}.issubset(props[0].keys())
         # TODO: add a couple of explicit tests that properties are computed.
-
-

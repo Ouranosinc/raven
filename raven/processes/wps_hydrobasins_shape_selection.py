@@ -142,7 +142,6 @@ class ShapeSelectionProcess(Process):
 
         return response
 
-
 # def testing():
 #     inputs = dict(collect_upstream=True,
 #                   lonlat_coordinate="(-68.724444, 50.646667)",
@@ -157,4 +156,3 @@ class ShapeSelectionProcess(Process):
 # if __name__ == '__main__':
 #     testing()
 #
-
