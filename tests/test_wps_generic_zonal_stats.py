@@ -13,7 +13,8 @@ class TestGenericZonalStatsProcess:
 
         fields = [
             'select_all_touching={touches}',
-            'return_geometry={return_geometry}'
+            'return_geojson={return_geojson}',
+            'return_raster={return_raster}',
             'categorical={categorical}',
             'band={band}',
             'shape=file@xlink:href=file://{shape}',
@@ -22,13 +23,16 @@ class TestGenericZonalStatsProcess:
 
         datainputs = ';'.join(fields).format(
             touches=True,
-            return_geometry=True,
-            categorical=False,
+            return_geojson=True,
+            return_raster=True,
+            categorical=True,
             band=1,
+            crs=4326,
             shape=TESTDATA['watershed_vector'],
             raster=TESTDATA['earthenv_dem_90m']
         )
 
+        print(datainputs)
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raster-stats', datainputs=datainputs)
 
@@ -37,7 +41,7 @@ class TestGenericZonalStatsProcess:
 
         print(out)
 
-        assert 'properties' in out
+        assert 'statistics' in out
 
         # There is a bug in pywps 4.0 such that as_reference=False is not respected when ComplexOutput.file is set.
         # So the following won't work out of the box.
