@@ -16,6 +16,7 @@ statsmodels
 # GIS LIBRARIES
 # gdal --- Not compatible with rasterio!
 # pysheds --- Not compatible with rasterio
+affine
 rtree
 fiona
 geopandas

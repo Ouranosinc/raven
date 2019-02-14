@@ -19,6 +19,7 @@ dependencies:
 - fiona
 - pycrs
 - pyproj
+- affine
 - rasterio
 - rasterstats
 - rtree
