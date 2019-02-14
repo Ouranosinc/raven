@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+import tempfile
 
 import fiona as fio
 import geopandas as gpd
@@ -84,9 +85,8 @@ class ShapeSelectionProcess(Process):
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
 
         basin = []
-        geojson = []
+        geojson = tempfile.NamedTemporaryFile(suffix='.json')
         upstream_basins = []
-        properties = []
         location = Point(lon, lat)
         crs = crs_sniffer(shape_url, crs)
 
@@ -101,7 +101,8 @@ class ShapeSelectionProcess(Process):
                             if collect_upstream:
                                 basin = feat['properties']['HYBAS_ID']
                             else:
-                                geojson = json.dumps(feat)
+                                with open(geojson, 'w') as f:
+                                    json.dump(feat, f)
                             continue
                     src.close()
 
@@ -122,13 +123,20 @@ class ShapeSelectionProcess(Process):
                         df_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
                         for a in all_basins[1:]:
                             df_sub = df_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
-
-                        dissolved = df_sub.dissolve(by='MAIN_BAS')
-                        geojson = dissolved.to_json()
+                        dissolved = df_sub.dissolve(by='MAIN_BAS').to_json()
                         upstream_basins = all_basins
 
+                        LOGGER.warning('Writing to {}'.format(geojson.name))
+                        with open(geojson.name, 'w') as f:
+                            json.dump(dissolved, f) # TODO: Figure out why this doesn't work
+
+                        # fn = os.path.join(self.workdir, 'upstream.json')
+                        # with open(fn, 'w') as f:
+                        #     json.dump(stats, f)
+                        # response.outputs['properties'].file = fn
+
                         # filename = '{}.shp'.format(basin)
-                        # LOGGER.warning('Writing {} to shapefile'.format(filename))
+
                         # dissolved.to_file('output.json', driver='GeoJSON')
 
                     # with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
@@ -142,24 +150,27 @@ class ShapeSelectionProcess(Process):
                 LOGGER.error(msg)
                 return response
 
+        # response.outputs['geojson'].file = geojson
+        # response.outputs['upstream_basins'].data = upstream_basins
 
-        # response.outputs['watershed'].data = json.dumps(geometry)
-        # response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
-
-        response['basin'] = geojson
+        response['geojson'] = geojson
         response['upstream_basins'] = upstream_basins
 
         return response
 
 
-if __name__ == '__main__':
-    inputs = dict(collect_upstream=False,
+def testing():
+    inputs = dict(collect_upstream=True,
                   lonlat_coordinate="(-68.724444, 50.646667)",
                   crs=4326,
-                  shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev10_v1c.zip')
+                  shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev12_v1c.zip')
     outputs = {}
-    c = ShapeSelectionProcess()._handler(request=inputs, response=outputs)
-    print(outputs['basin'], outputs['upstream_basins'])
+    ShapeSelectionProcess()._handler(request=inputs, response=outputs)
 
+    print(outputs['geojson'], outputs['upstream_basins'])
+
+
+if __name__ == '__main__':
+    testing()
 
 

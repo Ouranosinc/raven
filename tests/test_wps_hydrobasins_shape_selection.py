@@ -27,8 +27,9 @@ class TestShapeSelectionProcess:
 
         # TODO: add a couple of explicit tests that properties are computed.
 
-        assert 'properties' in out['properties']
-        assert len(out['geometry']) > 1
+        print(out)
+
+        assert out['geojson']
         assert 'upstream_basins' in out
 
         # For local testing only; relies on git-lfs stored files
