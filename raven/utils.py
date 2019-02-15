@@ -5,6 +5,7 @@ import tempfile
 import logging
 import math
 import os
+import re
 import tarfile
 import zipfile
 
@@ -13,6 +14,7 @@ import shapely.ops as ops
 import fiona as fio
 from fiona.crs import from_epsg
 import pyproj
+import rasterio as rio
 
 LOGGER = logging.getLogger("RAVEN")
 
@@ -105,20 +107,39 @@ def archive_sniffer(archives, working_dir, extensions):
     return potential_files
 
 
-def crs_sniffer(shape, crs):
-    shape_crs = False
+def crs_sniffer(file):
+    found_crs = False
+
+    vectors = ('.gml', '.shp', '.geojson', '.json')
+    rasters = ('.tif', '.tiff')
+
     try:
-        with fio.open(shape, 'r') as src:
-            shape_crs = src.crs
-            src.close()
+        if file.lower().endswith(vectors):
+            with fio.open(file, 'r') as src:
+                found_crs = src.crs
+                src.close()
+        elif file.lower().endswith(rasters):
+            with rio.open(file, 'r') as src:
+                found_crs = src.crs
+                src.close()
+        else:
+            raise FileNotFoundError('Invalid file suffix')
     except Exception as e:
-        msg = '{}: Unable to read crs from {}. Proceeding with crs={}'.format(e, shape, crs)
+        msg = '{}: Unable to read crs from {}'.format(e, file)
         LOGGER.warning(msg)
-        return crs
+        return
     finally:
-        if shape_crs:  # Empty strings are treated as False
-            return shape_crs
-        return crs
+        if found_crs:  # Empty strings are treated as False
+            return found_crs
+
+
+def parse_lonlat(string):
+    try:
+        lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)))
+        return lon, lat
+    except Exception as e:
+        msg = 'Failed to parse geo-coordinates {}: {}'.format(string, e)
+        raise Exception(msg)
 
 
 def multipolygon_check(f):

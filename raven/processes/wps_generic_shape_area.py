@@ -16,8 +16,8 @@ class ShapeAreaProcess(Process):
     def __init__(self):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
-                         abstract='An URL pointing to either an ESRI Shapefile, GML, JSON or GeoJSON file.'
-                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
+                         abstract='An ESRI Shapefile, GML, JSON or GeoJSON file. The ESRI Shapefile must be zipped and'
+                                  ' contain the .shp, .shx, and .dbf.',
                          min_occurs=1,
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
             LiteralInput('crs', 'Coordinate Reference System of shape (EPSG code; Default: 4326)',

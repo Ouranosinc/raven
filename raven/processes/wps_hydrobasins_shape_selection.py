@@ -1,6 +1,5 @@
 import json
 import logging
-import re
 import tempfile
 
 import fiona as fio
@@ -8,7 +7,7 @@ import geopandas as gpd
 from fiona.crs import from_epsg
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
-from raven.utils import archive_sniffer, crs_sniffer
+from raven.utils import archive_sniffer, crs_sniffer, parse_lonlat
 from shapely.geometry import shape, Point
 
 LOGGER = logging.getLogger("PYWPS")
@@ -19,21 +18,22 @@ class ShapeSelectionProcess(Process):
 
     def __init__(self):
         inputs = [
-            LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
-                         data_type='string',
-                         default='(-68.724444, 50.646667)'),
-            LiteralInput('collect_upstream',
-                         'Attempt to capture both containing basin and all upstream basins from point',
-                         data_type='boolean',
-                         default='false'),
-            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
-                         data_type='integer',
-                         default=4326),
-            ComplexInput('shape', 'Vector Shape',
+            ComplexInput('shape', 'A HydroBASINS Shapefile, with or without lakes.',
                          abstract='An URL pointing to either an ESRI Shapefile, GML, JSON, GeoJSON.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
                          min_occurs=1,
-                         supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
+                         supported_formats=[FORMATS.SHP],
+                         default=None),
+            LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
+                         data_type='string',
+                         default='(-68.724444, 50.646667)'),
+            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
+                         data_type='integer',
+                         default=4326),
+            LiteralInput('collect_upstream',
+                         'Attempt to capture both the containing basin and all tributary basins from point',
+                         data_type='boolean',
+                         default='false'),
         ]
 
         outputs = [
@@ -59,7 +59,7 @@ class ShapeSelectionProcess(Process):
 
     def _handler(self, request, response):
 
-        def get_upstream_basins(basin_dataframe, basin_id):
+        def get_upstream_hydrobasins(basin_dataframe, basin_id):
             up_str_mask = basin_dataframe['NEXT_DOWN'] == basin_id
             iter_upstream = basin_dataframe[up_str_mask]['HYBAS_ID']
             return iter_upstream
@@ -69,12 +69,7 @@ class ShapeSelectionProcess(Process):
         crs = from_epsg(request.inputs['crs'][0].data)
         shape_url = request.inputs['shape'][0].file
 
-        try:
-            lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
-        except Exception as e:
-            msg = 'Failed to parse geo-coordinates {}: {}'.format(lonlat, e)
-            LOGGER.error(msg)
-            return response
+        lon, lat = parse_lonlat(lonlat)
 
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
@@ -83,7 +78,10 @@ class ShapeSelectionProcess(Process):
         geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
         upstream_basins = []
         location = Point(lon, lat)
-        crs = crs_sniffer(shape_url, crs)
+
+        found_crs = crs_sniffer(shape_url)
+        if found_crs:
+            crs = found_crs
 
         with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
             try:
@@ -112,7 +110,7 @@ class ShapeSelectionProcess(Process):
 
                         all_basins = list(main_basin_gdf[row_id]['HYBAS_ID'].values)
                         for i in all_basins:
-                            tmp = get_upstream_basins(main_basin_gdf, i)
+                            tmp = get_upstream_hydrobasins(main_basin_gdf, i)
                             if len(tmp):
                                 all_basins.extend(tmp.values)
 

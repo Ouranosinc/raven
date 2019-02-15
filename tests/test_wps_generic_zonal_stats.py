@@ -24,11 +24,11 @@ class TestGenericZonalStatsProcess:
         datainputs = ';'.join(fields).format(
             touches=True,
             return_geojson=True,
-            return_raster=True,
-            categorical=True,
+            return_raster=False,
+            categorical=False,
             band=1,
             crs=4326,
-            shape=TESTDATA['watershed_vector'],
+            shape=TESTDATA['donnees_quebec_mrc_poly'],  # TESTDATA['watershed_vector'],
             raster=TESTDATA['earthenv_dem_90m']
         )
 
