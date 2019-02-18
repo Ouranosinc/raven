@@ -253,7 +253,7 @@ class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
         self.random_seed = None
-        self._comment_random = None
+        self._comment_random = '#'
 
         super(Ost, self).__init__(**kwargs)
 

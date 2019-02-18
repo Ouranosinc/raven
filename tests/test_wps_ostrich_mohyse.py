@@ -25,7 +25,7 @@ class TestOstrichMOHYSEProcess:
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
-                     "MaxEvals={MaxEvals};" \
+                     "max_iterations={max_iterations};" \
                      "lowerBounds={low_p};" \
                      "upperBounds={high_p};" \
                      "hruslowerBounds={low_h};" \
@@ -40,7 +40,7 @@ class TestOstrichMOHYSEProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['ostrich-mohyse-nc-ts'],
                     algorithm='DDS',
-                    MaxEvals=10,
+                    max_iterations=10,
                     low_p=low_p,
                     high_p=high_p,
                     low_h=low_h,

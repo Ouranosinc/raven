@@ -27,7 +27,7 @@ class TestOstrichGR4JCemaNeigeProcess:
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
-                     "MaxEvals={MaxEvals};" \
+                     "max_iterations={max_iterations};" \
                      "params={params};" \
                      "lowerBounds={lowerBounds};" \
                      "upperBounds={upperBounds};" \
@@ -41,7 +41,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['ostrich-gr4j-cemaneige-nc-ts'],
                     algorithm='DDS',
-                    MaxEvals=10,
+                    max_iterations=10,
                     params=params,
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,

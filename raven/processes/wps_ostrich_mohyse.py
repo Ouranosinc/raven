@@ -91,7 +91,7 @@ class OstrichMOHYSEProcess(OstrichProcess):
                     'hrusupperBounds': MOHYSE_OST.hrus,
                     'hruslowerBounds': MOHYSE_OST.hrus}
     inputs = [wio.ts, lowerBounds, upperBounds, hrusupperBounds, hruslowerBounds, wio.algorithm,
-              wio.MaxEvals, wio.start_date, wio.end_date,
+              wio.max_iterations, wio.start_date, wio.end_date,
               wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
 
     keywords = ["Ostrich", "Calibration", "DDS"]
