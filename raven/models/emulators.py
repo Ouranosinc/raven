@@ -25,11 +25,11 @@ class GR4JCN_OST(Ostrich, GR4JCN):
     _p = Path(__file__).parent / 'ostrich-gr4j-cemaneige'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    txt = RV(algorithm=None,
-             MaxEvals=None,
-             lowerBounds=GR4JCN.params(None, None, None, None, None, None),
-             upperBounds=GR4JCN.params(None, None, None, None, None, None),
-             )
+    txt = Ost(algorithm='DSS',
+              max_iterations=50,
+              lowerBounds=GR4JCN.params(None, None, None, None, None, None),
+              upperBounds=GR4JCN.params(None, None, None, None, None, None),
+              )
 
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
@@ -56,13 +56,13 @@ class MOHYSE_OST(Ostrich, MOHYSE):
     _p = Path(__file__).parent / 'ostrich-mohyse'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    txt = RV(algorithm=None,
-             MaxEvals=None,
-             lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
-             upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
-             hruslowerBounds=MOHYSE.hrus(None, None),
-             hrusupperBounds=MOHYSE.hrus(None, None)
-             )
+    txt = Ost(algorithm='DSS',
+              max_iterations=50,
+              lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
+              upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
+              hruslowerBounds=MOHYSE.hrus(None, None),
+              hrusupperBounds=MOHYSE.hrus(None, None)
+              )
 
     def derived_parameters(self):
         """  Derived parameters are computed by Ostrich.  """
@@ -98,13 +98,13 @@ class HMETS_OST(Ostrich, HMETS):
     _p = Path(__file__).parent / 'ostrich-hmets'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    txt = RV(algorithm=None,
-             MaxEvals=None,
-             lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
-                                      None, None, None, None, None, None, None, None, None, None),
-             upperBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
-                                      None, None, None, None, None, None, None, None, None, None),
-             )
+    txt = Ost(algorithm='DSS',
+              max_iterations=50,
+              lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
+                                       None, None, None, None, None, None, None, None, None, None),
+              upperBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
+                                       None, None, None, None, None, None, None, None, None, None),
+              )
 
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
@@ -145,13 +145,13 @@ class HBVEC_OST(Ostrich, HBVEC):
 
     low = HBVEC.params
     high = HBVEC.params
-    txt = RV(algorithm=None,
-             MaxEvals=None,
-             lowerBounds=low(None, None, None, None, None, None, None, None, None, None, None,
-                             None, None, None, None, None, None, None, None, None, None),
-             upperBounds=high(None, None, None, None, None, None, None, None, None, None, None,
+    txt = Ost(algorithm='DSS',
+              max_iterations=50,
+              lowerBounds=low(None, None, None, None, None, None, None, None, None, None, None,
                               None, None, None, None, None, None, None, None, None, None),
-             )
+              upperBounds=high(None, None, None, None, None, None, None, None, None, None, None,
+                               None, None, None, None, None, None, None, None, None, None),
+              )
 
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""

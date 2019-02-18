@@ -127,7 +127,8 @@ class TestGR4JCN_OST:
               lowerBounds=low,
               upperBounds=high,
               algorithm='DDS',
-              MaxEvals=10,
+              random_seed='0',
+              max_iterations=10,
               )
 
         d = model.diagnostics
@@ -201,7 +202,8 @@ class TestHMETS_OST:
               lowerBounds=low,
               upperBounds=high,
               algorithm='DDS',
-              MaxEvals=10
+              random_seed='0',
+              max_iterations=10,
               )
 
         d = model.diagnostics
@@ -301,7 +303,8 @@ class TestMOHYSE_OST():
               hruslowerBounds=low_h,
               hrusupperBounds=high_h,
               algorithm='DDS',
-              MaxEvals=10
+              random_seed='0',
+              max_iterations=10,
               )
 
         d = model.diagnostics
@@ -392,7 +395,8 @@ class TestHBVEC_OST():
               lowerBounds=low,
               upperBounds=high,
               algorithm='DDS',
-              MaxEvals=10
+              random_seed=0,
+              max_iterations=10,
               )
 
         d = model.diagnostics
