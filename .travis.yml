@@ -20,7 +20,18 @@ branches:
 sudo: false
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
+  - ifeq "$(UNAME_S)" "Linux"
+      FN := Miniconda3-latest-Linux-x86_64.sh
+      else ifeq "$(UNAME_S)" "Darwin"
+      FN := Miniconda3-latest-MacOSX-x86_64.sh
+      else
+      FN := unknown
+      endif
+  - wget https://repo.continuum.io/miniconda/$FN -O miniconda.sh; else Miniconda3-latest-MacOSX-x86_64.sh fi
+
 install:
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
   - make install
   - make start
 #  - sleep 2
