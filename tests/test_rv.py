@@ -26,7 +26,7 @@ class TestRVFile:
         assert rvf.is_tpl
 
     def test_ostIn(self):
-        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.txt'))[0]
+        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('ostIn.txt'))[0]
         rvf = RVFile(fn)
 
         assert rvf.ext == 'txt'
