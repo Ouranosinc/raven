@@ -19,7 +19,7 @@ EndFilePairs
 
 #Parameter/DV Specification
 BeginParams
-  #parameter      init.    low      high    tx_in  tx_ost  tx_out   
+  #parameter      init.    low      high    tx_in  tx_ost  tx_out
   par_x01         random   {lowerBounds.GAMMA_SHAPE}         {upperBounds.GAMMA_SHAPE}	       none   none     none
   par_x02         random   {lowerBounds.GAMMA_SCALE}	     {upperBounds.GAMMA_SCALE}	       none   none     none
   par_x03         random   {lowerBounds.GAMMA_SHAPE2}	     {upperBounds.GAMMA_SHAPE2}       none   none     none
@@ -97,13 +97,13 @@ BeginConstraints
 EndConstraints
 
 # Randomsed control added
-RandomSeed 0 # 123
+{comment_random} RandomSeed {random_seed} # 123 # 123
 
 #Algorithm should be last in this file:
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations {MaxEvals}
+        MaxIterations {max_iterations}
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files
