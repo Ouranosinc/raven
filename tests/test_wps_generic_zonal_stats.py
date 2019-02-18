@@ -1,4 +1,3 @@
-# import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from .common import client_for, TESTDATA, CFG_FILE, get_output
@@ -14,7 +13,6 @@ class TestGenericZonalStatsProcess:
         fields = [
             'select_all_touching={touches}',
             'return_geojson={return_geojson}',
-            'return_raster={return_raster}',
             'categorical={categorical}',
             'band={band}',
             'shape=file@xlink:href=file://{shape}',
@@ -24,17 +22,15 @@ class TestGenericZonalStatsProcess:
         datainputs = ';'.join(fields).format(
             touches=True,
             return_geojson=True,
-            return_raster=False,
             categorical=False,
             band=1,
-            crs=4326,
             shape=TESTDATA['donnees_quebec_mrc_poly'],  # TESTDATA['watershed_vector'],
             raster=TESTDATA['earthenv_dem_90m']
         )
 
         print(datainputs)
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='raster-stats', datainputs=datainputs)
+            service='WPS', request='Execute', version='1.0.0', identifier='zonal-stats', datainputs=datainputs)
 
         assert_response_success(resp)
         out = get_output(resp.xml)
@@ -47,7 +43,6 @@ class TestGenericZonalStatsProcess:
         # So the following won't work out of the box.
 
         # out = out['properties']
-
         # assert 'count' in out
         # assert 'min' in out
         # assert 'max' in out

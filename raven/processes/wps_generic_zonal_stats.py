@@ -20,42 +20,45 @@ class ZonalStatisticsProcess(Process):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
                          abstract='An ESRI Shapefile, GML, GeoJSON, or any other file in a standard vector format.'
-                                  ' The ESRI Shapefile must be zipped and contain the .shp,'
-                                  ' .shx, and .dbf. The shape and raster should have a matching CRS.',
+                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.'
+                                  ' The shape and raster should have a matching CRS.',
                          min_occurs=1, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             ComplexInput('raster', 'Gridded raster data set',
                          abstract='The DEM to be queried. Defaults to the USGS HydroSHEDS DEM.',
-                         # TODO: Include details (resolution, version).
                          metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
                                    Metadata(
                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from'
                                        ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
                          min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
-            LiteralInput('band', 'Raster band', data_type='integer', default=1,
-                         abstract='Band of raster examined to perform zonal statistics. Default: 1'),
+            LiteralInput('band', 'Raster band',
+                         data_type='integer', default=1,
+                         abstract='Band of raster examined to perform zonal statistics. Default: 1',
+                         min_occurs=1, max_occurs=1),
             LiteralInput('return_geojson', 'Return the geometry and statistics as properties in a GeoJSON',
-                         data_type='boolean', default='true'),
+                         data_type='boolean', default='true',
+                         min_occurs=1, max_occurs=1),
             LiteralInput('categorical', 'Return distinct pixel categories',
-                         data_type='boolean', default='false'),
+                         data_type='boolean', default='false',
+                         min_occurs=1, max_occurs=1),
             LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
-                         data_type='boolean', default='false'),
-            ]
+                         data_type='boolean', default='false',
+                         min_occurs=1, max_occurs=1),
+        ]
 
         outputs = [
             ComplexOutput('statistics', 'DEM properties within the region defined by `shape`.',
                           abstract='Elevation statistics: min, max, mean, median, sum, nodata',
                           supported_formats=[FORMATS.JSON, FORMATS.GEOJSON]),
-
         ]
 
         super(ZonalStatisticsProcess, self).__init__(
             self._handler,
-            identifier="raster-stats",
+            identifier="zonal-stats",
             title="Raster Zonal Statistics",
             version="1.0",
-            abstract="Return raster zonal statistics based on boundaries of a vector file.",
+            abstract="Return zonal statistics based on the boundaries of a vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -86,9 +89,6 @@ class ZonalStatisticsProcess(Process):
                 vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
                 band=band, categorical=categorical, all_touched=touches, geojson_out=geojson_out, raster_out=False)
 
-            # Using the PyWPS 4.0 release this will output garbage. Should be fixed for the next version.
-            # response.outputs['properties'].data = json.dumps(stats)
-
             if not geojson_out:
                 shape_stats = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
                 try:
@@ -96,23 +96,26 @@ class ZonalStatisticsProcess(Process):
                         json.dump(stats, f)
                     response.outputs['statistics'].data = shape_stats.name
                 except Exception as e:
-                    msg = '{}: Failed to write statistics to {}'.format(e, shape_stats)
+                    msg = 'Failed to write statistics to {}: {}'.format(shape_stats, e)
                     LOGGER.error(msg)
             else:
                 shape_geojson = tempfile.NamedTemporaryFile(suffix='.geojson', delete=False)
-                fc = {'type': 'FeatureCollection', 'features': stats}
+                if len(stats) > 1:
+                    feature_collect = {'type': 'FeatureCollection', 'features': stats}
+                else:
+                    feature_collect = stats
 
                 try:
                     with open(shape_geojson.name, 'w') as f:
-                        json.dump(fc, f)
+                        json.dump(feature_collect, f)
                     response.outputs['statistics'].data = shape_geojson.name
 
                 except Exception as e:
-                    msg = '{}: Failed to write statistics to {}'.format(e, shape_geojson)
+                    msg = 'Failed to write geojson to {}: {}'.format(shape_geojson, e)
                     LOGGER.error(msg)
 
         except Exception as e:
-            msg = '{}: Failed to perform zonal statistics using {} and {}'.format(e, shape_url, raster_url)
+            msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(e, shape_url, raster_url, e)
             LOGGER.error(msg)
 
         return response

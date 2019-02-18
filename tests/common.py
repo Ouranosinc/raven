@@ -50,11 +50,13 @@ TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Nea
 TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebec_mrc_polygones.gml'
 TESTDATA['statcan_econregions_2016'] = TD / 'statcan_econregions_2016' / 'lre_000b16a_f_wgs84_quebec.gml'
 TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
+TESTDATA['broken_data'] = TD / 'donneesqc_mrc_poly' / 'broken_data.gml'
 
 # TODO: Replace the following files with subsets and set originals as production data
 TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_southernQuebec.tiff'
 TESTDATA['hydrosheds_conditioned'] = TD / 'usgs_hydrosheds_conditioned' / 'na_dem_15s_deflate.zip'
-TESTDATA['hydrobasins_12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
+TESTDATA['hydrobasins_lake_na_lev12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
+
 
 
 class WpsTestClient(WpsClient):

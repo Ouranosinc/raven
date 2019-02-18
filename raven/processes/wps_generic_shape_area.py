@@ -18,15 +18,17 @@ class ShapeAreaProcess(Process):
             ComplexInput('shape', 'Vector Shape',
                          abstract='An ESRI Shapefile, GML, JSON or GeoJSON file. The ESRI Shapefile must be zipped and'
                                   ' contain the .shp, .shx, and .dbf.',
-                         min_occurs=1,
-                         supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON]),
+                         supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON],
+                         min_occurs=1, max_occurs=1),
             LiteralInput('crs', 'Coordinate Reference System of shape (EPSG code; Default: 4326)',
                          data_type='integer',
-                         default=4326),
+                         default=4326,
+                         min_occurs=1, max_occurs=1),
             LiteralInput('projected_crs',
                          'Coordinate Reference System for area calculation (EPSG code; Default:32198)',
                          data_type='integer',
-                         default=32198)
+                         default=32198,
+                         min_occurs=1, max_occurs=1)
         ]
 
         outputs = [
@@ -77,7 +79,6 @@ class ShapeAreaProcess(Process):
             msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
             LOGGER.error(msg)
 
-        # response['properties'] = properties
         response.outputs['properties'].data = json.dumps(properties)
 
         return response

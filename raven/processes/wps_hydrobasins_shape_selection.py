@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import logging
 import tempfile
@@ -5,10 +6,12 @@ import tempfile
 import fiona as fio
 import geopandas as gpd
 from fiona.crs import from_epsg
-from pywps import LiteralInput, ComplexInput, ComplexOutput
+from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, crs_sniffer, parse_lonlat
 from shapely.geometry import shape, Point
+
+from tests.common import TESTDATA
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -18,22 +21,24 @@ class ShapeSelectionProcess(Process):
 
     def __init__(self):
         inputs = [
-            ComplexInput('shape', 'A HydroBASINS Shapefile, with or without lakes.',
-                         abstract='An URL pointing to either an ESRI Shapefile, GML, JSON, GeoJSON.'
-                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
-                         min_occurs=1,
-                         supported_formats=[FORMATS.SHP],
-                         default=None),
             LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
                          data_type='string',
-                         default='(-68.724444, 50.646667)'),
-            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
+                         default='(-68.724444, 50.646667)',
+                         min_occurs=1, max_occurs=1),
+            LiteralInput('level', 'Resolution level of HydroBASINS Shapes',
                          data_type='integer',
-                         default=4326),
+                         default=12,
+                         allowed_values=[7, 8, 9, 10, 11, 12],
+                         min_occurs=1, max_occurs=1),
+            LiteralInput('lakes', 'Use the HydroBASINS version that includes lake outlines',
+                         data_type='boolean',
+                         default='true',
+                         min_occurs=1, max_occurs=1),
             LiteralInput('collect_upstream',
                          'Attempt to capture both the containing basin and all tributary basins from point',
                          data_type='boolean',
-                         default='false'),
+                         default='false',
+                         min_occurs=1, max_occurs=1),
         ]
 
         outputs = [
@@ -50,7 +55,7 @@ class ShapeSelectionProcess(Process):
             identifier="shape-selection",
             title="Shape Selection",
             version="1.0",
-            abstract="Return a feature within a polygonal vector file based on lat/lon coordinates.",
+            abstract="Return a feature within a polygon vector file based on lon/lat coordinates.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -64,43 +69,53 @@ class ShapeSelectionProcess(Process):
             iter_upstream = basin_dataframe[up_str_mask]['HYBAS_ID']
             return iter_upstream
 
+        level = request.inputs['level'][0].data
+        lakes = request.inputs['lakes'][0].data
         collect_upstream = request.inputs['collect_upstream'][0].data
         lonlat = request.inputs['lonlat_coordinate'][0].data
-        crs = from_epsg(request.inputs['crs'][0].data)
-        shape_url = request.inputs['shape'][0].file
-
         lon, lat = parse_lonlat(lonlat)
+
+        if lakes:
+            shape_description = 'hydrobasins_lake_na_lev{}'.format(level)
+        else:
+            shape_description = 'hydrobasins_na_lev{}'.format(level)
+        shape_url = TESTDATA[shape_description]
 
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
 
         basin = []
-        geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
         upstream_basins = []
         location = Point(lon, lat)
+        found = False
 
-        found_crs = crs_sniffer(shape_url)
-        if found_crs:
-            crs = found_crs
+        crs = crs_sniffer(shape_url) or from_epsg(4326)
 
         with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
+            geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
             try:
                 with fio.open(shape_url, 'r', crs=crs) as src:
                     for feat in iter(src):
                         geom = shape(feat['geometry'])
 
                         if geom.contains(location):
+                            found = True
                             # pfaf = feature['properties']['PFAF_ID']
                             if collect_upstream:
                                 basin = feat['properties']['HYBAS_ID']
                             else:
-                                LOGGER.warning('Writing to {}'.format(geojson.name))
+                                LOGGER.info('Writing feature to {}'.format(geojson.name))
                                 with open(geojson.name, 'w') as f:
                                     json.dump(feat, f)
-                            continue
+                            break
                     src.close()
+                    if not found:
+                        msg = 'No basin found at {}, {}'.format(lon, lat)
+                        LOGGER.exception(msg)
+                        return response
 
                 if collect_upstream:
+                    LOGGER.info('Collecting upstream from basin {}'.format(basin))
                     with fio.Collection(shape_url, 'r', crs=crs) as src:
                         gdf = gpd.GeoDataFrame.from_features(src, crs=crs)
                         row_id = gdf['HYBAS_ID'] == basin
@@ -121,9 +136,10 @@ class ShapeSelectionProcess(Process):
                             df_sub = df_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
                         dissolved = df_sub.dissolve(by='MAIN_BAS').to_json()
 
-                        LOGGER.warning('Writing to {}'.format(geojson.name))
+                        LOGGER.info('Writing union of features to {}'.format(geojson.name))
                         with open(geojson.name, 'w') as f:
                             f.write(dissolved)
+                        src.close()
 
                     # with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
                     #     # 'PFAF_ID' can also technically be used to described the drainage network
@@ -131,7 +147,7 @@ class ShapeSelectionProcess(Process):
                     #     # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
 
             except Exception as e:
-                msg = 'Failed to write analysis of {} to {}: {}'.format(shape_url, geojson, e)
+                msg = '{}: Failed to perform analysis using {} and location {}'.format(e, shape_url, lon, lat)
                 LOGGER.error(msg)
                 return response
 
@@ -139,18 +155,3 @@ class ShapeSelectionProcess(Process):
         response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
 
         return response
-
-# def testing():
-#     inputs = dict(collect_upstream=True,
-#                   lonlat_coordinate="(-68.724444, 50.646667)",
-#                   crs=4326,
-#                   shape='/home/tjs/git/raven/tests/testdata/usgs_hydrobasins/hybas_lake_na_lev12_v1c.zip')
-#     outputs = {}
-#     ShapeSelectionProcess()._handler(request=inputs, response=outputs)
-#
-#     print(outputs['geojson'], outputs['upstream_basins'])
-#
-#
-# if __name__ == '__main__':
-#     testing()
-#

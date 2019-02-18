@@ -7,12 +7,15 @@ from .wps_raven_hbv_ec import RavenHBVECProcess
 from .wps_generic_shape_area import ShapeAreaProcess
 from .wps_hydrobasins_shape_selection import ShapeSelectionProcess
 from .wps_generic_zonal_stats import ZonalStatisticsProcess
+from .wps_generic_raster_subset import RasterSubsetProcess
 from .wps_objective_functions import ObjectiveFunctionProcess
 from .wps_regionalisation import RegionalisationProcess
+
 
 processes = [
     RavenProcess(),
     GR4JCemaNeigeProcess(),
+    RasterSubsetProcess(),
     RavenGR4JCemaNeigeProcess(),
     RavenMOHYSEProcess(),
     RavenHMETSProcess(),
