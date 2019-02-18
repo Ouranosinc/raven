@@ -27,6 +27,7 @@ import six
 import xarray as xr
 from .rv import RVFile, RV, isinstance_namedtuple
 import numpy as np
+import shutil
 
 
 class Raven:
@@ -60,16 +61,19 @@ class Raven:
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                        }
 
-    def __init__(self, workdir=None):
+    def __init__(self, workdir=None, test=False):
         """Initialize the RAVEN model.
 
         Parameters
         ----------
         workdir : str, Path
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
+        test : book
+          If True, copies the random number seed file (only for Ostrich).
         """
         workdir = workdir or tempfile.mkdtemp()
         self.workdir = Path(workdir)
+        self.test = test
         self.outputs = {}
         self.raven_exec = raven.raven_exec
         self.ostrich_exec = raven.ostrich_exec
@@ -204,8 +208,6 @@ class Raven:
            output/
 
         """
-        import shutil
-
         if self.output_path.exists():
             if overwrite:
                 shutil.rmtree(str(self.workdir))
@@ -553,6 +555,10 @@ class Ostrich(Raven):
         """
         Raven.setup_model(self, ts, overwrite)
 
+        if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
+            if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
+                os.remove(self.exec_path / 'OstRandomNumbers.txt')
+
         os.makedirs(str(self.best_path), exist_ok=True)
 
         self.write_ostrich_runs_raven()
@@ -579,7 +585,10 @@ class Ostrich(Raven):
         try:
             raven_err = self._get_output('OstExeOut.txt', path=self.exec_path).read_text()
         except UserWarning:  # Read in processor_0 directory instead.
-            raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+            try:
+                raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+            except UserWarning:
+                raven_err = ''
 
         try:
             ost_err = self._get_output('OstErrors?.txt', path=self.exec_path).read_text()
