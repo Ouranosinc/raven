@@ -64,7 +64,7 @@ BeginConstraints
 EndConstraints
 
 # Randomsed control added
-RandomSeed 123
+RandomSeed 0 # 123
 
 #Algorithm should be last in this file:
 
