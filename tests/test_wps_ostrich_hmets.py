@@ -26,7 +26,7 @@ class TestOstrichHMETSProcess:
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
-                     "MaxEvals={MaxEvals};" \
+                     "max_iterations={max_iterations};" \
                      "params={params};" \
                      "lowerBounds={lowerBounds};" \
                      "upperBounds={upperBounds};" \
@@ -40,7 +40,7 @@ class TestOstrichHMETSProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['ostrich-hmets-nc-ts'],
                     algorithm='DDS',
-                    MaxEvals=10,
+                    max_iterations=10,
                     params=params,
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,

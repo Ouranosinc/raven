@@ -28,7 +28,7 @@ class TestOstrichHBVECProcess:
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
-                     "MaxEvals={MaxEvals};" \
+                     "max_iterations={max_iterations};" \
                      "params={params};" \
                      "lowerBounds={lowerBounds};" \
                      "upperBounds={upperBounds};" \
@@ -42,7 +42,7 @@ class TestOstrichHBVECProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['ostrich-hbv-ec-nc-ts'],
                     algorithm='DDS',
-                    MaxEvals=10,
+                    max_iterations=10,
                     params=params,
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,

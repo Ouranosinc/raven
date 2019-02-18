@@ -111,7 +111,7 @@ class OstrichHBVECProcess(OstrichProcess):
     model_cls = HBVEC_OST
     tuple_inputs = {'lowerBounds': HBVEC_OST.params,
                     'upperBounds': HBVEC_OST.params}
-    inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.MaxEvals, wio.start_date, wio.end_date,
+    inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.max_iterations, wio.start_date, wio.end_date,
               wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
 
     keywords = ["Ostrich", "Calibration", "DDS"]

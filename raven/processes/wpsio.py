@@ -186,7 +186,7 @@ algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate mod
                          allowed_values=('DDS', 'SCEUA'),
                          min_occurs=0)
 
-MaxEvals = LiteralInput('MaxEvals', 'Maximum number of model evaluations for the calibration run (budget)',
+max_iterations = LiteralInput('max_iterations', 'Maximum number of model evaluations for the calibration run (budget)',
                         abstract='Maximum number of times OSTRICH can call the hydrological model during the '
                                  'model parameter calibrationn',
                         data_type='integer',
