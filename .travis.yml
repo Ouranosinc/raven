@@ -1,21 +1,30 @@
-language: python
-python: "3.6"
+language: generic
 matrix:
   fast_finish: true
   include:
     - os: osx
       name: "macOS"
-      env: CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
+      env:
+        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
+    - os: linux
+      name: "Linux (Python2.7)"
+      dist: xenial
+      python: "2.7"
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
     - os: linux
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
-      env: CONDA_FN="Miniconda3-latest-Linux-x86_64.sh" PEP8=true
+      python: "3.6"
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - PEP8=true
 branches:
   only:
     - master
 sudo: false
 before_install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
+  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
   - wget https://repo.continuum.io/miniconda/$CONDA_FN -O miniconda.sh
 install:
   - bash miniconda.sh -b -p $HOME/miniconda
@@ -38,4 +47,4 @@ before_script:
   - sleep 2
 script:
   - make test
-  - if [ $PEP8 = true ]; then make pep8; fi
+  - if [[ $PEP8 = true ]]; then make pep8; fi
