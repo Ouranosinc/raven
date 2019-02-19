@@ -4,30 +4,24 @@ matrix:
   include:
     - name: "macOS"
       os: osx
+      env: CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - name: "Linux (Python2.7)"
       os: linux
       dist: xenial
       python: "2.7"
+      env: CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
     - name: "Linux (Python3.6 + pep8)"
       os: linux
       dist: xenial
       python: "3.6"
-      env:
-        - PEP8=true
+      env: CONDA_FN="Miniconda3-latest-Linux-x86_64.sh" PEP8=true
 branches:
   only:
     - master
 sudo: false
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
-  - ifeq "$(UNAME_S)" "Linux"
-      FN := Miniconda3-latest-Linux-x86_64.sh
-      else ifeq "$(UNAME_S)" "Darwin"
-      FN := Miniconda3-latest-MacOSX-x86_64.sh
-      else
-      FN := unknown
-      endif
-  - wget https://repo.continuum.io/miniconda/$FN -O miniconda.sh; else Miniconda3-latest-MacOSX-x86_64.sh fi
+  - wget https://repo.continuum.io/miniconda/$FN -O miniconda.sh
 
 install:
   - bash miniconda.sh -b -p $HOME/miniconda
