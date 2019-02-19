@@ -5,11 +5,6 @@ matrix:
     - name: "macOS"
       os: osx
       env: CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
-    - name: "Linux (Python2.7)"
-      os: linux
-      dist: xenial
-      python: "2.7"
-      env: CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
     - name: "Linux (Python3.6 + pep8)"
       os: linux
       dist: xenial
