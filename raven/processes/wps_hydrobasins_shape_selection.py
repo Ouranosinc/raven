@@ -139,7 +139,6 @@ class ShapeSelectionProcess(Process):
                         LOGGER.info('Writing union of features to {}'.format(geojson.name))
                         with open(geojson.name, 'w') as f:
                             f.write(dissolved)
-                        src.close()
 
                     # with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
                     #     # 'PFAF_ID' can also technically be used to described the drainage network

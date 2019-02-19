@@ -15,7 +15,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import archive_sniffer, crs_sniffer, dtype_sniffer
+from raven.utils import archive_sniffer, crs_sniffer, raster_datatype_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -86,7 +86,7 @@ class RasterSubsetProcess(Process):
         os.makedirs(tmp_dir)
 
         crs = crs_sniffer(vector_file) or crs
-        data_type = dtype_sniffer(raster_file)[band - 1]
+        data_type = raster_datatype_sniffer(raster_file)[band - 1]
 
         try:
             stats = zonal_stats(

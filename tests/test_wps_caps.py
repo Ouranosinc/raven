@@ -1,4 +1,3 @@
-import pytest
 from pywps import Service
 
 from raven.processes import processes

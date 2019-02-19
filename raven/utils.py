@@ -135,7 +135,7 @@ def crs_sniffer(file):
             return found_crs
 
 
-def dtype_sniffer(file):
+def raster_datatype_sniffer(file):
     try:
         with rio.open(file, 'r') as src:
             dtype = src.dtypes
