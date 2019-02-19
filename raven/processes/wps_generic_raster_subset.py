@@ -86,7 +86,7 @@ class RasterSubsetProcess(Process):
         os.makedirs(tmp_dir)
 
         crs = crs_sniffer(vector_file) or crs
-        data_type = dtype_sniffer(raster_file)[band-1]
+        data_type = dtype_sniffer(raster_file)[band - 1]
 
         try:
             stats = zonal_stats(
@@ -97,7 +97,7 @@ class RasterSubsetProcess(Process):
 
             for i in range(len(stats)):
 
-                file = 'subset_{}.tiff'.format(i+1)
+                file = 'subset_{}.tiff'.format(i + 1)
                 raster_subset = os.path.join(tmp_dir, file)
 
                 try:

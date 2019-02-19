@@ -8,11 +8,11 @@ from pywps import get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
 
 import six
+
 if six.PY2:
     from urllib import urlretrieve
 else:
     from urllib.request import urlretrieve
-
 
 VERSION = "1.0.0"
 WPS, OWS = get_ElementMakerForVersion(VERSION)
@@ -78,7 +78,6 @@ TESTDATA['hydrosheds_conditioned'] = TD / 'usgs_hydrosheds_conditioned' / 'na_de
 TESTDATA['hydrobasins_lake_na_lev12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
 
 
-
 class WpsTestClient(WpsClient):
 
     def get(self, *args, **kwargs):
@@ -131,16 +130,17 @@ def synthetic_gr4j_inputs(path):
 
 
 def make_bnds(params, delta):
-    """Return low and high parameter bounds by substracting and adding delta*params to params.
+    """Return low and high parameter bounds by subtracting and adding delta*params to params.
 
     Parameters
     ----------
     params : sequence
       Parameters.
     delta : float [0,1]
-      Relative delta to substract and add to parameters.
+      Relative delta to subtract and add to parameters.
 
     Returns
+    -------
     (tuple, tuple)
       Low and high bounds for parameters.
 
