@@ -1,7 +1,7 @@
 import six
 import datetime as dt
 import collections
-
+from pathlib import Path
 
 """
 Raven configuration
@@ -29,6 +29,53 @@ values can then be modified either using attributes or properties::
 Simulation end date and duration are updated automatically when duration, start date or end date are changed.
 
 """
+
+
+class RVFile:
+
+    def __init__(self, fn):
+        self.fn = Path(fn)
+
+        self.ext = ""
+        self._store_ext()
+
+        self.content = ""
+        self._store_content()
+
+    def _store_content(self):
+        self.content = self.fn.read_text()
+
+    def _store_ext(self):
+        try:
+            self.ext = self.fn.suffixes[0][1:]
+        except IndexError as e:
+            msg = "\nFile {} does not look like a valid Raven/Ostrich config file.".format(self.fn)
+            raise ValueError(msg) from e
+
+    @property
+    def is_tpl(self):
+        return self.fn.suffix in ['.tpl', '.txt']
+
+    @property
+    def stem(self):
+        return Path(self.fn.stem).stem
+
+    def write(self, path, **kwds):
+        fn = path / self.fn.name
+
+        content = self.content
+        if kwds:
+            content = content.format(**kwds)
+
+        fn.write_text(content)
+
+    @property
+    def tags(self):
+        """Return a list of tags within the templates."""
+        import re
+        pattern = re.compile(r"{([\.\w]+)}")
+
+        return pattern.findall(self.content)
 
 
 class RV(collections.Mapping):
@@ -80,16 +127,6 @@ class RV(collections.Mapping):
         for attribute in self.keys():
             yield attribute, getattr(self, attribute)
 
-    def to_dict(self):
-        """Return dictionary of content and namedtuple fields."""
-        out = {}
-        for key, val in self.items():
-            if hasattr(val, '_fields'):
-                out.update(val._asdict())
-            else:
-                out[key] = val
-        return out
-
     def update(self, items, force=False):
         """Update values from dictionary items.
 
@@ -109,7 +146,6 @@ class RV(collections.Mapping):
 
 
 class RVI(RV):
-    """Configuration class for rvp, rvh, rvc"""
     def __init__(self, **kwargs):
         self.name = None
         self.area = None
@@ -211,6 +247,39 @@ class RVI(RV):
     def _update_end_date(self):
         if self.start_date is not None and self.duration is not None:
             self._end_date = self.start_date + dt.timedelta(days=self.duration)
+
+
+class Ost(RV):
+    def __init__(self, **kwargs):
+        self._max_iterations = None
+        self.random_seed = None
+        self._comment_random = '#'
+
+        super(Ost, self).__init__(**kwargs)
+
+    @property
+    def max_iterations(self):
+        return self._max_iterations
+
+    @max_iterations.setter
+    def max_iterations(self, x):
+        if x < 1:
+            raise ValueError("Max iteration should be a positive integer: {}".format(x))
+        else:
+            self._max_iterations = x
+
+    @property
+    def random_seed(self):
+        return self._random_seed
+
+    @random_seed.setter
+    def random_seed(self, value):
+        self._random_seed = value
+        self._comment_random = '#' if value is None else ''
+
+    @property
+    def comment_random(self):
+        return self._comment_random
 
 
 def isinstance_namedtuple(x):

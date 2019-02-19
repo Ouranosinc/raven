@@ -13,6 +13,7 @@ def test_wps_caps():
                             '/wps:Process'
                             '/ows:Identifier')
     sn = set(names.split())
+
     assert sn == {'gr4j-cemaneige',
                   'raster-stats',
                   'raven',
@@ -22,6 +23,10 @@ def test_wps_caps():
                   'raven-hbv-ec',
                   'shape-area',
                   'shape-selection',
+                  'ostrich-gr4j-cemaneige',
+                  'ostrich-mohyse',
+                  'ostrich-hmets',
+                  'ostrich-hbv-ec',
                   'objective-function',
                   # 'regionalisation',
                   }

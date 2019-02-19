@@ -8,6 +8,10 @@ from .wps_generic_shape_area import ShapeAreaProcess
 from .wps_hydrobasins_shape_selection import ShapeSelectionProcess
 from .wps_generic_zonal_stats import ZonalStatisticsProcess
 from .wps_generic_raster_subset import RasterSubsetProcess
+from .wps_ostrich_gr4j_cemaneige import OstrichGR4JCemaNeigeProcess
+from .wps_ostrich_mohyse import OstrichMOHYSEProcess
+from .wps_ostrich_hmets import OstrichHMETSProcess
+from .wps_ostrich_hbv_ec import OstrichHBVECProcess
 from .wps_objective_functions import ObjectiveFunctionProcess
 from .wps_regionalisation import RegionalisationProcess
 
@@ -23,6 +27,10 @@ processes = [
     ShapeAreaProcess(),
     ShapeSelectionProcess(),
     ZonalStatisticsProcess(),
+    OstrichGR4JCemaNeigeProcess(),
+    OstrichMOHYSEProcess(),
+    OstrichHMETSProcess(),
+    OstrichHBVECProcess(),
     ObjectiveFunctionProcess(),
     # RegionalisationProcess(),
 ]

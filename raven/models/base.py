@@ -6,24 +6,28 @@ Classes
 
 Raven : A generic class that knows how to launch the model from completed rv files.
 
+
+
+
+
 GR4JCemaneige: The Raven emulator for GR4J-Cemaneige. Uses template configuration files whose value can be
 automatically filled in.
 
 """
 import raven
 from pathlib import Path
-from collections import OrderedDict, namedtuple
-import os, errno
+from collections import OrderedDict
+import os
+import stat
 import subprocess
 import tempfile
 import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RV, RVI, isinstance_namedtuple
+from .rv import RVFile, RV, isinstance_namedtuple
 import numpy as np
-
-raven_exec = str(Path(raven.__file__).parent.parent / 'bin' / 'raven')
+import shutil
 
 
 class Raven:
@@ -37,19 +41,14 @@ class Raven:
     >>> r = Raven('/tmp/testdir')
     >>> r.configure()
 
-
-
-
     """
     identifier = 'generic-raven'
     templates = ()
-    rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
 
-    # Output files default names. The actual output file names will be composed of the run_name and the default name.
-    _output_fn = {'hydrograph': 'Hydrographs.nc',
-                  'storage': 'WatershedStorage.nc',
-                  'solution': 'solution.rvc',
-                  'diagnostics': 'Diagnostics.csv'}
+    # Allowed configuration file extensions
+    _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
+
+    rvi = rvp = rvc = rvt = rvh = rvd = RV()  # rvd is for derived parameters
 
     # Dictionary of potential variable names, keyed by CF standard name.
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
@@ -62,38 +61,51 @@ class Raven:
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                        }
 
-    def __init__(self, workdir=None):
+    def __init__(self, workdir=None, test=False):
         """Initialize the RAVEN model.
 
         Parameters
         ----------
         workdir : str, Path
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
+        test : book
+          If True, copies the random number seed file (only for Ostrich).
         """
         workdir = workdir or tempfile.mkdtemp()
         self.workdir = Path(workdir)
+        self.test = test
         self.outputs = {}
-
+        self.raven_exec = raven.raven_exec
+        self.ostrich_exec = raven.ostrich_exec
         self._name = None
         self._defaults = {}
+        self.rvfiles = []
 
         # Configuration file extensions + rvd for derived parameters.
-        self._rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'rvd')
-
-        # The configuration file content is stored in conf.
-        self._conf = dict.fromkeys(self._rvext, "")
-
-        # Model parameters - dictionary representation of rv attributes.
-        self._parameters = dict.fromkeys(self._rvext, OrderedDict())
+        self._rvext = self._rvext + ('rvd', )
 
         # For subclasses where the configuration file templates are known in advance.
         if self.templates:
             self.configure(self.templates)
 
+        # Directory logic
+
+        # Top directory inside workdir. This is where Ostrich and its config and templates are stored.
+        self.exec_path = self.workdir / 'exec'
+
+        # Path to the Raven executable and configuration files.
+        self.model_path = self.exec_path / 'model'
+        self.raven_cmd = self.model_path / 'raven'
+
+    @property
+    def output_path(self):
+        """Path to the model outputs and logs."""
+        return self.model_path / 'output'
+
     @property
     def version(self):
         import re
-        out = subprocess.check_output([raven_exec, ])
+        out = subprocess.check_output([self.raven_exec, ])
         match = re.search(r"Version (\S+) ", out.decode('utf-8'))
         if match:
             return match.groups()[0]
@@ -102,13 +114,13 @@ class Raven:
 
     @property
     def cmd(self):
-        """RAVEN executable path."""
-        return self.model_path / 'raven'
+        """This is the main executable."""
+        return self.raven_cmd
 
     @property
-    def model_path(self):
-        """Path to the model executable and configuration files. """
-        return self.workdir / 'model'
+    def cmd_path(self):
+        """This is the main executable."""
+        return self.model_path
 
     @property
     def name(self):
@@ -121,21 +133,24 @@ class Raven:
             self._name = x
         elif x != self._name:
             raise UserWarning("Model configuration name changed.")
-
-    @property
-    def output_path(self):
-        """Path to the model outputs and logs."""
-        return self.workdir / 'output'
+        try:
+            if self.rvi.run_name is None:
+                self.rvi.run_name = x
+        except AttributeError:
+            pass
 
     @property
     def configuration(self):
         """Configuration dictionaries."""
-        return {ext: OrderedDict(getattr(self, ext).to_dict()) for ext in self._rvext}
+        return {ext: OrderedDict(getattr(self, ext).items()) for ext in self._rvext}
 
     @property
-    def rv(self):
-        """Dictionary of the configuration files."""
-        return {ext: self._conf[ext] for ext in self._rvext}
+    def parameters(self):
+        """Dictionary storing all parameters."""
+        params = {}
+        for key, val in self.configuration.items():
+            params.update(val)
+        return params
 
     @property
     def rvobjs(self):
@@ -145,13 +160,13 @@ class Raven:
     def configure(self, fns):
         """Read configuration files."""
         for fn in fns:
-            name, ext = self.split_ext(fn)
-            self._name = name
-
-            if ext not in self._rvext:
-                raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(ext))
-
-            self._conf[ext] = open(str(fn)).read()
+            rvf = RVFile(fn)
+            if rvf.ext not in self._rvext + ('txt',):
+                raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(rvf.ext))
+            else:
+                if rvf.ext != 'txt':
+                    setattr(self, 'name', rvf.stem)
+                self.rvfiles.append(rvf)
 
     def assign(self, key, value):
         """Assign parameter to rv object that has a key with the same name."""
@@ -159,9 +174,10 @@ class Raven:
         for ext, obj in self.rvobjs.items():
             if hasattr(obj, key):
                 att = getattr(obj, key)
+
                 # If the object is a namedtuple, we get its class and try to instantiate it with the values passed.
                 if isinstance_namedtuple(att) and isinstance(value, (list, tuple, np.ndarray)):
-                    p = getattr(getattr(self, ext.upper()), key)(*value)
+                    p = att.__class__(*value)
                     setattr(obj, key, p)
                 else:
                     setattr(obj, key, value)
@@ -176,21 +192,11 @@ class Raven:
 
     def _dump_rv(self, ts):
         """Write configuration files to disk."""
+        params = self.parameters
 
-        # Merge all parameter dictionaries
-        params = {}
-        for key, val in self.configuration.items():
-            params.update(val)
-
-        for ext, txt in self.rv.items():
-            fn = str(self.model_path / (self.name + '.' + ext))
-
-            with open(fn, 'w') as f:
-                # Write parameters into template.
-                if params:
-                    txt = txt.format(**params)
-
-                f.write(txt)
+        for rvf in self.rvfiles:
+            p = self.exec_path if rvf.is_tpl else self.model_path
+            rvf.write(p, **params)
 
     def setup_model(self, ts, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
@@ -202,8 +208,6 @@ class Raven:
            output/
 
         """
-        import shutil
-
         if self.output_path.exists():
             if overwrite:
                 shutil.rmtree(str(self.workdir))
@@ -212,8 +216,9 @@ class Raven:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create subdirectory
-        os.makedirs(str(self.output_path))
-        os.makedirs(str(self.model_path))
+        os.makedirs(str(self.exec_path))                   # exec
+        os.makedirs(str(self.model_path), exist_ok=True)   # exec/model
+        os.makedirs(str(self.output_path), exist_ok=True)  # exec/model/output
 
         # Match the input files
         files, var_names = self._assign_files(ts, self.rvt.keys())
@@ -230,8 +235,8 @@ class Raven:
         for fn in ts:
             os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
-        # Create symbolic link to executable
-        os.symlink(raven_exec, str(self.cmd))
+        # Create symbolic link to Raven executable
+        os.symlink(self.raven_exec, str(self.raven_cmd))
 
     def run(self, ts, overwrite=False, **kwds):
         """Run the model.
@@ -280,13 +285,44 @@ class Raven:
         self.setup_model(tuple(map(Path, ts)), overwrite)
 
         # Run the model
-        subprocess.call(map(str, [self.cmd, self.model_path / self.name, '-o', self.output_path]))
+        cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+        subprocess.run(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE)
+        # proc.wait()
 
-        # Store output file names in dict
-        for key in self._output_fn.keys():
-            self.outputs[key] = self._get_output(key)
+        try:
+            self.parse_results()
+
+        except UserWarning as e:
+            err = self.parse_errors()
+            msg = """
+**************************************************************
+Executed: \n $ {cmd}\n from {dir}
+**************************************************************
+{err}
+""".format(cmd=' '.join(map(str, cmd)), dir=self.cmd_path, err=err)
+            print(msg)
+            raise e
 
     __call__ = run
+
+    def parse_results(self, path=None):
+        """Store output files in the self.outputs dictionary."""
+        # Output files default names. The actual output file names will be composed of the run_name and the default
+        # name.
+        path = path or self.output_path
+
+        patterns = {'hydrograph': '*Hydrographs.nc',
+                    'storage': '*WatershedStorage.nc',
+                    'solution': '*solution.rvc',
+                    'diagnostics': '*Diagnostics.csv',
+                    }
+
+        # Store output file names in dict
+        for key, pattern in patterns.items():
+            self.outputs[key] = str(self._get_output(pattern, path=path))
+
+    def parse_errors(self):
+        return self._get_output('Raven_errors.txt').read_text()
 
     def _assign_files(self, fns, variables):
         """Find for each variable the file storing it's data and the name of the netCDF variable.
@@ -325,21 +361,21 @@ class Raven:
 
         return files, var_names
 
-    def _get_output(self, key):
+    def _get_output(self, pattern, path=None):
         """Match actual output files to known expected files.
 
         Return a dictionary of file paths for each expected input.
         """
-        fn = self._output_fn[key]
-        files = list(self.output_path.glob('*' + fn))
+        path = path or self.output_path
+        files = list(path.glob(pattern))
 
         if len(files) == 0:
-            raise UserWarning("No output files for {}".format(fn))
+            raise UserWarning("No output files for {}.".format(pattern))
 
         if len(files) > 1:
-            raise IOError("Multiple matching files found for {}.".format(fn))
+            raise IOError("Multiple matching files found for {}.".format(pattern))
 
-        return str(files[0].absolute())
+        return files[0].absolute()
 
     @staticmethod
     def start_end_date(fns):
@@ -417,13 +453,9 @@ class Raven:
     @property
     def tags(self):
         """Return a list of tags within the templates."""
-        import re
-        pattern = re.compile(r"{(\w+)}")
-
-        out = {}
-        if self.templates:
-            for key, conf in self.rv.items():
-                out[key] = pattern.findall(conf)
+        out = []
+        for rvf in self.rvfiles:
+            out.extend(rvf.tags)
 
         return out
 
@@ -436,97 +468,170 @@ class Raven:
         return fn.stem, fn.suffix[1:]
 
 
-class GR4JCN(Raven):
-    templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
+class Ostrich(Raven):
+    """Wrapper for OSTRICH calibration of RAVEN hydrological model
 
-    class RVP(RV):
-        params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
+    This class is used to calibrate RAVEN model using OSTRICH from user-provided configuration files. It can also be
+    subclassed with
+    configuration templates for emulated models, allowing direct calls to the models.
 
-    rvp = RVP(params=RVP.params(None, None, None, None, None, None))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
-    rvi = RVI()
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
-    rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
+    Usage
+    -----
+    >>> r = Ostrich('/tmp/testdir')
+    >>> r.configure()
 
-    def derived_parameters(self):
-        self.rvd.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
-        self.rvd.one_minus_CEMANEIGE_X2 = 1.0 - self.rvp.params.CEMANEIGE_X2
+    Attributes
+    ----------
+    conf
+      The rv configuration files + Ostrict ostIn.txt
+    tpl
+      The Ostrich templates
+
+    """
+    identifier = 'generic-ostrich'
+    _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'txt')
+    txt = RV()
+
+    @staticmethod
+    def _allowed_extensions():
+        return Raven._allowed_extensions() + ('txt', )
+
+    @property
+    def cmd(self):
+        """OSTRICH executable path."""
+        return self.ostrich_cmd
+
+    @property
+    def cmd_path(self):
+        """This is the main executable."""
+        return self.exec_path
+
+    @property
+    def ostrich_cmd(self):
+        """OSTRICH executable path."""
+        return self.exec_path / 'ostrich'
+
+    @property
+    def best_path(self):
+        """Path to the best output."""
+        return self.exec_path / 'best'
+
+    @property
+    def output_path(self):
+        """Path to the model outputs and logs."""
+        return self.model_path / 'output'
+        # return self.best_path
+
+    @property
+    def proc_path(self):
+        """Path to parallel process directory."""
+        return self.exec_path / 'processor_0'  # /'model' / 'output' ?
+
+    def write_save_best(self):
+        fn = self.exec_path / 'save_best.sh'
+        fn.write_text(save_best)
+        make_executable(fn)
+
+    def write_ostrich_runs_raven(self):
+        fn = self.exec_path / 'ostrich-runs-raven.sh'
+        fn.write_text(ostrich_runs_raven.format(name=self.name))
+        make_executable(fn)
+
+    def setup_model(self, ts, overwrite=False):
+        """Create directory structure to store model input files, executable and output results.
+
+        Model configuration files and time series inputs are stored directly in the working directory.
+
+        workdir/  # Created by PyWPS.
+           *.rv?
+           *.tpl
+           ostIn.txt
+           model/
+           model/output/
+           best/
+
+        At each Ostrich loop, configuration files (original and created from templates are copied into model/.
+
+        """
+        Raven.setup_model(self, ts, overwrite)
+
+        if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
+            if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
+                os.remove(self.exec_path / 'OstRandomNumbers.txt')
+
+        os.makedirs(str(self.best_path), exist_ok=True)
+
+        self.write_ostrich_runs_raven()
+        self.write_save_best()
+
+        # Create symbolic link to executable
+        os.symlink(self.ostrich_exec, str(self.cmd))
+
+    def parse_results(self):
+        """Store output files in the self.outputs dictionary."""
+        # Output files default names. The actual output file names will be composed of the run_name and the default
+        # name.
+        Raven.parse_results(self, path=self.best_path)
+
+        patterns = {'params_seq': 'OstModel?.txt',
+                    'calibration': 'OstOutput?.txt',
+                    }
+
+        # Store output file names in dict
+        for key, pattern in patterns.items():
+            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path))
+
+    def parse_errors(self):
+        try:
+            raven_err = self._get_output('OstExeOut.txt', path=self.exec_path).read_text()
+        except UserWarning:  # Read in processor_0 directory instead.
+            try:
+                raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+            except UserWarning:
+                raven_err = ''
+
+        try:
+            ost_err = self._get_output('OstErrors?.txt', path=self.exec_path).read_text()
+        except UserWarning:  # Read in processor_0 directory instead.
+            ost_err = self._get_output('OstErrors?.txt', path=self.proc_path).read_text()
+
+        return "{}\n{}".format(ost_err, raven_err)
+
+    @property
+    def calibrated_params(self):
+        return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 2:]
+
+    @property
+    def obj_func(self):
+        return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 1]
 
 
-class MOHYSE(Raven):
-    templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
-
-    class RVP(RV):
-        params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 9)]))
-
-    class RVH(RV):
-        hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
-
-    rvp = RVP(params=RVP.params(*((None,) * 8)))
-    rvh = RVH(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=RVH.hrus(None, None))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
-    rvi = RVI()
-    rvd = RV(par_rezi_x10=None)
-
-    def derived_parameters(self):
-        self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
+def make_executable(fn):
+    """Make file executable."""
+    st = os.stat(fn)
+    os.chmod(fn, st.st_mode | stat.S_IEXEC)
 
 
-class HMETS(GR4JCN):
-    templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
+# TODO: Configure this according to the model_path and output_path.
+save_best = """#!/bin/bash
 
-    class RVP(RV):
-        params = namedtuple('HMETSParams', ('GAMMA_SHAPE', 'GAMMA_SCALE', 'GAMMA_SHAPE2', 'GAMMA_SCALE2',
-                                            'MIN_MELT_FACTOR', 'MAX_MELT_FACTOR', 'DD_MELT_TEMP', 'DD_AGGRADATION',
-                                            'SNOW_SWI_MIN', 'SNOW_SWI_MAX', 'SWI_REDUCT_COEFF', 'DD_REFREEZE_TEMP',
-                                            'REFREEZE_FACTOR', 'REFREEZE_EXP', 'PET_CORRECTION',
-                                            'HMETS_RUNOFF_COEFF', 'PERC_COEFF', 'BASEFLOW_COEFF_1',
-                                            'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'))
+set -e
 
-    rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
-    rvi = RVI()
-    rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
-             PHREATIC_hlf=None)
+cp ./model/*.rv?  ../best/
+cp ./model/output/* ../best/
 
-    def derived_parameters(self):
-        self.rvd['TOPSOIL_hlf'] = self.rvp.params.TOPSOIL * 0.5
-        self.rvd['PHREATIC_hlf'] = self.rvp.params.PHREATIC * 0.5
-        self.rvd['TOPSOIL_m'] = self.rvp.params.TOPSOIL / 1000.
-        self.rvd['PHREATIC_m'] = self.rvp.params.PHREATIC / 1000.
-        self.rvd['SUM_MELT_FACTOR'] = self.rvp.params.MIN_MELT_FACTOR + self.rvp.params.MAX_MELT_FACTOR
-        self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
+exit 0
+"""
 
+# TODO: Configure this according to raven_cmd, name and output_path.
+ostrich_runs_raven = """
+#!/bin/bash
 
-class HBVEC(GR4JCN):
-    templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
+set -e
 
-    class RVP(RV):
-        params = namedtuple('HBVECParams', ('par_x{:02}'.format(i) for i in range(1, 22)))
+cp ./*.rv? model/
 
-    rvp = RVP(params=RVP.params(*((None,) * len(RVP.params._fields))))
+./model/raven ./model/{name} -o ./model/output/
 
-    class RVD(RV):
-        mae = namedtuple('MeanAverageEvap', ('mae_{:02}'.format(i) for i in range(1, 13)))
-        mat = namedtuple('MeanAverageTemp', ('mat_{:02}'.format(i) for i in range(1, 13)))
-
-    rvd = RVD(one_plus_par_x15=None, par_x11_half=None)
-
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-             water_volume_transport_in_river_channel=None)
-
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
-
-    def derived_parameters(self):
-        import xarray as xr
-
-        self.rvd['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
-        self.rvd['par_x11_half'] = self.rvp.params.par_x11 / 2.0
-
-        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvd.tasmax_var]
-        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvd.tasmin_var]
-        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvd.evspsbl_var]
-
-        tas = (tasmax + tasmin) / 2.
-        self.rvd.mat = self.RVD.mat(*tas.groupby('time.month').mean().values)
-        self.rvd.mae = self.RVD.mae(*evap.groupby('time.month').mean().values)
+exit 0
+"""

@@ -47,6 +47,26 @@ TESTDATA['raven-hbv-ec'] = TD / 'raven-hbv-ec'
 TESTDATA['raven-hbv-ec-rv'] = tuple((TD / 'raven-hbv-ec').glob('raven-hbv-ec-salmon.rv?'))
 TESTDATA['raven-hbv-ec-ts'] = tuple((TD / 'raven-hbv-ec').glob('Salmon-River-Near-Prince-George_*.rvt'))
 
+TESTDATA['ostrich-gr4j-cemaneige'] = TD / 'ostrich-gr4j-cemaneige'
+TESTDATA['ostrich-gr4j-cemaneige-rv'] = \
+    tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob("*.rv?")) + tuple(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.t??'))
+TESTDATA['ostrich-gr4j-cemaneige-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+
+TESTDATA['ostrich-mohyse'] = TD / 'ostrich-mohyse'
+TESTDATA['ostrich-mohyse-rv'] = \
+    tuple(TESTDATA['ostrich-mohyse'].glob("*.rv?")) + tuple(TESTDATA['ostrich-mohyse'].glob('*.t??'))
+TESTDATA['ostrich-mohyse-nc-ts'] = TESTDATA['raven-mohyse-nc-ts']
+
+TESTDATA['ostrich-hmets'] = TD / 'ostrich-hmets'
+TESTDATA['ostrich-hmets-rv'] = \
+    tuple(TESTDATA['ostrich-hmets'].glob("*.rv?")) + tuple(TESTDATA['ostrich-hmets'].glob('*.t??'))
+TESTDATA['ostrich-hmets-nc-ts'] = TESTDATA['raven-hmets-nc-ts']
+
+TESTDATA['ostrich-hbv-ec'] = TD / 'ostrich-hbv-ec'
+TESTDATA['ostrich-hbv-ec-rv'] = \
+    tuple(TESTDATA['ostrich-hbv-ec'].glob("*.rv?")) + tuple(TESTDATA['ostrich-hbv-ec'].glob('*.t??'))
+TESTDATA['ostrich-hbv-ec-nc-ts'] = TESTDATA['raven-hbv-ec-nc-ts']
+
 TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebec_mrc_polygones.gml'
 TESTDATA['statcan_econregions_2016'] = TD / 'statcan_econregions_2016' / 'lre_000b16a_f_wgs84_quebec.gml'
 TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
@@ -108,3 +128,23 @@ def synthetic_gr4j_inputs(path):
     evap = 3 + 3 * np.cos(-30 + np.arange(len(time)) * 2 * np.pi / 365.)
     evap = xr.DataArray(evap, coords={'time': time}, dims='time', name='evap')
     evap.to_netcdf(os.path.join(path, 'evap.nc'))
+
+
+def make_bnds(params, delta):
+    """Return low and high parameter bounds by substracting and adding delta*params to params.
+
+    Parameters
+    ----------
+    params : sequence
+      Parameters.
+    delta : float [0,1]
+      Relative delta to substract and add to parameters.
+
+    Returns
+    (tuple, tuple)
+      Low and high bounds for parameters.
+
+    """
+    arr = np.asarray(params)
+    d = np.abs(arr * delta)
+    return tuple(arr - d), tuple(arr + d)
