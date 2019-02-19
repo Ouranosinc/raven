@@ -15,7 +15,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import archive_sniffer, crs_sniffer
+from raven.utils import archive_sniffer, crs_sniffer, dtype_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -86,6 +86,7 @@ class RasterSubsetProcess(Process):
         os.makedirs(tmp_dir)
 
         crs = crs_sniffer(vector_file) or crs
+        data_type = dtype_sniffer(raster_file)[band-1]
 
         try:
             stats = zonal_stats(
@@ -101,7 +102,6 @@ class RasterSubsetProcess(Process):
 
                 try:
                     raster_location = stats[i]
-                    print(stats)
                     raster = raster_location['mini_raster_array']
                     grid_properties = raster_location['mini_raster_affine'][0:6]
                     nodata = raster_location['mini_raster_nodata']
@@ -111,17 +111,12 @@ class RasterSubsetProcess(Process):
                     LOGGER.info('Writing raster data to {}'.format(raster_subset))
 
                     masked_array = np.ma.masked_values(raster, nodata)
-                    # if masked_array.mask.all():
-                    #     msg = 'Subset {} is empty, continuing...'.format(i)
-                    #     LOGGER.warning(msg)
+                    if masked_array.mask.all():
+                        msg = 'Subset {} is empty, continuing...'.format(i)
+                        LOGGER.warning(msg)
 
-                    data_type = rio.dtypes.get_minimum_dtype(np.max(masked_array))
-                    print(data_type)
-                    # Make unsigned data types become signed ones!
-                    if data_type.startswith('u'):
-                        data_type = str(data_type)[1:]
                     normal_array = np.asarray(masked_array, dtype=data_type)
-                    print(normal_array)
+
                     # Write to GeoTIFF with lzw compression
                     with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress='lzw', height=raster.shape[0],
                                   width=raster.shape[1], dtype=data_type, transform=aff, crs=crs, nodata=nodata) as f:
