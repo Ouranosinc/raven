@@ -16,6 +16,7 @@ def test_wps_caps():
 
     assert sn == {'gr4j-cemaneige',
                   'raster-stats',
+                  'raster-subset',
                   'raven',
                   'raven-gr4j-cemaneige',
                   'raven-mohyse',
