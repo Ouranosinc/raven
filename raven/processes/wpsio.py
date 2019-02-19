@@ -187,12 +187,12 @@ algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate mod
                          min_occurs=0)
 
 max_iterations = LiteralInput('max_iterations', 'Maximum number of model evaluations for the calibration run (budget)',
-                        abstract='Maximum number of times OSTRICH can call the hydrological model during the '
-                                 'model parameter calibrationn',
-                        data_type='integer',
-                        default=50,
-                        allowed_values=list(range(25001)),
-                        min_occurs=0)
+                              abstract='Maximum number of times OSTRICH can call the hydrological model during the '
+                                       'model parameter calibrationn',
+                              data_type='integer',
+                              default=50,
+                              allowed_values=list(range(25001)),
+                              min_occurs=0)
 
 calibration = ComplexOutput('calibration', 'Ostrich calibration output',
                             abstract="Output file from Ostrich calibration run.",
