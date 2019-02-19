@@ -13,7 +13,7 @@ import shapely.geometry as sgeo
 import shapely.ops as ops
 import fiona as fio
 from fiona.crs import from_epsg
-import pyproj
+from pyproj import Proj, transform
 import rasterio as rio
 
 LOGGER = logging.getLogger("RAVEN")
@@ -133,6 +133,17 @@ def crs_sniffer(file):
             return found_crs
 
 
+def dtype_sniffer(file):
+    try:
+        with rio.open(file, 'r') as src:
+            dtype = src.dtypes
+        return dtype
+    except Exception as e:
+        msg = '{}: Unable to read data type from {}'.format(e, file)
+        LOGGER.warning(msg)
+        return
+
+
 def parse_lonlat(string):
     try:
         lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)))
@@ -182,9 +193,9 @@ def geom_transform(geom, source_crs=4326, target_crs=None):
     geom = sgeo.shape(geom)
     projected = ops.transform(
         partial(
-            pyproj.transform,
-            pyproj.Proj(from_epsg(source_crs)),
-            pyproj.Proj(from_epsg(target_crs))),
+            transform,
+            Proj(from_epsg(source_crs)),
+            Proj(from_epsg(target_crs))),
         geom)
     return projected
 
