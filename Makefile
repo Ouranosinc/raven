@@ -3,8 +3,7 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-CONDA := $(shell command -v conda 2> /dev/null)
-ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
+ANACONDA_HOME := $(HOME)/miniconda3
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
@@ -53,17 +52,17 @@ help:
 
 ## Anaconda targets
 
-.PHONY: check_conda
-check_conda:
-ifndef CONDA
-		$(error "Conda is not available. Please install miniconda: https://conda.io/miniconda.html")
-endif
+.PHONY: anaconda
+anaconda:
+	@echo "Installing Anaconda ..."
+	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
+	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
 
 .PHONY: conda_env
-conda_env: check_conda
+conda_env:
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(CONDA)" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
+	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: envclean
 envclean: check_conda
@@ -73,7 +72,7 @@ envclean: check_conda
 ## Build targets
 
 .PHONY: bootstrap
-bootstrap: conda_env bootstrap_dev
+bootstrap: anaconda conda_env bootstrap_dev
 	@echo "Bootstrap ..."
 
 .PHONY: bootstrap_dev
