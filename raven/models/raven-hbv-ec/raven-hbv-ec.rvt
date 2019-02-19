@@ -1,9 +1,9 @@
-#########################################################################                                  
-:FileType          rvt ASCII Raven 2.8.2                                                                              
-:WrittenBy         Juliane Mai & James Craig                                                                             
+#########################################################################
+:FileType          rvt ASCII Raven 2.8.2
+:WrittenBy         Juliane Mai & James Craig
 :CreationDate      Nov 2018
 #
-# Emulation of HBV-EC simulation of Salmon River near Prince George                                                             
+# Emulation of HBV-EC simulation of Salmon River near Prince George
 #------------------------------------------------------------------------
 
 # meteorological forcings
@@ -11,10 +11,10 @@
 
   :Latitude               54.4848
   :Longitude             -123.3659
-  :Elevation              843.0     
+  :Elevation              843.0
 
-  :RainCorrection         {par_x20}   # HBV_PAR_20 == RFCF
-  :SnowCorrection         {par_x21}   # HBV_PAR_21 == SFCF
+  :RainCorrection         {params.par_x20}   # HBV_PAR_20 == RFCF
+  :SnowCorrection         {params.par_x21}   # HBV_PAR_21 == SFCF
 
    # Julie has a script "monthly_average_values.sh" that can be shared
    # call:
@@ -28,8 +28,8 @@
 #   :MonthlyAveEvaporation, 0.028, 0.089, 0.315, 1.003, 2.077, 2.959, 3.190, 2.548, 1.382, 0.520, 0.101, 0.023,
 #   :MonthlyAveTemperature, -11.4, -7.2,  -2.8,  2.8,   8.1,   12.2,  14.4,  13.5,  8.9,   3.4,   -4.0,  -9.3,
 
-:MonthlyAveEvaporation, {mae_01}, {mae_02}, {mae_03}, {mae_04}, {mae_05}, {mae_06}, {mae_07}, {mae_08}, {mae_09}, {mae_10}, {mae_11}, {mae_12}
-:MonthlyAveTemperature, {mat_01}, {mat_02}, {mat_03}, {mat_04}, {mat_05}, {mat_06}, {mat_07}, {mat_08}, {mat_09}, {mat_10}, {mat_11}, {mat_12}
+:MonthlyAveEvaporation, {mae.x01}, {mae.x02}, {mae.x03}, {mae.x04}, {mae.x05}, {mae.x06}, {mae.x07}, {mae.x08}, {mae.x09}, {mae.x10}, {mae.x11}, {mae.x12}
+:MonthlyAveTemperature, {mat.x01}, {mat.x02}, {mat.x03}, {mat.x04}, {mat.x05}, {mat.x06}, {mat.x07}, {mat.x08}, {mat.x09}, {mat.x10}, {mat.x11}, {mat.x12}
 
    :Data RAINFALL mm/d
       :ReadFromNetCDF

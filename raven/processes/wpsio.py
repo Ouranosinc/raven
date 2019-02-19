@@ -24,10 +24,11 @@ ts = ComplexInput('ts', 'Input time series files',
                   max_occurs=100,
                   supported_formats=[FORMATS.NETCDF, FORMATS.TEXT])
 
-conf = ComplexInput('conf', 'Raven configuration files',
+conf = ComplexInput('conf', 'Raven/Ostrich configuration files',
                     abstract="Model configuration files, including the primary input file (rvi), the parameter "
                              "input file (rvp), the basin definition file (rvh), the time series input file "
-                             "(rvt), and the initial conditions file (rvc). ",
+                             "(rvt), the initial conditions file (rvc). For Ostrich, include the Ostrich "
+                             "calibration config (txt) and templates (tpl).",
                     min_occurs=5,
                     max_occurs=5,
                     supported_formats=[FORMATS.TEXT])
@@ -175,6 +176,40 @@ diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
                             abstract="Model diagnostic CSV file.",
                             supported_formats=[FORMATS.TEXT],
                             as_reference=True)
+
+# --- OSTRICH --- #
+
+algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate model parameters',
+                         abstract='Optimization algorithm to implement for this calibration run',
+                         data_type='string',
+                         default='DDS',
+                         allowed_values=('DDS', 'SCEUA'),
+                         min_occurs=0)
+
+max_iterations = LiteralInput('max_iterations', 'Maximum number of model evaluations for the calibration run (budget)',
+                              abstract='Maximum number of times OSTRICH can call the hydrological model during the '
+                                       'model parameter calibrationn',
+                              data_type='integer',
+                              default=50,
+                              allowed_values=list(range(25001)),
+                              min_occurs=0)
+
+calibration = ComplexOutput('calibration', 'Ostrich calibration output',
+                            abstract="Output file from Ostrich calibration run.",
+                            supported_formats=[FORMATS.TEXT],
+                            as_reference=True)
+
+CalibrationResults = ComplexOutput('CalibrationResults',
+                                   'ObjectiveFunction and calibrated parameters computed by Ostrich',
+                                   abstract="Objective Function value after calibration using user-selected "
+                                            "function, as well as the calibrated parameter set",
+                                   supported_formats=[FORMATS.TEXT],
+                                   as_reference=True)
+
+calibrated_params = ComplexOutput('calibrated_params', 'Calibrated parameters',
+                                  abstract="Model parameters estimated by minimizing the objective function.",
+                                  supported_formats=[FORMATS.TEXT],
+                                  as_reference=False)
 
 # TODO: Add configuration files to output
 # config = ComplexOutput('config', 'Configuration files',

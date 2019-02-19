@@ -1,7 +1,49 @@
 import pytest
-from raven.models.rv import RV, RVI, isinstance_namedtuple
+import raven
+from raven.models.rv import RV, RVI, Ost, RVFile, isinstance_namedtuple
 import datetime as dt
 from collections import namedtuple
+from .common import TESTDATA
+from pathlib import Path
+
+
+class TestRVFile:
+
+    def test_simple_rv(self):
+        fn = list(TESTDATA['raven-hmets'].glob('*.rvp'))[0]
+        rvf = RVFile(fn)
+
+        assert rvf.ext == 'rvp'
+        assert rvf.stem == 'raven-hmets-salmon'
+        assert not rvf.is_tpl
+
+    def test_simple_tpl(self):
+        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.rvp.tpl'))[0]
+        rvf = RVFile(fn)
+
+        assert rvf.ext == 'rvp'
+        assert rvf.stem == 'raven-gr4j-salmon'
+        assert rvf.is_tpl
+
+    def test_ostIn(self):
+        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('ostIn.txt'))[0]
+        rvf = RVFile(fn)
+
+        assert rvf.ext == 'txt'
+        assert rvf.stem == 'ostIn'
+        assert rvf.is_tpl
+
+    def test_tags(self):
+        rvp = list((Path(raven.__file__).parent / 'models' / 'raven-gr4j-cemaneige').glob("*.rvp"))[0]
+        rvf = RVFile(rvp)
+
+        assert isinstance(rvf.tags, list)
+        assert 'params.GR4J_X3' in rvf.tags
+
+    def test_fail(self):
+        fn = Path(raven.__file__).parent
+        with pytest.raises(ValueError):
+            RVFile(fn)
 
 
 class TestRV:
@@ -24,9 +66,6 @@ class TestRV:
         rvp = RVP()
         rvp.params = RVP.params(1, 2)
         assert rvp.params.x == 1
-
-        d = rvp.to_dict()
-        assert 'x' in d
 
     def test_dict_interface(self):
         rv = RV(run_name='test')
@@ -57,6 +96,16 @@ class TestRV:
 
         m = Mod(params=Mod.params(1, 2, 3))
         assert m.params.x1 == 1
+
+
+class TestOst:
+    def test_random(self):
+        o = Ost()
+        assert o.comment_random == '#'
+
+        o = Ost(random_seed=0)
+        assert o.comment_random == ''
+        assert o.random_seed == 0
 
 
 def test_isinstance_namedtuple():

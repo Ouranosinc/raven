@@ -64,7 +64,8 @@ class RavenProcess(Process):
         # Launch model with input files
         model.run(ts=ts)
 
-        for key, val in model.outputs.items():
+        for key in response.outputs.keys():
+            val = model.outputs[key]
             response.outputs[key].file = str(val)
 
         return response
