@@ -1,14 +1,14 @@
-language: generic
+language: python
+python: "3.6"
 matrix:
   fast_finish: true
   include:
-    - name: "macOS"
-      os: osx
+    - os: osx
+      name: "macOS"
       env: CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
-    - name: "Linux (Python3.6 + pep8)"
-      os: linux
+    - os: linux
+      name: "Linux (Python3.6 + pep8)"
       dist: xenial
-      python: "3.6"
       env: CONDA_FN="Miniconda3-latest-Linux-x86_64.sh" PEP8=true
 branches:
   only:
