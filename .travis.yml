@@ -21,8 +21,7 @@ branches:
 sudo: false
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
-  - wget https://repo.continuum.io/miniconda/$FN -O miniconda.sh
-
+  - wget https://repo.continuum.io/miniconda/$CONDA_FN -O miniconda.sh
 install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
