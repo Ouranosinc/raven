@@ -4,6 +4,10 @@ from .wps_raven_gr4j_cemaneige import RavenGR4JCemaNeigeProcess
 from .wps_raven_mohyse import RavenMOHYSEProcess
 from .wps_raven_hmets import RavenHMETSProcess
 from .wps_raven_hbv_ec import RavenHBVECProcess
+from .wps_ostrich_gr4j_cemaneige import OstrichGR4JCemaNeigeProcess
+from .wps_ostrich_mohyse import OstrichMOHYSEProcess
+from .wps_ostrich_hmets import OstrichHMETSProcess
+from .wps_ostrich_hbv_ec import OstrichHBVECProcess
 from .wps_objective_functions import ObjectiveFunctionProcess
 from .wps_regionalisation import RegionalisationProcess
 
@@ -14,6 +18,10 @@ processes = [
     RavenMOHYSEProcess(),
     RavenHMETSProcess(),
     RavenHBVECProcess(),
+    OstrichGR4JCemaNeigeProcess(),
+    OstrichMOHYSEProcess(),
+    OstrichHMETSProcess(),
+    OstrichHBVECProcess(),
     ObjectiveFunctionProcess(),
     # RegionalisationProcess(),
 ]

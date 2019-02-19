@@ -3,14 +3,18 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-ANACONDA_HOME ?= $(HOME)/miniconda
+CONDA := $(shell command -v conda 2> /dev/null)
+ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
-RAVEN_SRC = $(CURDIR)/src/RAVEN
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
+RAVEN_SRC    = $(CURDIR)/src/RAVEN
+OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
+OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
+OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 
@@ -49,18 +53,22 @@ help:
 
 ## Anaconda targets
 
-.PHONY: anaconda
-anaconda:
-	@echo "Installing Anaconda ..."
-	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
-	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
-	@echo "Please add '$(ANACONDA_HOME)/bin' to your PATH variable in '.bashrc'."
+.PHONY: check_conda
+check_conda:
+ifndef CONDA
+		$(error "Conda is not available. Please install miniconda: https://conda.io/miniconda.html")
+endif
 
 .PHONY: conda_env
-conda_env: anaconda
-	@echo "Creating conda environment $(CONDA_ENV) ..."
-	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
+conda_env: check_conda
+	@echo "Updating conda environment $(CONDA_ENV) ..."
+	"$(CONDA)" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
+
+.PHONY: envclean
+envclean: check_conda
+	@echo "Removing conda env $(CONDA_ENV)"
+	@-"$(CONDA)" remove -n $(CONDA_ENV) --yes --all
 
 ## Build targets
 
@@ -71,9 +79,7 @@ bootstrap: conda_env bootstrap_dev
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
-	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx"
-####	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
 
 .PHONY: raven_dev
@@ -89,16 +95,37 @@ raven_dev:
 	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
 
 
+.PHONY: ostrich_dev
+ostrich_dev:
+	@echo "Downloading OSTRICH calibration framework ..."
+	@test -d src || mkdir src
+	@test -f $(CURDIR)/src/OSTRICH.zip || curl $(OSTRICH_URL) --output "$(CURDIR)/src/OSTRICH.zip"
+	@echo "Unzipping OSTRICH ..."
+	@test -d $(OSTRICH_SRC) || unzip -j $(CURDIR)/src/OSTRICH.zip -d "$(OSTRICH_SRC)"
+	@echo "Compiling OSTRICH ..."
+	@test -f $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) || $(MAKE) $(OSTRICH_TARGET) -C $(OSTRICH_SRC) -j4
+	@test -d bin || mkdir bin
+	@-bash -c "cp $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) ./bin/ostrich"
+
+
 .PHONY: raven_clean
 raven_clean:
-	@echo "Removing src and executable"
+	@echo "Removing src and executable for RAVEN"
 	@test -f $(CURDIR)/src/RAVEN.zip && rm -v "$(CURDIR)/src/RAVEN.zip" || echo "No zip to remove"
 	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
 	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
 
 
+.PHONY: ostrich_clean
+ostrich_clean:
+	@echo "Removing src and executable for OSTRICH"
+	@test -f $(CURDIR)/src/OSTRICH.zip && rm -v "$(CURDIR)/src/OSTRICH.zip" || echo "No zip to remove"
+	@test -d $(OSTRICH_SRC) && rm -rfv $(OSTRICH_SRC) || echo "No src directory to remove"
+	@test -f ./bin/ostrich && rm -v ./bin/ostrich || echo "No executable to remove"
+
+
 .PHONY: install
-install: bootstrap raven_dev
+install: bootstrap raven_dev ostrich_dev
 	@echo "Installing application ..."
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && python setup.py develop"
 	@echo "\nStart service with \`make start'"
@@ -122,11 +149,6 @@ status:
 clean: srcclean envclean
 	@echo "Cleaning generated files ..."
 	@-for i in $(TEMP_FILES); do test -e $$i && rm -v -rf $$i; done
-
-.PHONY: envclean
-envclean:
-	@echo "Removing conda env $(CONDA_ENV)"
-	@-"$(ANACONDA_HOME)/bin/conda" remove -n $(CONDA_ENV) --yes --all
 
 .PHONY: srcclean
 srcclean:

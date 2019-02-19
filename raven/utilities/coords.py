@@ -27,5 +27,5 @@ def param(model):
     """
     model = get_model(model)
     return xr.IndexVariable('param',
-                            data=np.array(model.RVP.params._fields),
+                            data=np.array(model.params._fields),
                             attrs={'standard_name': 'parameter', 'long_name': '{} model parameter name'.format(model)})
