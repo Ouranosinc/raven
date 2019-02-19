@@ -253,19 +253,34 @@ class RVI(RV):
 class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
+        self.random_seed = None
+        self._comment_random = '#'
 
         super(Ost, self).__init__(**kwargs)
 
     @property
-    def max_iteration(self):
+    def max_iterations(self):
         return self._max_iterations
 
-    @max_iteration.setter
-    def max_iteration(self, x):
+    @max_iterations.setter
+    def max_iterations(self, x):
         if x < 1:
             raise ValueError("Max iteration should be a positive integer: {}".format(x))
         else:
             self._max_iterations = x
+
+    @property
+    def random_seed(self):
+        return self._random_seed
+
+    @random_seed.setter
+    def random_seed(self, value):
+        self._random_seed = value
+        self._comment_random = '#' if value is None else ''
+
+    @property
+    def comment_random(self):
+        return self._comment_random
 
 
 def isinstance_namedtuple(x):

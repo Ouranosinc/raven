@@ -1,4 +1,5 @@
 import pytest
+import os
 import datetime as dt
 import numpy as np
 
@@ -13,6 +14,7 @@ from raven.processes import OstrichMOHYSEProcess
 class TestOstrichMOHYSEProcess:
 
     def test_simple(self):
+        os.environ['TEST_OSTRICH'] = '1'
         client = client_for(Service(processes=[OstrichMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
         low_p = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01'
@@ -23,7 +25,7 @@ class TestOstrichMOHYSEProcess:
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
-                     "MaxEvals={MaxEvals};" \
+                     "max_iterations={max_iterations};" \
                      "lowerBounds={low_p};" \
                      "upperBounds={high_p};" \
                      "hruslowerBounds={low_h};" \
@@ -38,7 +40,7 @@ class TestOstrichMOHYSEProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['ostrich-mohyse-nc-ts'],
                     algorithm='DDS',
-                    MaxEvals=10,
+                    max_iterations=10,
                     low_p=low_p,
                     high_p=high_p,
                     low_h=low_h,

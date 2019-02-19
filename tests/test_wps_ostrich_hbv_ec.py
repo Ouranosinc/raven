@@ -1,4 +1,5 @@
 import pytest
+import os
 import datetime as dt
 import numpy as np
 
@@ -13,6 +14,7 @@ from raven.processes import OstrichHBVECProcess
 class TestOstrichHBVECProcess:
 
     def test_simple(self):
+        os.environ['TEST_OSTRICH'] = '1'
         client = client_for(Service(processes=[OstrichHBVECProcess(), ], cfgfiles=CFG_FILE))
 
         params = '0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.5060520, 3.438486, \
@@ -26,7 +28,7 @@ class TestOstrichHBVECProcess:
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
-                     "MaxEvals={MaxEvals};" \
+                     "max_iterations={max_iterations};" \
                      "params={params};" \
                      "lowerBounds={lowerBounds};" \
                      "upperBounds={upperBounds};" \
@@ -40,7 +42,7 @@ class TestOstrichHBVECProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['ostrich-hbv-ec-nc-ts'],
                     algorithm='DDS',
-                    MaxEvals=10,
+                    max_iterations=10,
                     params=params,
                     lowerBounds=lowerBounds,
                     upperBounds=upperBounds,

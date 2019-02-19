@@ -3,7 +3,8 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 # Anaconda
-ANACONDA_HOME ?= $(HOME)/miniconda
+CONDA := $(shell command -v conda 2> /dev/null)
+ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
@@ -52,18 +53,22 @@ help:
 
 ## Anaconda targets
 
-.PHONY: anaconda
-anaconda:
-	@echo "Installing Anaconda ..."
-	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
-	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
-	@echo "Please add '$(ANACONDA_HOME)/bin' to your PATH variable in '.bashrc'."
+.PHONY: check_conda
+check_conda:
+ifndef CONDA
+		$(error "Conda is not available. Please install miniconda: https://conda.io/miniconda.html")
+endif
 
 .PHONY: conda_env
-conda_env: anaconda
-	@echo "Creating conda environment $(CONDA_ENV) ..."
-	@test -d $(ANACONDA_HOME) || "$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	@test -d $(ANACONDA_HOME) || "$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
+conda_env: check_conda
+	@echo "Updating conda environment $(CONDA_ENV) ..."
+	"$(CONDA)" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
+
+.PHONY: envclean
+envclean: check_conda
+	@echo "Removing conda env $(CONDA_ENV)"
+	@-"$(CONDA)" remove -n $(CONDA_ENV) --yes --all
 
 ## Build targets
 
@@ -74,9 +79,7 @@ bootstrap: conda_env bootstrap_dev
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
-	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx"
-####	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
 
 .PHONY: raven_dev
@@ -146,11 +149,6 @@ status:
 clean: srcclean envclean
 	@echo "Cleaning generated files ..."
 	@-for i in $(TEMP_FILES); do test -e $$i && rm -v -rf $$i; done
-
-.PHONY: envclean
-envclean:
-	@echo "Removing conda env $(CONDA_ENV)"
-	@-"$(ANACONDA_HOME)/bin/conda" remove -n $(CONDA_ENV) --yes --all
 
 .PHONY: srcclean
 srcclean:
