@@ -116,11 +116,13 @@ def crs_sniffer(file):
     try:
         if file.lower().endswith(vectors):
             with fio.open(file, 'r') as src:
-                found_crs = src.crs
+                print(src.crs)
+                found_crs = str(src.crs)
                 src.close()
         elif file.lower().endswith(rasters):
             with rio.open(file, 'r') as src:
-                found_crs = src.crs
+                print(src.crs)
+                found_crs = str(src.crs)
                 src.close()
         else:
             raise FileNotFoundError('Invalid file suffix')

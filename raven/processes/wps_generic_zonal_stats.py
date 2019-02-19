@@ -80,9 +80,12 @@ class ZonalStatisticsProcess(Process):
         vector_file = archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
         raster_file = archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters)
 
-        if crs_sniffer(vector_file) == crs_sniffer(raster_file):
+        vec_crs = crs_sniffer(vector_file)
+        ras_crs = crs_sniffer(raster_file)
+
+        if ras_crs != vec_crs:
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
-            LOGGER.exception(msg)
+            LOGGER.warning(msg)
 
         try:
             stats = zonal_stats(
