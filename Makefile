@@ -62,7 +62,7 @@ endif
 .PHONY: conda_env
 conda_env: check_conda
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
+	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml python=$(PYTHON_VERSION)
 
 .PHONY: envclean
 envclean: check_conda
