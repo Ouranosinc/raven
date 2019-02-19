@@ -62,7 +62,8 @@ endif
 .PHONY: conda_env
 conda_env: check_conda
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml python=$(PYTHON_VERSION)
+	"$(CONDA)" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: envclean
 envclean: check_conda
@@ -78,9 +79,7 @@ bootstrap: conda_env bootstrap_dev
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
-	@-bash -c "$(ANACONDA_HOME)/bin/conda install -y -n $(CONDA_ENV) pytest flake8 sphinx"
-####	@-bash -c "$(ANACONDA_HOME)/bin/conda install -c conda-forge -y -n $(CONDA_ENV) bumpversion"
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
 
 .PHONY: raven_dev
