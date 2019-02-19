@@ -1,6 +1,6 @@
 import pytest
 import raven
-from raven.models.rv import RV, RVI, RVFile, isinstance_namedtuple
+from raven.models.rv import RV, RVI, Ost, RVFile, isinstance_namedtuple
 import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
@@ -26,7 +26,7 @@ class TestRVFile:
         assert rvf.is_tpl
 
     def test_ostIn(self):
-        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('*.txt'))[0]
+        fn = list(TESTDATA['ostrich-gr4j-cemaneige'].glob('ostIn.txt'))[0]
         rvf = RVFile(fn)
 
         assert rvf.ext == 'txt'
@@ -96,6 +96,16 @@ class TestRV:
 
         m = Mod(params=Mod.params(1, 2, 3))
         assert m.params.x1 == 1
+
+
+class TestOst:
+    def test_random(self):
+        o = Ost()
+        assert o.comment_random == '#'
+
+        o = Ost(random_seed=0)
+        assert o.comment_random == ''
+        assert o.random_seed == 0
 
 
 def test_isinstance_namedtuple():

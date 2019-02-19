@@ -62,13 +62,13 @@ BeginConstraints
 EndConstraints
 
 # Randomsed control added
-RandomSeed 123
+{comment_random} RandomSeed {random_seed} # 123
 
 #Algorithm should be last in this file:
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations {MaxEvals}
+        MaxIterations {max_iterations}
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

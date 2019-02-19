@@ -27,6 +27,7 @@ import six
 import xarray as xr
 from .rv import RVFile, RV, RVI, isinstance_namedtuple
 import numpy as np
+import shutil
 
 
 class Raven:
@@ -65,13 +66,15 @@ class Raven:
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                        }
 
-    def __init__(self, workdir=None):
+    def __init__(self, workdir=None, test=False):
         """Initialize the RAVEN model.
 
         Parameters
         ----------
         workdir : str, Path
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
+        test : book
+          If True, copies the random number seed file (only for Ostrich).
         """
         workdir = workdir or tempfile.mkdtemp()
 
@@ -82,6 +85,7 @@ class Raven:
         self.workdir = Path(workdir)
         self.ind_outputs = {}  # Individual files for all simulations
         self.outputs = {}  # Aggregated files
+        self.test = test
         self.raven_exec = raven.raven_exec
         self.ostrich_exec = raven.ostrich_exec
         self._name = None
@@ -222,8 +226,15 @@ class Raven:
             rvf.write(p, **params)
 
     def setup(self, overwrite=False):
-        import shutil
+        """Create directory structure to store model input files, executable and output results.
 
+        Model configuration files and time series inputs are stored directly in the working directory.
+
+        workdir/  # Created by PyWPS. Is considered the model path.
+           model/
+           output/
+
+        """
         if self.exec_path.exists():
             if overwrite:
                 shutil.rmtree(str(self.exec_path))
@@ -619,6 +630,10 @@ class Ostrich(Raven):
         """
         Raven.setup_model(self, ts, overwrite)
 
+        if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
+            if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
+                os.remove(self.exec_path / 'OstRandomNumbers.txt')
+
         os.makedirs(str(self.best_path), exist_ok=True)
 
         self.write_ostrich_runs_raven()
@@ -645,7 +660,10 @@ class Ostrich(Raven):
         try:
             raven_err = self._get_output('OstExeOut.txt', path=self.exec_path).read_text()
         except UserWarning:  # Read in processor_0 directory instead.
-            raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+            try:
+                raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+            except UserWarning:
+                raven_err = ''
 
         try:
             ost_err = self._get_output('OstErrors?.txt', path=self.exec_path).read_text()

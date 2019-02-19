@@ -21,7 +21,7 @@ EndFilePairs
 #Parameter/DV Specification
 BeginParams
   #parameter      init.    low      high    tx_in  tx_ost  tx_out   # in HBV called
-  par_x01         random   {lowerBounds.par_x01}  {upperBounds.par_x01}  none   none     none    TT 
+  par_x01         random   {lowerBounds.par_x01}  {upperBounds.par_x01}  none   none     none    TT
   par_x02         random   {lowerBounds.par_x02}  {upperBounds.par_x02}  none   none     none    CFMAX
   par_x03         random   {lowerBounds.par_x03}  {upperBounds.par_x03}  none   none     none    CFR
   par_x04         random   {lowerBounds.par_x04}  {upperBounds.par_x04}  none   none     none    CWH
@@ -34,7 +34,7 @@ BeginParams
   par_x11         random   {lowerBounds.par_x11}  {upperBounds.par_x11}  none   none     none    MAXBAS
   par_x12         random   {lowerBounds.par_x12}  {upperBounds.par_x12}  none   none     none    PCALT
   par_x13         random   {lowerBounds.par_x13}  {upperBounds.par_x13}  none   none     none    TCALT
-  par_x14         random   {lowerBounds.par_x14}  {upperBounds.par_x14}  none   none     none    saturation at the wilting point 
+  par_x14         random   {lowerBounds.par_x14}  {upperBounds.par_x14}  none   none     none    saturation at the wilting point
   par_x15         random   {lowerBounds.par_x15}  {upperBounds.par_x15}  none   none     none    ALPHA
   par_x16         random   {lowerBounds.par_x16}  {upperBounds.par_x16}  none   none     none    maximum interflow rate for capillary rise
   par_x17         random   {lowerBounds.par_x17}  {upperBounds.par_x17}  none   none     none    thickness of top soil layer
@@ -52,7 +52,7 @@ BeginTiedParams
   #
   par_1_+_x15 1 par_x15 linear 1.00 1.00 free
   #
-  # par_half_x11 = par_x11 * 0.5 
+  # par_half_x11 = par_x11 * 0.5
   # Xtied = (c1 * X) + c0
   # --> c0 = 0.0
   # --> c1 = 0.5
@@ -80,13 +80,13 @@ BeginConstraints
 EndConstraints
 
 # Randomsed control added
-RandomSeed 123
+{comment_random} RandomSeed {random_seed} # 123
 
 #Algorithm should be last in this file:
 
 BeginDDSAlg
         PerturbationValue 0.20
-        MaxIterations {MaxEvals}
+        MaxIterations {max_iterations}
         UseRandomParamValues
         # UseInitialParamValues
         # above intializes DDS to parameter values IN the initial model input files

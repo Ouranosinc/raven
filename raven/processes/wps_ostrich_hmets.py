@@ -111,7 +111,7 @@ class OstrichHMETSProcess(OstrichProcess):
     model_cls = HMETS_OST
     tuple_inputs = {'lowerBounds': HMETS_OST.params,
                     'upperBounds': HMETS_OST.params}
-    inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.MaxEvals, wio.start_date, wio.end_date,
+    inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.max_iterations, wio.start_date, wio.end_date,
               wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
 
     keywords = ["Ostrich", "Calibration", "DDS"]
