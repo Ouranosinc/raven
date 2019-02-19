@@ -1,8 +1,10 @@
+
 language: generic
 matrix:
   fast_finish: true
   include:
     - os: osx
+      python: "3.5"
       name: "macOS"
       env:
         - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
@@ -13,6 +15,7 @@ matrix:
       env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
     - os: linux
+      python: "3.6"
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
       python: "3.6"
