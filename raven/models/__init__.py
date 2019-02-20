@@ -1,8 +1,9 @@
 from .gr4j_cemaneige import simulation as gr4j
 import os
 from .base import Raven, Ostrich
-from .emulators import GR4JCN, MOHYSE, HMETS, HBVEC, RavenMultiModel, get_model
+from .emulators import GR4JCN, MOHYSE, HMETS, HBVEC, get_model
 from .emulators import GR4JCN_OST, MOHYSE_OST, HMETS_OST, HBVEC_OST
+from .multimodel import RavenMultiModel
 from .rv import RV, RVI
 
 _dir = os.path.abspath(os.path.dirname(__file__))

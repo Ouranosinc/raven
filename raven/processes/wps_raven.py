@@ -33,10 +33,13 @@ class RavenProcess(Process):
             store_supported=True
         )
 
+    def model(self, request):
+        return self.model_cls(workdir=self.workdir)
+
     def _handler(self, request, response):
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
-        model = self.model_cls(self.workdir)
+        model = self.model(request)
 
         # Model configuration
         if 'conf' in request.inputs:
@@ -66,6 +69,7 @@ class RavenProcess(Process):
 
         for key in response.outputs.keys():
             val = model.outputs[key]
+            # TODO: Implement MetaLink for multiple output files.
             response.outputs[key].file = str(val)
 
         return response
