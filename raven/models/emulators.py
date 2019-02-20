@@ -216,8 +216,11 @@ class RavenMultiModel(Raven):
         for m in self._models:
             p[m.identifier] = kwds.pop(m.identifier)
 
+        procs = []
         for m in self._models:
-            m.run(ts, params=p[m.identifier], **kwds)
+            procs.extend(m.run(ts, params=p[m.identifier], **kwds))
+
+        return procs
 
 
 def get_model(name):

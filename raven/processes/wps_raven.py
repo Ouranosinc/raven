@@ -62,7 +62,7 @@ class RavenProcess(Process):
             model.assign(name, data)
 
         # Launch model with input files
-        model.run(ts=ts)
+        model(ts=ts)
 
         for key in response.outputs.keys():
             val = model.outputs[key]
