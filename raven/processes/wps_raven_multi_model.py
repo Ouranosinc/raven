@@ -29,7 +29,7 @@ class RavenMultiModelProcess(RavenProcess):
 
     def __init__(self):
 
-        super(RavenMultiModelProcess, self).__init__(
+        super(RavenProcess, self).__init__(
             self._handler,
             identifier=self.identifier,
             title=self.title,
