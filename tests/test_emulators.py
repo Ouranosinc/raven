@@ -25,7 +25,7 @@ class TestGR4JCN:
 
         model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
 
-        model.run([ts, ])
+        model([ts, ])
 
         d = model.diagnostics
         # yields NSE=0.5112 for full period 1954-2010
@@ -122,8 +122,7 @@ class TestGR4JCN:
               )
 
         assert len(model.diagnostics) == 2
-        ds = model.hydrograph
-        assert 'params' in ds.dims
+        assert len(model.hydrograph) == 2
 
 
 class TestGR4JCN_OST:
@@ -474,4 +473,4 @@ class TestRavenMultiModel:
               hmets=hmets,
               )
 
-        assert model.q_sim.shape[0] == 2
+        assert len(model.q_sim) == 2

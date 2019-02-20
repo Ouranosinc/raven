@@ -101,14 +101,13 @@ class Raven:
 
         # Directory logic
         # Top directory inside workdir. This is where Ostrich and its config and templates are stored.
-        self.model_dir = self.identifier  # Path to the model configuration files.
+        self.model_dir = 'model'  # Path to the model configuration files.
         self.final_dir = 'final'
         self.output_dir = 'output'
 
         self.exec_path = self.workdir / 'exec'
         self.final_path = self.workdir / self.final_dir
         self._psim = 0
-        self.output_path_pat = os.path.sep.join(('p??', self.model_dir, self.output_dir))  # Relative to exec_path
 
     @property
     def output_path(self):
@@ -116,7 +115,7 @@ class Raven:
 
     @property
     def model_path(self):
-        return self.exec_path / "p{:02}".format(self.psim) / self.model_dir
+        return self.exec_path / self.model_dir / "p{:02}".format(self.psim)
 
     @property
     def raven_cmd(self):
@@ -354,6 +353,12 @@ class Raven:
             cmd = self.setup_model_run(tuple(map(Path, ts)))
             procs.append(subprocess.Popen(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE))
 
+        return procs
+
+    def __call__(self, ts, overwrite=False, **kwds):
+        self.setup(overwrite)
+        procs = self.run(ts, overwrite, **kwds)
+
         for proc in procs:
             proc.wait()
 
@@ -363,17 +368,13 @@ class Raven:
         except UserWarning as e:
             err = self.parse_errors()
             msg = """
-**************************************************************
-Executed: \n $ {cmd}\n from {dir}
-**************************************************************
-{err}
-""".format(cmd=' '.join(map(str, cmd)), dir=self.cmd_path, err=err)
+        **************************************************************
+        Path : {dir}
+        **************************************************************
+        {err}
+        """.format(dir=self.cmd_path, err=err)
             print(msg)
             raise e
-
-    def __call__(self, ts, overwrite=False, **kwds):
-        self.setup(overwrite)
-        self.run(ts, overwrite, **kwds)
 
     def parse_results(self, path=None):
         """Store output files in the self.outputs dictionary."""
@@ -393,23 +394,23 @@ Executed: \n $ {cmd}\n from {dir}
             self.outputs[key] = self._merge_output(fns, pattern[1:])
 
     def _merge_output(self, files, name):
-        """Merge multiple output files into one."""
+        """Merge multiple output files into one if possible, otherwise return a list of files.
+        """
 
         # If there is only one file, return its name directly.
         if len(files) == 1:
             return str(files[0])
 
-        # Otherwise create a new file aggregating all files.
-        outfn = self.output_path / name
+        # Otherwise try to create a new file aggregating all files.
+        outfn = self.final_path / name
 
         if name.endswith('.nc'):  # We aggregate along the params dimensions. Hard-coded for now.
             ds = [xr.open_dataset(fn) for fn in files]
             try:
-                out = xr.concat(ds, 'params') if len(ds) > 1 else ds[0]
+                out = xr.concat(ds, 'params', data_vars='identical')
                 out.to_netcdf(outfn)
             except ValueError:
-                raise UserWarning("Could not merge: {}".format(files))
-                return files
+                return None
 
         else:
             with open(outfn, 'w') as outfile:
@@ -420,7 +421,11 @@ Executed: \n $ {cmd}\n from {dir}
         return outfn
 
     def parse_errors(self):
-        return self._get_output('Raven_errors.txt', self.output_path).read_text()
+        files = self._get_output('Raven_errors.txt', self.exec_path)
+        out = ''
+        for f in files:
+            out += f.read_text()
+        return out
 
     def _assign_files(self, fns, variables):
         """Find for each variable the file storing it's data and the name of the netCDF variable.
@@ -467,7 +472,7 @@ Executed: \n $ {cmd}\n from {dir}
         files = list(path.rglob(pattern))
 
         if len(files) == 0:
-            raise UserWarning("No output files for {}.".format(pattern))
+            raise UserWarning("No output files for {} in {}.".format(pattern, path))
 
         return [f.absolute() for f in files]
 
@@ -511,6 +516,9 @@ Executed: \n $ {cmd}\n from {dir}
         This view will be overwritten by successive calls to `run`. To make a copy of this DataArray that will
         persist in memory, use `q_sim.copy(deep=True)`.
         """
+        if isinstance(self.hydrograph, list):
+            return [h.q_sim for h in self.hydrograph]
+
         return self.hydrograph.q_sim
 
     @property
@@ -520,11 +528,17 @@ Executed: \n $ {cmd}\n from {dir}
         If the model is run multiple times, hydrograph will point to the latest version. To store the results of
         multiple runs, either create different model instances or explicitly copy the file to another disk location.
         """
-        return xr.open_dataset(self.outputs['hydrograph'])
+        if self.outputs['hydrograph'] is not None:
+            return xr.open_dataset(self.outputs['hydrograph'])
+        else:
+            return [xr.open_dataset(fn) for fn in self.ind_outputs['hydrograph']]
 
     @property
     def storage(self):
-        return xr.open_dataset(self.outputs['storage'])
+        if self.outputs['storage'] is not None:
+            return xr.open_dataset(self.outputs['storage'])
+        else:
+            return [xr.open_dataset(fn) for fn in self.ind_outputs['storage']]
 
     @property
     def diagnostics(self):
@@ -709,8 +723,8 @@ save_best = """#!/bin/bash
 
 set -e
 
-cp ./model/*.rv?  ../final/
-cp ./model/output/* ../final/
+cp ./model/*.rv?  ../../final/
+cp ./model/output/* ../../final/
 
 exit 0
 """

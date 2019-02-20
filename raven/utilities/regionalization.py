@@ -103,7 +103,7 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
 
     for params in reg_params:
         kwds['params'] = params
-        m.run(overwrite=True, **kwds)
+        m(overwrite=True, **kwds)
         qsims.append(m.q_sim.copy(deep=True))
 
     qsims = xr.concat(qsims, dim=cr)
