@@ -100,17 +100,23 @@ class Raven:
             self.configure(self.templates)
 
         # Directory logic
-        self.iteration = 0
         # Top directory inside workdir. This is where Ostrich and its config and templates are stored.
-        self.exec_path = self.workdir / 'exec'
-        self.model_dir = 'model'  # Path to the model configuration files.
+        self.model_dir = self.identifier  # Path to the model configuration files.
+        self.final_dir = 'final'
         self.output_dir = 'output'
-        self.output_path = self.exec_path / self.output_dir
-        self._sim = 0
+
+        self.exec_path = self.workdir / 'exec'
+        self.final_path = self.workdir / self.final_dir
+        self._psim = 0
+        self.output_path_pat = os.path.sep.join(('p??', self.model_dir, self.output_dir))  # Relative to exec_path
+
+    @property
+    def output_path(self):
+        return self.model_path / self.output_dir
 
     @property
     def model_path(self):
-        return self.exec_path / str(self.sim) / self.model_dir
+        return self.exec_path / "p{:02}".format(self.psim) / self.model_dir
 
     @property
     def raven_cmd(self):
@@ -128,16 +134,16 @@ class Raven:
             raise AttributeError("Version not found: {}".format(out))
 
     @property
-    def sim(self):
-        return self._sim
+    def psim(self):
+        return self._psim
 
-    @sim.setter
-    def sim(self, value):
+    @psim.setter
+    def psim(self, value):
         if not isinstance(value, int):
             raise ValueError
         if isinstance(self.rvi, RVI):
             self.rvi.run_index = value
-        self._sim = value
+        self._psim = value
 
     @property
     def cmd(self):
@@ -242,9 +248,16 @@ class Raven:
                 raise IOError(
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
+        if self.final_path.exists():
+            if overwrite:
+                shutil.rmtree(str(self.final_path))
+            else:
+                raise IOError(
+                    "Directory already exists. Either set overwrite to `True` or create a new model instance.")
+
         # Create general subdirectories
-        os.makedirs(str(self.exec_path))    # exec
-        os.makedirs(str(self.output_path))  # exec/output
+        os.makedirs(str(self.exec_path))    # workdir/exec
+        os.makedirs(str(self.final_path))  # workdir/final
 
     def setup_model_run(self, ts):
         """Create directory structure to store model input files, executable and output results.
@@ -265,7 +278,8 @@ class Raven:
         self.derived_parameters()
 
         # Write configuration files in model directory
-        os.makedirs(self.model_path)
+        if not self.model_path.exists():
+            os.makedirs(self.model_path)
         self._dump_rv()
 
         # Create symbolic link to input files
@@ -301,8 +315,6 @@ class Raven:
         >>> r.configure(rvi='path to template', rvp='...'}
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
         """
-        self.setup(overwrite)
-
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
@@ -334,7 +346,7 @@ class Raven:
 
         procs = []
         for i, a in enumerate(arr):
-            self.sim = i
+            self.psim = i
 
             if a is not None:
                 self.assign('params', a)
@@ -359,13 +371,15 @@ Executed: \n $ {cmd}\n from {dir}
             print(msg)
             raise e
 
-    __call__ = run
+    def __call__(self, ts, overwrite=False, **kwds):
+        self.setup(overwrite)
+        self.run(ts, overwrite, **kwds)
 
     def parse_results(self, path=None):
         """Store output files in the self.outputs dictionary."""
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
-        path = path or self.output_path
+        path = path or self.exec_path
 
         patterns = {'hydrograph': '*Hydrographs.nc',
                     'storage': '*WatershedStorage.nc',
@@ -390,8 +404,12 @@ Executed: \n $ {cmd}\n from {dir}
 
         if name.endswith('.nc'):  # We aggregate along the params dimensions. Hard-coded for now.
             ds = [xr.open_dataset(fn) for fn in files]
-            out = xr.concat(ds, 'params') if len(ds) > 1 else ds[0]
-            out.to_netcdf(outfn)
+            try:
+                out = xr.concat(ds, 'params') if len(ds) > 1 else ds[0]
+                out.to_netcdf(outfn)
+            except ValueError:
+                raise UserWarning("Could not merge: {}".format(files))
+                return files
 
         else:
             with open(outfn, 'w') as outfile:
@@ -399,8 +417,10 @@ Executed: \n $ {cmd}\n from {dir}
                     with open(fn) as infile:
                         outfile.write(infile.read())
 
+        return outfn
+
     def parse_errors(self):
-        return self._get_output('Raven_errors.txt').read_text()
+        return self._get_output('Raven_errors.txt', self.output_path).read_text()
 
     def _assign_files(self, fns, variables):
         """Find for each variable the file storing it's data and the name of the netCDF variable.
@@ -444,7 +464,7 @@ Executed: \n $ {cmd}\n from {dir}
 
         Return a dictionary of file paths for each expected input.
         """
-        files = list(path.glob(pattern))
+        files = list(path.rglob(pattern))
 
         if len(files) == 0:
             raise UserWarning("No output files for {}.".format(pattern))
@@ -567,6 +587,14 @@ class Ostrich(Raven):
     _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'txt')
     txt = RV()
 
+    @property
+    def output_path(self):
+        return self.model_path / self.output_dir
+
+    @property
+    def model_path(self):
+        return self.exec_path / self.model_dir
+
     @staticmethod
     def _allowed_extensions():
         return Raven._allowed_extensions() + ('txt', )
@@ -587,17 +615,6 @@ class Ostrich(Raven):
         return self.exec_path
 
     @property
-    def best_path(self):
-        """Path to the best output."""
-        return self.exec_path / 'best'
-
-    @property
-    def output_path(self):
-        """Path to the model outputs and logs."""
-        return self.model_path / 'output'
-        # return self.best_path
-
-    @property
     def proc_path(self):
         """Path to Ostrich parallel process directory."""
         return self.exec_path / 'processor_0'  # /'model' / 'output' ?
@@ -612,7 +629,7 @@ class Ostrich(Raven):
         fn.write_text(ostrich_runs_raven.format(name=self.name))
         make_executable(fn)
 
-    def setup_model(self, ts, overwrite=False):
+    def setup(self, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
 
         Model configuration files and time series inputs are stored directly in the working directory.
@@ -628,13 +645,13 @@ class Ostrich(Raven):
         At each Ostrich loop, configuration files (original and created from templates are copied into model/.
 
         """
-        Raven.setup_model(self, ts, overwrite)
+        Raven.setup(self, overwrite)
 
         if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
             if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
                 os.remove(self.exec_path / 'OstRandomNumbers.txt')
 
-        os.makedirs(str(self.best_path), exist_ok=True)
+        os.makedirs(str(self.final_path), exist_ok=True)
 
         self.write_ostrich_runs_raven()
         self.write_save_best()
@@ -646,7 +663,7 @@ class Ostrich(Raven):
         """Store output files in the self.outputs dictionary."""
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
-        Raven.parse_results(self, path=self.best_path)
+        Raven.parse_results(self, path=self.final_path)
 
         patterns = {'params_seq': 'OstModel?.txt',
                     'calibration': 'OstOutput?.txt',
@@ -654,21 +671,21 @@ class Ostrich(Raven):
 
         # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path))
+            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path)[0])
 
     def parse_errors(self):
         try:
-            raven_err = self._get_output('OstExeOut.txt', path=self.exec_path).read_text()
+            raven_err = self._get_output('OstExeOut.txt', path=self.exec_path)[0].read_text()
         except UserWarning:  # Read in processor_0 directory instead.
             try:
-                raven_err = self._get_output('OstExeOut.txt', path=self.proc_path).read_text()
+                raven_err = self._get_output('OstExeOut.txt', path=self.proc_path)[0].read_text()
             except UserWarning:
                 raven_err = ''
 
         try:
-            ost_err = self._get_output('OstErrors?.txt', path=self.exec_path).read_text()
+            ost_err = self._get_output('OstErrors?.txt', path=self.exec_path)[0].read_text()
         except UserWarning:  # Read in processor_0 directory instead.
-            ost_err = self._get_output('OstErrors?.txt', path=self.proc_path).read_text()
+            ost_err = self._get_output('OstErrors?.txt', path=self.proc_path)[0].read_text()
 
         return "{}\n{}".format(ost_err, raven_err)
 
@@ -692,8 +709,8 @@ save_best = """#!/bin/bash
 
 set -e
 
-cp ./model_0/*.rv?  ../best/
-cp ./model_0/output/* ../best/
+cp ./model/*.rv?  ../final/
+cp ./model/output/* ../final/
 
 exit 0
 """
@@ -704,9 +721,9 @@ ostrich_runs_raven = """
 
 set -e
 
-cp ./*.rv? model_0/
+cp ./*.rv? model/
 
-./model_0/raven ./model_0/{name} -o ./model_0/output/
+./model/raven ./model/{name} -o ./model/output/
 
 exit 0
 """

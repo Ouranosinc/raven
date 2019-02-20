@@ -6,6 +6,7 @@ from .rv import RV, RVI, Ost
 
 class GR4JCN(Raven):
     """GR4J + Cemaneige"""
+    identifier = 'gr4jcn'
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
     params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
@@ -37,6 +38,7 @@ class GR4JCN_OST(Ostrich, GR4JCN):
 
 
 class MOHYSE(Raven):
+    identifier = 'mohyse'
     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
 
     params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 9)]))
@@ -70,6 +72,7 @@ class MOHYSE_OST(Ostrich, MOHYSE):
 
 
 class HMETS(GR4JCN):
+    identifier = 'hmets'
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
     params = namedtuple('HMETSParams', ('GAMMA_SHAPE', 'GAMMA_SCALE', 'GAMMA_SHAPE2', 'GAMMA_SCALE2',
@@ -112,6 +115,7 @@ class HMETS_OST(Ostrich, HMETS):
 
 
 class HBVEC(GR4JCN):
+    identifier = 'hbvec'
     templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
 
     params = namedtuple('HBVECParams', ('par_x{:02}'.format(i) for i in range(1, 22)))
@@ -156,3 +160,88 @@ class HBVEC_OST(Ostrich, HBVEC):
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
         pass
+
+
+class RavenMultiModel(Raven):
+    identifier = 'raven-multi-model'
+
+    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
+    rvi = RVI()
+    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+
+    def __init__(self, models, workdir=None):
+        """Create multi-model raven instance.
+
+        Parameters
+        ----------
+        models : sequence
+          Model identifiers ('gr4jcn', 'hmets', 'mohyse', 'hbvec').
+        """
+        import tempfile
+
+        self._names = models
+        self._models = []
+
+        workdir = workdir or tempfile.mkdtemp()
+        Raven.__init__(self, workdir)
+
+        for name in models:
+            m = get_model(name)(workdir)
+            m.model_dir = m.name
+            self._models.append(m)
+
+    def _rename_run_name(self, run_name=None):
+        rns = set([m.rvi.run_name for m in self._models])
+        if (run_name is not None) or (len(rns) < len(self._models)):
+            for m in self._models:
+                rn = run_name or m.rvi.run_name
+                m.rvi.run_name = rn + '_' + m.identifier
+
+    def run(self, ts, overwrite=False, **kwds):
+        """Run model.
+
+
+        Parameters
+        ----------
+        kwds : dict
+          model_name : array
+            Parameter array.
+        """
+        if overwrite:
+            self.setup(overwrite)
+
+        self._rename_run_name(kwds.pop('run_name', None))
+
+        p = {}
+        for m in self._models:
+            p[m.identifier] = kwds.pop(m.identifier)
+
+        for m in self._models:
+            m.run(ts, params=p[m.identifier], **kwds)
+
+
+def get_model(name):
+    """Return the corresponding Raven emulated model instance.
+
+    Parameters
+    ----------
+    name : str
+      Model class name or model identifier.
+
+    Returns
+    -------
+    Raven model instance
+    """
+    from raven.models import emulators
+
+    model_cls = getattr(emulators, name, None)
+
+    if model_cls is None:
+        for m in [GR4JCN, MOHYSE, HMETS, HBVEC]:
+            if m.identifier == name:
+                model_cls = m
+
+    if model_cls is None:
+        raise ValueError("Model {} is not recognized.".format(name))
+
+    return model_cls
