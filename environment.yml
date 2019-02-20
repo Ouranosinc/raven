@@ -28,4 +28,5 @@ dependencies:
 - statsmodels
 - pip:
   - spotpy
+  - pysheds
 

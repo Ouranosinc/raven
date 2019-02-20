@@ -103,7 +103,7 @@ def archive_sniffer(archives, working_dir, extensions):
     decompressed_files = generic_extract_archive(archives, output_dir=working_dir)
     for file in decompressed_files:
         if any(ext in os.path.splitext(file) for ext in extensions):
-            return file
+            potential_files.append(file)
     return potential_files
 
 

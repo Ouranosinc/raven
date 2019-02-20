@@ -2,6 +2,7 @@ import fiona
 import json
 import logging
 from fiona.crs import from_epsg
+from rasterio.crs import CRS
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, geom_transform, geom_prop, equal_area_geom_prop
@@ -59,6 +60,17 @@ class ShapeAreaProcess(Process):
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
 
         shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
+
+        try:
+            projection = CRS.from_user_input(projected_crs)
+            if not projection.is_projected:
+                msg = 'Destination CRS {} is not projected.' \
+                      'Terrain analysis values may be erroneous.'.format(projection.to_epsg())
+                LOGGER.warning(msg)
+        except Exception as e:
+            msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
+            LOGGER.error(msg)
+            return response
 
         properties = []
 

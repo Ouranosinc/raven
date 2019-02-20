@@ -14,8 +14,8 @@ toolz
 spotpy
 statsmodels
 # GIS LIBRARIES
-# gdal --- Not compatible with rasterio!
-# pysheds --- Not compatible with rasterio
+# gdal>= --- Not compatible with rasterio!
+pysheds
 affine
 rtree
 fiona

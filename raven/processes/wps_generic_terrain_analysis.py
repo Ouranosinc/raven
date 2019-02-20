@@ -33,7 +33,7 @@ class TerrainAnalysisProcess(Process):
                                   ' If a shapefile is provided, the raster will be subsetted before analysis.',
                          min_occurs=0, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
-            LiteralInput('destination_crs',
+            LiteralInput('projected_crs',
                          'Coordinate Reference System for terrain analysis (EPSG code; Default:32198).'
                          ' The CRS chosen should be projected and appropriate for the region of interest.',
                          data_type='integer',
@@ -44,8 +44,7 @@ class TerrainAnalysisProcess(Process):
         outputs = [
             ComplexOutput('terrain_analysis', 'Terrain analysis characteristics of the DEM',
                           abstract='Terrain analysis characteristics of the DEM (Slope, Aspect, and Curvature)',
-                          supported_formats=[FORMATS.JSON],
-                          ),
+                          supported_formats=[FORMATS.JSON]),
         ]
 
         super(TerrainAnalysisProcess, self).__init__(
@@ -64,25 +63,42 @@ class TerrainAnalysisProcess(Process):
 
         raster_url = request.inputs['raster'][0].file
         shape_url = request.inputs['shape'][0].file
-        destination_crs = CRS.from_user_input(request.inputs['projected_crs'][0].data)
+        destination_crs = request.inputs['projected_crs'][0].data
 
         rasters = ['.tiff', '.tif']
         raster_file = archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters)
         ras_crs = crs_sniffer(raster_file)
 
-        if ras_crs == destination_crs:
-            msg = 'CRS for raster {} matches destination CRS {}. Exiting.'.format(ras_crs, destination_crs.to_epsg())
+        try:
+            projection = CRS.from_user_input(destination_crs)
+            if not projection.is_projected:
+                msg = 'Destination CRS {} is not projected.' \
+                      'Terrain analysis values may be erroneous.'.format(projection.to_epsg())
+                LOGGER.warning(msg)
+        except Exception as e:
+            msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
             LOGGER.error(msg)
             return response
 
-        elif ras_crs == destination_crs:
-            msg = 'CRS for raster matches destination. Raster will not be warped.'
+        if ras_crs == projection:
+            msg = 'CRS for raster matches projected CRS ({}). Raster will not be warped.'.format(projection.to_epsg())
+            LOGGER.info(msg)
+        else:
+            msg = 'Warping raster to destination CRS ({})'.format(projection.to_epsg())
             LOGGER.info(msg)
 
         if shape_url:
             vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
             vector_file = archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
             vec_crs = crs_sniffer(vector_file)
+            if vec_crs == projection:
+                reproject_shape = False
+            else:
+                reproject_shape = True
+
+            if reproject_shape:
+                # Reproject with GEOM functions
+                pass
 
             properties = [].append(vec_crs)
 
@@ -102,6 +118,9 @@ class TerrainAnalysisProcess(Process):
             # except Exception as e:
             #     msg = 'Failed to extract shape from url {}: {}'.format(vector_file, e)
             #     LOGGER.error(msg)
+
+
+
 
             response.outputs['terrain_analysis'].data = json.dumps(properties)
 
