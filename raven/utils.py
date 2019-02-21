@@ -12,12 +12,14 @@ import zipfile
 import shapely.geometry as sgeo
 import shapely.ops as ops
 import fiona as fio
-from fiona.crs import from_epsg
-from pyproj import Proj, transform
 import rasterio as rio
+
+from pyproj import Proj, transform
+from rasterio.crs import CRS
 
 LOGGER = logging.getLogger("RAVEN")
 
+WGS84 = '+proj=longlat +datum=WGS84 +no_defs'
 LAEA = '+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
 WORLDMOLL = '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
 ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs'
@@ -107,32 +109,36 @@ def archive_sniffer(archives, working_dir, extensions):
     return potential_files
 
 
-def crs_sniffer(file):
-    found_crs = False
+def crs_sniffer(*args):
+    crs_list = []
 
     vectors = ('.gml', '.shp', '.geojson', '.json')
     rasters = ('.tif', '.tiff')
 
-    try:
-        if file.lower().endswith(vectors):
-            with fio.open(file, 'r') as src:
-                print(src.crs)
-                found_crs = str(src.crs)
-                src.close()
-        elif file.lower().endswith(rasters):
-            with rio.open(file, 'r') as src:
-                print(src.crs)
-                found_crs = str(src.crs)
-                src.close()
-        else:
-            raise FileNotFoundError('Invalid file suffix')
-    except Exception as e:
-        msg = '{}: Unable to read crs from {}'.format(e, file)
-        LOGGER.warning(msg)
-        return
-    finally:
-        if found_crs:  # Empty strings are treated as False
-            return found_crs
+    for file in args:
+        found_crs = False
+        try:
+            if str(file).lower().endswith(vectors):
+                with fio.open(file, 'r') as src:
+                    found_crs = CRS(src.crs).to_proj4()
+                    src.close()
+            elif str(file).lower().endswith(rasters):
+                with rio.open(file, 'r') as src:
+                    found_crs = CRS(src.crs).to_proj4()
+                    src.close()
+            else:
+                FileNotFoundError('Invalid filename suffix')
+        except Exception as e:
+            msg = '{}: Unable to read crs from {}'.format(e, args)
+            LOGGER.exception(msg)
+        finally:
+            crs_list.append(found_crs)
+
+    if crs_list is None:
+        msg = 'No CRS definitions found in {}.'.format(args)
+        raise FileNotFoundError(msg)
+
+    return crs_list
 
 
 def raster_datatype_sniffer(file):
@@ -142,8 +148,8 @@ def raster_datatype_sniffer(file):
         return dtype
     except Exception as e:
         msg = '{}: Unable to read data type from {}'.format(e, file)
-        LOGGER.warning(msg)
-        return
+        LOGGER.exception(msg)
+        raise ValueError(msg)
 
 
 def parse_lonlat(string):
@@ -151,7 +157,22 @@ def parse_lonlat(string):
         lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)))
         return lon, lat
     except Exception as e:
-        msg = 'Failed to parse geo-coordinates {}: {}'.format(string, e)
+        msg = '{}: Failed to parse LonLat-coordinates {}'.format(e, string)
+        raise ValueError(msg)
+
+
+def single_file_check(file_list):
+    try:
+        if len(file_list) > 1:
+            msg = 'Multi-file handling for file is not supported. Exiting.'
+            raise NotImplementedError(msg)
+        elif len(file_list) == 0:
+            msg = 'No files found. Exiting.'
+            raise FileNotFoundError(msg)
+        return file_list[0]
+    except Exception as e:
+        msg = '{}: Unspecified error. Exiting,'
+        LOGGER.error(msg.format(e))
         raise Exception(msg)
 
 
@@ -169,9 +190,9 @@ def multipolygon_check(f):
 
 
 # @multipolygon_check
-def geom_prop(geom):
+def geom_centroid(geom):
     """
-    Return a dictionary of properties for the given geometry.
+    Return a dictionary entry for centroid for the given geometry.
     :param geom : shapely.geometry
     :return dict : centroid with lon, lat fields
     """
@@ -184,7 +205,7 @@ def geom_prop(geom):
 
 
 # @multipolygon_check
-def geom_transform(geom, source_crs=4326, target_crs=None):
+def geom_transform(geom, source_crs=WGS84, target_crs=None):
     """
     Return a projected geometry based on source and target CRS
     :param geom : shapely.geometry
@@ -196,8 +217,8 @@ def geom_transform(geom, source_crs=4326, target_crs=None):
     projected = ops.transform(
         partial(
             transform,
-            Proj(from_epsg(source_crs)),
-            Proj(from_epsg(target_crs))),
+            Proj(source_crs),
+            Proj(target_crs)),
         geom)
     return projected
 
