@@ -28,14 +28,11 @@ class TestGenericZonalStatsProcess:
             raster=TESTDATA['earthenv_dem_90m']
         )
 
-        print(datainputs)
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='zonal-stats', datainputs=datainputs)
 
         assert_response_success(resp)
         out = get_output(resp.xml)
-
-        print(out)
 
         assert 'statistics' in out
 

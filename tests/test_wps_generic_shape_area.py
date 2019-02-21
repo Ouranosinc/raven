@@ -25,6 +25,6 @@ class TestGenericShapeAreaProcess:
 
         assert 'properties' in out
         props = json.loads(out['properties'])
-        print(props)
+
         assert {'centroid', 'area', 'perimeter', 'gravelius'}.issubset(props[0].keys())
         # TODO: add a couple of explicit tests that properties are computed.
