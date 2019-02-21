@@ -17,7 +17,6 @@ dependencies:
 - libnetcdf
 - gdal>=2.3
 - fiona
-- pycrs
 - pyproj
 - affine
 - rasterio
@@ -29,4 +28,4 @@ dependencies:
 - pip:
   - spotpy
   - pysheds
-
+  # - pycrs

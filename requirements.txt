@@ -14,13 +14,13 @@ toolz
 spotpy
 statsmodels
 # GIS LIBRARIES
-# gdal>= --- Not compatible with rasterio!
+# gdal>=2.3 --- Not compatible with rasterio!
+# pycrs --- Depends on URL requests -> Slow
 pysheds
 affine
 rtree
 fiona
 geopandas
-pycrs
 pyproj
 rasterio
 rasterstats
