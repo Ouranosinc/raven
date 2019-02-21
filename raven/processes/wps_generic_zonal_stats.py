@@ -8,7 +8,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import archive_sniffer, crs_sniffer
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -77,11 +77,10 @@ class ZonalStatisticsProcess(Process):
         vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
         rasters = ['.tiff', '.tif']
 
-        vector_file = archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
-        raster_file = archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters)
+        vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+        raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
 
-        vec_crs = crs_sniffer(vector_file)
-        ras_crs = crs_sniffer(raster_file)
+        vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
 
         if ras_crs != vec_crs:
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
@@ -120,5 +119,6 @@ class ZonalStatisticsProcess(Process):
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(e, shape_url, raster_url, e)
             LOGGER.error(msg)
+            raise Exception(msg)
 
         return response

@@ -8,14 +8,13 @@ import numpy as np
 import rasterio as rio
 
 from affine import Affine
-from fiona.crs import from_epsg
 from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import archive_sniffer, crs_sniffer, raster_datatype_sniffer
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check, raster_datatype_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -40,9 +39,6 @@ class RasterSubsetProcess(Process):
                                        ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
                          min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
-            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG) and lat/lon coordinates',
-                         data_type='integer',
-                         default=4326),
             LiteralInput('band', 'Raster band', data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
                          min_occurs=1, max_occurs=1),
@@ -73,20 +69,23 @@ class RasterSubsetProcess(Process):
         shape_url = request.inputs['shape'][0].file
         raster_url = request.inputs['raster'][0].file
         band = request.inputs['band'][0].data
-        crs = from_epsg(request.inputs['crs'][0].data)
         touches = request.inputs['select_all_touching'][0].data
 
         vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
         rasters = ['.tiff', '.tif']
+        vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+        raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
 
-        vector_file = archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
-        raster_file = archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters)
+        vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
+
+        if ras_crs != vec_crs:
+            msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
+            LOGGER.warning(msg)
+
+        data_type = raster_datatype_sniffer(raster_file)[band - 1]
 
         tmp_dir = os.path.join(tempfile.gettempdir(), '.{}'.format(hash(os.times())))
         os.makedirs(tmp_dir)
-
-        crs = crs_sniffer(vector_file) or crs
-        data_type = raster_datatype_sniffer(raster_file)[band - 1]
 
         try:
             stats = zonal_stats(
@@ -119,7 +118,8 @@ class RasterSubsetProcess(Process):
 
                     # Write to GeoTIFF with lzw compression
                     with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress='lzw', height=raster.shape[0],
-                                  width=raster.shape[1], dtype=data_type, transform=aff, crs=crs, nodata=nodata) as f:
+                                  width=raster.shape[1], dtype=data_type, transform=aff, crs=vec_crs or ras_crs,
+                                  nodata=nodata) as f:
                         f.write(normal_array, 1)
 
                 except Exception as e:
@@ -135,5 +135,6 @@ class RasterSubsetProcess(Process):
         except Exception as e:
             msg = 'Failed to perform raster subset using {} and {}: {}'.format(shape_url, raster_url, e)
             LOGGER.error(msg)
+            raise Exception(msg)
 
         return response

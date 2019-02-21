@@ -6,8 +6,8 @@ from rasterio.crs import CRS
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
-from raven.utils import archive_sniffer, crs_sniffer
-# from raven.utils import geom_transform, geom_prop, equal_area_geom_prop
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+# from raven.utils import geom_transform, geom_centroid, equal_area_geom_prop
 # from shapely.geometry import shape
 
 LOGGER = logging.getLogger("PYWPS")
@@ -66,7 +66,7 @@ class TerrainAnalysisProcess(Process):
         destination_crs = request.inputs['projected_crs'][0].data
 
         rasters = ['.tiff', '.tif']
-        raster_file = archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters)
+        raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
         ras_crs = crs_sniffer(raster_file)
 
         try:
@@ -78,9 +78,9 @@ class TerrainAnalysisProcess(Process):
         except Exception as e:
             msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
             LOGGER.error(msg)
-            return response
+            raise Exception(msg)
 
-        if ras_crs == projection:
+        if ras_crs == projection.to_proj4():
             msg = 'CRS for raster matches projected CRS ({}). Raster will not be warped.'.format(projection.to_epsg())
             LOGGER.info(msg)
         else:
@@ -88,12 +88,11 @@ class TerrainAnalysisProcess(Process):
             LOGGER.info(msg)
 
         if shape_url:
+            reproject_shape = False
             vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
             vector_file = archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
             vec_crs = crs_sniffer(vector_file)
-            if vec_crs == projection:
-                reproject_shape = False
-            else:
+            if vec_crs != projection:
                 reproject_shape = True
 
             if reproject_shape:
@@ -110,7 +109,7 @@ class TerrainAnalysisProcess(Process):
             #             transformed = geom_transform(geom, source_crs=vec_crs, target_crs=destination_crs)
             #             prop = {'id': feature['id']}
             #             prop.update(feature['properties'])
-            #             prop.update(geom_prop(geom))
+            #             prop.update(geom_centroid(geom))
             #             prop.update(equal_area_geom_prop(transformed))
             #             properties.append(prop)
             #             break
@@ -118,9 +117,6 @@ class TerrainAnalysisProcess(Process):
             # except Exception as e:
             #     msg = 'Failed to extract shape from url {}: {}'.format(vector_file, e)
             #     LOGGER.error(msg)
-
-
-
 
             response.outputs['terrain_analysis'].data = json.dumps(properties)
 

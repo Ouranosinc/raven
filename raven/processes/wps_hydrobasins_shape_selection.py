@@ -5,10 +5,10 @@ import tempfile
 
 import fiona as fio
 import geopandas as gpd
-from fiona.crs import from_epsg
+
 from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
-from raven.utils import archive_sniffer, crs_sniffer, parse_lonlat
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check, parse_lonlat
 from shapely.geometry import shape, Point
 
 from tests.common import TESTDATA
@@ -82,19 +82,19 @@ class ShapeSelectionProcess(Process):
         shape_url = TESTDATA[shape_description]
 
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
-        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
+        vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
 
         basin = []
         upstream_basins = []
         location = Point(lon, lat)
         found = False
 
-        crs = crs_sniffer(shape_url) or from_epsg(4326)
+        shape_crs = crs_sniffer(vector_file)[0]
 
         with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
             geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
             try:
-                with fio.open(shape_url, 'r', crs=crs) as src:
+                with fio.open(vector_file, 'r', crs=shape_crs) as src:
                     for feat in iter(src):
                         geom = shape(feat['geometry'])
 
@@ -112,12 +112,12 @@ class ShapeSelectionProcess(Process):
                     if not found:
                         msg = 'No basin found at {}, {}'.format(lon, lat)
                         LOGGER.exception(msg)
-                        return response
+                        raise ValueError(msg)
 
                 if collect_upstream:
                     LOGGER.info('Collecting upstream from basin {}'.format(basin))
-                    with fio.Collection(shape_url, 'r', crs=crs) as src:
-                        gdf = gpd.GeoDataFrame.from_features(src, crs=crs)
+                    with fio.Collection(vector_file, 'r', crs=shape_crs) as src:
+                        gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
                         row_id = gdf['HYBAS_ID'] == basin
                         main_basin_id = gdf[row_id]['MAIN_BAS']
                         main_basin_mask = gdf['MAIN_BAS'] == main_basin_id.values[0]
@@ -148,7 +148,7 @@ class ShapeSelectionProcess(Process):
             except Exception as e:
                 msg = '{}: Failed to perform analysis using {} and location {}'.format(e, shape_url, lon, lat)
                 LOGGER.error(msg)
-                return response
+                raise Exception(msg)
 
         response.outputs['geojson'].data = json.dumps(geojson.name)
         response.outputs['upstream_basins'].data = json.dumps(upstream_basins)

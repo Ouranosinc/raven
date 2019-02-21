@@ -1,11 +1,13 @@
 import fiona
 import json
 import logging
-from fiona.crs import from_epsg
-from rasterio.crs import CRS
+
+
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
-from raven.utils import archive_sniffer, geom_transform, geom_prop, equal_area_geom_prop
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utils import geom_transform, geom_centroid, equal_area_geom_prop
+from rasterio.crs import CRS
 from shapely.geometry import shape
 
 LOGGER = logging.getLogger("PYWPS")
@@ -20,10 +22,6 @@ class ShapeAreaProcess(Process):
                          abstract='An ESRI Shapefile, GML, JSON or GeoJSON file. The ESRI Shapefile must be zipped and'
                                   ' contain the .shp, .shx, and .dbf.',
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON],
-                         min_occurs=1, max_occurs=1),
-            LiteralInput('crs', 'Coordinate Reference System of shape (EPSG code; Default: 4326)',
-                         data_type='integer',
-                         default=4326,
                          min_occurs=1, max_occurs=1),
             LiteralInput('projected_crs',
                          'Coordinate Reference System for area calculation (EPSG code; Default:32198)',
@@ -54,42 +52,42 @@ class ShapeAreaProcess(Process):
     def _handler(self, request, response):
 
         shape_url = request.inputs['shape'][0].file
-        shape_crs = request.inputs['crs'][0].data
         projected_crs = request.inputs['projected_crs'][0].data
 
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
-
-        shape_url = archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
+        vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
+        shape_crs = crs_sniffer(vector_file)[0]
 
         try:
-            projection = CRS.from_user_input(projected_crs)
+            projection = CRS.from_epsg(projected_crs)
             if not projection.is_projected:
                 msg = 'Destination CRS {} is not projected.' \
-                      'Terrain analysis values may be erroneous.'.format(projection.to_epsg())
+                      'Areal analysis values may be erroneous.'.format(projection.to_epsg())
                 LOGGER.warning(msg)
         except Exception as e:
             msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
             LOGGER.error(msg)
-            return response
+            raise Exception(msg)
 
         properties = []
 
         try:
-            with fiona.open(shape_url, 'r', crs=from_epsg(shape_crs)) as src:
+            with fiona.open(vector_file, 'r', crs=shape_crs) as src:
                 for feature in src:
                     geom = shape(feature['geometry'])
 
-                    transformed = geom_transform(geom, source_crs=shape_crs, target_crs=projected_crs)
+                    transformed = geom_transform(geom, source_crs=shape_crs, target_crs=projection)
                     prop = {'id': feature['id']}
                     prop.update(feature['properties'])
-                    prop.update(geom_prop(geom))
+                    prop.update(geom_centroid(geom))
                     prop.update(equal_area_geom_prop(transformed))
                     properties.append(prop)
                     break
 
         except Exception as e:
-            msg = 'Failed to extract shape from url {}: {}'.format(shape_url, e)
+            msg = '{}: Failed to extract shape from url {}'.format(e, vector_file)
             LOGGER.error(msg)
+            raise Exception(msg)
 
         response.outputs['properties'].data = json.dumps(properties)
 
