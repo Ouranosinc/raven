@@ -117,7 +117,7 @@ class ZonalStatisticsProcess(Process):
                     LOGGER.error(msg)
 
         except Exception as e:
-            msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(e, shape_url, raster_url, e)
+            msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
             LOGGER.error(msg)
             raise Exception(msg)
 
