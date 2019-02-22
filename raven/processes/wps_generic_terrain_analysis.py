@@ -45,7 +45,14 @@ class TerrainAnalysisProcess(Process):
                          ' The CRS chosen should be projected and appropriate for the region of interest.',
                          data_type='integer',
                          default=32198,
-                         min_occurs=1, max_occurs=1)
+                         min_occurs=1, max_occurs=1),
+            LiteralInput('band', 'Raster band',
+                         data_type='integer', default=1,
+                         abstract='Band of raster examined to perform zonal statistics. Default: 1',
+                         min_occurs=1, max_occurs=1),
+            LiteralInput('select_all_touching', 'Perform calculation on boundary pixels',
+                         data_type='boolean', default='false',
+                         min_occurs=1, max_occurs=1),
         ]
 
         outputs = [
@@ -74,6 +81,8 @@ class TerrainAnalysisProcess(Process):
         raster_url = request.inputs['raster'][0].file
         shape_url = request.inputs['shape'][0].file
         destination_crs = request.inputs['projected_crs'][0].data
+        band = request.inputs['band'][0].data
+        touches = request.inputs['select_all_touching'][0].data
 
         rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
@@ -173,9 +182,9 @@ class TerrainAnalysisProcess(Process):
                 LOGGER.error(msg)
 
         slope_raster = tempfile.NamedTemporaryFile(suffix='.tiff', delete=False)
-        gdal_slope_analysis(clipped_raster or raster_file, slope_raster, units='degree', band=1)
+        gdal_slope_analysis(clipped_raster or raster_file, slope_raster, units='degree', band=band)
         aspect_raster = tempfile.NamedTemporaryFile(suffix='.tiff', delete=False)
-        gdal_aspect_analysis(clipped_raster or raster_file, aspect_raster, zeroForFlat=False, band=1)
+        gdal_aspect_analysis(clipped_raster or raster_file, aspect_raster, zeroForFlat=False, band=band)
 
         response.outputs['slope'].data = json.dumps(slope_raster)
         response.outputs['aspect'].data = json.dumps(aspect_raster)
