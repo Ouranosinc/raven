@@ -6,7 +6,7 @@ import logging
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
-from raven.utils import geom_transform, geom_centroid, equal_area_geom_prop
+from raven.utils import geom_transform, geom_centroid, geom_equal_area_prop
 from rasterio.crs import CRS
 from shapely.geometry import shape
 
@@ -80,7 +80,7 @@ class ShapeAreaProcess(Process):
                     prop = {'id': feature['id']}
                     prop.update(feature['properties'])
                     prop.update(geom_centroid(geom))
-                    prop.update(equal_area_geom_prop(transformed))
+                    prop.update(geom_equal_area_prop(transformed))
                     properties.append(prop)
                     break
 

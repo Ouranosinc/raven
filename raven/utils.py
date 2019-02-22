@@ -9,11 +9,12 @@ import re
 import tarfile
 import zipfile
 
-import shapely.geometry as sgeo
-import shapely.ops as ops
 import fiona as fio
 import rasterio as rio
+import shapely.geometry as sgeo
+import shapely.ops as ops
 
+from osgeo.gdal import DEMProcessing
 from pyproj import Proj, transform
 from rasterio.crs import CRS
 
@@ -110,8 +111,12 @@ def archive_sniffer(archives, working_dir, extensions):
 
 
 def crs_sniffer(*args):
-    crs_list = []
+    """
 
+    :param args:
+    :return:
+    """
+    crs_list = []
     vectors = ('.gml', '.shp', '.geojson', '.json')
     rasters = ('.tif', '.tiff')
 
@@ -142,6 +147,11 @@ def crs_sniffer(*args):
 
 
 def raster_datatype_sniffer(file):
+    """
+
+    :param file:
+    :return:
+    """
     try:
         with rio.open(file, 'r') as src:
             dtype = src.dtypes
@@ -162,6 +172,11 @@ def parse_lonlat(string):
 
 
 def single_file_check(file_list):
+    """
+
+    :param file_list:
+    :return:
+    """
     try:
         if len(file_list) > 1:
             msg = 'Multi-file handling for file is not supported. Exiting.'
@@ -214,17 +229,23 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
     :return shapely.geometry:
     """
     geom = sgeo.shape(geom)
-    projected = ops.transform(
-        partial(
-            transform,
-            Proj(source_crs),
-            Proj(target_crs)),
-        geom)
+    try:
+
+        projected = ops.transform(
+            partial(
+                transform,
+                Proj(source_crs),
+                Proj(target_crs)),
+            geom)
+    except Exception as e:
+        msg = '{}: Failed to perform projection. Exiting,'
+        LOGGER.error(msg.format(e))
+        raise Exception(msg)
     return projected
 
 
 # @multipolygon_check
-def equal_area_geom_prop(geom):
+def geom_equal_area_prop(geom):
     """
     Return a dictionary of properties for the given equal area geometry.
     :param geom : shapely.geometry
@@ -239,3 +260,32 @@ def equal_area_geom_prop(geom):
                   'gravelius': gravelius,
                   }
     return parameters
+
+
+def gdal_slope_analysis(dem, output, units='degree', band=1):
+    """
+
+    :param dem:
+    :param output:
+    :param units:
+    :param band:
+    :return:
+    """
+    DEMProcessing(output, dem, 'slope', format='GTiff', slopeformat=units, band=band)
+    with rio.open(output) as src:
+        slope = src.read(1)
+    return slope
+
+
+def gdal_aspect_analysis(dem, output, zeroForFlat=False, band=1):
+    """
+    :param dem:
+    :param output:
+    :param flat_value_is_zero:
+    :param band:
+    :return:
+    """
+    DEMProcessing(output, dem, 'aspect', format='GTiff', zeroForFlat=zeroForFlat, band=band)
+    with rio.open(output) as src:
+        aspect = src.read(1)
+    return aspect
