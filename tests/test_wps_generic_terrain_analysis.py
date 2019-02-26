@@ -11,7 +11,7 @@ class TestGenericTerrainAnalysisProcess:
         client = client_for(Service(processes=[TerrainAnalysisProcess(), ], cfgfiles=CFG_FILE))
         fields = [
             'raster=file@xlink:href=file://{raster}',
-            #'shape=file@xlink:href=file://{shape}',
+            # 'shape=file@xlink:href=file://{shape}',
             'projected_crs={projected_crs}',
             'band={band}',
             'select_all_touching={touches}',
@@ -19,7 +19,7 @@ class TestGenericTerrainAnalysisProcess:
 
         datainputs = ';'.join(fields).format(
             raster=TESTDATA['earthenv_dem_90m'],
-            #shape=TESTDATA['donnees_quebec_mrc_poly'],  # TESTDATA['watershed_vector'],
+            # shape=TESTDATA['donnees_quebec_mrc_poly'],  # TESTDATA['watershed_vector'],
             projected_crs='32198',
             band=1,
             touches=True,
@@ -33,16 +33,3 @@ class TestGenericTerrainAnalysisProcess:
 
         assert 'slope' in out
         assert 'aspect' in out
-
-        # There is a bug in pywps 4.0 such that as_reference=False is not respected when ComplexOutput.file is set.
-        # So the following won't work out of the box.
-
-        # out = out['properties']
-        # assert 'count' in out
-        # assert 'min' in out
-        # assert 'max' in out
-        # assert 'mean' in out
-        # assert 'median' in out
-        # assert 'sum' in out
-        # assert 'nodata' in out
-        # assert 'categories' not in out
