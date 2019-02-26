@@ -14,8 +14,8 @@ toolz
 spotpy
 statsmodels
 # GIS LIBRARIES
-# gdal>=2.3 --- Not compatible with rasterio!
-# pycrs --- Depends on URL requests -> Slow
+# pycrs --- Depends on online database requests --> SLOW
+gdal~=2.3
 pysheds
 affine
 rtree
