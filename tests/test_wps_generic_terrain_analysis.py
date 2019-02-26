@@ -13,15 +13,13 @@ class TestGenericTerrainAnalysisProcess:
             'raster=file@xlink:href=file://{raster}',
             # 'shape=file@xlink:href=file://{shape}',
             'projected_crs={projected_crs}',
-            'band={band}',
             'select_all_touching={touches}',
         ]
 
         datainputs = ';'.join(fields).format(
             raster=TESTDATA['earthenv_dem_90m'],
-            # shape=TESTDATA['donnees_quebec_mrc_poly'],  # TESTDATA['watershed_vector'],
+            # shape=TESTDATA['watershed_vector'],  # TESTDATA['donnees_quebec_mrc_poly'],
             projected_crs='32198',
-            band=1,
             touches=True,
         )
 
