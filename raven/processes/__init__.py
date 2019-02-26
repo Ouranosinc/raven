@@ -6,8 +6,9 @@ from .wps_raven_hmets import RavenHMETSProcess
 from .wps_raven_hbv_ec import RavenHBVECProcess
 from .wps_generic_shape_properties import ShapeAreaProcess
 from .wps_hydrobasins_shape_selection import ShapeSelectionProcess
-from .wps_generic_zonal_stats import ZonalStatisticsProcess
 from .wps_generic_raster_subset import RasterSubsetProcess
+from .wps_generic_terrain_analysis import TerrainAnalysisProcess
+from .wps_generic_zonal_stats import ZonalStatisticsProcess
 from .wps_ostrich_gr4j_cemaneige import OstrichGR4JCemaNeigeProcess
 from .wps_ostrich_mohyse import OstrichMOHYSEProcess
 from .wps_ostrich_hmets import OstrichHMETSProcess
@@ -26,6 +27,7 @@ processes = [
     RavenHBVECProcess(),
     ShapeAreaProcess(),
     ShapeSelectionProcess(),
+    TerrainAnalysisProcess(),
     ZonalStatisticsProcess(),
     OstrichGR4JCemaNeigeProcess(),
     OstrichMOHYSEProcess(),
