@@ -154,7 +154,7 @@ def raster_datatype_sniffer(file):
     """
     try:
         with rio.open(file, 'r') as src:
-            dtype = src.dtypes
+            dtype = src.dtypes[0]
         return dtype
     except Exception as e:
         msg = '{}: Unable to read data type from {}'.format(e, file)
@@ -262,30 +262,30 @@ def geom_equal_area_prop(geom):
     return parameters
 
 
-def gdal_slope_analysis(dem, output, units='degree', band=1):
+def gdal_slope_analysis(dem, output, units='degree'):
     """
 
     :param dem:
     :param output:
     :param units:
-    :param band:
     :return:
     """
-    DEMProcessing(output, dem, 'slope', format='GTiff', slopeformat=units, band=band)
+    DEMProcessing(output, dem, 'slope', slopeFormat=units,
+                  format='GTiff', band=1, creationOptions=['compress=lzw'])
     with rio.open(output) as src:
         slope = src.read(1)
     return slope
 
 
-def gdal_aspect_analysis(dem, output, zeroForFlat=False, band=1):
+def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
     """
     :param dem:
     :param output:
-    :param flat_value_is_zero:
-    :param band:
+    :param flat_values_are_zero:
     :return:
     """
-    DEMProcessing(output, dem, 'aspect', format='GTiff', zeroForFlat=zeroForFlat, band=band)
+    DEMProcessing(output, dem, 'aspect', zeroForFlat=flat_values_are_zero,
+                  format='GTiff', band=1, creationOptions=['compress=lzw'])
     with rio.open(output) as src:
         aspect = src.read(1)
     return aspect
