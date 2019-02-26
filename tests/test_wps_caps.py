@@ -14,7 +14,6 @@ def test_wps_caps():
     sn = set(names.split())
 
     assert sn == {'gr4j-cemaneige',
-                  'zonal-stats',
                   'raster-subset',
                   'raven',
                   'raven-gr4j-cemaneige',
@@ -23,6 +22,8 @@ def test_wps_caps():
                   'raven-hbv-ec',
                   'shape-area',
                   'shape-selection',
+                  'terrain-analysis',
+                  'zonal-stats',
                   'ostrich-gr4j-cemaneige',
                   'ostrich-mohyse',
                   'ostrich-hmets',
