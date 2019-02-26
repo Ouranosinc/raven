@@ -9,16 +9,22 @@ import re
 import tarfile
 import zipfile
 
-import fiona as fio
-import rasterio as rio
+import fiona
+import rasterio
+import rasterio.mask
+import rasterio.warp
 import shapely.geometry as sgeo
 import shapely.ops as ops
 
 from osgeo.gdal import DEMProcessing
+from numpy import zeros_like
 from pyproj import Proj, transform
 from rasterio.crs import CRS
 
 LOGGER = logging.getLogger("RAVEN")
+
+# See: https://kokoalberti.com/articles/geotiff-compression-optimization-guide/
+GDAL_TIFF_COMPRESSION_LEVEL = 'compress=lzw'  # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
 
 WGS84 = '+proj=longlat +datum=WGS84 +no_defs'
 LAEA = '+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
@@ -124,11 +130,11 @@ def crs_sniffer(*args):
         found_crs = False
         try:
             if str(file).lower().endswith(vectors):
-                with fio.open(file, 'r') as src:
+                with fiona.open(file, 'r') as src:
                     found_crs = CRS(src.crs).to_proj4()
                     src.close()
             elif str(file).lower().endswith(rasters):
-                with rio.open(file, 'r') as src:
+                with rasterio.open(file, 'r') as src:
                     found_crs = CRS(src.crs).to_proj4()
                     src.close()
             else:
@@ -153,7 +159,7 @@ def raster_datatype_sniffer(file):
     :return:
     """
     try:
-        with rio.open(file, 'r') as src:
+        with rasterio.open(file, 'r') as src:
             dtype = src.dtypes[0]
         return dtype
     except Exception as e:
@@ -229,8 +235,9 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
     :return shapely.geometry:
     """
     geom = sgeo.shape(geom)
-    try:
 
+    print(source_crs, target_crs)
+    try:
         projected = ops.transform(
             partial(
                 transform,
@@ -238,8 +245,8 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
                 Proj(target_crs)),
             geom)
     except Exception as e:
-        msg = '{}: Failed to perform projection. Exiting,'
-        LOGGER.error(msg.format(e))
+        msg = '{}: Failed to perform projection. Exiting,'.format(e)
+        LOGGER.error(msg)
         raise Exception(msg)
     return projected
 
@@ -271,8 +278,8 @@ def gdal_slope_analysis(dem, output, units='degree'):
     :return:
     """
     DEMProcessing(output, dem, 'slope', slopeFormat=units,
-                  format='GTiff', band=1, creationOptions=['compress=lzw'])
-    with rio.open(output) as src:
+                  format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_LEVEL, ])
+    with rasterio.open(output) as src:
         slope = src.read(1)
     return slope
 
@@ -285,7 +292,83 @@ def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
     :return:
     """
     DEMProcessing(output, dem, 'aspect', zeroForFlat=flat_values_are_zero,
-                  format='GTiff', band=1, creationOptions=['compress=lzw'])
-    with rio.open(output) as src:
+                  format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_LEVEL, ])
+    with rasterio.open(output) as src:
         aspect = src.read(1)
     return aspect
+
+
+def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, raster_compression='lzw'):
+    """
+
+    :param raster_file:
+    :param processed_raster:
+    :param geometry:
+    :param touches:
+    :param raster_compression:
+    :return:
+    """
+    with rasterio.open(raster_file, 'r') as src:
+
+        mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True,
+                                                     all_touched=touches)
+        mask_meta = src.meta.copy()
+        mask_meta.update(
+            {
+                "driver": "GTiff",
+                "height": mask_image.shape[1],
+                "width": mask_image.shape[2],
+                "transform": mask_affine,
+                "compress": raster_compression,
+            }
+        )
+        # Write the new masked image
+        with rasterio.open(processed_raster, 'w', **mask_meta) as dst:
+            dst.write(mask_image)
+
+
+def generic_raster_warp(raster_file, processed_raster, projection, raster_compression='lzw'):
+    """
+
+    :param raster_file:
+    :param processed_raster:
+    :param projection:
+    :param raster_compression:
+    :return:
+    """
+    with rasterio.open(raster_file, 'r') as src:
+        affine, width, height = rasterio.warp.calculate_default_transform(
+            src.crs, projection, src.width, src.height, *src.bounds
+        )
+        metadata = src.meta.copy()
+        metadata.update(
+            {
+                "driver": "GTiff",
+                "height": height,
+                "width": width,
+                "transform": affine,
+                "crs": projection,
+                "compress": raster_compression,
+            }
+        )
+        data = src.read()
+
+        with rasterio.open(processed_raster, 'w', **metadata) as dst:
+            for i, band in enumerate(data, 1):
+                # Create an empty array
+                dest = zeros_like(band)
+
+                # Warp raster with crs/affine and fill nodata from source values
+                rasterio.warp.reproject(
+                    source=band,
+                    destination=dest,
+                    src_nodata=src.nodata,
+                    src_transform=src.transform,
+                    src_crs=src.crs,
+                    dst_nodata=src.nodata,
+                    dst_transform=affine,
+                    dst_crs=projection,
+                    resampling=rasterio.warp.Resampling.nearest
+                )
+
+                dst.write(dest, indexes=i)
