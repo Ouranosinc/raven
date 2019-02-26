@@ -109,10 +109,10 @@ class ShapeSelectionProcess(Process):
                                     json.dump(feat, f)
                             break
                     src.close()
-                    if not found:
-                        msg = 'No basin found at {}, {}'.format(lon, lat)
-                        LOGGER.exception(msg)
-                        raise ValueError(msg)
+                if not found:
+                    msg = 'No basin found at lon:{}, lat:{}'.format(lon, lat)
+                    LOGGER.exception(msg)
+                    raise ValueError(msg)
 
                 if collect_upstream:
                     LOGGER.info('Collecting upstream from basin {}'.format(basin))
