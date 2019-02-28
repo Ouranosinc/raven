@@ -25,5 +25,3 @@ pyproj
 rasterio
 rasterstats
 shapely
-
-
