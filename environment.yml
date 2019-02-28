@@ -15,7 +15,7 @@ dependencies:
 - geopandas
 - netcdf4
 - libnetcdf
-- gdal>=2.3
+- gdal~=2.3
 - fiona
 - pyproj
 - affine
