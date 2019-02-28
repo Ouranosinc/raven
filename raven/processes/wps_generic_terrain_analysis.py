@@ -15,7 +15,7 @@ from pywps.app.Common import Metadata
 from rasterio.crs import CRS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
 from raven.utils import gdal_aspect_analysis, gdal_slope_analysis
-from raven.utils import generic_raster_warp  #geom_transform, generic_raster_clip
+from raven.utils import generic_raster_warp  # geom_transform, generic_raster_clip
 # from shapely.geometry import shape
 
 
