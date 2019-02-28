@@ -20,7 +20,7 @@ def test_wps_caps():
                   'raven-mohyse',
                   'raven-hmets',
                   'raven-hbv-ec',
-                  'shape-area',
+                  'shape-properties',
                   'shape-selection',
                   'terrain-analysis',
                   'zonal-stats',

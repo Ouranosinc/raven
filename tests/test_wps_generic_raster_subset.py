@@ -11,21 +11,17 @@ class TestGenericRasterSubsetProcess:
         client = client_for(Service(processes=[RasterSubsetProcess(), ], cfgfiles=CFG_FILE))
 
         fields = [
-            'select_all_touching={touches}',
-            'band={band}',
-            'crs={crs}',
             'shape=file@xlink:href=file://{shape}',
-            'raster=file@xlink:href=file://{raster}'
+            'raster=file@xlink:href=file://{raster}',
+            'band={band}',
+            'select_all_touching={touches}',
         ]
 
         datainputs = ';'.join(fields).format(
-            touches=True,
+            shape=TESTDATA['mrc_subset'],
+            raster=TESTDATA['earthenv_dem_90m'],
             band=1,
-            crs=4326,
-            # shape=TESTDATA['donnees_quebec_mrc_poly'],
-            # shape=TESTDATA['watershed_vector'],
-            shape=TESTDATA['broken_data'],
-            raster=TESTDATA['earthenv_dem_90m']
+            touches=True,
         )
 
         resp = client.get(
@@ -34,6 +30,4 @@ class TestGenericRasterSubsetProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
 
-        print(out)
-
-        assert 'raster' in out
+        assert {'raster'}.issubset([*out])

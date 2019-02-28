@@ -32,5 +32,4 @@ class TestShapeSelectionProcess:
 
         # TODO: add a couple of explicit tests that properties are computed.
 
-        assert len(out['geojson'])
-        assert 'upstream_basins' in out
+        assert {'geojson', 'upstream_basins'}.issubset([*out])
