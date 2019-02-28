@@ -73,9 +73,11 @@ class Raven:
         """
         workdir = workdir or tempfile.mkdtemp()
         self.workdir = Path(workdir)
+        self.singularity = False  # Set to True to launch Raven with singularity.
         self.test = test
         self.outputs = {}
         self.raven_exec = raven.raven_exec
+        self.raven_simg = raven.raven_simg
         self.ostrich_exec = raven.ostrich_exec
         self._name = None
         self._defaults = {}
@@ -116,6 +118,17 @@ class Raven:
     def cmd(self):
         """This is the main executable."""
         return self.raven_cmd
+
+    @property
+    def bash_cmd(self):
+        """Bash command arguments."""
+        return [self.cmd, self.name, '-o', str(self.output_path)]
+
+    @property
+    def singularity_cmd(self):
+        """Run Singularity container."""
+        return ["singularity", "run", "--bind", "{}:/data".format(self.model_path), "--bind",
+                "{}:/data_out:rw".format(self.output_path), self.raven_simg, self.name]
 
     @property
     def cmd_path(self):
@@ -285,7 +298,10 @@ class Raven:
         self.setup_model(tuple(map(Path, ts)), overwrite)
 
         # Run the model
-        cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+        if self.singularity:
+            cmd = self.singularity_cmd
+        else:
+            cmd = self.bash_cmd
         subprocess.run(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE)
         # proc.wait()
 

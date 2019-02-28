@@ -40,6 +40,14 @@ class TestRaven:
         model.configure(rvs)
         model.run(ts)
 
+    def test_singularity(self):
+        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+
+        model = Raven()
+        model.singularity = True
+        model.configure(rvs)
+        model.run(ts)
 
 class TestOstrich:
 
