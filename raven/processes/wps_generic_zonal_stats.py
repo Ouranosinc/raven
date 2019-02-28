@@ -75,9 +75,8 @@ class ZonalStatisticsProcess(Process):
         touches = request.inputs['select_all_touching'][0].data
 
         vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
-        rasters = ['.tiff', '.tif']
-
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+        rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
 
         vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)

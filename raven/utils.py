@@ -24,7 +24,8 @@ from rasterio.crs import CRS
 LOGGER = logging.getLogger("RAVEN")
 
 # See: https://kokoalberti.com/articles/geotiff-compression-optimization-guide/
-GDAL_TIFF_COMPRESSION_LEVEL = 'compress=lzw'  # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
+GDAL_TIFF_COMPRESSION_OPTION = 'compress=lzw'  # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
+RASTERIO_TIFF_COMPRESSION = 'lzw'
 
 WGS84 = '+proj=longlat +datum=WGS84 +no_defs'
 LAEA = '+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'
@@ -149,6 +150,8 @@ def crs_sniffer(*args):
         msg = 'No CRS definitions found in {}.'.format(args)
         raise FileNotFoundError(msg)
 
+    if len(crs_list) == 1:
+        return crs_list[0]
     return crs_list
 
 
@@ -236,7 +239,6 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
     """
     geom = sgeo.shape(geom)
 
-    print(source_crs, target_crs)
     try:
         projected = ops.transform(
             partial(
@@ -278,7 +280,7 @@ def gdal_slope_analysis(dem, output, units='degree'):
     :return:
     """
     DEMProcessing(output, dem, 'slope', slopeFormat=units,
-                  format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_LEVEL, ])
+                  format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
         slope = src.read(1)
     return slope
@@ -292,13 +294,14 @@ def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
     :return:
     """
     DEMProcessing(output, dem, 'aspect', zeroForFlat=flat_values_are_zero,
-                  format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_LEVEL, ])
+                  format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
         aspect = src.read(1)
     return aspect
 
 
-def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, raster_compression='lzw'):
+def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
+                        raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
 
     :param raster_file:
@@ -327,7 +330,7 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, r
             dst.write(mask_image)
 
 
-def generic_raster_warp(raster_file, processed_raster, projection, raster_compression='lzw'):
+def generic_raster_warp(raster_file, processed_raster, projection, raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
 
     :param raster_file:
@@ -337,6 +340,7 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
     :return:
     """
     with rasterio.open(raster_file, 'r') as src:
+
         affine, width, height = rasterio.warp.calculate_default_transform(
             src.crs, projection, src.width, src.height, *src.bounds
         )

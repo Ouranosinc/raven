@@ -82,17 +82,15 @@ class RasterSubsetProcess(Process):
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
             LOGGER.warning(msg)
 
-        data_type = raster_datatype_sniffer(raster_file)[band - 1]
+        data_type = raster_datatype_sniffer(raster_file)
+        raster_compression = 'lzw'
 
-        tmp_dir = os.path.join(tempfile.gettempdir(), '.{}'.format(hash(os.times())))
+        tmp_dir = os.path.join(self.workdir, '.{}'.format(hash(os.times())))
         os.makedirs(tmp_dir)
 
         try:
             stats = zonal_stats(
                 vector_file, raster_file, band=band, all_touched=touches, raster_out=True)
-
-            # Using the PyWPS 4.0 release this will output garbage. Should be fixed for the next version.
-            # response.outputs['properties'].data = json.dumps(stats)
 
             for i in range(len(stats)):
 
@@ -116,15 +114,16 @@ class RasterSubsetProcess(Process):
 
                     normal_array = np.asarray(masked_array, dtype=data_type)
 
-                    # Write to GeoTIFF with lzw compression
-                    with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress='lzw', height=raster.shape[0],
-                                  width=raster.shape[1], dtype=data_type, transform=aff, crs=vec_crs or ras_crs,
-                                  nodata=nodata) as f:
+                    # Write to GeoTIFF
+                    with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress=raster_compression,
+                                  height=raster.shape[0], width=raster.shape[1], dtype=data_type, transform=aff,
+                                  crs=vec_crs or ras_crs, nodata=nodata) as f:
                         f.write(normal_array, 1)
 
                 except Exception as e:
                     msg = 'Failed to write raster outputs: {}'.format(e)
                     LOGGER.error(msg)
+                    raise Exception(msg)
 
             # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
             zipped_dir = os.path.join(tempfile.gettempdir(), 'raster_subset{}'.format(hash(os.times())))

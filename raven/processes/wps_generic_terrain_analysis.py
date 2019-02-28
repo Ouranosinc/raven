@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import tempfile
 
 # import numpy as np
@@ -44,7 +45,8 @@ class TerrainAnalysisProcess(Process):
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             LiteralInput('projected_crs',
                          # TODO: Write the name of the EPSG CRS
-                         'Coordinate Reference System for terrain analysis (EPSG code; Default:32198).'
+                         'Coordinate Reference System for terrain analysis (Default: EPSG:32198,'
+                         ' "NAD83 / Quebec Lambert")).'
                          ' The CRS chosen should be projected and appropriate for the region of interest.',
                          data_type='integer',
                          default=32198,
@@ -87,7 +89,7 @@ class TerrainAnalysisProcess(Process):
 
         rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
-        ras_crs = crs_sniffer(raster_file)[0]
+        ras_crs = crs_sniffer(raster_file)
         raster_compression = 'lzw'
 
         processed_raster = False
@@ -116,7 +118,9 @@ class TerrainAnalysisProcess(Process):
             LOGGER.info(msg)
 
         if shape_url or reproject_raster:
-            processed_raster = tempfile.NamedTemporaryFile(suffix='.tiff', delete=False)
+
+            processed_raster = os.path.join(self.workdir, 'warped_{}.tiff'.format(hash(os.times())))
+            # processed_raster = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False)
 
         if shape_url:
             msg = "This needs a bit more work but it's nearly finished"
@@ -198,7 +202,7 @@ class TerrainAnalysisProcess(Process):
         # If no shape to subset region, warp raster or provide link to raw raster file
         elif reproject_raster:
             try:
-                generic_raster_warp(raster_file, processed_raster.name, projection,
+                generic_raster_warp(raster_file, processed_raster, projection,
                                     raster_compression=raster_compression)
 
             except Exception as e:
@@ -206,20 +210,26 @@ class TerrainAnalysisProcess(Process):
                 LOGGER.error(msg)
                 raise Exception(msg)
         else:
-            processed_raster.name = raster_file
+            processed_raster = raster_file
 
         try:
-            slope_raster = tempfile.NamedTemporaryFile(prefix='slope', suffix='.tiff', delete=False)
-            gdal_slope_analysis(processed_raster.name, slope_raster.name, units='degree')
-            aspect_raster = tempfile.NamedTemporaryFile(prefix='aspect', suffix='.tiff', delete=False)
-            gdal_aspect_analysis(processed_raster.name, aspect_raster.name, flat_values_are_zero=False)
+            # TODO: Figure out how to make this data persistent in temp folder!
+            # slope_raster = os.path.join(self.workdir, 'slope_{}.tiff'.format(hash(os.times())))
+            # aspect_raster = os.path.join(self.workdir, 'aspect_{}.tiff'.format(hash(os.times())))
+
+            slope_raster = tempfile.NamedTemporaryFile(prefix='slope_', suffix='.tiff', delete=False)
+            aspect_raster = tempfile.NamedTemporaryFile(prefix='aspect_', suffix='.tiff', delete=False)
+
+            gdal_slope_analysis(processed_raster, slope_raster.name, units='degree')
+            gdal_aspect_analysis(processed_raster, aspect_raster.name, flat_values_are_zero=False)
+
         except Exception as e:
             msg = '{}: Failed to calculate slope/aspect with  {} and crs {}'\
                 .format(e, raster_file, projection.to_epsg())
             LOGGER.error(msg)
             raise Exception(msg)
 
-        response.outputs['slope'].data = json.dumps(slope_raster.name)
-        response.outputs['aspect'].data = json.dumps(aspect_raster.name)
+        response.outputs['slope'].data = slope_raster.name
+        response.outputs['aspect'].data = aspect_raster.name
 
         return response

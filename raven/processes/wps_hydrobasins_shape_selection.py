@@ -79,6 +79,12 @@ class ShapeSelectionProcess(Process):
             shape_description = 'hydrobasins_lake_na_lev{}'.format(level)
         else:
             shape_description = 'hydrobasins_na_lev{}'.format(level)
+
+        if shape_description != 'hydrobasins_lake_na_lev12':
+            msg = 'Options for HydroBASINS levels and lakes will be in prod'
+            LOGGER.error(NotImplementedError(msg))
+            shape_description = 'hydrobasins_lake_na_lev12'
+
         shape_url = TESTDATA[shape_description]
 
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
@@ -89,7 +95,7 @@ class ShapeSelectionProcess(Process):
         location = Point(lon, lat)
         found = False
 
-        shape_crs = crs_sniffer(vector_file)[0]
+        shape_crs = crs_sniffer(vector_file)
 
         with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
             geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
@@ -150,7 +156,7 @@ class ShapeSelectionProcess(Process):
                 LOGGER.error(msg)
                 raise Exception(msg)
 
-        response.outputs['geojson'].data = json.dumps(geojson.name)
+        response.outputs['geojson'].data = geojson.name
         response.outputs['upstream_basins'].data = json.dumps(upstream_basins)
 
         return response

@@ -13,7 +13,7 @@ from shapely.geometry import shape
 LOGGER = logging.getLogger("PYWPS")
 
 
-class ShapeAreaProcess(Process):
+class ShapePropertiesProcess(Process):
     """Given a file containing vector data, provide general information and spatial characteristics"""
 
     def __init__(self):
@@ -24,7 +24,8 @@ class ShapeAreaProcess(Process):
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON],
                          min_occurs=1, max_occurs=1),
             LiteralInput('projected_crs',
-                         'Coordinate Reference System for area calculation (EPSG code; Default:32198)',
+                         'Coordinate Reference System for area calculation (Default: EPSG:32198,'
+                         ' NAD83 / Quebec Lambert)',
                          data_type='integer',
                          default=32198,
                          min_occurs=1, max_occurs=1)
@@ -37,10 +38,10 @@ class ShapeAreaProcess(Process):
                           ),
         ]
 
-        super(ShapeAreaProcess, self).__init__(
+        super(ShapePropertiesProcess, self).__init__(
             self._handler,
-            identifier="shape-area",
-            title="Shape Area",
+            identifier="shape-properties",
+            title="Shape Properties",
             version="1.0",
             abstract="Return shape area in square metres based on line boundaries of a polygonal vector file.",
             metadata=[],
@@ -53,10 +54,10 @@ class ShapeAreaProcess(Process):
 
         shape_url = request.inputs['shape'][0].file
         projected_crs = request.inputs['projected_crs'][0].data
-
         extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
-        shape_crs = crs_sniffer(vector_file)[0]
+        shape_crs = crs_sniffer(vector_file)
 
         try:
             projection = CRS.from_epsg(projected_crs)
@@ -70,7 +71,6 @@ class ShapeAreaProcess(Process):
             raise Exception(msg)
 
         properties = []
-
         try:
             with fiona.open(vector_file, 'r', crs=shape_crs) as src:
                 for feature in src:
@@ -85,7 +85,7 @@ class ShapeAreaProcess(Process):
                     break
 
         except Exception as e:
-            msg = '{}: Failed to extract shape from url {}'.format(e, vector_file)
+            msg = '{}: Failed to extract features from shape {}'.format(e, vector_file)
             LOGGER.error(msg)
             raise Exception(msg)
 
