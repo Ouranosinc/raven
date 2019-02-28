@@ -1,5 +1,15 @@
-pywps>=4.0.0
+pywps>=4.0
 jinja2
 click
 psutil
+numpy
+scipy
 xarray
+dask
+netCDF4
+dask
+toolz
+pandas
+spotpy
+statsmodels
+

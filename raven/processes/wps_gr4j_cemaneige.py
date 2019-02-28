@@ -29,11 +29,11 @@ class GR4JCemaNeigeProcess(Process):
                                supported_formats=[FORMATS.NETCDF]),
 
                   LiteralInput('params', 'Comma separated list of model parameters',
-                               abstract='Parameters: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CN_X1, 1-CN_X2'
-                                        'Raven: SOIL_PROD, GR4J_X2, GR4J_X3, GR4J_X4, AvgAnnualSnow, AirSnowCoeff',
+                               abstract='Parameters: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CN_X1, CN_X2'
+                                        'Raven: GR4J_X1, GR4J_X2, GR4J_X3, GR4J_X4, CEMANEIGE_X1, CEMANEIGE_X2',
                                min_occurs=0,
                                data_type='string',
-                               default='300, -1, 200, 2, .5, 8'),
+                               default='0.529, -3.396, 407.29, 1.072, 16.9, 0.947'),
 
                   LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
                                abstract='Start date of the simulation (AAAA-MM-DD). '
@@ -56,7 +56,7 @@ class GR4JCemaNeigeProcess(Process):
 
         super(GR4JCemaNeigeProcess, self).__init__(
             self._handler,
-            identifier='gr4j_cemaneige',
+            identifier='gr4j-cemaneige',
             title='',
             version='',
             abstract='GR4J + CEMANEIGE hydrological model',
@@ -69,7 +69,7 @@ class GR4JCemaNeigeProcess(Process):
     def _handler(self, request, response):
         from raven.models import gr4j
 
-        xr.set_options(enable_cftimeindex=True)
+        # xr.set_options(enable_cftimeindex=True)
 
         # Read the input data
         paths = [request.inputs['pr'][0].file,
