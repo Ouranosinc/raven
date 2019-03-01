@@ -20,7 +20,7 @@ LOGGER = logging.getLogger("PYWPS")
 
 
 class RasterSubsetProcess(Process):
-    """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions"""
+    """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions."""
 
     def __init__(self):
         inputs = [
@@ -49,7 +49,7 @@ class RasterSubsetProcess(Process):
         outputs = [
             ComplexOutput('raster', 'DEM subset of `shape` region in GeoTIFF format.',
                           abstract='Elevation statistics: min, max, mean, median, sum, nodata',
-                          supported_formats=[FORMATS.JSON, ]),
+                          supported_formats=[FORMATS.ZIP, ]),
         ]
 
         super(RasterSubsetProcess, self).__init__(
@@ -85,8 +85,8 @@ class RasterSubsetProcess(Process):
         data_type = raster_datatype_sniffer(raster_file)
         raster_compression = 'lzw'
 
-        tmp_dir = os.path.join(self.workdir, '.{}'.format(hash(os.times())))
-        os.makedirs(tmp_dir)
+        out_dir = os.path.join(self.workdir, 'output')
+        os.makedirs(out_dir)
 
         try:
             stats = zonal_stats(
@@ -95,7 +95,7 @@ class RasterSubsetProcess(Process):
             for i in range(len(stats)):
 
                 file = 'subset_{}.tiff'.format(i + 1)
-                raster_subset = os.path.join(tmp_dir, file)
+                raster_subset = os.path.join(out_dir, file)
 
                 try:
                     raster_location = stats[i]
@@ -126,10 +126,10 @@ class RasterSubsetProcess(Process):
                     raise Exception(msg)
 
             # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
-            zipped_dir = os.path.join(tempfile.gettempdir(), 'raster_subset{}'.format(hash(os.times())))
-            shutil.make_archive(zipped_dir, 'zip', tmp_dir, logger=LOGGER)
+            out_fn = os.path.join(self.workdir, self.identifier)
+            shutil.make_archive(base_name=out_fn, format='zip', root_dir=out_dir, logger=LOGGER)
 
-            response.outputs['raster'].data = json.dumps(zipped_dir)
+            response.outputs['raster'].file = out_fn + '.zip'
 
         except Exception as e:
             msg = 'Failed to perform raster subset using {} and {}: {}'.format(shape_url, raster_url, e)

@@ -56,8 +56,8 @@ def address_append(address):
 
 
 def generic_extract_archive(resources, output_dir=None):
-    """
-    Extracts archives (tar/zip) to a working directory
+    """Extract archives (tar/zip) to a working directory.
+
     :param resources: list of archive files (if netCDF files are in list,
                      they are passed and returned as well in the return).
     :param output_dir: string or Path to a working location (default: temporary folder).
@@ -101,8 +101,8 @@ def generic_extract_archive(resources, output_dir=None):
 
 
 def archive_sniffer(archives, working_dir, extensions):
-    """
-    Return a list of locally unarchived files that match the desired extensions
+    """Return a list of locally unarchived files that match the desired extensions.
+
     :param archives : archive location or list of archive locations
     :param working_dir: string or Path to a working location
     :param extensions: [list of accepted extensions]
@@ -118,10 +118,12 @@ def archive_sniffer(archives, working_dir, extensions):
 
 
 def crs_sniffer(*args):
-    """
+    """Return the list of CRS found in files.
 
-    :param args:
-    :return:
+    Parameters
+    ----------
+    args : sequence
+      Paths to the files to examine.
     """
     crs_list = []
     vectors = ('.gml', '.shp', '.geojson', '.json')
@@ -156,10 +158,12 @@ def crs_sniffer(*args):
 
 
 def raster_datatype_sniffer(file):
-    """
+    """Return the type of the raster stored in the file.
 
-    :param file:
-    :return:
+    Parameters
+    ----------
+    file : str
+      Path to file.
     """
     try:
         with rasterio.open(file, 'r') as src:
@@ -172,19 +176,17 @@ def raster_datatype_sniffer(file):
 
 
 def parse_lonlat(string):
+    """Return longitude and latitude from a string."""
     try:
         lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)))
         return lon, lat
     except Exception as e:
-        msg = '{}: Failed to parse LonLat-coordinates {}'.format(e, string)
+        msg = '{}: Failed to parse longitude, latitude coordinates {}'.format(e, string)
         raise ValueError(msg)
 
 
 def single_file_check(file_list):
-    """
-
-    :param file_list:
-    :return:
+    """Return the first element of a file list. Raise an error if the list is empty or contains more than one element.
     """
     try:
         if len(file_list) > 1:

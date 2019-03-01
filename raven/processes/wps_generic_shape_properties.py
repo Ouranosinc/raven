@@ -14,7 +14,7 @@ LOGGER = logging.getLogger("PYWPS")
 
 
 class ShapePropertiesProcess(Process):
-    """Given a file containing vector data, provide general information and spatial characteristics"""
+    """Given a file containing vector data, provide general information and spatial characteristics."""
 
     def __init__(self):
         inputs = [
@@ -33,7 +33,8 @@ class ShapePropertiesProcess(Process):
 
         outputs = [
             ComplexOutput('properties', 'Feature schemas',
-                          abstract='Geographic representations and descriptions of shape properties.',
+                          abstract='Geographic representations and descriptions of shape properties: '
+                                   'centroid coordinates, area, perimeter and gravelius index.',
                           supported_formats=[FORMATS.JSON],
                           ),
         ]
