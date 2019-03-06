@@ -1,3 +1,4 @@
+import numpy as np
 from re import search
 from functools import partial
 
@@ -216,107 +217,192 @@ def multipolygon_check(f):
 
 
 # @multipolygon_check
-def geom_centroid(geom):
-    """
-    Return a dictionary entry for centroid for the given geometry.
-    :param geom : shapely.geometry
-    :return dict : centroid with lon, lat fields
-    """
-    shape = sgeo.shape(geom)
-    out = {'centroid': (shape.centroid.x, shape.centroid.y)}
-    if (out['centroid'][0] > 180) or (out['centroid'][0] < -180)\
-            or (out['centroid'][1] > 90) or (out['centroid'][1] < -90):
-        LOGGER.warning('Shape centroid is not in decimal degrees.')
-    return out
-
-
-# @multipolygon_check
 def geom_transform(geom, source_crs=WGS84, target_crs=None):
-    """
-    Return a projected geometry based on source and target CRS
-    :param geom : shapely.geometry
-    :param source_crs : EPSG code (Default: 4326)
-    :param target_crs : EPSG code
-    :return shapely.geometry:
+    """Change the projection of a geometry.
+
+     Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
+
+    Parameters
+    ----------
+    geom : shapely.geometry
+      Source geometry.
+    source_crs : str
+      Projection identifier for the source geometry, e.g. 'epsg:4326'.
+    target_crs : str
+      Projection identifier for the target geometry.
+
+    Returns
+    -------
+    shapely.geometry
+      Reprojected geometry.
     """
     geom = sgeo.shape(geom)
 
-    try:
-        projected = ops.transform(
-            partial(
-                transform,
-                Proj(source_crs),
-                Proj(target_crs)),
-            geom)
-    except Exception as e:
-        msg = '{}: Failed to perform projection. Exiting,'.format(e)
-        LOGGER.error(msg)
-        raise Exception(msg)
-    return projected
+    return ops.transform(
+        partial(
+            transform,
+            Proj(source_crs),
+            Proj(target_crs)),
+        geom)
 
 
-# @multipolygon_check
-def geom_equal_area_prop(geom):
+def geom_prop(geom):
+    """Return a dictionary of geometry properties.
+
+    Parameters
+    ----------
+    geom : shapely.geometry
+      Geometry to analyze.
+
+    Returns
+    -------
+    dict
+      Dictionary storing polygon area, centroid location, perimeter and gravelius shape index.
+
+    Notes
+    -----
+    Some of the properties should be computed using an equal-area projection.
     """
-    Return a dictionary of properties for the given equal area geometry.
-    :param geom : shapely.geometry
-    :return dict : Dictionary storing polygon area, perimeter and gravelius shape index.
-    """
+
     geom = sgeo.shape(geom)
+    lon, lat = geom.centroid.x, geom.centroid.y
+    if (lon > 180) or (lon < -180) or (lat > 90) or (lat < -90):
+        LOGGER.warning('Shape centroid is not in decimal degrees.')
     area = geom.area
     length = geom.length
     gravelius = length / 2 / math.sqrt(math.pi * area)
     parameters = {'area': area,
+                  'centroid': (lon, lat),
                   'perimeter': length,
                   'gravelius': gravelius,
                   }
     return parameters
 
 
-def gdal_slope_analysis(dem, output, units='degree'):
+def dem_prop(dem, geom=None):
+    """Return raster properties for each geometry.
+
+    This
+
+    Parameters
+    ----------
+    dem : str
+      DEM raster in reprojected coordinates.
+    geom : shapely.geometry
+      Geometry over which aggregate properties will be computed. If None compute properties over entire raster.
+
+    Returns
+    -------
+    dict
+      Dictionary storing mean elevation [m], slope [deg] and aspect [deg].
     """
 
-    :param dem:
-    :param output:
-    :param units:
-    :return:
+    fns = dict()
+    fns['dem'] = tempfile.NamedTemporaryFile(prefix='dem', suffix='.tiff', delete=False).name if geom else dem
+    for key in ['slope', 'aspect']:
+        fns[key] = tempfile.NamedTemporaryFile(prefix=key, suffix='.tiff', delete=False).name
+
+    # Clip to relevant area or read original raster
+    if geom:
+        elevation = generic_raster_clip(dem, fns['dem'], [geom, ])
+    else:
+        with rasterio.open(dem) as f:
+            elevation = f.read(1, masked=True)
+
+    # Compute slope
+    slope = gdal_slope_analysis(fns['dem'], fns['slope'])
+
+    # Compute aspect
+    aspect = gdal_aspect_analysis(fns['dem'], fns['aspect'])
+
+    return {'elevation': elevation.mean(), 'slope': slope.mean(), 'aspect': aspect.mean()}
+
+
+# It's a bit weird to have to pass the output file name as an argument, since you return an in-memory array.
+# Can you keep everything in memory ?
+# @multipolygon_check
+def gdal_slope_analysis(dem, output, units='degree'):
+    """Return the slope of the terrain from the DEM.
+
+    The slope is the magnitude of the gradient of the elevation.
+
+    Parameters
+    ----------
+    dem : str
+      Path to file storing DEM.
+    output : str
+      Path to output file.
+    units : str
+      Slope units.
+
+    Returns
+    -------
+    ndarray
+      Slope array.
+
+    Notes
+    -----
+    Ensure that the DEM is in a *projected coordinate*, not a geographic coordinate system, so that the
+    horizontal scale is the same as the vertical scale (m).
+
     """
     DEMProcessing(output, dem, 'slope', slopeFormat=units,
                   format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
-        slope = src.read(1)
-    return slope
+        return np.ma.masked_values(src.read(1), value=-9999)
 
 
 def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
+    """Return the aspect of the terrain from the DEM.
+
+    The aspect is the compass direction of the steepest slope (0: North, 90: East, 180: South, 270: West).
+
+    Parameters
+    ----------
+    dem : str
+      Path to file storing DEM.
+    output : str
+      Path to output file.
+    units : str
+      Slope units.
+
+    Returns
+    -------
+    ndarray
+      Aspect array.
+
+        Notes
+    -----
+    Ensure that the DEM is in a *projected coordinate*, not a geographic coordinate system, so that the
+    horizontal scale is the same as the vertical scale (m).
     """
-    :param dem:
-    :param output:
-    :param flat_values_are_zero:
-    :return:
-    """
-    DEMProcessing(output, dem, 'aspect', zeroForFlat=flat_values_are_zero,
+    DEMProcessing(destName=output, srcDS=dem, processing='aspect', zeroForFlat=flat_values_are_zero,
                   format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
-        aspect = src.read(1)
-    return aspect
+        return np.ma.masked_values(src.read(1), value=-9999)
 
 
 def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
                         raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
+    Crop a raster file to a given geometry.
 
-    :param raster_file:
-    :param processed_raster:
-    :param geometry:
-    :param touches:
-    :param raster_compression:
-    :return:
+    Parameters
+    ----------
+    raster_file : str
+      Path to input raster.
+    processed_raster : str
+      Path to output raster.
+    geometry : shapely.geometry
+      Geometry defining the region to crop.
+    touches : bool
+      Whether or not to include cells that intersect the geometry.
+
     """
     with rasterio.open(raster_file, 'r') as src:
 
         mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True,
-                                                     all_touched=touches)
+                                                     all_touched=touches, filled=False)
         mask_meta = src.meta.copy()
         mask_meta.update(
             {
@@ -331,15 +417,21 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
         with rasterio.open(processed_raster, 'w', **mask_meta) as dst:
             dst.write(mask_image)
 
+        return mask_image
+
 
 def generic_raster_warp(raster_file, processed_raster, projection, raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
+    Reproject a raster file.
 
-    :param raster_file:
-    :param processed_raster:
-    :param projection:
-    :param raster_compression:
-    :return:
+    Parameters
+    ----------
+    raster_file : str
+      Path to input raster.
+    processed_raster : str
+      Path to output raster.
+    projection : str
+      Target projection identifier.
     """
     with rasterio.open(raster_file, 'r') as src:
 

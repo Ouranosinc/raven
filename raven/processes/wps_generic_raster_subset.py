@@ -10,7 +10,7 @@ import rasterio as rio
 from affine import Affine
 from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
-from pywps import Process, FORMATS
+from pywps import Process, FORMATS, Format
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
@@ -49,7 +49,7 @@ class RasterSubsetProcess(Process):
         outputs = [
             ComplexOutput('raster', 'DEM subset of `shape` region in GeoTIFF format.',
                           abstract='Elevation statistics: min, max, mean, median, sum, nodata',
-                          supported_formats=[FORMATS.ZIP, ]),
+                          supported_formats=[Format('application/zip'), ]),
         ]
 
         super(RasterSubsetProcess, self).__init__(

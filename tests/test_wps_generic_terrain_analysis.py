@@ -5,7 +5,7 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output
 from raven.processes import TerrainAnalysisProcess
 import numpy as np
 import rasterio
-
+import json
 
 class TestGenericTerrainAnalysisProcess:
 
@@ -29,18 +29,8 @@ class TestGenericTerrainAnalysisProcess:
             service='WPS', request='Execute', version='1.0.0', identifier='terrain-analysis', datainputs=datainputs)
 
         assert_response_success(resp)
-        out = get_output(resp.xml)
+        out = json.loads(get_output(resp.xml)['properties'])
 
-        assert {'slope', 'aspect'}.issubset([*out])
-
-        with rasterio.open(out['slope'], 'r') as src:
-            grid = src.read()
-            np.testing.assert_equal(grid.shape, (1, 7279, 5146))
-            np.testing.assert_approx_equal(np.max(grid), 68.372086)
-
-        with rasterio.open(out['aspect'], 'r') as src:
-            grid = src.read()
-            np.testing.assert_equal(grid.shape, (1, 7279, 5146))
-            np.testing.assert_approx_equal(np.max(grid), 359.8404)
-
-
+        assert out[0]['elevation'] > 0
+        assert out[0]['slope'] > 0
+        assert out[0]['aspect'] > 0

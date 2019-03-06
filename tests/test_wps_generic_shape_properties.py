@@ -27,8 +27,11 @@ class TestGenericShapePropertiesProcess:
 
         props = json.loads(out['properties'])
         assert {'centroid', 'area', 'perimeter', 'gravelius'}.issubset(props[0].keys())
+        # TODO: Compute expected values and compare with computed values for one feature.
 
     def test_bad_epsg(self):
+        # TODO: Add docstring explaining what this checks.
+
         client = client_for(Service(processes=[ShapePropertiesProcess(), ], cfgfiles=CFG_FILE))
 
         fields = ['shape=file@xlink:href=file://{file}', 'crs={crs}', 'projected_crs={projected_crs}']

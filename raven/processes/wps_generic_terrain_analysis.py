@@ -5,10 +5,11 @@ import tempfile
 
 # import numpy as np
 # import rasterio
-# import geopandas as gpd
+import geopandas as gpd
 # import rasterio.mask
 # import rasterio.warp
-# import shapely.ops as ops
+import shapely.ops as ops
+import shapely.geometry as sgeo
 
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
@@ -16,7 +17,7 @@ from pywps.app.Common import Metadata
 from rasterio.crs import CRS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
 from raven.utils import gdal_aspect_analysis, gdal_slope_analysis
-from raven.utils import generic_raster_warp  # geom_transform, generic_raster_clip
+from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop
 # from shapely.geometry import shape
 
 
@@ -24,7 +25,7 @@ LOGGER = logging.getLogger("PYWPS")
 
 
 class TerrainAnalysisProcess(Process):
-    """Given a file containing vector data and a DEM, analyze terrain characteristics"""
+    """Given a file containing vector data and a DEM, analyze terrain characteristics."""
 
     def __init__(self):
         inputs = [
@@ -57,12 +58,10 @@ class TerrainAnalysisProcess(Process):
         ]
 
         outputs = [
-            ComplexOutput('slope', 'Slope values for the DEM',
-                          abstract='Terrain analysis characteristics of the DEM (Slope, Aspect, and Curvature)',
-                          supported_formats=[FORMATS.JSON]),
-            ComplexOutput('aspect', 'Aspect values for the DEM',
-                          abstract='Terrain analysis characteristics of the DEM (Slope, Aspect, and Curvature)',
-                          supported_formats=[FORMATS.JSON])
+            ComplexOutput('properties', 'Feature schemas',
+                          abstract='DEM properties (mean elevation, slope and aspect) for each geometry.',
+                          supported_formats=[FORMATS.JSON],
+                          ),
         ]
 
         super(TerrainAnalysisProcess, self).__init__(
@@ -79,157 +78,86 @@ class TerrainAnalysisProcess(Process):
 
     def _handler(self, request, response):
 
+        # Process inputs
+        # ---------------
         raster_url = request.inputs['raster'][0].file
+
         try:
             shape_url = request.inputs['shape'][0].file
         except KeyError:
             shape_url = False
+
         destination_crs = request.inputs['projected_crs'][0].data
         # touches = request.inputs['select_all_touching'][0].data
 
+        # Checks for valid CRS and that CRS is projected
+        projection = CRS.from_user_input(destination_crs)
+        if not projection.is_projected:
+            msg = 'Destination CRS {} is not projected.' \
+                  'Terrain analysis values will not be valid.'.format(projection.to_epsg())
+            raise ValueError(msg)
+
+        # Get vector features
+        # -------------------
+        if shape_url:
+            vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+            vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+            vec_crs = crs_sniffer(vector_file)[0]
+
+            # Load shape data with GeoPandas
+            gdf = gpd.GeoDataFrame.from_file(vector_file, crs=vec_crs)
+
+            # TODO: This check seems specific to a given projection, no ?
+            x_min, y_min, x_max, y_max = sgeo.shape(ops.unary_union(gdf['geometry'])).bounds
+            if y_max > 60 or y_min < 60:
+                # see https://gis.stackexchange.com/a/145138/65343 for discussion on this
+                msg = 'Shape boundaries exceed Mercator region.' \
+                      'Verify choice of projected CRS is appropriate for aspect analysis.'
+                LOGGER.warning(msg)
+                UserWarning(msg)
+
+            # Reproject geometries.
+            if vec_crs != projection.to_proj4():
+                geoms = gdf.to_crs(epsg=destination_crs)
+            else:
+                geoms = gdf
+
+            union = sgeo.shape(ops.unary_union(geoms['geometry']))
+
+        else:
+            geoms = [None, ]
+
+        # Raster handling
+        # ---------------
+
+        # Verify that the CRS to project to matches shape or raster CRS
         rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
         ras_crs = crs_sniffer(raster_file)
-        raster_compression = 'lzw'
 
-        processed_raster = False
-
-        # Checks for valid CRS and that CRS is projected
-        try:
-            projection = CRS.from_user_input(destination_crs)
-
-            if not projection.is_projected:
-                msg = 'Destination CRS {} is not projected.' \
-                      'Terrain analysis values may be erroneous.'.format(projection.to_epsg())
-                LOGGER.warning(msg)
-        except Exception as e:
-            msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
-            LOGGER.error(msg)
-            raise Exception(msg)
-
-        # Verify that the CRS to project to matches shape or raster CRS
-        if ras_crs == projection.to_proj4():
-            reproject_raster = False
-            msg = 'CRS for raster matches projected CRS {}. Raster will not be warped.'.format(projection.to_epsg())
-            LOGGER.info(msg)
-        else:
-            reproject_raster = True
-            msg = 'Warping raster to destination CRS {}'.format(projection.to_epsg())
-            LOGGER.info(msg)
-
-        if shape_url or reproject_raster:
-
-            processed_raster = os.path.join(self.workdir, 'warped_{}.tiff'.format(hash(os.times())))
-            # processed_raster = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False)
-
+        # Clip raster to unioned geometry
         if shape_url:
-            msg = "This needs a bit more work but it's nearly finished"
-            raise NotImplementedError(msg)
+            clipped_fn = tempfile.NamedTemporaryFile(prefix='clipped_', suffix='.tiff', delete=False,
+                                                     dir=self.workdir).name
+            generic_raster_clip(raster_file, clipped_fn, union)
 
-            # reproject_shape = False
-            # vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
-            # vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
-            # vec_crs = crs_sniffer(vector_file)[0]
-            #
-            # if vec_crs != projection.to_proj4():
-            #     reproject_shape = True
-            #     msg = 'CRS for raster does not match projected CRS {}. Shape will be reprojected.'\
-            #         .format(projection.to_epsg())
-            #     LOGGER.info(msg)
-            #
-            # # Load shape data with GeoPandas
-            # gdf = gpd.GeoDataFrame.from_file(vector_file, crs=vec_crs)
-            # geometry = shape(ops.unary_union(gdf['geometry']))
-            # transformed_shape = []
-            #
-            # try:
-            #
-            #     # Note that high latitudes require a particular CRS type to return sane values
-            #     if reproject_shape:
-            #         x_min, y_min, x_max, y_max = geometry.bounds
-            #         if y_max > 60 or y_min < 60:
-            #             # see https://gis.stackexchange.com/a/145138/65343 for discussion on this
-            #             msg = 'Shape boundaries exceed Mercator region.' \
-            #                   'Verify choice of projected CRS is appropriate for aspect analysis.'
-            #             LOGGER.warning(msg)
-            #             UserWarning(msg)
-            #
-            #         # Perform the shape reprojection
-            #         transformed_shape.append(
-            #             geom_transform(geometry, source_crs=vec_crs, target_crs=projection.to_proj4()))
-            #
-            #     with rasterio.open(raster_file, 'r') as src:
-            #         if reproject_raster:
-            #             # Warp the grid using the source and destination CRS definitions
-            #             affine, width, height = rasterio.warp.calculate_default_transform(
-            #                 ras_crs, projection, src.width, src.height, *src.bounds
-            #             )
-            #             mask_meta = src.meta.copy()
-            #             mask_meta.update(
-            #                 {
-            #                     "driver": "GTiff",
-            #                     "height": height,
-            #                     "width": width,
-            #                     "transform": affine
-            #                 }
-            #             )
-            #
-            #             # Warp and write new raster using the transformed grid
-            #             with rasterio.open(processed_raster.name, 'w', **mask_meta) as dst:
-            #                 rasterio.warp.reproject(
-            #                     source=rasterio.band(src, band),
-            #                     destination=rasterio.band(dst, band),
-            #                     src_transform=src.transform,
-            #                     src_crs=src.crs,
-            #                     dst_transform=affine,
-            #                     dst_crs=projection,
-            #                     resampling=rasterio.warp.Resampling.nearest
-            #                 )
-            #                 mask_image, mask_affine = rasterio.mask.mask(
-            #                 dst, transformed_shape or geometry, crop=True, all_touched=touches)
-            #                 dst.write(mask_image)
-            #
-            #         # Only mask the raster image using the transformed or original shape
-            #         if not reproject_raster:
-            #             generic_raster_clip(raster_file, processed_raster.name, transformed_shape or geometry,
-            #                                 raster_compression=raster_compression)
-            #
-            # except Exception as e:
-            #     msg = '{}: Failed to clip and mask DEM {} with shape {}'.format(e, raster_file, vector_file)
-            #     LOGGER.error(msg)
-            #     raise Exception(msg)
-
-        # If no shape to subset region, warp raster or provide link to raw raster file
-        elif reproject_raster:
-            try:
-                generic_raster_warp(raster_file, processed_raster, projection,
-                                    raster_compression=raster_compression)
-
-            except Exception as e:
-                msg = '{}: Failed to warp DEM {} to crs {}'.format(e, raster_file, projection.to_epsg())
-                LOGGER.error(msg)
-                raise Exception(msg)
         else:
-            processed_raster = raster_file
+            clipped_fn = raster_file
 
-        try:
-            # TODO: Figure out how to make this data persistent in temp folder!
-            # slope_raster = os.path.join(self.workdir, 'slope_{}.tiff'.format(hash(os.times())))
-            # aspect_raster = os.path.join(self.workdir, 'aspect_{}.tiff'.format(hash(os.times())))
+        # Reproject raster
+        if ras_crs != projection.to_proj4():
+            # processed_raster = os.path.join(self.workdir, 'warped_{}.tiff'.format(hash(os.times())))
+            warped_fn = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False,
+                                                    dir=self.workdir).name
+            generic_raster_warp(clipped_fn, warped_fn, projection)
+        else:
+            warped_fn = clipped_fn
 
-            slope_raster = tempfile.NamedTemporaryFile(prefix='slope_', suffix='.tiff', delete=False)
-            aspect_raster = tempfile.NamedTemporaryFile(prefix='aspect_', suffix='.tiff', delete=False)
+        # Compute DEM properties for each feature.
+        properties = []
+        for geom in geoms:
+            properties.append(dem_prop(warped_fn, geom))
 
-            gdal_slope_analysis(processed_raster, slope_raster.name, units='degree')
-            gdal_aspect_analysis(processed_raster, aspect_raster.name, flat_values_are_zero=False)
-
-        except Exception as e:
-            msg = '{}: Failed to calculate slope/aspect with  {} and crs {}'\
-                .format(e, raster_file, projection.to_epsg())
-            LOGGER.error(msg)
-            raise Exception(msg)
-
-        response.outputs['slope'].data = slope_raster.name
-        response.outputs['aspect'].data = aspect_raster.name
+        response.outputs['properties'].data = json.dumps(properties)
 
         return response
