@@ -89,7 +89,9 @@ def generic_extract_archive(resources, output_dir=None):
                         zf.extractall(path=output_dir)
                         files.extend([os.path.join(output_dir, f) for f in zf.namelist()])
                 elif file.endswith('.7z'):
-                    LOGGER.warning('7z file extraction is not supported at this time')
+                    msg = '7z file extraction is not supported at this time'
+                    LOGGER.warning(msg)
+                    raise UserWarning(msg)
                 else:
                     LOGGER.debug('File extension "{}" unknown'.format(file))
             except Exception as e:
@@ -125,15 +127,25 @@ def crs_sniffer(*args):
     ----------
     args : sequence
       Paths to the files to examine.
+
+    Returns
+    -------
+    crs_list: list or string
+      Returns either a list of CRSes or a single CRS definition, depending on the number of instances found.
     """
     crs_list = []
-    vectors = ('.gml', '.shp', '.geojson', '.json')
+    vectors = ('.gml', '.shp', '.geojson', '.gpkg', '.json')
     rasters = ('.tif', '.tiff')
 
     for file in args:
         found_crs = False
         try:
             if str(file).lower().endswith(vectors):
+                if str(file).lower().endswith('.gpkg'):
+                    if len(fiona.listlayers(file)) > 1:
+                        msg = 'Multilayer GeoPackages are currently unsupported'
+                        LOGGER.warning(msg)
+                        raise NotImplementedError(msg)
                 with fiona.open(file, 'r') as src:
                     found_crs = CRS(src.crs).to_proj4()
                     src.close()
@@ -226,9 +238,9 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
     ----------
     geom : shapely.geometry
       Source geometry.
-    source_crs : str
+    source_crs : str or CRS
       Projection identifier for the source geometry, e.g. 'epsg:4326'.
-    target_crs : str
+    target_crs : str or CRS
       Projection identifier for the target geometry.
 
     Returns
@@ -304,24 +316,30 @@ def dem_prop(dem, geom=None):
 
     # Clip to relevant area or read original raster
     if geom:
-        elevation = generic_raster_clip(dem, fns['dem'], [geom, ])
+        elevation = generic_raster_clip(dem, fns['dem'], [geom, ])  # Why a list object?
     else:
         with rasterio.open(dem) as f:
             elevation = f.read(1, masked=True)
 
     # Compute slope
-    slope = gdal_slope_analysis(fns['dem'], fns['slope'])
+    slope = gdal_slope_analysis(fns['dem'], output=fns['slope'])
 
     # Compute aspect
-    aspect = gdal_aspect_analysis(fns['dem'], fns['aspect'])
+    aspect = gdal_aspect_analysis(fns['dem'], output=fns['aspect'])
 
     return {'elevation': elevation.mean(), 'slope': slope.mean(), 'aspect': aspect.mean()}
 
 
 # It's a bit weird to have to pass the output file name as an argument, since you return an in-memory array.
 # Can you keep everything in memory ?
+
+# Response: The DEMPROCESSING function is basically a thin GDAL wrapper for a os.subprocess call. There is
+# unfortunately no way to call the gdal slope/aspect calculation from Python directly so it demands an output filename.
+# Since it technically is writing the information to the file, this function could use a generic named temporary file
+# to perform the analysis and return the array all in memory I suppose. I've added this as an option here.
+
 # @multipolygon_check
-def gdal_slope_analysis(dem, output, units='degree'):
+def gdal_slope_analysis(dem, output=None, units='degree'):
     """Return the slope of the terrain from the DEM.
 
     The slope is the magnitude of the gradient of the elevation.
@@ -333,7 +351,7 @@ def gdal_slope_analysis(dem, output, units='degree'):
     output : str
       Path to output file.
     units : str
-      Slope units.
+      Slope units. Default: 'degree'.
 
     Returns
     -------
@@ -346,13 +364,15 @@ def gdal_slope_analysis(dem, output, units='degree'):
     horizontal scale is the same as the vertical scale (m).
 
     """
+    if output is None:
+        output = tempfile.NamedTemporaryFile().name
     DEMProcessing(output, dem, 'slope', slopeFormat=units,
                   format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
         return np.ma.masked_values(src.read(1), value=-9999)
 
 
-def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
+def gdal_aspect_analysis(dem, output=None, flat_values_are_zero=False):
     """Return the aspect of the terrain from the DEM.
 
     The aspect is the compass direction of the steepest slope (0: North, 90: East, 180: South, 270: West).
@@ -363,8 +383,8 @@ def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
       Path to file storing DEM.
     output : str
       Path to output file.
-    units : str
-      Slope units.
+    flat_values_are_zero: bool
+      Designate flat values with value zero. Default: -9999.
 
     Returns
     -------
@@ -376,6 +396,8 @@ def gdal_aspect_analysis(dem, output, flat_values_are_zero=False):
     Ensure that the DEM is in a *projected coordinate*, not a geographic coordinate system, so that the
     horizontal scale is the same as the vertical scale (m).
     """
+    if output is None:
+        output = tempfile.NamedTemporaryFile().name
     DEMProcessing(destName=output, srcDS=dem, processing='aspect', zeroForFlat=flat_values_are_zero,
                   format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
@@ -397,6 +419,8 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
       Geometry defining the region to crop.
     touches : bool
       Whether or not to include cells that intersect the geometry.
+    raster_compression : str
+      Level of data compression. Default: 'lzw'.
 
     """
     with rasterio.open(raster_file, 'r') as src:
@@ -432,6 +456,8 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
       Path to output raster.
     projection : str
       Target projection identifier.
+    raster_compression: str
+      Level of data compression. Default: 'lzw'.
     """
     with rasterio.open(raster_file, 'r') as src:
 

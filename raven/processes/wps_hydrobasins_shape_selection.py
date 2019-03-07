@@ -21,7 +21,7 @@ class ShapeSelectionProcess(Process):
 
     def __init__(self):
         inputs = [
-            LiteralInput('lonlat_coordinate', '(Lon, Lat) tuple for point of interest',
+            LiteralInput('lonlat_coordinate', '(Longitude, Latitude) tuple for point of interest',
                          data_type='string',
                          default='(-68.724444, 50.646667)',
                          min_occurs=1, max_occurs=1),
@@ -87,7 +87,7 @@ class ShapeSelectionProcess(Process):
 
         shape_url = TESTDATA[shape_description]
 
-        extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+        extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
 
         basin = []
@@ -100,56 +100,57 @@ class ShapeSelectionProcess(Process):
         with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
             geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
             try:
-                with fio.open(vector_file, 'r', crs=shape_crs) as src:
-                    for feat in iter(src):
-                        geom = shape(feat['geometry'])
+                for i, layer_name in enumerate(fio.listlayers(vector_file)):
+                    with fio.open(vector_file, 'r', crs=shape_crs, layer=i) as src:
+                        for feat in iter(src):
+                            geom = shape(feat['geometry'])
 
-                        if geom.contains(location):
-                            found = True
-                            # pfaf = feature['properties']['PFAF_ID']
-                            if collect_upstream:
-                                basin = feat['properties']['HYBAS_ID']
-                            else:
-                                LOGGER.info('Writing feature to {}'.format(geojson.name))
-                                with open(geojson.name, 'w') as f:
-                                    json.dump(feat, f)
-                            break
-                    src.close()
-                if not found:
-                    msg = 'No basin found at lon:{}, lat:{}'.format(lon, lat)
-                    LOGGER.exception(msg)
-                    raise ValueError(msg)
+                            if geom.contains(location):
+                                found = True
+                                # pfaf = feature['properties']['PFAF_ID']
+                                if collect_upstream:
+                                    basin = feat['properties']['HYBAS_ID']
+                                else:
+                                    LOGGER.info('Writing feature to {}'.format(geojson.name))
+                                    with open(geojson.name, 'w') as f:
+                                        json.dump(feat, f)
+                                break
+                        src.close()
+                    if not found:
+                        msg = 'No basin found at lon:{}, lat:{}'.format(lon, lat)
+                        LOGGER.exception(msg)
+                        raise ValueError(msg)
 
-                if collect_upstream:
-                    LOGGER.info('Collecting upstream from basin {}'.format(basin))
-                    with fio.Collection(vector_file, 'r', crs=shape_crs) as src:
-                        gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
-                        row_id = gdf['HYBAS_ID'] == basin
-                        main_basin_id = gdf[row_id]['MAIN_BAS']
-                        main_basin_mask = gdf['MAIN_BAS'] == main_basin_id.values[0]
-                        main_basin_gdf = gdf[main_basin_mask]
+                    if collect_upstream:
+                        LOGGER.info('Collecting upstream from basin {}'.format(basin))
+                        with fio.Collection(vector_file, 'r', crs=shape_crs) as src:
+                            gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
+                            row_id = gdf['HYBAS_ID'] == basin
+                            main_basin_id = gdf[row_id]['MAIN_BAS']
+                            main_basin_mask = gdf['MAIN_BAS'] == main_basin_id.values[0]
+                            main_basin_gdf = gdf[main_basin_mask]
 
-                        all_basins = list(main_basin_gdf[row_id]['HYBAS_ID'].values)
-                        for i in all_basins:
-                            tmp = get_upstream_hydrobasins(main_basin_gdf, i)
-                            if len(tmp):
-                                all_basins.extend(tmp.values)
+                            all_basins = list(main_basin_gdf[row_id]['HYBAS_ID'].values)
+                            for b in all_basins:
+                                tmp = get_upstream_hydrobasins(main_basin_gdf, b)
+                                if len(tmp):
+                                    all_basins.extend(tmp.values)
 
-                        upstream_basins = [x.item() for x in all_basins]  # Convert from numpy Int64
+                            upstream_basins = [x.item() for x in all_basins]  # Convert from numpy Int64
 
-                        df_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
-                        for a in all_basins[1:]:
-                            df_sub = df_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
-                        dissolved = df_sub.dissolve(by='MAIN_BAS').to_json()
+                            df_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
+                            for a in all_basins[1:]:
+                                df_sub = df_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
+                            dissolved = df_sub.dissolve(by='MAIN_BAS').to_json()
 
-                        LOGGER.info('Writing union of features to {}'.format(geojson.name))
-                        with open(geojson.name, 'w') as f:
-                            f.write(dissolved)
+                            LOGGER.info('Writing union of features to {}'.format(geojson.name))
+                            with open(geojson.name, 'w') as f:
+                                f.write(dissolved)
 
-                    # with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
-                    #     # 'PFAF_ID' can also technically be used to described the drainage network
-                    #       See HydroBASINS docs.
-                    #     # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
+                        # with fio.open(shape_url, 'r', crs=from_epsg(crs)) as src:
+                        #     # 'PFAF_ID' can also technically be used to described the drainage network
+                        #       See HydroBASINS docs.
+                        #     # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
 
             except Exception as e:
                 msg = '{}: Failed to perform analysis using {} and location {}'.format(e, shape_url, lon, lat)

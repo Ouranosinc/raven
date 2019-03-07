@@ -1,7 +1,5 @@
-import json
 import logging
 import os
-import tempfile
 import shutil
 
 import numpy as np
@@ -25,7 +23,7 @@ class RasterSubsetProcess(Process):
     def __init__(self):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
-                         abstract='An ESRI Shapefile, GML, GeoJSON, or any other file in a standard vector format.'
+                         abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.'
                                   ' The shape and raster should have a matching CRS.',
                          min_occurs=1, max_occurs=1,
@@ -71,7 +69,7 @@ class RasterSubsetProcess(Process):
         band = request.inputs['band'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
-        vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+        vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         rasters = ['.tiff', '.tif']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
@@ -129,7 +127,7 @@ class RasterSubsetProcess(Process):
             out_fn = os.path.join(self.workdir, self.identifier)
             shutil.make_archive(base_name=out_fn, format='zip', root_dir=out_dir, logger=LOGGER)
 
-            response.outputs['raster'].file = out_fn + '.zip'
+            response.outputs['raster'].file = '{}.zip'.format(out_fn)
 
         except Exception as e:
             msg = 'Failed to perform raster subset using {} and {}: {}'.format(shape_url, raster_url, e)

@@ -19,7 +19,7 @@ class ZonalStatisticsProcess(Process):
     def __init__(self):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
-                         abstract='An ESRI Shapefile, GML, GeoJSON, or any other file in a standard vector format.'
+                         abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.'
                                   ' The shape and raster should have a matching CRS.',
                          min_occurs=1, max_occurs=1,
@@ -74,7 +74,7 @@ class ZonalStatisticsProcess(Process):
         categorical = request.inputs['categorical'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
-        vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+        vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))

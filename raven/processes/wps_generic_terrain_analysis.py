@@ -1,13 +1,8 @@
 import json
 import logging
-import os
 import tempfile
 
-# import numpy as np
-# import rasterio
 import geopandas as gpd
-# import rasterio.mask
-# import rasterio.warp
 import shapely.ops as ops
 import shapely.geometry as sgeo
 
@@ -16,9 +11,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterio.crs import CRS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
-from raven.utils import gdal_aspect_analysis, gdal_slope_analysis
 from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop
-# from shapely.geometry import shape
 
 
 LOGGER = logging.getLogger("PYWPS")
@@ -39,15 +32,14 @@ class TerrainAnalysisProcess(Process):
                                        'https://doi.org/10.1029/2008EO100001')],
                          min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             ComplexInput('shape', 'Vector Shape',
-                         abstract='An ESRI Shapefile, GML, GeoJSON, or any other file in a standard vector format.'
+                         abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.'
                                   ' If a shapefile is provided, the raster will be subsetted before analysis.',
                          min_occurs=0, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             LiteralInput('projected_crs',
-                         # TODO: Write the name of the EPSG CRS
                          'Coordinate Reference System for terrain analysis (Default: EPSG:32198,'
-                         ' "NAD83 / Quebec Lambert")).'
+                         ' "NAD83 / Quebec Lambert").'
                          ' The CRS chosen should be projected and appropriate for the region of interest.',
                          data_type='integer',
                          default=32198,
@@ -59,7 +51,7 @@ class TerrainAnalysisProcess(Process):
 
         outputs = [
             ComplexOutput('properties', 'Feature schemas',
-                          abstract='DEM properties (mean elevation, slope and aspect) for each geometry.',
+                          abstract='DEM properties (mean elevation, slope, and aspect) for each geometry.',
                           supported_formats=[FORMATS.JSON],
                           ),
         ]
@@ -100,7 +92,7 @@ class TerrainAnalysisProcess(Process):
         # Get vector features
         # -------------------
         if shape_url:
-            vectors = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
+            vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
             vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
             vec_crs = crs_sniffer(vector_file)[0]
 

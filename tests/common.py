@@ -70,6 +70,7 @@ TESTDATA['ostrich-hbv-ec-nc-ts'] = TESTDATA['raven-hbv-ec-nc-ts']
 TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebec_mrc_polygones.gml'
 TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
 TESTDATA['mrc_subset'] = TD / 'donneesqc_mrc_poly' / 'mrc_subset.gml'
+TESTDATA['melcc_water'] = TD / 'melcc_water_management'/ 'zone_gestion_leau_saintlaurent.gpkg'
 
 # TODO: Replace the following files with subsets and set originals as production data
 TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_southernQuebec.tiff'

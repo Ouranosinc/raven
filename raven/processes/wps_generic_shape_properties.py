@@ -19,8 +19,8 @@ class ShapePropertiesProcess(Process):
     def __init__(self):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
-                         abstract='An ESRI Shapefile, GML, JSON or GeoJSON file. The ESRI Shapefile must be zipped and'
-                                  ' contain the .shp, .shx, and .dbf.',
+                         abstract='An ESRI Shapefile, GML, GeoPackage, JSON or GeoJSON file.'
+                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON],
                          min_occurs=1, max_occurs=1),
             LiteralInput('projected_crs',
@@ -55,8 +55,8 @@ class ShapePropertiesProcess(Process):
 
         shape_url = request.inputs['shape'][0].file
         projected_crs = request.inputs['projected_crs'][0].data
-        extensions = ['.gml', '.shp', '.geojson', '.json']  # '.gpkg' requires more handling
 
+        extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
         shape_crs = crs_sniffer(vector_file)
 
@@ -64,7 +64,7 @@ class ShapePropertiesProcess(Process):
             projection = CRS.from_epsg(projected_crs)
             if not projection.is_projected:
                 msg = 'Destination CRS {} is not projected.' \
-                      'Areal analysis values may be erroneous.'.format(projection.to_epsg())
+                      'Areal analysis values will be in decimal-degree units.'.format(projection.to_epsg())
                 LOGGER.warning(msg)
         except Exception as e:
             msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
@@ -73,19 +73,19 @@ class ShapePropertiesProcess(Process):
 
         properties = []
         try:
-            with fiona.open(vector_file, 'r', crs=shape_crs) as src:
-                for feature in src:
-                    geom = shape(feature['geometry'])
+            for i, layer_name in enumerate(fiona.listlayers(vector_file)):
+                with fiona.open(vector_file, 'r', crs=shape_crs, layer=i) as src:
+                    for feature in src:
+                        geom = shape(feature['geometry'])
 
-                    transformed = geom_transform(geom, source_crs=shape_crs, target_crs=projection)
-                    prop = {'id': feature['id']}
-                    prop.update(feature['properties'])
-                    prop.update(geom_prop(transformed))
-                    # Recompute the centroid location using the original projection
-                    prop['centroid'] = geom_prop(geom)['centroid']
+                        transformed = geom_transform(geom, source_crs=shape_crs, target_crs=projection)
+                        prop = {'id': feature['id']}
+                        prop.update(feature['properties'])
+                        prop.update(geom_prop(transformed))
+                        # Recompute the centroid location using the original projection
+                        prop['centroid'] = geom_prop(geom)['centroid']
 
-                    properties.append(prop)
-                    break
+                        properties.append(prop)
 
         except Exception as e:
             msg = '{}: Failed to extract features from shape {}'.format(e, vector_file)

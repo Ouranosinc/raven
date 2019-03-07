@@ -7,6 +7,7 @@ import numpy as np
 import rasterio
 import json
 
+
 class TestGenericTerrainAnalysisProcess:
 
     def test_simple(self):
