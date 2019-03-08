@@ -326,8 +326,9 @@ def dem_prop(dem, geom=None):
 
     # Compute aspect
     aspect = gdal_aspect_analysis(fns['dem'], output=fns['aspect'])
+    aspect_mean = circular_mean_aspect(aspect)
 
-    return {'elevation': elevation.mean(), 'slope': slope.mean(), 'aspect': aspect.mean()}
+    return {'elevation': elevation.mean(), 'slope': slope.mean(), 'aspect': aspect_mean}
 
 
 # It's a bit weird to have to pass the output file name as an argument, since you return an in-memory array.
@@ -391,7 +392,7 @@ def gdal_aspect_analysis(dem, output=None, flat_values_are_zero=False):
     ndarray
       Aspect array.
 
-        Notes
+    Notes
     -----
     Ensure that the DEM is in a *projected coordinate*, not a geographic coordinate system, so that the
     horizontal scale is the same as the vertical scale (m).
@@ -402,6 +403,33 @@ def gdal_aspect_analysis(dem, output=None, flat_values_are_zero=False):
                   format='GTiff', band=1, creationOptions=[GDAL_TIFF_COMPRESSION_OPTION, ])
     with rasterio.open(output) as src:
         return np.ma.masked_values(src.read(1), value=-9999)
+
+
+def circular_mean_aspect(angles):
+    """Return the mean angular aspect based on circular arithmetic approach
+
+    Parameters
+    ----------
+    angles: ndarray
+      Array of aspect angles
+
+    Returns
+    -------
+    float
+      Circular mean of aspect array.
+    """
+    # Circular statistics needed for mean angular aspect
+    # Example from: https://gis.stackexchange.com/a/147135/65343
+
+    n = len(angles)
+    sine_mean = np.divide(np.sum(np.sin(np.radians(np.ma.masked_array(angles)))), n)
+    cosine_mean = np.divide(np.sum(np.cos(np.radians(np.ma.masked_array(angles)))), n)
+    vector_mean = np.arctan2(sine_mean, cosine_mean)
+    degrees = np.degrees(vector_mean)
+
+    if degrees < 0:
+        return degrees + 360
+    return degrees
 
 
 def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
