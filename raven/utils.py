@@ -215,6 +215,40 @@ def single_file_check(file_list):
         raise Exception(msg)
 
 
+def boundary_check(*args, max_y=60, min_y=-60):
+    """
+
+    :param args:
+    :param max_y:
+    :param min_y:
+    :return:
+    """
+    vectors = ('.gml', '.shp', '.geojson', '.gpkg', '.json')
+    rasters = ('.tif', '.tiff')
+    for file in args:
+        src = None
+        try:
+            if str(file).lower().endswith(vectors):
+                src = fiona.open(file, 'r')
+            elif str(file).lower().endswith(rasters):
+                src = rasterio.open(file, 'r')
+            else:
+                FileNotFoundError('Invalid filename suffix')
+
+            geographic = CRS(src.crs).is_geographic
+            if geographic and (src.bounds > max_y or src.bounds < min_y):
+                msg = 'Vector {} contains geometries in high latitudes.' \
+                      ' Verify choice of projected CRS is appropriate for analysis.'.format(file)
+                LOGGER.warning(msg)
+                UserWarning(msg)
+            src.close()
+
+        except Exception as e:
+            msg = '{}: Unable to read boundaries from {}'.format(e, args)
+            LOGGER.exception(msg)
+    return
+
+
 def multipolygon_check(f):
     pass
     # def wrapper(*args, **kwargs):
@@ -310,15 +344,18 @@ def dem_prop(dem, geom=None):
     """
 
     fns = dict()
-    fns['dem'] = tempfile.NamedTemporaryFile(prefix='dem', suffix='.tiff', delete=False).name if geom else dem
+    fns['dem'] = tempfile.NamedTemporaryFile(prefix='dem', suffix='.tiff', delete=False).name if geom is not None \
+        else dem
     for key in ['slope', 'aspect']:
         fns[key] = tempfile.NamedTemporaryFile(prefix=key, suffix='.tiff', delete=False).name
 
     # Clip to relevant area or read original raster
-    if geom:
-        elevation = generic_raster_clip(dem, fns['dem'], [geom, ])  # Why a list object?
-    else:
+    if geom is None:
         with rasterio.open(dem) as f:
+            elevation = f.read(1, masked=True)
+    else:
+        generic_raster_clip(dem, fns['dem'], geom)
+        with rasterio.open(fns['dem']) as f:
             elevation = f.read(1, masked=True)
 
     # Compute slope
@@ -432,7 +469,7 @@ def circular_mean_aspect(angles):
     return degrees
 
 
-def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
+def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, fill_with_nodata=True, padded=True,
                         raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
     Crop a raster file to a given geometry.
@@ -446,15 +483,19 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
     geometry : shapely.geometry
       Geometry defining the region to crop.
     touches : bool
-      Whether or not to include cells that intersect the geometry.
+      Whether or not to include cells that intersect the geometry. Default: True.
+    fill_with_nodata: bool
+      Whether or not to keep pixel values for regions outside of shape or set as nodata. Default: True.
+    padded: bool
+      Whether or not to add a half-pixel buffer to shape before masking
     raster_compression : str
       Level of data compression. Default: 'lzw'.
 
     """
-    with rasterio.open(raster_file, 'r') as src:
+    with rasterio.open(raster_file, 'r', ) as src:
 
-        mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True,
-                                                     all_touched=touches, filled=False)
+        mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True, pad=padded,
+                                                     all_touched=touches, filled=fill_with_nodata)
         mask_meta = src.meta.copy()
         mask_meta.update(
             {
@@ -465,11 +506,11 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True,
                 "compress": raster_compression,
             }
         )
+
         # Write the new masked image
         with rasterio.open(processed_raster, 'w', **mask_meta) as dst:
             dst.write(mask_image)
-
-        return mask_image
+    return
 
 
 def generic_raster_warp(raster_file, processed_raster, projection, raster_compression=RASTERIO_TIFF_COMPRESSION):
@@ -522,5 +563,5 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
                     dst_crs=projection,
                     resampling=rasterio.warp.Resampling.nearest
                 )
-
                 dst.write(dest, indexes=i)
+    return
