@@ -10,7 +10,7 @@ from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterio.crs import CRS
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check, boundary_check
 from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop
 
 
@@ -83,72 +83,59 @@ class TerrainAnalysisProcess(Process):
         # touches = request.inputs['select_all_touching'][0].data
 
         # Checks for valid CRS and that CRS is projected
+        # -----------------------------------------------
         projection = CRS.from_user_input(destination_crs)
         if not projection.is_projected:
             msg = 'Destination CRS {} is not projected.' \
-                  'Terrain analysis values will not be valid.'.format(projection.to_epsg())
+                  ' Terrain analysis values will not be valid.'.format(projection.to_epsg())
+            LOGGER.error(ValueError(msg))
             raise ValueError(msg)
 
-        # Get vector features
-        # -------------------
-        if shape_url:
-            vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
-            vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
-            vec_crs = crs_sniffer(vector_file)[0]
-
-            # Load shape data with GeoPandas
-            gdf = gpd.GeoDataFrame.from_file(vector_file, crs=vec_crs)
-
-            # TODO: This check seems specific to a given projection, no ?
-            x_min, y_min, x_max, y_max = sgeo.shape(ops.unary_union(gdf['geometry'])).bounds
-            if y_max > 60 or y_min < 60:
-                # see https://gis.stackexchange.com/a/145138/65343 for discussion on this
-                msg = 'Shape boundaries exceed Mercator region.' \
-                      'Verify choice of projected CRS is appropriate for aspect analysis.'
-                LOGGER.warning(msg)
-                UserWarning(msg)
-
-            # Reproject geometries.
-            if vec_crs != projection.to_proj4():
-                geoms = gdf.to_crs(epsg=destination_crs)
-            else:
-                geoms = gdf
-
-            union = sgeo.shape(ops.unary_union(geoms['geometry']))
-
-        else:
-            geoms = [None, ]
-
-        # Raster handling
-        # ---------------
-
-        # Verify that the CRS to project to matches shape or raster CRS
+        # Collect the CRS of the raster
+        # -----------------------------
         rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
         ras_crs = crs_sniffer(raster_file)
-
-        # Clip raster to unioned geometry
-        if shape_url:
-            clipped_fn = tempfile.NamedTemporaryFile(prefix='clipped_', suffix='.tiff', delete=False,
-                                                     dir=self.workdir).name
-            generic_raster_clip(raster_file, clipped_fn, union)
-
-        else:
-            clipped_fn = raster_file
+        boundary_check(raster_file)
 
         # Reproject raster
+        # ----------------
         if ras_crs != projection.to_proj4():
             # processed_raster = os.path.join(self.workdir, 'warped_{}.tiff'.format(hash(os.times())))
             warped_fn = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False,
                                                     dir=self.workdir).name
-            generic_raster_warp(clipped_fn, warped_fn, projection)
+            generic_raster_warp(raster_file, warped_fn, projection.to_proj4())
         else:
-            warped_fn = clipped_fn
+            warped_fn = raster_file
 
-        # Compute DEM properties for each feature.
         properties = []
-        for geom in geoms:
-            properties.append(dem_prop(warped_fn, geom))
+
+        # Perform subset operations if necessary
+        # --------------------------------------
+        if shape_url:
+            vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
+            vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+            vec_crs = crs_sniffer(vector_file)
+
+            boundary_check(vector_file)
+
+            # Load shape data with GeoPandas
+            gdf = gpd.GeoDataFrame.from_file(vector_file, crs=vec_crs)
+
+            reprojected_gdf = gdf.to_crs(epsg=projection.to_epsg())
+            union = sgeo.shape(ops.unary_union(reprojected_gdf['geometry']))
+            clipped_fn = tempfile.NamedTemporaryFile(prefix='clipped_', suffix='.tiff', delete=False,
+                                                     dir=self.workdir).name
+
+            # Ensure that values for regions outside of clip are kept
+            generic_raster_clip(warped_fn, clipped_fn, union, fill_with_nodata=False, padded=True)
+
+            # Compute DEM properties for each feature.
+            for i in range(len(reprojected_gdf)):
+                properties.append(dem_prop(warped_fn, reprojected_gdf['geometry'][i]))
+
+        else:
+            properties.append(dem_prop(warped_fn))
 
         response.outputs['properties'].data = json.dumps(properties)
 
