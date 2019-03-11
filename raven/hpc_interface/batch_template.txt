@@ -3,4 +3,4 @@
 #SBATCH --account=ACCOUNT
 export SINGULARITY_NOHTTPS=true
 cd INPUT_PATH
-singularity run --bind INPUT_PATH:/data  --bind OUTPUT_PATH:/data_out:rw shub://SHUB_HOSTNAME/hydro/EXEC:latest DATAFILE_BASENAME 
+/opt/software/singularity/bin/singularity run --bind INPUT_PATH:/data  --bind OUTPUT_PATH:/data_out:rw shub://SHUB_HOSTNAME/hydro/EXEC:latest DATAFILE_BASENAME 
