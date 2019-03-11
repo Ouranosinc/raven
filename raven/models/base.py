@@ -85,8 +85,10 @@ class Raven:
         self.workdir = Path(workdir)
         self.ind_outputs = {}  # Individual files for all simulations
         self.outputs = {}  # Aggregated files
+        self.singularity = False  # Set to True to launch Raven with singularity.
         self.test = test
         self.raven_exec = raven.raven_exec
+        self.raven_simg = raven.raven_simg
         self.ostrich_exec = raven.ostrich_exec
         self._name = None
         self._defaults = {}
@@ -148,6 +150,17 @@ class Raven:
     def cmd(self):
         """This is the main executable."""
         return self.raven_cmd
+
+    @property
+    def bash_cmd(self):
+        """Bash command arguments."""
+        return [self.cmd, self.name, '-o', str(self.output_path)]
+
+    @property
+    def singularity_cmd(self):
+        """Run Singularity container."""
+        return ["singularity", "run", "--bind", "{}:/data".format(self.model_path), "--bind",
+                "{}:/data_out:rw".format(self.output_path), self.raven_simg, self.name]
 
     @property
     def cmd_path(self):
@@ -289,7 +302,11 @@ class Raven:
         os.symlink(self.raven_exec, str(self.raven_cmd))
 
         # Shell command to run the model
-        cmd = ['./' + self.cmd.stem, self.name, '-o', str(self.output_path)]
+        if self.singularity:
+            cmd = self.singularity_cmd
+        else:
+            cmd = self.bash_cmd
+
         return cmd
 
     def run(self, ts, overwrite=False, **kwds):
