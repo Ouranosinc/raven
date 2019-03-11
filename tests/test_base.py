@@ -1,9 +1,12 @@
 from . common import TESTDATA
+import raven
 from raven.models import Raven, Ostrich
 import tempfile
 import numpy as np
 from pathlib import Path
-import os
+import pytest
+
+has_singularity = raven.raven_simg.exists()
 
 
 class TestRaven:
@@ -39,6 +42,16 @@ class TestRaven:
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
         model(ts)
+
+    @pytest.mark.skipif(not has_singularity, reason="Singularity is not available.")
+    def test_singularity(self):
+        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+
+        model = Raven()
+        model.singularity = True
+        model.configure(rvs)
+        model.run(ts)
 
 
 class TestOstrich:
