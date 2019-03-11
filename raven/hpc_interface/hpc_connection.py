@@ -228,9 +228,13 @@ class HPCConnection(object):
     def submit_job(self, script_fname):
 
         self.logger.debug("Submitting job {}".format(script_fname))
-        output = self.client.run_command("sbatch --parsable " + script_fname)
+        output = self.client.run_command(constants.sbatch_cmd + " --parsable " + script_fname)
         errmsg = next(output[self.hostname]["stderr"], None)
+
         if errmsg is not None:
+            for e in output[self.hostname]["stderr"]:
+                errmsg += e + "\n"
+
             self.logger.error("  Error: {}".format(errmsg))
             raise Exception("Error: "+errmsg)
 
@@ -242,7 +246,7 @@ class HPCConnection(object):
     def get_status(self, jobid, progressfile=None):
 
         self.logger.debug("Inside get_status: executing squeue")
-        cmd = "squeue -o '%T' -j {} --noheader".format(jobid)
+        cmd = constants.squeue_cmd + " -o '%T' -j {} --noheader".format(jobid)
 
         output = self.client.run_command(cmd)
         status_output = []  # 1 line expected
