@@ -396,6 +396,7 @@ class Raven:
     def _merge_output(self, files, name):
         """Merge multiple output files into one if possible, otherwise return a list of files.
         """
+        import zipfile
 
         # If there is only one file, return its name directly.
         if len(files) == 1:
@@ -409,14 +410,18 @@ class Raven:
             try:
                 out = xr.concat(ds, 'params', data_vars='identical')
                 out.to_netcdf(outfn)
+                return outfn
             except ValueError:
-                return None
+                pass
 
-        else:
-            with open(outfn, 'w') as outfile:
-                for fn in files:
-                    with open(fn) as infile:
-                        outfile.write(infile.read())
+        # Let's zip the files that could not be merged.
+        root, ext = os.path.splitext(outfn)
+        outfn = root + '.zip'
+
+        # Try to create a zip file
+        with zipfile.ZipFile(outfn, 'w') as f:
+            for fn in files:
+                f.write(fn)
 
         return outfn
 
@@ -528,17 +533,21 @@ class Raven:
         If the model is run multiple times, hydrograph will point to the latest version. To store the results of
         multiple runs, either create different model instances or explicitly copy the file to another disk location.
         """
-        if self.outputs['hydrograph'] is not None:
+        if self.outputs['hydrograph'].endswith('.nc'):
             return xr.open_dataset(self.outputs['hydrograph'])
-        else:
+        elif self.outputs['hydrograph'].endswith('.zip'):
             return [xr.open_dataset(fn) for fn in self.ind_outputs['hydrograph']]
+        else:
+            raise ValueError
 
     @property
     def storage(self):
-        if self.outputs['storage'] is not None:
+        if self.outputs['storage'].endswith('.nc'):
             return xr.open_dataset(self.outputs['storage'])
-        else:
+        elif self.outputs['storage'].endswith('.zip'):
             return [xr.open_dataset(fn) for fn in self.ind_outputs['storage']]
+        else:
+            raise ValueError
 
     @property
     def diagnostics(self):

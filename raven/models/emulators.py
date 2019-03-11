@@ -162,8 +162,6 @@ class HBVEC_OST(Ostrich, HBVEC):
         pass
 
 
-
-
 def get_model(name):
     """Return the corresponding Raven emulated model instance.
 

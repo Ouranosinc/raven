@@ -13,8 +13,18 @@ gr4jcn = LiteralInput('gr4jcn', 'Comma separated list of GR4JCN parameters',
                       data_type='string',
                       min_occurs=0)
 
+# This won't work until we merge the hrus with the parameters
+mohyse = LiteralInput('mohyse', 'Comma separated list of MOHYSE parameters',
+                      abstract='Parameters: ' + ', '.join(MOHYSE.params._fields),
+                      data_type='string',
+                      min_occurs=0)
 
-# This won't work until we support metalink output for multiple files, unless we zip the output.
+hbvec = LiteralInput('hbvec', 'Comma separated list of HBV-EC parameters',
+                     abstract='Parameters: ' + ', '.join(HBVEC.params._fields),
+                     data_type='string',
+                     min_occurs=0)
+
+
 class RavenMultiModelProcess(RavenProcess):
     identifier = 'raven-multi-model'
     abstract = 'Multi model simulation'
@@ -25,7 +35,7 @@ class RavenMultiModelProcess(RavenProcess):
                     'hbvec': HBVEC.params,
                     'mohyse': MOHYSE.params}
 
-    inputs = [wio.ts, hmets, gr4jcn, wio.start_date, wio.end_date, wio.duration, wio.run_name,
+    inputs = [wio.ts, hmets, gr4jcn, hbvec, wio.start_date, wio.end_date, wio.duration, wio.run_name,
               wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
     model_cls = RavenMultiModel
 

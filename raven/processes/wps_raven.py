@@ -67,9 +67,9 @@ class RavenProcess(Process):
         # Launch model with input files
         model(ts=ts)
 
+        # Store output files name. If an output counts multiple files, they'll be zipped.
         for key in response.outputs.keys():
             val = model.outputs[key]
-            # TODO: Implement MetaLink for multiple output files.
             response.outputs[key].file = str(val)
 
         return response
