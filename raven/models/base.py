@@ -378,7 +378,9 @@ class Raven:
 
         for proc in procs:
             proc.wait()
-
+            # Julie: For debugging
+            # for line in iter(proc.stdout.readline, b''):
+            #     print(line)
         try:
             self.parse_results()
 
