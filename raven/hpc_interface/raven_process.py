@@ -1,4 +1,6 @@
 import os
+import re
+import tempfile
 import logging
 import constants
 import hpc_connection
@@ -50,7 +52,7 @@ class RavenHPCProcess(object):
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
         self.hpc_connection.copy_data_from_remote(self.live_job_id, output_folder)
-
+    """
     def job_ended_normally(self):
 
         output_ok = True
@@ -60,6 +62,10 @@ class RavenHPCProcess(object):
             output_ok = False
         print("todo: provide slurm output")
         return output_ok
+    """
+    def cancel(self):
+
+        self.hpc_connection.cancel_job(self.live_job_id)
 
     def monitor(self):
 
@@ -72,7 +78,20 @@ class RavenHPCProcess(object):
         s = progress = None
         try:
 
-            s, progress = self.hpc_connection.get_status(self.live_job_id, progressfile)
+#            s, progress = self.hpc_connection.get_status(self.live_job_id, progressfile)
+            s = self.hpc_connection.get_status(self.live_job_id)
+            print("status: "+s)
+            if s == "RUNNING":
+
+                if progressfile is not None:
+                    progressfile_content = self.hpc_connection.read_from_remote(progressfile)
+
+                    for line in progressfile_content:
+                        match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
+                        if match_obj:
+                            progress = match_obj.group(1)
+
+                                # progress_data = json.load(f)
         except SessionError:
             print("reconnecting")
             self.hpc_connection.reconnect()

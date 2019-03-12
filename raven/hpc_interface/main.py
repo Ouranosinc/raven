@@ -65,23 +65,24 @@ def newmainfct(argv):
     raven_proc.submit(dataset)
 
     job_finished = False
+    error_found = False
     while not job_finished:
 
         time.sleep(60)
         try:
 
             out, p = raven_proc.monitor()
-            if out == "PENDING":
-                print("Still pending")
+            print(out)
             if out == "RUNNING":
                 if p is not None:
                     print("Running ({}%)".format(p))
                 else:
                     print("Running (?%)")
-            if out == "DONE":
+            if out == "COMPLETED":
                 job_finished = True
-            if out == "ERR":
-                print("error")
+            if out == "TIMEOUT" or out == "CANCELLED":
+                print("error job cancelled/timeout")
+                error_found = True
                 job_finished = True
             if out is None:
                 print("Temp error")
@@ -92,7 +93,7 @@ def newmainfct(argv):
             job_finished = True
 
     # Check if job ended  normally
-    if raven_proc.job_ended_normally():
+    if error_found == False: #raven_proc.job_ended_normally():
         raven_proc.retrieve(out_dir)
     else:
         print("Job ended abnormally")

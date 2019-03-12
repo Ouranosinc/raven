@@ -35,7 +35,7 @@ class HPCConnection(object):
             self.logger.debug("{}: initializing with default values".format(clsname))
 
         self.hostname = init_dict.get("hostname", "cedar.computecanada.ca")
-        self.user = init_dict.get("user", "lalondem")
+        self.user = init_dict.get("user", "crim01") #"lalondem")
         self.home_dir = init_dict.get("home_dir", os.path.join("/home", self.user))
         self.src_data_path = init_dict.get("src_data_path", "./data")
         self.template_path = init_dict.get("template_path", "./")
@@ -47,6 +47,7 @@ class HPCConnection(object):
         self.active_dataset_name = None
         self.live_job_id = None
 
+#unravenized: ok
     def check_connection(self):
 
         status = True
@@ -62,6 +63,7 @@ class HPCConnection(object):
 
         return status, msg
 
+# unravenized: ok
     def copy_data_to_remote(self, dataset_, remote_temp_folder=None):
         """
         Copies data contained in a local directory over to a remote destination
@@ -116,6 +118,7 @@ class HPCConnection(object):
         os.remove("/tmp/"+remote_temp_folder+".tar")
 
     # output files in base_dir/jobname/out
+#unravenized: ok
     def copy_data_from_remote(self, jobid, absolute_local_out_dir, cleanup_temp=True):
 
         self.logger.debug("Copying data from remote")
@@ -184,13 +187,14 @@ class HPCConnection(object):
 
     # executable_ is either raven or ostrich
     # todo: move to raven_process
+
     def copy_batchscript(self, executable_, datafile_basename, batch_tmplt_fname, shub_hostname):
 
         template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
-        tmplt = tmplt.replace("ACCOUNT", "def-fouchers")
-        tmplt = tmplt.replace("DURATION", "00:45:00")
+        tmplt = tmplt.replace("ACCOUNT", "def-dhuard-ab")   #def-fouchers
+        tmplt = tmplt.replace("DURATION", "00:31:00")
         tmplt = tmplt.replace("TEMP_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("INPUT_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("OUTPUT_PATH", abs_remote_output_dir)
@@ -225,6 +229,7 @@ class HPCConnection(object):
 
         return os.path.join(self.remote_abs_working_folder, subst_fname)
 
+# unravenized: ok
     def submit_job(self, script_fname):
 
         self.logger.debug("Submitting job {}".format(script_fname))
@@ -243,68 +248,91 @@ class HPCConnection(object):
 
         return self.live_job_id
 
-    def get_status(self, jobid, progressfile=None):
+# unravenized: ok
+    def read_from_remote(self, remote_filename):
 
-        self.logger.debug("Inside get_status: executing squeue")
-        cmd = constants.squeue_cmd + " -o '%T' -j {} --noheader".format(jobid)
+        filecontent = []
+        try:
+            local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
+            #print("Trying to read progress file ->"+local_progress_file)
+            g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, remote_filename),
+                                                             local_filename)  # scp_recv            joinall(g, raise_error=True)
+            suffixed_local_filename = local_filename + "_" + self.hostname
+            with open(suffixed_local_filename) as f:
+               for line in f:
+                   filecontent.append(line)
+
+            if os.path.exists(suffixed_local_filename):
+                os.remove(suffixed_local_filename)
+
+
+#        except SFTPIOError:
+#            print("SFTPIOError")
+#            return False
+        except Exception as e:
+            print("!{}!".format(e))
+
+        return filecontent
+
+# unravenized: ok
+    def get_status(self, jobid):
+
+        self.logger.debug("Inside get_status: executing sacct")
+        cmd = constants.squeue_cmd + " -j {} -n -p -b".format(jobid)
 
         output = self.client.run_command(cmd)
-        status_output = []  # 1 line expected
+        status_output = None  # 1 line expected
 
         errmsg = next(output[self.hostname]["stderr"], None)
         if errmsg is not None:
+            for e in output[self.hostname]["stderr"]:
+                errmsg += e + "\n"
             self.logger.debug("  stderr: {}".format(errmsg))
 
-            # Hmm MinJobAge may be too small...
-            if errmsg.find("Invalid job id specified"):   # We suppose job has terminated
-                return "DONE", None
-            # otherwise...error
             raise Exception("Error: "+errmsg)
 
+        stdout_str = ""
         for line in output[self.hostname]["stdout"]:    # errmsg is None
-            status_output.append(line)
+            stdout_str += line + "\n"
+            fields = line.split('|')
+            if len(fields) >= 2:
+                if fields[0] == jobid:
+                    status_output = fields[1].split()[0]
 
-        if len(status_output) == 0:
-            return "DONE", None
-        elif len(status_output) > 1:
-            self.logger.error("  too many outputs:")
-            for o in status_output:
-                self.logger.error("  {}".format(o))
-            raise Exception("Error: too many outputs")
+        if status_output is None:
+            raise Exception("Error parsing sacct output: {}".format(stdout_str))
 
-        s = status_output[0]  # PD (pending) or R (running) are most likely codes
 
-        progress = None
-        if progressfile is not None:
+        if status_output not in ["COMPLETED", "PENDING", "RUNNING", "TIMEOUT", "CANCELLED"]:
+            raise Exception("Status error: state {} unknown".format(status_output))
 
-            try:
-                    local_progress_file = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
-                    print("Trying to read progress file ->"+local_progress_file)
-                    g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, progressfile),
-                                                     local_progress_file)  # scp_recv
-                    joinall(g, raise_error=True)
+        return status_output
 
-                # load json
+# unravenized: ok
+    def cancel_job(self, jobid):
 
-                    with open(local_progress_file+"_"+self.hostname) as f:
-                        for line in f:
-                            match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
-                            if match_obj:
-                                progress = match_obj.group(1)
-                        # progress_data = json.load(f)
+        cmd = constants.scancel_cmd + " -j {}".format(jobid)
 
-            except SFTPIOError:
-                print("SFTPIOError")
-                pass
-            except SessionError as e:
-                    print(e)
+        output = self.client.run_command(cmd)
 
-        return s, progress
+        errmsg = next(output[self.hostname]["stderr"], None)
+        if errmsg is not None:
+            for e in output[self.hostname]["stderr"]:
+                errmsg += e + "\n"
+            self.logger.debug("  stderr: {}".format(errmsg))
+
+            raise Exception("Cancel error: " + errmsg)
+
+        stdout_str = ""
+        for line in output[self.hostname]["stdout"]:  # errmsg is None
+            stdout_str += line + "\n"
+        if len(stdout_str) > 0:
+            raise Exception("Cancel error: " + stdout_str)
 
     def reconnect(self):
 
         self.client = ParallelSSHClient([self.hostname], user=self.user, keepalive_seconds=300)
-
+    """
     def check_slurmoutput_for(self, substr, jobid):
 
             slurmfname = "slurm-" + jobid + ".out"
@@ -332,6 +360,8 @@ class HPCConnection(object):
                 pass
 
             return found
+    """
+
 
     def cleanup(self, jobid):
 
