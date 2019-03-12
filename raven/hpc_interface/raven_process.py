@@ -37,11 +37,11 @@ class RavenHPCProcess(object):
         else:
             return False, "shub server down"
 
-    def submit(self, dataset):
+    def submit(self, dataset, est_duration="01:00:00"):
 
         self.hpc_connection.copy_data_to_remote(dataset)
 
-        remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, "00:30:00", dataset,
+        remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, est_duration, dataset,
                                                                        "batch_template.txt", self.shub_hostname)
         if self.process_name == "ostrich":
             # In addition, copy  raven script

@@ -64,7 +64,7 @@ def newmainfct(argv):
 
     # jobinfo = process_cmd(executable, client,hostname,"Submit")
     print("Submitting job...")
-    raven_proc.submit(dataset)
+    raven_proc.submit(dataset, "00:30:00")
     print(raven_proc.live_job_id)
 
     job_finished = False
@@ -77,10 +77,7 @@ def newmainfct(argv):
             out, p = raven_proc.monitor()
             print(out)
             if out == "RUNNING":
-                if p is not None:
-                    print("Running ({}%)".format(p))
-                else:
-                    print("Running (??%)")
+                print("{}%".format(p))
             if out == "COMPLETED":
                 job_finished = True
             if out == "TIMEOUT" or out == "CANCELLED":
