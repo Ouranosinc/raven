@@ -17,7 +17,7 @@ class TestRaven:
 
         model = Raven()
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     def test_mohyse(self):
         rvs = TESTDATA['raven-mohyse-rv']
@@ -25,7 +25,7 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     def test_hmets(self):
         rvs = TESTDATA['raven-hmets-rv']
@@ -33,7 +33,7 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     def test_hbvec(self):
         rvs = TESTDATA['raven-hbv-ec-rv']
@@ -41,7 +41,7 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     @pytest.mark.skipif(not has_singularity, reason="Singularity is not available.")
     def test_singularity(self):
@@ -63,7 +63,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -100,7 +100,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -141,7 +141,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -189,7 +189,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
