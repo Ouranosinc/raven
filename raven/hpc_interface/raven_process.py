@@ -51,9 +51,8 @@ class RavenHPCProcess(object):
             self.hpc_connection.create_remote_subdir("model/output")
 
 
-        print("Running " + remote_abs_script_fname)
         jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
-        print("job id = " + jobid)
+
         self.live_job_id = jobid
         self.last_progress = 0
 
@@ -90,7 +89,7 @@ class RavenHPCProcess(object):
 
 #            s, progress = self.hpc_connection.get_status(self.live_job_id, progressfile)
             s = self.hpc_connection.get_status(self.live_job_id)
-            print("status: "+s)
+#            print("status: "+s)
             if s == "RUNNING":
 
                 if progressfile is not None:
