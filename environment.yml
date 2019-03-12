@@ -14,5 +14,6 @@ dependencies:
 - pandas
 - bumpversion
 - statsmodels
+- matplotlib
 - pip:
   - spotpy
