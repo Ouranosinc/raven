@@ -84,7 +84,7 @@ def generic_extract_archive(resources, output_dir=None):
     output_dir = output_dir or tempfile.gettempdir()
 
     if not isinstance(resources, list):
-        resources = list(resources)
+        resources = list([resources])
 
     files = []
 
