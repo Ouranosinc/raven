@@ -37,8 +37,16 @@ ALBERS_NAM = '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +
 def address_append(address):
     """
     Formats a URL/URI to be more easily read with libraries such as "rasterstats"
-    :param address: URL/URI to a potential zip or tar file
-    :return: URL/URI prefixed for archive type
+
+    Parameters
+    ----------
+    address: str or path
+      URL/URI to a potential zip or tar file
+
+    Returns
+    -------
+    address: str
+      URL/URI prefixed for archive type
     """
     zipped = search(r'(\.zip)', address)
     tarred = search(r'(\.tar)', address)
@@ -59,16 +67,24 @@ def address_append(address):
 def generic_extract_archive(resources, output_dir=None):
     """Extract archives (tar/zip) to a working directory.
 
-    :param resources: list of archive files (if netCDF files are in list,
-                     they are passed and returned as well in the return).
-    :param output_dir: string or Path to a working location (default: temporary folder).
-    :return list: [list of extracted files]
+    Parameters
+    ----------
+    resources: list
+      list of archive files (if netCDF files are in list, they are passed and returned as well in the return).
+    output_dir: str or path
+      string or Path to a working location (default: temporary folder).
+
+    Returns
+    -------
+    list
+      List of original or of extracted files
     """
+
     archive_types = ['.tar', '.zip', '.7z']
     output_dir = output_dir or tempfile.gettempdir()
 
     if not isinstance(resources, list):
-        resources = list([resources])
+        resources = list(resources)
 
     files = []
 
@@ -106,10 +122,19 @@ def generic_extract_archive(resources, output_dir=None):
 def archive_sniffer(archives, working_dir, extensions):
     """Return a list of locally unarchived files that match the desired extensions.
 
-    :param archives : archive location or list of archive locations
-    :param working_dir: string or Path to a working location
-    :param extensions: [list of accepted extensions]
-    :return:
+    Parameters
+    ----------
+    archives : str or path or list
+      archive location or list of archive locations
+    working_dir : str or path
+      string or Path to a working location
+    extensions : list
+      list of accepted extensions
+
+    Returns
+    -------
+    potential_files : list
+      List of files with matching accepted extensions
     """
     potential_files = []
 
@@ -130,7 +155,7 @@ def crs_sniffer(*args):
 
     Returns
     -------
-    crs_list: list or string
+    crs_list : list or str
       Returns either a list of CRSes or a single CRS definition, depending on the number of instances found.
     """
     crs_list = []
@@ -177,6 +202,11 @@ def raster_datatype_sniffer(file):
     ----------
     file : str
       Path to file.
+
+    Returns
+    -------
+    dtype: str
+      rasterio datatype of array values
     """
     try:
         with rasterio.open(file, 'r') as src:
@@ -216,12 +246,16 @@ def single_file_check(file_list):
 
 
 def boundary_check(*args, max_y=60, min_y=-60):
-    """
+    """Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Raise a warning if so.
 
-    :param args:
-    :param max_y:
-    :param min_y:
-    :return:
+    Parameters
+    ----------
+    *args : str or path
+      listing of strings or paths to files
+    max_y : int or float
+      Maximum value allowed for latitude. Default: 60.
+    min_y : int or float
+      Minimum value allowed for latitude. Default: -60.
     """
     vectors = ('.gml', '.shp', '.geojson', '.gpkg', '.json')
     rasters = ('.tif', '.tiff')
@@ -273,9 +307,9 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
     geom : shapely.geometry
       Source geometry.
     source_crs : str or CRS
-      Projection identifier for the source geometry, e.g. 'epsg:4326'.
+      Projection identifier (proj4) for the source geometry, e.g. '+proj=longlat +datum=WGS84 +no_defs'.
     target_crs : str or CRS
-      Projection identifier for the target geometry.
+      Projection identifier (proj4) for the target geometry.
 
     Returns
     -------

@@ -73,14 +73,13 @@ class TerrainAnalysisProcess(Process):
         # Process inputs
         # ---------------
         raster_url = request.inputs['raster'][0].file
-
         try:
             shape_url = request.inputs['shape'][0].file
         except KeyError:
             shape_url = False
 
         destination_crs = request.inputs['projected_crs'][0].data
-        # touches = request.inputs['select_all_touching'][0].data
+        touches = request.inputs['select_all_touching'][0].data
 
         # Checks for valid CRS and that CRS is projected
         # -----------------------------------------------
@@ -101,7 +100,6 @@ class TerrainAnalysisProcess(Process):
         # Reproject raster
         # ----------------
         if ras_crs != projection.to_proj4():
-            # processed_raster = os.path.join(self.workdir, 'warped_{}.tiff'.format(hash(os.times())))
             warped_fn = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False,
                                                     dir=self.workdir).name
             generic_raster_warp(raster_file, warped_fn, projection.to_proj4())
@@ -128,7 +126,7 @@ class TerrainAnalysisProcess(Process):
                                                      dir=self.workdir).name
 
             # Ensure that values for regions outside of clip are kept
-            generic_raster_clip(warped_fn, clipped_fn, union, fill_with_nodata=False, padded=True)
+            generic_raster_clip(warped_fn, clipped_fn, union, touches=touches, fill_with_nodata=False, padded=True)
 
             # Compute DEM properties for each feature.
             for i in range(len(reprojected_gdf)):
