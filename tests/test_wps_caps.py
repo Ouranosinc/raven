@@ -1,4 +1,3 @@
-import pytest
 from pywps import Service
 
 from raven.processes import processes
@@ -15,12 +14,17 @@ def test_wps_caps():
     sn = set(names.split())
 
     assert sn == {'gr4j-cemaneige',
+                  'raster-subset',
                   'raven',
                   'raven-multi-model',
                   'raven-gr4j-cemaneige',
                   'raven-mohyse',
                   'raven-hmets',
                   'raven-hbv-ec',
+                  'shape-properties',
+                  'shape-selection',
+                  'terrain-analysis',
+                  'zonal-stats',
                   'ostrich-gr4j-cemaneige',
                   'ostrich-mohyse',
                   'ostrich-hmets',

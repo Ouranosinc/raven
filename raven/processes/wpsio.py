@@ -22,7 +22,7 @@ ts = ComplexInput('ts', 'Input time series files',
                            'observed streamflow (qobs [m3/s]).',
                   min_occurs=1,
                   max_occurs=100,
-                  supported_formats=[FORMATS.NETCDF, FORMATS.TEXT])
+                  supported_formats=[FORMATS.NETCDF, FORMATS.TEXT, FORMATS.SHP, ])
 
 conf = ComplexInput('conf', 'Raven/Ostrich configuration files',
                     abstract="Model configuration files, including the primary input file (rvi), the parameter "

@@ -331,6 +331,7 @@ class Raven:
         >>> r = Raven()
         >>> r.configure(rvi='path to template', rvp='...'}
         >>> r.run(ts, start_date=dt.datetime(2000, 1, 1), area=1000, X1=67)
+
         """
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
@@ -603,7 +604,7 @@ class Raven:
         if isinstance(fn, six.string_types):
             fn = Path(fn)
 
-        return (fn.stem, fn.suffix[1:])
+        return fn.stem, fn.suffix[1:]
 
 
 class Ostrich(Raven):

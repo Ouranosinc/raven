@@ -1,15 +1,27 @@
-pywps>=4.0
+six
+pywps>=4.2
 jinja2
 click
 psutil
 numpy
 scipy
 xarray
-dask
+pandas
 netCDF4
 dask
+pathlib
 toolz
-pandas
 spotpy
 statsmodels
-
+# GIS LIBRARIES
+# pycrs --- Depends on online database requests --> SLOW
+gdal~=2.3
+pysheds
+affine
+rtree
+fiona
+geopandas
+pyproj
+rasterio
+rasterstats
+shapely
