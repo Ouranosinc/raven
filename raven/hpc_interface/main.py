@@ -3,6 +3,7 @@ import getopt
 import time
 import raven_process
 import logging
+from select import select
 
 """
 Expected data structure (raven)
@@ -51,7 +52,7 @@ def newmainfct(argv):
         exit(2)
 
     # src_data_path = src_data_dir
-
+    print("(Hit <Return> to kill job)")
     raven_proc = raven_process.RavenHPCProcess(executable, {"src_data_path": src_data_dir,
                                                             "template_path": template_dir})
 
@@ -62,17 +63,19 @@ def newmainfct(argv):
         print("Network error: "+msg)
 
     # jobinfo = process_cmd(executable, client,hostname,"Submit")
+    print("Submitting job...")
     raven_proc.submit(dataset)
+    print(raven_proc.live_job_id)
 
     job_finished = False
-    error_found = False
+    abnormal_ending = False
     while not job_finished:
 
         time.sleep(60)
         try:
 
             out, p = raven_proc.monitor()
-            #print(out)
+            print(out)
             if out == "RUNNING":
                 if p is not None:
                     print("Running ({}%)".format(p))
@@ -81,22 +84,25 @@ def newmainfct(argv):
             if out == "COMPLETED":
                 job_finished = True
             if out == "TIMEOUT" or out == "CANCELLED":
-                print("error job cancelled/timeout")
-                error_found = True
+                print("Uhoh: job "+out)
+                abnormal_ending = True
                 job_finished = True
             if out is None:
                 print("Temp error")
+            #dr, dw, de = select([sys.stdin], [], [], 0)
+            if sys.stdin in select([sys.stdin], [], [], 0)[0]:
+                raven_proc.cancel()
 
         except Exception as e:
             print("Exception @monitor")
             print(e)
-            job_finished = True
+            #job_finished = True
 
     # Check if job ended  normally
-    if error_found == False: #raven_proc.job_ended_normally():
-        raven_proc.retrieve(out_dir)
-    else:
+    if abnormal_ending:
         print("Job ended abnormally")
+    else:
+        raven_proc.retrieve(out_dir)
 
     raven_proc.cleanup()
 
