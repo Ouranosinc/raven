@@ -1,9 +1,12 @@
 from . common import TESTDATA
+import raven
 from raven.models import Raven, Ostrich
 import tempfile
 import numpy as np
 from pathlib import Path
-import os
+import pytest
+
+has_singularity = raven.raven_simg.exists()
 
 
 class TestRaven:
@@ -14,7 +17,7 @@ class TestRaven:
 
         model = Raven()
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     def test_mohyse(self):
         rvs = TESTDATA['raven-mohyse-rv']
@@ -22,7 +25,7 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     def test_hmets(self):
         rvs = TESTDATA['raven-hmets-rv']
@@ -30,13 +33,23 @@ class TestRaven:
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
-        model.run(ts)
+        model(ts)
 
     def test_hbvec(self):
         rvs = TESTDATA['raven-hbv-ec-rv']
         ts = TESTDATA['raven-hbv-ec-ts']
 
         model = Raven(tempfile.mkdtemp())
+        model.configure(rvs)
+        model(ts)
+
+    @pytest.mark.skipif(not has_singularity, reason="Singularity is not available.")
+    def test_singularity(self):
+        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+
+        model = Raven()
+        model.singularity = True
         model.configure(rvs)
         model.run(ts)
 
@@ -50,7 +63,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -87,7 +100,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -128,7 +141,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -176,7 +189,7 @@ class TestOstrich:
         model = Ostrich(test=True)
         model.configure(ost)
         print(model.exec_path)
-        model.run(ts)
+        model(ts)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
