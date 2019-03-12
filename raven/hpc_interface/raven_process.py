@@ -1,6 +1,5 @@
 import os
 import re
-import tempfile
 import logging
 import constants
 import hpc_connection
@@ -41,7 +40,7 @@ class RavenHPCProcess(object):
 
         self.hpc_connection.copy_data_to_remote(dataset)
 
-        remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, dataset,
+        remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, "00:30:00", dataset,
                                                                        "batch_template.txt", self.shub_hostname)
         if self.process_name == "ostrich":
             # In addition, copy  raven script

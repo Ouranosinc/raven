@@ -202,13 +202,13 @@ class HPCConnection(object):
 
     # executable_ is either raven or ostrich
 # unravenized: ok
-    def copy_batchscript(self, executable_, datafile_basename, batch_tmplt_fname, shub_hostname):
+    def copy_batchscript(self, executable_, guessed_duration, datafile_basename, batch_tmplt_fname, shub_hostname):
 
         template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
-        tmplt = tmplt.replace("ACCOUNT", "def-dhuard-ab")   #def-fouchers
-        tmplt = tmplt.replace("DURATION", "00:31:00")
+        tmplt = tmplt.replace("ACCOUNT", constants.cc_account_info)   #def-fouchers
+        tmplt = tmplt.replace("DURATION", guessed_duration)
         tmplt = tmplt.replace("TEMP_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("INPUT_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("OUTPUT_PATH", abs_remote_output_dir)
