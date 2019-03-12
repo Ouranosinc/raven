@@ -72,12 +72,12 @@ def newmainfct(argv):
         try:
 
             out, p = raven_proc.monitor()
-            print(out)
+            #print(out)
             if out == "RUNNING":
                 if p is not None:
                     print("Running ({}%)".format(p))
                 else:
-                    print("Running (?%)")
+                    print("Running (??%)")
             if out == "COMPLETED":
                 job_finished = True
             if out == "TIMEOUT" or out == "CANCELLED":
