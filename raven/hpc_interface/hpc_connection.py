@@ -144,7 +144,7 @@ class HPCConnection(object):
             line = ""
             for l in output[self.hostname].stdout:
                 line += l
-            print(line)
+            #print(line)
             tar_size = int(re.match("[0-9]*", line).group(0))
 
             self.logger.info("{} bytes to copy from remote".format(tar_size))
