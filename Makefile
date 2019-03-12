@@ -2,7 +2,7 @@
 APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
-# Anaconda
+CONDA := $(shell command -v conda 2> /dev/null)
 ANACONDA_HOME := $(HOME)/miniconda3
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
@@ -51,6 +51,12 @@ help:
 	@echo "  docs        to generate HTML documentation with Sphinx."
 
 ## Anaconda targets
+
+.PHONY: anaconda
+anaconda:
+	@echo "Installing Anaconda ..."
+	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
+	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
 
 .PHONY: anaconda
 anaconda:
