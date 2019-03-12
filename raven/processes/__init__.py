@@ -10,6 +10,7 @@ from .wps_ostrich_hmets import OstrichHMETSProcess
 from .wps_ostrich_hbv_ec import OstrichHBVECProcess
 from .wps_objective_functions import ObjectiveFunctionProcess
 from .wps_regionalisation import RegionalisationProcess
+from .wps_raven_multi_model import RavenMultiModelProcess
 
 processes = [
     RavenProcess(),
@@ -23,5 +24,6 @@ processes = [
     OstrichHMETSProcess(),
     OstrichHBVECProcess(),
     ObjectiveFunctionProcess(),
+    RavenMultiModelProcess(),
     # RegionalisationProcess(),
 ]

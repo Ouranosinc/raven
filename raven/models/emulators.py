@@ -6,6 +6,7 @@ from .rv import RV, RVI, Ost
 
 class GR4JCN(Raven):
     """GR4J + Cemaneige"""
+    identifier = 'gr4jcn'
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
     params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
@@ -37,6 +38,7 @@ class GR4JCN_OST(Ostrich, GR4JCN):
 
 
 class MOHYSE(Raven):
+    identifier = 'mohyse'
     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
 
     params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 9)]))
@@ -70,6 +72,7 @@ class MOHYSE_OST(Ostrich, MOHYSE):
 
 
 class HMETS(GR4JCN):
+    identifier = 'hmets'
     templates = tuple((Path(__file__).parent / 'raven-hmets').glob("*.rv?"))
 
     params = namedtuple('HMETSParams', ('GAMMA_SHAPE', 'GAMMA_SCALE', 'GAMMA_SHAPE2', 'GAMMA_SCALE2',
@@ -112,6 +115,7 @@ class HMETS_OST(Ostrich, HMETS):
 
 
 class HBVEC(GR4JCN):
+    identifier = 'hbvec'
     templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
 
     params = namedtuple('HBVECParams', ('par_x{:02}'.format(i) for i in range(1, 22)))
@@ -156,3 +160,30 @@ class HBVEC_OST(Ostrich, HBVEC):
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
         pass
+
+
+def get_model(name):
+    """Return the corresponding Raven emulated model instance.
+
+    Parameters
+    ----------
+    name : str
+      Model class name or model identifier.
+
+    Returns
+    -------
+    Raven model instance
+    """
+    from raven.models import emulators
+
+    model_cls = getattr(emulators, name, None)
+
+    if model_cls is None:
+        for m in [GR4JCN, MOHYSE, HMETS, HBVEC]:
+            if m.identifier == name:
+                model_cls = m
+
+    if model_cls is None:
+        raise ValueError("Model {} is not recognized.".format(name))
+
+    return model_cls

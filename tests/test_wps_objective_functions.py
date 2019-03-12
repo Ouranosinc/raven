@@ -17,7 +17,7 @@ def gr4j():
 
     model = Raven(tempfile.mkdtemp())
     model.configure(rvs)
-    model.run([ts, ], )
+    model([ts, ], )
     return model
 
 

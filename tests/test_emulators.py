@@ -1,5 +1,6 @@
-from . common import TESTDATA, make_bnds
+from . common import TESTDATA
 from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
+from raven.models import RavenMultiModel
 import tempfile
 import datetime as dt
 import numpy as np
@@ -24,7 +25,7 @@ class TestGR4JCN:
 
         model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
 
-        model.run([ts, ])
+        model([ts, ])
 
         d = model.diagnostics
         # yields NSE=0.5112 for full period 1954-2010
@@ -106,6 +107,22 @@ class TestGR4JCN:
 
         model = GR4JCN()
         assert model.version == '2.9'
+
+    def test_parallel(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        model = GR4JCN()
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=[(0.529, -3.396, 407.29, 1.072, 16.9, 0.947), (0.528, -3.4, 407.3, 1.07, 17, .95)]
+              )
+
+        assert len(model.diagnostics) == 2
+        assert len(model.hydrograph) == 2
 
 
 class TestGR4JCN_OST:

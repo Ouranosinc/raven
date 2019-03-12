@@ -1,34 +1,34 @@
-#########################################################################                                  
-:FileType          rvi ASCII Raven 2.8.2                                                                              
-:WrittenBy         James Craig & Juliane Mai                                                                       
+#########################################################################
+:FileType          rvi ASCII Raven 2.8.2
+:WrittenBy         James Craig & Juliane Mai
 :CreationDate      Oct 2018
 #
-# Emulation of HMETS simulation of Salmon River near Prince George                                                             
+# Emulation of HMETS simulation of Salmon River near Prince George
 #------------------------------------------------------------------------
 #
 #
 
-:RunName               {run_name}
+:RunName               {run_name}-{run_index}
 :StartDate             {start_date}
 :Duration              {duration}
 :TimeStep              {time_step}
-:Method                ORDERED_SERIES 
+:Method                ORDERED_SERIES
 
 :PotentialMeltMethod     POTMELT_HMETS
 :RainSnowFraction        RAINSNOW_DATA
 :Evaporation             PET_DATA
 #:Evaporation            PET_OUDIN
 :CatchmentRoute          ROUTE_DUMP
-:Routing                 ROUTE_NONE 
+:Routing                 ROUTE_NONE
 
 :SoilModel               SOIL_TWO_LAYER
 
-:Alias DELAYED_RUNOFF CONVOLUTION[1] 
+:Alias DELAYED_RUNOFF CONVOLUTION[1]
 
 :HydrologicProcesses
   :SnowBalance     SNOBAL_HMETS    MULTIPLE     MULTIPLE
-  :Precipitation   RAVEN_DEFAULT   ATMOS_PRECIP MULTIPLE 
-  :Infiltration    INF_HMETS       PONDED_WATER MULTIPLE 
+  :Precipitation   RAVEN_DEFAULT   ATMOS_PRECIP MULTIPLE
+  :Infiltration    INF_HMETS       PONDED_WATER MULTIPLE
     :Overflow      OVERFLOW_RAVEN  SOIL[0]      DELAYED_RUNOFF
   :Baseflow        BASE_LINEAR     SOIL[0]      SURFACE_WATER   # interflow, really
   :Percolation     PERC_LINEAR     SOIL[0]      SOIL[1]         # recharge

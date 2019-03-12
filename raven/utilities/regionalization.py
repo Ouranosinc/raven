@@ -98,12 +98,12 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     reg_params = regionalization_params(method, sparams, sprop, ungauged_properties, filtered_params, filtered_prop)
 
     # Run the model over all parameters and create ensemble DataArray
-    m = get_model(model)
+    m = get_model(model)()
     qsims = []
 
     for params in reg_params:
         kwds['params'] = params
-        m.run(overwrite=True, **kwds)
+        m(overwrite=True, **kwds)
         qsims.append(m.q_sim.copy(deep=True))
 
     qsims = xr.concat(qsims, dim=cr)
