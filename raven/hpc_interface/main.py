@@ -12,10 +12,8 @@ src_data_dir/datasetname/datasetname.rv?
 
 
 def newmainfct(argv):
-    # print("main.py command (Submit|Monitor|Retrieve)")
 
-    logger = logging.getLogger()
-    h = logging.FileHandler("hpclog.txt", mode='w')
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG, filename="hpclog.txt", filemode='w')
 
     try:
         opts, args = getopt.getopt(argv, "e:d:i:o:t:n")
