@@ -273,7 +273,8 @@ class HPCConnection(object):
 #            print("SFTPIOError")
 #            return False
         except Exception as e:
-            print("!{}!".format(e))
+            pass
+            #print("!{}!".format(e))
 
         return filecontent
 

@@ -23,6 +23,7 @@ class RavenHPCProcess(object):
         self.live_job_id = None
         self.template_path = connection_cfg_dict.get("template_path", "./")
         self.shub_hostname = connection_cfg_dict.get("SHubHostname", constants.shub_server)
+        self.last_progress = 0
 
     def check_connection(self):
 
@@ -54,6 +55,7 @@ class RavenHPCProcess(object):
         jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
         print("job id = " + jobid)
         self.live_job_id = jobid
+        self.last_progress = 0
 
     def retrieve(self, output_folder):
 
@@ -80,7 +82,7 @@ class RavenHPCProcess(object):
         # job_status, progressfilecontent
         progressfile = None
         if self.process_name == 'raven':
-            progressfile = 'out/RavenProgress.txt'
+            progressfile = 'out/Raven_progress.txt'
         if self.process_name == 'ostrich':
             progressfile = 'OstProgress0.txt'
         s = progress = None
@@ -95,16 +97,18 @@ class RavenHPCProcess(object):
                     progressfile_content = self.hpc_connection.read_from_remote(progressfile)
 
                     for line in progressfile_content:
+
                         match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
                         if match_obj:
                             progress = match_obj.group(1)
+                            self.last_progress = progress
 
                                 # progress_data = json.load(f)
         except SessionError:
             print("reconnecting")
             self.hpc_connection.reconnect()
 
-        return s, progress
+        return s, self.last_progress
 
     def cleanup(self):
 
