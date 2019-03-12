@@ -292,6 +292,7 @@ class Raven:
         # Write configuration files in model directory
         if not self.model_path.exists():
             os.makedirs(self.model_path)
+            os.makedirs(self.output_path)
         self._dump_rv()
 
         # Create symbolic link to input files
@@ -628,10 +629,6 @@ class Ostrich(Raven):
     identifier = 'generic-ostrich'
     _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt', 'txt')
     txt = RV()
-
-    @property
-    def output_path(self):
-        return self.model_path / self.output_dir
 
     @property
     def model_path(self):
