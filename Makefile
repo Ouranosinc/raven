@@ -2,7 +2,6 @@
 APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
-# Anaconda
 CONDA := $(shell command -v conda 2> /dev/null)
 ANACONDA_HOME := $(HOME)/miniconda3
 CONDA_ENV ?= $(APP_NAME)
@@ -53,11 +52,11 @@ help:
 
 ## Anaconda targets
 
-.PHONY: check_conda
-check_conda:
-ifndef CONDA
-		$(error "Conda is not available. Please install miniconda: https://conda.io/miniconda.html")
-endif
+.PHONY: anaconda
+anaconda:
+	@echo "Installing Anaconda ..."
+	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
+	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
 
 .PHONY: anaconda
 anaconda:
@@ -66,10 +65,10 @@ anaconda:
 	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
 
 .PHONY: conda_env
-conda_env: check_conda
+conda_env:
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(CONDA)" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
+	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: envclean
 envclean: check_conda
@@ -87,7 +86,6 @@ bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
-
 .PHONY: raven_dev
 raven_dev:
 	@echo "Downloading RAVEN hydrological framework ..."
@@ -99,7 +97,6 @@ raven_dev:
 	@test -f $(RAVEN_SRC)/raven_rev.exe || $(MAKE) -C $(RAVEN_SRC) -j4
 	@test -d bin || mkdir bin
 	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
-
 
 .PHONY: ostrich_dev
 ostrich_dev:
@@ -113,7 +110,6 @@ ostrich_dev:
 	@test -d bin || mkdir bin
 	@-bash -c "cp $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) ./bin/ostrich"
 
-
 .PHONY: raven_clean
 raven_clean:
 	@echo "Removing src and executable for RAVEN"
@@ -121,14 +117,12 @@ raven_clean:
 	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
 	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
 
-
 .PHONY: ostrich_clean
 ostrich_clean:
 	@echo "Removing src and executable for OSTRICH"
 	@test -f $(CURDIR)/src/OSTRICH.zip && rm -v "$(CURDIR)/src/OSTRICH.zip" || echo "No zip to remove"
 	@test -d $(OSTRICH_SRC) && rm -rfv $(OSTRICH_SRC) || echo "No src directory to remove"
 	@test -f ./bin/ostrich && rm -v ./bin/ostrich || echo "No executable to remove"
-
 
 .PHONY: install
 install: bootstrap raven_dev ostrich_dev

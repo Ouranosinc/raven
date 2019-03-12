@@ -1,4 +1,4 @@
-import cema_neige
+from . import cema_neige
 import numpy as np
 
 
@@ -177,6 +177,7 @@ def bounds():
         [0, 1]
     X6 : day-degree rate of melting (mm/(day*celsius degree))
         [1, 10]
+
     """
     bnds = ((0, 50), (0, 400), (0, 10), (0, 1000),
             (0, 1), (0, 1), (0, 1), (0.1, 3),
