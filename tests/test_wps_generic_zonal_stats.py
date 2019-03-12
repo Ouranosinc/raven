@@ -121,4 +121,3 @@ class TestGenericZonalStatsProcess:
 
             geometry = shape(features[0]['geometry'])
             assert isinstance(type(geometry), type(MultiPolygon))
-

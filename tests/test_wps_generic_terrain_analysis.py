@@ -61,4 +61,3 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]['elevation'] > 0
         assert out[0]['slope'] > 0
         assert out[0]['aspect'] > 0
-
