@@ -22,6 +22,7 @@ class RavenHPCProcess(object):
         self.hpc_connection = hpc_connection.HPCConnection(connection_cfg_dict)
         self.process_name = process_name
         self.live_job_id = None
+        self.template_path = connection_cfg_dict.get("template_path", "./")
         self.shub_hostname = connection_cfg_dict.get("SHubHostname", constants.shub_server)
 
     def check_connection(self):
@@ -42,6 +43,14 @@ class RavenHPCProcess(object):
 
         remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, dataset,
                                                                        "batch_template.txt", self.shub_hostname)
+        if self.process_name == "ostrich":
+            # In addition, copy  raven script
+
+            srcfilee = os.path.join(self.template_path, "Ost-RAVEN.sh")
+            self.hpc_connection.copy_singlefile_to_remote(srcfilee, is_executable=True)
+            self.hpc_connection.create_remote_subdir("model/output")
+
+
         print("Running " + remote_abs_script_fname)
         jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
         print("job id = " + jobid)

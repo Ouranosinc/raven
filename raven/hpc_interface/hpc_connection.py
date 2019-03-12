@@ -185,9 +185,23 @@ class HPCConnection(object):
         except Exception as e:
             self.logger.error("Exception during file transfer from remote: {}".format(e))
 
-    # executable_ is either raven or ostrich
-    # todo: move to raven_process
 
+    def copy_singlefile_to_remote(self, local_filename, remote_path=".", is_executable=False):
+
+
+        r = os.path.join(self.remote_abs_working_folder, remote_path, os.path.basename(local_filename))
+        g = self.client.copy_file(local_filename, r)
+        joinall(g, raise_error=True)
+        if is_executable:
+            self.client.run_command("chmod ugo+x " + r)
+
+    def create_remote_subdir(self, remote_subdir):
+
+        self.client.run_command("mkdir -p " + os.path.join(self.remote_abs_working_folder, remote_subdir))
+        self.client.run_command("chmod 777 " + os.path.join(self.remote_abs_working_folder, remote_subdir))
+
+    # executable_ is either raven or ostrich
+# unravenized: ok
     def copy_batchscript(self, executable_, datafile_basename, batch_tmplt_fname, shub_hostname):
 
         template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
@@ -215,17 +229,6 @@ class HPCConnection(object):
         joinall(g, raise_error=True)
         self.client.run_command("chmod ugo+x " + os.path.join(self.remote_abs_working_folder, subst_fname))
         os.remove("/tmp/"+subst_fname)
-
-        if executable_ == "ostrich":
-            # In addition, copy  raven script
-            r = os.path.join(self.remote_abs_working_folder, "Ost-RAVEN.sh")
-            srcfilee = os.path.join(self.template_path, "Ost-RAVEN.sh")
-            g = self.client.copy_file(srcfilee, r)
-            joinall(g, raise_error=True)
-            self.client.run_command("chmod ugo+x " + r)
-            self.client.run_command("mkdir " + self.remote_abs_working_folder + "/model/output")
-
-            self.client.run_command("chmod 777 " + self.remote_abs_working_folder + "/model/output")
 
         return os.path.join(self.remote_abs_working_folder, subst_fname)
 
