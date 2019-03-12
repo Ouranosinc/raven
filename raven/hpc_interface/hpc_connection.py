@@ -315,7 +315,7 @@ class HPCConnection(object):
 # unravenized: ok
     def cancel_job(self, jobid):
 
-        cmd = constants.scancel_cmd + " -j {}".format(jobid)
+        cmd = constants.scancel_cmd + " {}".format(jobid)
 
         output = self.client.run_command(cmd)
 
