@@ -438,7 +438,7 @@ class Raven:
         # Try to create a zip file
         with zipfile.ZipFile(outfn, 'w') as f:
             for fn in files:
-                f.write(fn)
+                f.write(fn, arcname=fn.name)
 
         return outfn
 

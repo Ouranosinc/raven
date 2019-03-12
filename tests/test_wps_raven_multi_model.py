@@ -25,6 +25,7 @@ class TestRavenMultiModelProcess:
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
+                     "run_name={run_name};" \
                      "area={area};" \
                      "latitude={latitude};" \
                      "longitude={longitude};" \
