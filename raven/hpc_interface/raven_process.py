@@ -31,7 +31,7 @@ class RavenHPCProcess(object):
         if not status:
             return status, msg
 
-        response = os.system("ping -c 1 " + self.shub_hostname)
+        response = os.system("ping -c 1 -q " + self.shub_hostname + " > /dev/null 2>&1")
         if response == 0:
             return True, None
         else:

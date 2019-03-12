@@ -90,7 +90,7 @@ class HPCConnection(object):
 
         self.logger.debug("system cmd: "+"tar cvf /tmp/" + remote_temp_folder +
                           ".tar -C " + os.path.join(local_datapath, df_basename)+" .")
-        os.system("tar cvf /tmp/" + remote_temp_folder + ".tar -C " + os.path.join(local_datapath, df_basename) + " .")
+        os.system("tar cf /tmp/" + remote_temp_folder + ".tar -C " + os.path.join(local_datapath, df_basename) + " .")
         try:
             self.logger.debug("Copying data tar file")
             g = self.client.scp_send("/tmp/" + remote_temp_folder + ".tar", remote_tar)
