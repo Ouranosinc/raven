@@ -1,9 +1,9 @@
-#########################################################################                                  
-:FileType          rvt ASCII Raven 2.8.2                                                                              
-:WrittenBy         Juliane Mai & James Craig                                                                             
+#########################################################################
+:FileType          rvt ASCII Raven 2.8.2
+:WrittenBy         Juliane Mai & James Craig
 :CreationDate      Sep 2018
 #
-# Emulation of HMETS simulation of Salmon River near Prince George                                                             
+# Emulation of HMETS simulation of Salmon River near Prince George
 #------------------------------------------------------------------------
 
 # meteorological forcings
@@ -15,35 +15,40 @@
       :ReadFromNetCDF
          :FileNameNC     {pr}
          :VarNameNC      {pr_var}
-         :DimNamesNC     time
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
       :EndReadFromNetCDF
    :EndData
    :Data SNOWFALL mm/d
       :ReadFromNetCDF
          :FileNameNC     {prsn}
          :VarNameNC      {prsn_var}
-         :DimNamesNC     time
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MIN deg_C
       :ReadFromNetCDF
          :FileNameNC     {tasmin}
          :VarNameNC      {tasmin_var}
-         :DimNamesNC     time
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MAX deg_C
       :ReadFromNetCDF
          :FileNameNC     {tasmax}
          :VarNameNC      {tasmax_var}
-         :DimNamesNC     time
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
       :EndReadFromNetCDF
    :EndData
    :Data PET mm/d
       :ReadFromNetCDF
          :FileNameNC     {evspsbl}
          :VarNameNC      {evspsbl_var}
-         :DimNamesNC     time
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
       :EndReadFromNetCDF
    :EndData
 :EndGauge
@@ -53,6 +58,7 @@
     :ReadFromNetCDF
          :FileNameNC     {water_volume_transport_in_river_channel}
          :VarNameNC      {water_volume_transport_in_river_channel_var}
-         :DimNamesNC     time
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
     :EndReadFromNetCDF
 :EndObservationData
