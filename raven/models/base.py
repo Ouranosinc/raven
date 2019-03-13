@@ -282,9 +282,10 @@ class Raven:
           Run index.
         """
         # Match the input files
-        files, var_names = self._assign_files(ts, self.rvt.keys())
+        files, var_names, dimensions = self._assign_files(ts)
         self.rvt.update(files, force=True)
-        self.rvd.update(var_names, force=True)
+        self.rvt.update(var_names, force=True)
+        self.rvt.update({'nc_dimensions': dimensions}, force=True)
 
         # Compute derived parameters
         self.derived_parameters()
@@ -453,7 +454,7 @@ class Raven:
             out += f.read_text()
         return out
 
-    def _assign_files(self, fns, variables):
+    def _assign_files(self, fns):
         """Find for each variable the file storing it's data and the name of the netCDF variable.
 
         Parameters
@@ -473,22 +474,34 @@ class Raven:
         """
         files = {}
         var_names = {}
+        dimensions = {}
+        shape = {}
 
         for fn in fns:
             if '.nc' in fn.suffix:
                 with xr.open_dataset(fn) as ds:
-                    for var in variables:
-                        for alt_name in self._variable_names[var]:
+                    for var, alt_names in self._variable_names.items():
+                        for alt_name in alt_names:
                             if alt_name in ds.data_vars:
                                 files[var] = fn
                                 var_names[var + '_var'] = alt_name
+                                dimensions[var] = ds[alt_name].dims
+                                shape[var] = ds[alt_name].shape
                                 break
 
-        for var in variables:
-            if var not in files.keys():
+        for var in self._variable_names.keys():
+            if var in self.rvt.keys() and var not in files.keys():
                 raise ValueError("{} not found in files.".format(var))
 
-        return files, var_names
+        dims = set(dimensions.values())
+        if len(dims) > 1:
+            raise AttributeError("All forcing variables should have the same dimensions.")
+
+        sh = set(shape.values())
+        if len(sh) > 1:
+            raise AttributeError("All forcing variables should have the same shape.")
+
+        return files, var_names, dims.pop()
 
     def _get_output(self, pattern, path):
         """Match actual output files to known expected files.
