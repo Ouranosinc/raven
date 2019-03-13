@@ -147,3 +147,58 @@ def make_bnds(params, delta):
     arr = np.asarray(params)
     d = np.abs(arr * delta)
     return tuple(arr - d), tuple(arr + d)
+
+
+def _convert_2d(fn):
+    """Take the 1D Salmon time series and convert it to a 2D time series.
+
+    Example
+    -------
+    >>> fn = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
+    >>> fn2 = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily_2d.nc"
+    >>> _convert_2d(fn).to_netcdf(fn2, 'w')
+    """
+
+    features = {'name': 'Salmon',
+                'area': 4250.6,
+                'elevation': 843.0,
+                'latitude': 54.4848,
+                'longitude': -123.3659}
+
+    ds = xr.open_dataset(fn).rename({'nstations': 'region'})
+
+    for v in ds.data_vars:
+        if v not in ['lon', 'lat']:
+            ds[v] = ds[v].expand_dims('region', axis=1)
+
+    # Add geometry feature variables
+    for key, val in features.items():
+        ds[key] = xr.DataArray(name=key, data=[val, ], dims=('region',), )
+
+    return ds
+
+
+def _convert_3d(fn):
+    """Take the 1D Salmon time series and convert it to a 3D time series.
+
+    Example
+    -------
+    >>> fn = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
+    >>> fn3 = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily_3d.nc"
+    >>> _convert_3d(fn).to_netcdf(fn3, 'w')
+    """
+    lon = [-123.3659, -120]
+    lat = [54.4848, 56]
+    ds = xr.open_dataset(fn).rename({'nstations': 'lat'})
+
+    out = xr.Dataset(coords={'lon': (['lon', ], lon),
+                             'lat': (['lat', ], lat),
+                             'time': ds.time}
+                     )
+    for v in ds.data_vars:
+        if v not in ['lon', 'lat']:
+            data = np.zeros((len(out.time), len(out.lon), len(out.lat)))
+            data[:, 1, 0] = ds.data_vars[v].data[:]
+            out[v] = xr.DataArray(data=data, dims=('time', 'lon', 'lat'), attrs=ds.data_vars[v].attrs)
+
+    return out
