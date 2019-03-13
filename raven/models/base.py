@@ -435,23 +435,24 @@ class Raven:
 
         # If there is only one file, return its name directly.
         if len(files) == 1:
-            return str(files[0])
+            return files[0]
 
         # Otherwise try to create a new file aggregating all files.
         outfn = self.final_path / name
 
-        if name.endswith('.nc'):  # We aggregate along the params dimensions. Hard-coded for now.
+        if name.endswith('.nc') and not isinstance(self, raven.models.RavenMultiModel):
             ds = [xr.open_dataset(fn) for fn in files]
             try:
-                out = xr.concat(ds, 'params', data_vars='identical')
+                # We aggregate along the params dimensions.
+                # Hard-coded for now.
+                out = xr.concat(ds, 'params', data_vars='different')
                 out.to_netcdf(outfn)
                 return outfn
-            except ValueError:
+            except (ValueError, KeyError):
                 pass
 
         # Let's zip the files that could not be merged.
-        root, ext = os.path.splitext(outfn)
-        outfn = root + '.zip'
+        outfn = outfn.with_suffix('.zip')
 
         # Try to create a zip file
         with zipfile.ZipFile(outfn, 'w') as f:
@@ -568,9 +569,9 @@ class Raven:
         If the model is run multiple times, hydrograph will point to the latest version. To store the results of
         multiple runs, either create different model instances or explicitly copy the file to another disk location.
         """
-        if self.outputs['hydrograph'].endswith('.nc'):
+        if self.outputs['hydrograph'].suffix == '.nc':
             return xr.open_dataset(self.outputs['hydrograph'])
-        elif self.outputs['hydrograph'].endswith('.zip'):
+        elif self.outputs['hydrograph'].suffix == '.zip':
             return [xr.open_dataset(fn) for fn in self.ind_outputs['hydrograph']]
         else:
             raise ValueError
