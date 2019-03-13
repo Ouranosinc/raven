@@ -46,7 +46,7 @@ class MOHYSE(Raven):
 
     rvp = RV(params=params(*((None, ) * 8)))
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=hrus(None, None))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
     rvd = RV(par_rezi_x10=None)
 
@@ -83,7 +83,7 @@ class HMETS(GR4JCN):
                                         'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'))
 
     rvp = RV(params=params(*((None,) * len(params._fields))))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
     rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
              PHREATIC_hlf=None)
