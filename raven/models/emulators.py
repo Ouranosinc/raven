@@ -158,9 +158,15 @@ class HBVEC_OST(Ostrich, HBVEC):
               )
 
     def derived_parameters(self):
-        """Derived parameters are computed by Ostrich."""
-        pass
+        import xarray as xr
 
+        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
+        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
+        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
+
+        tas = (tasmax + tasmin) / 2.
+        self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
+        self.rvd.mae = self.mae(*evap.groupby('time.month').mean().values)
 
 def get_model(name):
     """Return the corresponding Raven emulated model instance.
