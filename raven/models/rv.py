@@ -148,7 +148,7 @@ class RV(collections.Mapping):
 class RVT(RV):
     def __init__(self, **kwargs):
         self.nc_index = None
-        self._nc_dimensions = ()
+        self._nc_dimensions = None
 
         super(RVT, self).__init__(**kwargs)
 

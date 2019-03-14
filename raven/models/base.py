@@ -285,7 +285,8 @@ class Raven:
         files, var_names, dimensions = self._assign_files(ts)
         self.rvt.update(files, force=True)
         self.rvt.update(var_names, force=True)
-        self.rvt.update({'nc_dimensions': dimensions}, force=True)
+        if dimensions:
+            self.rvt.update({'nc_dimensions': dimensions}, force=True)
 
         # Compute derived parameters
         self.derived_parameters()
@@ -461,9 +462,6 @@ class Raven:
         ----------
         fns : sequence
           Paths to netCDF files.
-        variables : sequence
-          Names of the variables to look for. Specify their CF standard name, a dictionary of
-          alternative names will be used for the lookup.
 
         Returns
         -------
@@ -481,6 +479,8 @@ class Raven:
             if '.nc' in fn.suffix:
                 with xr.open_dataset(fn) as ds:
                     for var, alt_names in self._variable_names.items():
+                        if var not in self.rvt.keys():
+                            continue
                         for alt_name in alt_names:
                             if alt_name in ds.data_vars:
                                 files[var] = fn
@@ -493,15 +493,19 @@ class Raven:
             if var in self.rvt.keys() and var not in files.keys():
                 raise ValueError("{} not found in files.".format(var))
 
-        dims = set(dimensions.values())
-        if len(dims) > 1:
+        sdims = set(dimensions.values())
+        if len(sdims) == 0:
+            dims = None
+        if len(sdims) == 1:
+            dims = sdims.pop()
+        if len(sdims) > 1:
             raise AttributeError("All forcing variables should have the same dimensions.")
 
         sh = set(shape.values())
         if len(sh) > 1:
             raise AttributeError("All forcing variables should have the same shape.")
 
-        return files, var_names, dims.pop()
+        return files, var_names, dims
 
     def _get_output(self, pattern, path):
         """Match actual output files to known expected files.
