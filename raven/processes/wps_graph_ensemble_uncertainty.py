@@ -3,9 +3,9 @@ from pywps import Format
 from pywps import Process
 import zipfile
 from pathlib import Path
-from raven.utilities.graphs import ensemble_uncertainty
+from raven.utilities.graphs import ensemble_uncertainty_annual
 from matplotlib import pyplot as plt
-
+import os
 
 class GraphEnsUncertaintyProcess(Process):
     def __init__(self):
@@ -41,8 +41,9 @@ class GraphEnsUncertaintyProcess(Process):
         with zipfile.ZipFile(sim_fn) as z:
             z.extractall(tmp)
 
-        # Create and save graphic
-        fig = ensemble_uncertainty(tmp.glob('*.nc'))
+        # Create and save graphic    
+        nameList=os.listdir(tmp) # Get the filenames from the tmp folder
+        fig = ensemble_uncertainty_annual(tmp.glob('*.nc'),nameList)
         fig_fn = Path(self.workdir) / 'ensemble_uncertainty.png'
         fig.savefig(fig_fn)
         plt.close(fig)
