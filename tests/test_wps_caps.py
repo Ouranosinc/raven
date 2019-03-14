@@ -26,5 +26,6 @@ def test_wps_caps():
                   'ostrich-hmets',
                   'ostrich-hbv-ec',
                   'objective-function',
+                  'graph-ensemble-uncertainty',
                   # 'regionalisation',
                   }
