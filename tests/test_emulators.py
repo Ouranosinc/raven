@@ -122,7 +122,7 @@ class TestGR4JCN:
               )
 
         assert len(model.diagnostics) == 2
-        assert len(model.hydrograph) == 2
+        assert model.hydrograph.dims['params'] == 2
 
 
 class TestGR4JCN_OST:
