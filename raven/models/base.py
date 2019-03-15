@@ -425,6 +425,7 @@ class Raven:
 
         for key, pattern in patterns.items():
             fns = self._get_output(pattern, path=path)
+            fns.sort()
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
 
