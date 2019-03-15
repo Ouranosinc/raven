@@ -2,7 +2,7 @@ import pytest
 import os
 import datetime as dt
 import numpy as np
-import pdb
+
 from pywps import Service
 from pywps.tests import assert_response_success
 
@@ -66,15 +66,15 @@ class TestOstrichHMETSProcess:
         tmp_content = open(tmp_file).readlines()
 
         # TODO Julie :: values not adjusted yet!!! WPS needs to work first ...
-        pdb.set_trace()
+      
         # checking correctness of NSE (full period 1954-2010 with budget 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -1.430270, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, -2.2878, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2010 with budget 50 would be RMSE=????)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 80.7715, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 93.9472, 4, err_msg='RMSE is not matching expected value')
