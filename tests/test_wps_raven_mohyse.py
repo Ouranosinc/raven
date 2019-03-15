@@ -9,6 +9,7 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenMOHYSEProcess
 import xarray as xr
 
+
 class TestRavenMOHYSEProcess:
 
     def test_simple(self):
@@ -63,7 +64,7 @@ class TestRavenMOHYSEProcess:
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
         np.testing.assert_almost_equal(diag, 32.2197, 4, err_msg='RMSE is not matching expected value')
-        
+
     def test_parallel(self):
         client = client_for(Service(processes=[RavenMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
@@ -73,7 +74,7 @@ class TestRavenMOHYSEProcess:
         hrus2 = '0.903, 5.65'
         params3 = '0.98, 0.04, 4.2, 2.6, 0.40, 0.05, 0.03, 0.03'
         hrus3 = '0.90, 5.5'
-        
+
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params1};" \
                      "params={params2};" \
@@ -112,6 +113,5 @@ class TestRavenMOHYSEProcess:
         assert_response_success(resp)
         tmp_file, _ = urlretrieve(get_output(resp.xml)['hydrograph'])
         ds = xr.open_dataset(tmp_file)
-   
-        assert ds.variables['q_sim'].shape[0] == 3
 
+        assert ds.variables['q_sim'].shape[0] == 3
