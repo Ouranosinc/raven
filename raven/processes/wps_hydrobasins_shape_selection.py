@@ -18,7 +18,7 @@ from tests.common import TESTDATA
 LOGGER = logging.getLogger("PYWPS")
 
 DATA = Path(__file__).parent / 'hydrobasins_tables'
-HYBAS={
+HYBAS = {
     'lake_lev07': DATA / 'hybas_lake_na_lev07.csv',
     'lake_lev08': DATA / 'hybas_lake_na_lev08.csv',
     'lake_lev09': DATA / 'hybas_lake_na_lev09.csv',
