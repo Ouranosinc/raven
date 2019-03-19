@@ -3,8 +3,10 @@ import json
 import logging
 import tempfile
 
-import fiona as fio
+import fiona
+import pandas as pd
 import geopandas as gpd
+from pathlib import Path
 
 from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
@@ -14,6 +16,22 @@ from shapely.geometry import shape, Point
 from tests.common import TESTDATA
 
 LOGGER = logging.getLogger("PYWPS")
+
+DATA = Path(__file__).parent / 'hydrobasins_tables'
+HYBAS={
+    'lake_lev07': DATA / 'hybas_lake_na_lev07.csv',
+    'lake_lev08': DATA / 'hybas_lake_na_lev08.csv',
+    'lake_lev09': DATA / 'hybas_lake_na_lev09.csv',
+    'lake_lev10': DATA / 'hybas_lake_na_lev10.csv',
+    'lake_lev11': DATA / 'hybas_lake_na_lev11.csv',
+    'lake_lev12': DATA / 'hybas_lake_na_lev12.csv',
+    'lev07': DATA / 'hybas_na_lev07.csv',
+    'lev08': DATA / 'hybas_na_lev08.csv',
+    'lev09': DATA / 'hybas_na_lev09.csv',
+    'lev10': DATA / 'hybas_na_lev10.csv',
+    'lev11': DATA / 'hybas_na_lev11.csv',
+    'lev12': DATA / 'hybas_na_lev12.csv',
+}
 
 
 class ShapeSelectionProcess(Process):
@@ -97,11 +115,11 @@ class ShapeSelectionProcess(Process):
 
         shape_crs = crs_sniffer(vector_file)
 
-        with fio.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
+        with fiona.Env():  # Workaround for pip-installed fiona; Can be removed in conda-installed systems
             geojson = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
             try:
-                for i, layer_name in enumerate(fio.listlayers(vector_file)):
-                    with fio.open(vector_file, 'r', crs=shape_crs, layer=i) as src:
+                for i, layer_name in enumerate(fiona.listlayers(vector_file)):
+                    with fiona.open(vector_file, 'r', crs=shape_crs, layer=i) as src:
                         for feat in iter(src):
                             geom = shape(feat['geometry'])
 
@@ -123,25 +141,36 @@ class ShapeSelectionProcess(Process):
 
                     if collect_upstream:
                         LOGGER.info('Collecting upstream from basin {}'.format(basin))
-                        with fio.Collection(vector_file, 'r', crs=shape_crs) as src:
-                            gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
-                            row_id = gdf['HYBAS_ID'] == basin
-                            main_basin_id = gdf[row_id]['MAIN_BAS']
-                            main_basin_mask = gdf['MAIN_BAS'] == main_basin_id.values[0]
-                            main_basin_gdf = gdf[main_basin_mask]
 
-                            all_basins = list(main_basin_gdf[row_id]['HYBAS_ID'].values)
+                        if lakes:
+                            table = HYBAS['lake_lev{}'.format(level)]
+                        else:
+                            table = HYBAS['lev{}'.format(level)]
+
+                        with fiona.Collection(vector_file, 'r', crs=shape_crs) as src:
+                            # Pandas to read tables
+                            df = pd.read_csv(table)
+                            row_id = df['HYBAS_ID'] == basin
+                            main_basin_id = df[row_id]['MAIN_BAS']
+                            main_basin_mask = df['MAIN_BAS'] == main_basin_id.values[0]
+                            main_basin_df = df[main_basin_mask]
+
+                            all_basins = list(main_basin_df[row_id]['HYBAS_ID'].values)
                             for b in all_basins:
-                                tmp = get_upstream_hydrobasins(main_basin_gdf, b)
+                                tmp = get_upstream_hydrobasins(main_basin_df, b)
                                 if len(tmp):
                                     all_basins.extend(tmp.values)
 
+                            # List all upstream basin IDs
                             upstream_basins = [x.item() for x in all_basins]  # Convert from numpy Int64
 
-                            df_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
+                            # GeoPandas to read shapefile
+                            gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
+                            main_basin_gdf = gdf[main_basin_mask]
+                            gdf_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
                             for a in all_basins[1:]:
-                                df_sub = df_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
-                            dissolved = df_sub.dissolve(by='MAIN_BAS').to_json()
+                                gdf_sub = gdf_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
+                            dissolved = gdf_sub.dissolve(by='MAIN_BAS').to_json()
 
                             LOGGER.info('Writing union of features to {}'.format(geojson.name))
                             with open(geojson.name, 'w') as f:
