@@ -166,10 +166,7 @@ class ShapeSelectionProcess(Process):
 
                             # GeoPandas to read shapefile
                             gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
-                            main_basin_gdf = gdf[main_basin_mask]
-                            gdf_sub = main_basin_gdf[main_basin_gdf['HYBAS_ID'] == all_basins[0]]
-                            for a in all_basins[1:]:
-                                gdf_sub = gdf_sub.append(main_basin_gdf[main_basin_gdf['HYBAS_ID'] == a])
+                            gdf_sub = gdf[gdf["HYBAS_ID"].isin(all_basins)]
                             dissolved = gdf_sub.dissolve(by='MAIN_BAS').to_json()
 
                             LOGGER.info('Writing union of features to {}'.format(geojson.name))

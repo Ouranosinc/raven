@@ -64,10 +64,10 @@ conda_env:
 	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
 	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
-.PHONY: envclean
-envclean:
+.PHONY: env_clean
+env_clean:
 	@echo "Removing conda env $(CONDA_ENV)"
-	@-"$(CONDA)" remove -n $(CONDA_ENV) --yes --all
+	@-"$(CONDA)" env remove -n $(CONDA_ENV) --yes --
 
 ## Build targets
 
@@ -140,7 +140,7 @@ status:
 	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && $(APP_NAME) status"
 
 .PHONY: clean
-clean: srcclean envclean
+clean: srcclean env_clean raven_clean ostrich_clean
 	@echo "Cleaning generated files ..."
 	@-for i in $(TEMP_FILES); do test -e $$i && rm -v -rf $$i; done
 
