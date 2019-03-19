@@ -58,12 +58,6 @@ anaconda:
 	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
 	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
 
-.PHONY: anaconda
-anaconda:
-	@echo "Installing Anaconda ..."
-	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
-	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
-
 .PHONY: conda_env
 conda_env:
 	@echo "Updating conda environment $(CONDA_ENV) ..."
@@ -71,7 +65,7 @@ conda_env:
 	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: envclean
-envclean: check_conda
+envclean:
 	@echo "Removing conda env $(CONDA_ENV)"
 	@-"$(CONDA)" remove -n $(CONDA_ENV) --yes --all
 
