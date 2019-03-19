@@ -1,3 +1,4 @@
+from raven import config
 from .wps_raven import RavenProcess
 from raven.models import GR4JCN
 from . import wpsio as wio
@@ -26,7 +27,8 @@ params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(params_defaults._fields),
                       data_type='string',
                       default=', '.join(str(p) for p in list(params_defaults)),
-                      min_occurs=0)
+                      min_occurs=0,
+                      max_occurs=config.max_parallel_processes)
 
 
 class RavenGR4JCemaNeigeProcess(RavenProcess):
