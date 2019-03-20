@@ -147,7 +147,7 @@ class ShapeSelectionProcess(Process):
                         else:
                             table = HYBAS['lev{}'.format(level)]
 
-                        with fiona.Collection(vector_file, 'r', crs=shape_crs) as src:
+                        with fiona.Collection(vector_file, 'r', crs=shape_crs, layer=i) as src:
                             # Pandas to read tables
                             df = pd.read_csv(table)
                             row_id = df['HYBAS_ID'] == basin
@@ -179,7 +179,7 @@ class ShapeSelectionProcess(Process):
                         #     # pfaf_start, pfaf_end = str(pfaf)[0:3], str(pfaf)[3:]
 
             except Exception as e:
-                msg = '{}: Failed to perform analysis using {} and location {}'.format(e, shape_url, lon, lat)
+                msg = '{}: Failed to perform analysis using {} and location {}: {}'.format(e, shape_url, lon, lat)
                 LOGGER.error(msg)
                 raise Exception(msg)
 
