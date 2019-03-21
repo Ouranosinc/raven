@@ -8,7 +8,7 @@ Created on Sat Mar 16 10:25:14 2019
 
 from pathlib import Path
 
-TESTS_HOME = Path(__file__).parent
+TESTS_HOME = Path(__file__).parent.parent.parent.parent
 TD = TESTS_HOME / 'tests' / 'testdata'
 CFG_FILE = [str(TESTS_HOME / 'test.cfg'), ]
 
