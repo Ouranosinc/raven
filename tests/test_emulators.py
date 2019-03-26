@@ -34,6 +34,9 @@ class TestGR4JCN:
         hds = model.q_sim
         assert hds.attrs['long_name'] == 'Simulated outflows'
 
+        # Check attributes
+        assert model.hydrograph.attrs['model_id'] == 'gr4jcn'
+
     def test_tags(self):
         model = GR4JCN(tempfile.mkdtemp())
 
