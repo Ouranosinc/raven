@@ -14,7 +14,6 @@ from raven.processes import OstrichGR4JCemaNeigeProcess
 class TestOstrichGR4JCemaNeigeProcess:
 
     def test_simple(self):
-        os.environ['TEST_OSTRICH'] = '1'
         client = client_for(Service(processes=[OstrichGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
 
         params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.053'
@@ -39,6 +38,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
+                     "random_seed=0" \
             .format(ts=TESTDATA['ostrich-gr4j-cemaneige-nc-ts'],
                     algorithm='DDS',
                     max_iterations=10,

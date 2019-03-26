@@ -67,6 +67,7 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     tuple_inputs = {'lowerBounds': GR4JCN_OST.params,
                     'upperBounds': GR4JCN_OST.params}
     inputs = [wio.ts, lowerBounds, upperBounds, wio.algorithm, wio.max_iterations, wio.start_date, wio.end_date,
-              wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
+              wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation,
+              wio.random_seed]
 
     keywords = ["Ostrich", "Calibration", "DDS"]

@@ -14,7 +14,6 @@ from raven.processes import OstrichMOHYSEProcess
 class TestOstrichMOHYSEProcess:
 
     def test_simple(self):
-        os.environ['TEST_OSTRICH'] = '1'
         client = client_for(Service(processes=[OstrichMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
         low_p = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01'
@@ -38,6 +37,7 @@ class TestOstrichMOHYSEProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
+                     "random_seed=0" \
             .format(ts=TESTDATA['ostrich-mohyse-nc-ts'],
                     algorithm='DDS',
                     max_iterations=10,

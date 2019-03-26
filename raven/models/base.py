@@ -67,15 +67,13 @@ class Raven:
                        }
     _parallel_parameters = ['params', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id', 'hrus']
 
-    def __init__(self, workdir=None, test=False):
+    def __init__(self, workdir=None):
         """Initialize the RAVEN model.
 
         Parameters
         ----------
         workdir : str, Path
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
-        test : book
-          If True, copies the random number seed file (only for Ostrich).
         """
         workdir = workdir or tempfile.mkdtemp()
 
@@ -87,7 +85,6 @@ class Raven:
         self.ind_outputs = {}  # Individual files for all simulations
         self.outputs = {}  # Aggregated files
         self.singularity = False  # Set to True to launch Raven with singularity.
-        self.test = test
         self.raven_exec = raven.raven_exec
         self.raven_simg = raven.raven_simg
         self.ostrich_exec = raven.ostrich_exec
@@ -242,6 +239,8 @@ class Raven:
 
         for rvf in self.rvfiles:
             p = self.exec_path if rvf.is_tpl else self.model_path
+            if rvf.stem == 'OstRandomNumbers' and self.txt.random_seed == "":
+                continue
             rvf.write(p, **params)
 
     def setup(self, overwrite=False):
@@ -396,7 +395,7 @@ class Raven:
             proc.wait()
             # Julie: For debugging
             # for line in iter(proc.stdout.readline, b''):
-            #     print(line)
+            #    print(line)
         try:
             self.parse_results()
 
@@ -703,10 +702,6 @@ class Ostrich(Raven):
         """
         Raven.setup(self, overwrite)
 
-        if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
-            if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
-                os.remove(self.exec_path / 'OstRandomNumbers.txt')
-
         os.makedirs(str(self.final_path), exist_ok=True)
 
         self.write_ostrich_runs_raven()
@@ -727,7 +722,7 @@ class Ostrich(Raven):
 
         # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path)[0])
+            self.outputs[key] = self._get_output(pattern, path=self.exec_path)[0]
 
     def parse_errors(self):
         try:
