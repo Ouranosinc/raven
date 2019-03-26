@@ -6,17 +6,19 @@ import xarray as xr
 from pywps.tests import WpsClient, WpsTestResponse
 from pywps import get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
+
 import six
+
 if six.PY2:
     from urllib import urlretrieve
 else:
     from urllib.request import urlretrieve
 
-
 VERSION = "1.0.0"
 WPS, OWS = get_ElementMakerForVersion(VERSION)
 xpath_ns = get_xpath_ns(VERSION)
 
+# TODO: pathlib is python3 only and this seems to be the only call from it.
 TESTS_HOME = Path(__file__).parent
 TD = TESTS_HOME / 'testdata'
 CFG_FILE = [str(TESTS_HOME / 'test.cfg'), ]
@@ -28,7 +30,6 @@ TESTDATA['gr4j-cemaneige'] = \
      'evap': TD / 'gr4j_cemaneige' / 'evap.nc'}
 
 TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
-
 TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
 
 TESTDATA['raven-mohyse-nc-ts'] = TESTDATA['raven-gr4j-cemaneige-nc-ts']
@@ -66,6 +67,16 @@ TESTDATA['ostrich-hbv-ec-rv'] = \
     tuple(TESTDATA['ostrich-hbv-ec'].glob("*.rv?")) + tuple(TESTDATA['ostrich-hbv-ec'].glob('*.t??'))
 TESTDATA['ostrich-hbv-ec-nc-ts'] = TESTDATA['raven-hbv-ec-nc-ts']
 
+TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebec_mrc_polygones.gml'
+TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
+TESTDATA['mrc_subset'] = TD / 'donneesqc_mrc_poly' / 'mrc_subset.gml'
+TESTDATA['melcc_water'] = TD / 'melcc_water_management' / 'zone_gestion_leau_saintlaurent.gpkg'
+
+# TODO: Replace the following files with subsets and set originals as production data
+TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_southernQuebec.tiff'
+TESTDATA['hydrobasins_lake_na_lev12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
+
+TESTDATA['simfile_single']=TD / 'hydro_simulations' / 'raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc'
 
 class WpsTestClient(WpsClient):
 
@@ -88,15 +99,15 @@ def get_output(doc):
         [identifier_el] = xpath_ns(output_el, './ows:Identifier')
 
         lit_el = xpath_ns(output_el, './wps:Data/wps:LiteralData')
-        if lit_el != []:
+        if lit_el:
             output[identifier_el.text] = lit_el[0].text
 
         ref_el = xpath_ns(output_el, './wps:Reference')
-        if ref_el != []:
+        if ref_el:
             output[identifier_el.text] = ref_el[0].attrib['href']
 
         data_el = xpath_ns(output_el, './wps:Data/wps:ComplexData')
-        if data_el != []:
+        if data_el:
             output[identifier_el.text] = data_el[0].text
 
     return output
@@ -119,16 +130,17 @@ def synthetic_gr4j_inputs(path):
 
 
 def make_bnds(params, delta):
-    """Return low and high parameter bounds by substracting and adding delta*params to params.
+    """Return low and high parameter bounds by subtracting and adding delta*params to params.
 
     Parameters
     ----------
     params : sequence
       Parameters.
     delta : float [0,1]
-      Relative delta to substract and add to parameters.
+      Relative delta to subtract and add to parameters.
 
     Returns
+    -------
     (tuple, tuple)
       Low and high bounds for parameters.
 
