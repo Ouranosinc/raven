@@ -5,7 +5,6 @@ import tempfile
 import datetime as dt
 import numpy as np
 
-
 class TestGR4JCN:
 
     def test_simple(self):
@@ -28,11 +27,15 @@ class TestGR4JCN:
         model([ts, ])
 
         d = model.diagnostics
-        # yields NSE=0.5112 for full period 1954-2010
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
+        # yields NSE=0.???? for full period 1954-2010
+        
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
 
         hds = model.q_sim
         assert hds.attrs['long_name'] == 'Simulated outflows'
+
+        # Check attributes
+        assert model.hydrograph.attrs['model_id'] == 'gr4jcn'
 
     def test_tags(self):
         model = GR4JCN(tempfile.mkdtemp())
@@ -72,7 +75,7 @@ class TestGR4JCN:
               params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
               )
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
 
     def test_overwrite(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
@@ -90,16 +93,16 @@ class TestGR4JCN:
         qsim1 = model.q_sim.copy(deep=True)
         m1 = qsim1.mean()
 
-        model(ts, params=(0.528, -3.4, 407.3, 1.07, 17, .95), overwrite=True)
+        model(ts, params=(0.5289, -3.397, 407.3, 1.071, 16.89, .948), overwrite=True)
 
         qsim2 = model.q_sim.copy(deep=True)
         m2 = qsim2.mean()
         assert m1 != m2
-
+        
         np.testing.assert_almost_equal(m1, m2, 1)
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.130614, 2)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0269642, 2)
 
     def test_version(self):
         model = Raven()
@@ -122,7 +125,7 @@ class TestGR4JCN:
               )
 
         assert len(model.diagnostics) == 2
-        assert len(model.hydrograph) == 2
+        assert model.hydrograph.dims['params'] == 2
 
 
 class TestGR4JCN_OST:
@@ -149,7 +152,8 @@ class TestGR4JCN_OST:
               )
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.5078130, 4)
+     
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.486033, 4)
 
         # Random number seed: 123
         # Budget:             10
@@ -158,9 +162,10 @@ class TestGR4JCN_OST:
         # :Duration           208
         opt_para = model.calibrated_params
         opt_func = model.obj_func
-        np.testing.assert_almost_equal(opt_para, [2.424726, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
+     
+        np.testing.assert_almost_equal(opt_para, [  2.423961 ,   3.758972 , 204.3856   ,   5.866946 ,  16.60408  ,0.3728098], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, -0.5078130, 4,
+        np.testing.assert_almost_equal(opt_func, -0.486033, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123
@@ -193,7 +198,8 @@ class TestHMETS:
               )
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.98165, 4)
+      
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -7.03141, 4)
 
 
 class TestHMETS_OST:
@@ -224,7 +230,8 @@ class TestHMETS_OST:
               )
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -1.430270, 4)
+     
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.2878, 4)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -244,14 +251,14 @@ class TestHMETS_OST:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [1.777842E+01, 3.317211E+00, 5.727342E+00, 1.419491E+00,
-                                                  1.382141E+01, 1.637954E+01, 7.166296E-01, 1.389346E-01,
-                                                  2.620464E-02, 2.245525E-01, 2.839426E-02, -2.003810E+00,
-                                                  9.479623E-01, 4.803857E-01, 2.524914E+00, 4.117232E-01,
-                                                  1.950058E-02, 4.494123E-02, 1.405815E-03, 2.815803E-02,
-                                                  1.007823E+00], 4,
+        np.testing.assert_almost_equal(opt_para, [ 1.806003e+01,  3.510955e+00,  1.195340e+01,  1.413509e+00,
+                                                   1.662893e+01,  1.794244e+01, -2.226484e-01,  1.391220e-01,
+                                                   5.429963e-02,  2.361525e-01,  2.706042e-02, -4.562373e+00,
+                                                   6.481391e-01,  5.493992e-01,  2.509283e+00,  4.213560e-01,
+                                                   1.784870e-02,  7.768531e-02,  4.568809e-03,  1.147092e-01,
+                                                   4.028124e-01], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 1.430270, 4,
+        np.testing.assert_almost_equal(opt_func, 2.2878, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123                       #
@@ -450,4 +457,4 @@ class TestHBVEC_OST():
         #                                           1.024278E+00], 4,
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -6.034670E-01, 4,
-        #                                err_msg='calibrated NSE is not matching expected value')
+#                                err_msg='calibrated NSE is not matching expected value')

@@ -4,7 +4,6 @@
 """The setup script."""
 
 import os
-
 from setuptools import setup, find_packages
 
 version = __import__('raven').__version__
@@ -25,7 +24,10 @@ classifiers = [
     "Programming Language :: Python :: 2",
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
     'Topic :: Scientific/Engineering :: Atmospheric Science',
     'License :: OSI Approved :: MIT License',
 ]
@@ -39,7 +41,7 @@ setup(name='raven',
       url='https://github.com/huard/raven',
       classifiers=classifiers,
       license="MIT license",
-      keywords='wps pywps birdhouse raven',
+      keywords='wps pywps birdhouse raven hydrology gis',
       packages=find_packages(),
       include_package_data=True,
       install_requires=reqs,

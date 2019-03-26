@@ -8,8 +8,6 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from shapely import geometry
 
-# from pywps import LiteralOutput, Format
-
 """
 Dependencies for pysheds not installed with python setup.py install. See requirements.txt.
 numpy, scipy, pandas, geojson, affine, scikit-image, pyproj, rasterio
@@ -47,7 +45,8 @@ class WatershedDelineation(Process):
                                   'to the HydroSheds DEM.',  # TODO: Include details (resolution, version).
                          metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
                                    Metadata(
-                                       'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from '
+                                       'Lehner, B., Verdin, K., Jarvis, A. (2008): New global '
+                                       'hydrography derived from '
                                        'spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
                          min_occurs=0,
@@ -60,7 +59,8 @@ class WatershedDelineation(Process):
                          # TODO: Include details (resolution, version).
                          metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
                                    Metadata(
-                                       'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from '
+                                       'Lehner, B., Verdin, K., Jarvis, A. (2008): New global '
+                                       'hydrography derived from '
                                        'spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
                          min_occurs=0,
@@ -87,6 +87,7 @@ class WatershedDelineation(Process):
             status_supported=True,
             store_supported=True)
 
+    # TODO: David, let me know if you work on this. I'm curious to throw my hat in the ring here.
     @staticmethod
     def _pysheds_handler(request, response):
 
@@ -125,6 +126,8 @@ class WatershedDelineation(Process):
 
     @staticmethod
     def _saga_handler(request, response):
+        # TODO: Refer to https://sourceforge.net/p/saga-gis/wiki/Compiling%20SAGA%20on%20Linux/
+        # TODO: Also refer to https://sourceforge.net/p/saga-gis/discussion/790705/thread/4b462702/
         pass
 
 
@@ -169,3 +172,8 @@ def testing():
     for (p, v) in catch:
         poly = geometry.asShape(p)
         ax1.plot(*poly.exterior.xy, color='white')
+    plt.show()
+
+
+if __name__ == "__main__":
+    testing()
