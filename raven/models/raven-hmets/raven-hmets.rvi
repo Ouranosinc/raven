@@ -16,8 +16,7 @@
 
 :PotentialMeltMethod     POTMELT_HMETS
 :RainSnowFraction        RAINSNOW_DATA
-:Evaporation             PET_DATA
-#:Evaporation            PET_OUDIN
+:Evaporation             PET_OUDIN
 :CatchmentRoute          ROUTE_DUMP
 :Routing                 ROUTE_NONE
 

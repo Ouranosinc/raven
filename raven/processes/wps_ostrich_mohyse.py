@@ -3,7 +3,6 @@ from raven.models import MOHYSE_OST
 from . import wpsio as wio
 import logging
 from pywps import FORMATS, LiteralInput, ComplexOutput
-import pdb
 from pathlib import Path
 
 LOGGER = logging.getLogger("PYWPS")
