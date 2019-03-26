@@ -2,7 +2,6 @@
 APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
-# Anaconda
 CONDA := $(shell command -v conda 2> /dev/null)
 ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
@@ -10,7 +9,7 @@ PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev177.zip
 RAVEN_SRC    = $(CURDIR)/src/RAVEN
 OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
 OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
@@ -53,17 +52,23 @@ help:
 
 ## Anaconda targets
 
-.PHONY: check_conda
-check_conda:
-ifndef CONDA
-		$(error "Conda is not available. Please install miniconda: https://conda.io/miniconda.html")
-endif
+.PHONY: anaconda
+anaconda:
+	@echo "Installing Anaconda ..."
+	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
+	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
+
+# .PHONY: anaconda
+# anaconda:
+# 	@echo "Installing Anaconda ..."
+# 	@test -d $(ANACONDA_HOME) || curl $(ANACONDA_URL)/$(FN) --silent --insecure --output "$(DOWNLOAD_CACHE)/$(FN)"
+# 	@test -d $(ANACONDA_HOME) || bash "$(DOWNLOAD_CACHE)/$(FN)" -b -p $(ANACONDA_HOME)
 
 .PHONY: conda_env
-conda_env: check_conda
+conda_env:
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(CONDA)" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	"$(CONDA)" env update -n $(CONDA_ENV) -f environment.yml
+	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: envclean
 envclean: check_conda
@@ -73,14 +78,13 @@ envclean: check_conda
 ## Build targets
 
 .PHONY: bootstrap
-bootstrap: conda_env bootstrap_dev
+bootstrap: anaconda conda_env bootstrap_dev
 	@echo "Bootstrap ..."
 
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
-
 
 .PHONY: raven_dev
 raven_dev:
@@ -94,7 +98,6 @@ raven_dev:
 	@test -d bin || mkdir bin
 	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
 
-
 .PHONY: ostrich_dev
 ostrich_dev:
 	@echo "Downloading OSTRICH calibration framework ..."
@@ -107,7 +110,6 @@ ostrich_dev:
 	@test -d bin || mkdir bin
 	@-bash -c "cp $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) ./bin/ostrich"
 
-
 .PHONY: raven_clean
 raven_clean:
 	@echo "Removing src and executable for RAVEN"
@@ -115,14 +117,12 @@ raven_clean:
 	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
 	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
 
-
 .PHONY: ostrich_clean
 ostrich_clean:
 	@echo "Removing src and executable for OSTRICH"
 	@test -f $(CURDIR)/src/OSTRICH.zip && rm -v "$(CURDIR)/src/OSTRICH.zip" || echo "No zip to remove"
 	@test -d $(OSTRICH_SRC) && rm -rfv $(OSTRICH_SRC) || echo "No src directory to remove"
 	@test -f ./bin/ostrich && rm -v ./bin/ostrich || echo "No executable to remove"
-
 
 .PHONY: install
 install: bootstrap raven_dev ostrich_dev
@@ -167,6 +167,11 @@ distclean: clean
 test:
 	@echo "Running tests (skip slow and online tests) ..."
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
+
+.PHONY: test_pdb
+test_pdb:
+	@echo "Running tests (skip slow and online tests) with --pdb ..."
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online' --pdb"
 
 .PHONY: testall
 testall:

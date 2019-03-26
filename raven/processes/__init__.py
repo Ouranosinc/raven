@@ -19,6 +19,7 @@ from .wps_raven_multi_model import RavenMultiModelProcess
 from .wps_graph_ensemble_uncertainty import GraphEnsUncertaintyProcess
 from .wps_graph_single_hydrograph import GraphSingleHydrographProcess
 
+
 processes = [
     RavenProcess(),
     GR4JCemaNeigeProcess(),
