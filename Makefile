@@ -3,13 +3,13 @@ APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
 CONDA := $(shell command -v conda 2> /dev/null)
-ANACONDA_HOME := $(HOME)/miniconda3
+ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev163.zip
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev177.zip
 RAVEN_SRC    = $(CURDIR)/src/RAVEN
 OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
 OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
