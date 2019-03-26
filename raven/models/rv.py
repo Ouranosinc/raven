@@ -253,8 +253,7 @@ class RVI(RV):
 class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
-        self.random_seed = None
-        self._comment_random = '#'
+        self._random_seed = None
 
         super(Ost, self).__init__(**kwargs)
 
@@ -271,16 +270,16 @@ class Ost(RV):
 
     @property
     def random_seed(self):
-        return self._random_seed
+        if self._random_seed is not None:
+            return "RandomSeed {}".format(self._random_seed)
+        return ""
 
     @random_seed.setter
     def random_seed(self, value):
-        self._random_seed = value
-        self._comment_random = '#' if value is None else ''
-
-    @property
-    def comment_random(self):
-        return self._comment_random
+        if value >= 0:
+            self._random_seed = value
+        else:
+            self._random_seed = None
 
 
 def isinstance_namedtuple(x):
