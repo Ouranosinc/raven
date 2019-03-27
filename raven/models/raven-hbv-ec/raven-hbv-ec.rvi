@@ -82,4 +82,14 @@
 :PavicsMode
 
 
+:NetCDFAttribute title Simulated river discharge
+:NetCDFAttribute history Created on {now} by Raven
+:NetCDFAttribute references  Craig, J.R., and the Raven Development Team, Raven user's and developer's manual (Version 2.8), URL: http://raven.uwaterloo.ca/ (2018).
+:NetCDFAttribute comment Raven Hydrological Framework version {raven_version}
+
+:NetCDFAttribute model_id hbvec
+
+:NetCDFAttribute time_frequency day
+:NetCDFAttribute time_coverage_start {start_date}
+:NetCDFAttribute time_coverage_end {end_date}
 

@@ -153,10 +153,12 @@ class RVI(RV):
         self.latitude = None
         self.longitude = None
         self.run_index = 0
+        self.raven_version = '2.9 rev#177'
 
         self._run_name = 'run'
         self._start_date = None
         self._end_date = None
+        self._now = None
         self._duration = 1
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
@@ -248,6 +250,10 @@ class RVI(RV):
     def _update_end_date(self):
         if self.start_date is not None and self.duration is not None:
             self._end_date = self.start_date + dt.timedelta(days=self.duration)
+
+    @property
+    def now(self):
+        return dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Ost(RV):
