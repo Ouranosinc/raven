@@ -8,7 +8,10 @@ from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
 from shapely.geometry import Point
 from raven.utilities import gis
+from raven.utils import crs_sniffer
+import fiona
 import pandas as pd
+import geopandas as gpd
 
 from tests.common import TESTDATA
 
@@ -91,6 +94,7 @@ class ShapeSelectionProcess(Process):
         lonlat = request.inputs['location'][0].data
 
         shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
+        table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
 
         if shape_description != 'hydrobasins_lake_na_lev12':
             msg = 'Options for HydroBASINS levels and lakes will be in prod'
@@ -104,23 +108,33 @@ class ShapeSelectionProcess(Process):
         location = Point(lon, lat)
 
         extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
-        vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
+        shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
 
         # Find feature containing location
-        feat = gis.feature_contains(location, vector_file)
+        feat = gis.feature_contains(location, shp)
         hybas_id = feat['properties']['HYBAS_ID']
 
         if collect_upstream:
-            table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
-            df = pd.read_csv(table)
-            # Get upstream features, including feat
-            up = gis.hydrobasins_upstream_features(hybas_id, df)
 
-            # Aggregate upstream features into a single geometry.
-            agg = gis.hydrobasins_aggregate(up, vector_file)
+            shape_crs = crs_sniffer(shp)
+            with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
-            response.outputs['feature'].data = agg.to_json()
-            response.outputs['upstream_ids'].data = json.dumps(up)
+                # gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
+
+                # Read table of attributes relevant to upstream watershed identification
+                df = pd.read_csv(table)
+
+                # Get upstream features, including feat
+                up = gis.hydrobasins_upstream_ids(hybas_id, df)
+
+                # Read only upstream geometries
+                gdf = gpd.GeoDataFrame.from_features((src.get(i) for i in up.index))
+
+                # Aggregate upstream features into a single geometry.
+                agg = gis.hydrobasins_aggregate(gdf)
+
+                response.outputs['feature'].data = agg.to_json()
+                response.outputs['upstream_ids'].data = json.dumps(up['HYBAS_ID'].tolist())
         else:
             response.outputs['feature'].data = json.dumps(feat)
             response.outputs['upstream_ids'].data = json.dumps([hybas_id, ])
