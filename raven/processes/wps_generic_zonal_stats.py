@@ -91,29 +91,16 @@ class ZonalStatisticsProcess(Process):
                 band=band, categorical=categorical, all_touched=touches, geojson_out=geojson_out, raster_out=False)
 
             if not geojson_out:
-                shape_stats = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
-                try:
-                    with open(shape_stats.name, 'w') as f:
-                        json.dump(stats, f)
-                    response.outputs['statistics'].data = shape_stats.name
-                except Exception as e:
-                    msg = 'Failed to write statistics to {}: {}'.format(shape_stats, e)
-                    LOGGER.error(msg)
+                response.outputs['statistics'].data = json.dumps(stats)
+
             else:
-                shape_geojson = tempfile.NamedTemporaryFile(suffix='.geojson', delete=False)
                 if len(stats) > 1:
                     feature_collect = {'type': 'FeatureCollection', 'features': stats}
                 else:
                     feature_collect = stats
 
-                try:
-                    with open(shape_geojson.name, 'w') as f:
-                        json.dump(feature_collect, f)
-                    response.outputs['statistics'].data = shape_geojson.name
+                response.outputs['statistics'].data = json.dumps(feature_collect)
 
-                except Exception as e:
-                    msg = 'Failed to write geojson to {}: {}'.format(shape_geojson, e)
-                    LOGGER.error(msg)
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
