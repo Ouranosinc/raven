@@ -5,6 +5,7 @@ import tempfile
 import datetime as dt
 import numpy as np
 
+
 class TestGR4JCN:
 
     def test_simple(self):
@@ -28,7 +29,7 @@ class TestGR4JCN:
 
         d = model.diagnostics
         # yields NSE=0.???? for full period 1954-2010
-        
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
 
         hds = model.q_sim
@@ -98,7 +99,7 @@ class TestGR4JCN:
         qsim2 = model.q_sim.copy(deep=True)
         m2 = qsim2.mean()
         assert m1 != m2
-        
+
         np.testing.assert_almost_equal(m1, m2, 1)
 
         d = model.diagnostics
@@ -152,7 +153,7 @@ class TestGR4JCN_OST:
               )
 
         d = model.diagnostics
-     
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.486033, 4)
 
         # Random number seed: 123
@@ -162,8 +163,8 @@ class TestGR4JCN_OST:
         # :Duration           208
         opt_para = model.calibrated_params
         opt_func = model.obj_func
-     
-        np.testing.assert_almost_equal(opt_para, [  2.423961 ,   3.758972 , 204.3856   ,   5.866946 ,  16.60408  ,0.3728098], 4,
+
+        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
         np.testing.assert_almost_equal(opt_func, -0.486033, 4,
                                        err_msg='calibrated NSE is not matching expected value')
@@ -198,7 +199,7 @@ class TestHMETS:
               )
 
         d = model.diagnostics
-      
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -7.03141, 4)
 
 
@@ -230,7 +231,7 @@ class TestHMETS_OST:
               )
 
         d = model.diagnostics
-     
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.2878, 4)
 
         opt_para = model.calibrated_params
@@ -251,12 +252,12 @@ class TestHMETS_OST:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [ 1.806003e+01,  3.510955e+00,  1.195340e+01,  1.413509e+00,
-                                                   1.662893e+01,  1.794244e+01, -2.226484e-01,  1.391220e-01,
-                                                   5.429963e-02,  2.361525e-01,  2.706042e-02, -4.562373e+00,
-                                                   6.481391e-01,  5.493992e-01,  2.509283e+00,  4.213560e-01,
-                                                   1.784870e-02,  7.768531e-02,  4.568809e-03,  1.147092e-01,
-                                                   4.028124e-01], 4,
+        np.testing.assert_almost_equal(opt_para, [1.806003e+01, 3.510955e+00, 1.195340e+01, 1.413509e+00,
+                                                  1.662893e+01, 1.794244e+01, -2.226484e-01, 1.391220e-01,
+                                                  5.429963e-02, 2.361525e-01, 2.706042e-02, -4.562373e+00,
+                                                  6.481391e-01, 5.493992e-01, 2.509283e+00, 4.213560e-01,
+                                                  1.784870e-02, 7.768531e-02, 4.568809e-03, 1.147092e-01,
+                                                  4.028124e-01], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
         np.testing.assert_almost_equal(opt_func, 2.2878, 4,
                                        err_msg='calibrated NSE is not matching expected value')
