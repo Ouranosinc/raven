@@ -105,22 +105,19 @@ class ShapeSelectionProcess(Process):
 
         # Why not just map(float, lonlat.split(',')) ?
         lon, lat = parse_lonlat(lonlat)
-        location = Point(lon, lat)
+        bbox = (lon, lat, lon, lat)
 
         extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
 
-        # Find feature containing location
-        feat = gis.feature_contains(location, shp)
-        hybas_id = feat['properties']['HYBAS_ID']
+        shape_crs = crs_sniffer(shp)
+        with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
-        if collect_upstream:
+            # Find feature containing location
+            feat = next(src.filter(bbox=bbox))
+            hybas_id = feat['properties']['HYBAS_ID']
 
-            shape_crs = crs_sniffer(shp)
-            with fiona.Collection(shp, 'r', crs=shape_crs) as src:
-
-                # gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs)
-
+            if collect_upstream:
                 # Read table of attributes relevant to upstream watershed identification
                 df = pd.read_csv(table)
 
@@ -135,8 +132,9 @@ class ShapeSelectionProcess(Process):
 
                 response.outputs['feature'].data = agg.to_json()
                 response.outputs['upstream_ids'].data = json.dumps(up['HYBAS_ID'].tolist())
-        else:
-            response.outputs['feature'].data = json.dumps(feat)
-            response.outputs['upstream_ids'].data = json.dumps([hybas_id, ])
+
+            else:
+                response.outputs['feature'].data = json.dumps(feat)
+                response.outputs['upstream_ids'].data = json.dumps([hybas_id, ])
 
         return response

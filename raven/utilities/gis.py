@@ -18,7 +18,12 @@ def feature_contains(point, shp):
     -------
     dict
       The feature found.
+
+    Notes
+    -----
+    This is really slow. Another approach is to use the `fiona.Collection.filter` method.
     """
+
     if not isinstance(point, Point):
         raise ValueError("point should be shapely.Point instance, got : {}".format(point))
 
