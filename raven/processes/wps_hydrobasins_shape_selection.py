@@ -1,16 +1,34 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+from pathlib import Path
 
 from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
 from shapely.geometry import Point
 from raven.utilities import gis
+import pandas as pd
 
 from tests.common import TESTDATA
 
 LOGGER = logging.getLogger("PYWPS")
+
+DATA = Path(__file__).parent / 'hydrobasins_tables'
+HYBAS = {
+    'lake_lev07': DATA / 'hybas_lake_na_lev07.csv',
+    'lake_lev08': DATA / 'hybas_lake_na_lev08.csv',
+    'lake_lev09': DATA / 'hybas_lake_na_lev09.csv',
+    'lake_lev10': DATA / 'hybas_lake_na_lev10.csv',
+    'lake_lev11': DATA / 'hybas_lake_na_lev11.csv',
+    'lake_lev12': DATA / 'hybas_lake_na_lev12.csv',
+    'lev07': DATA / 'hybas_na_lev07.csv',
+    'lev08': DATA / 'hybas_na_lev08.csv',
+    'lev09': DATA / 'hybas_na_lev09.csv',
+    'lev10': DATA / 'hybas_na_lev10.csv',
+    'lev11': DATA / 'hybas_na_lev11.csv',
+    'lev12': DATA / 'hybas_na_lev12.csv',
+}
 
 
 class ShapeSelectionProcess(Process):
@@ -72,10 +90,7 @@ class ShapeSelectionProcess(Process):
         collect_upstream = request.inputs['aggregate_upstream'][0].data
         lonlat = request.inputs['location'][0].data
 
-        if lakes:
-            shape_description = 'hydrobasins_lake_na_lev{}'.format(level)
-        else:
-            shape_description = 'hydrobasins_na_lev{}'.format(level)
+        shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
 
         if shape_description != 'hydrobasins_lake_na_lev12':
             msg = 'Options for HydroBASINS levels and lakes will be in prod'
@@ -96,12 +111,16 @@ class ShapeSelectionProcess(Process):
         hybas_id = feat['properties']['HYBAS_ID']
 
         if collect_upstream:
+            table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
+            df = pd.read_csv(table)
             # Get upstream features, including feat
-            up = gis.hydrobasins_upstream_features(hybas_id, vector_file)
+            up = gis.hydrobasins_upstream_features(hybas_id, df)
 
             # Aggregate upstream features into a single geometry.
-            response.outputs['feature'].data = up.dissolve(by='MAIN_BAS').to_json()
-            response.outputs['upstream_ids'].data = json.dumps(up.index.values.tolist())
+            agg = gis.hydrobasins_aggregate(up, vector_file)
+
+            response.outputs['feature'].data = agg.to_json()
+            response.outputs['upstream_ids'].data = json.dumps(up)
         else:
             response.outputs['feature'].data = json.dumps(feat)
             response.outputs['upstream_ids'].data = json.dumps([hybas_id, ])
