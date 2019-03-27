@@ -16,7 +16,7 @@ def feature_contains(point, shp):
 
     Returns
     -------
-    str
+    dict
       The feature found.
     """
     if not isinstance(point, Point):
@@ -35,7 +35,7 @@ def feature_contains(point, shp):
     raise LookupError("Could not find feature containing point {} in {}.".format(point, shp))
 
 
-def hydrobasins_upstream_features(fid, df):
+def hydrobasins_upstream_ids(fid, df):
     """Return a list of hydrobasins features located upstream.
 
     Parameters
@@ -47,17 +47,15 @@ def hydrobasins_upstream_features(fid, df):
 
     Returns
     -------
-    list
+    pd.Series
       Basins ids including `fid` and its upstream contributors.
     """
 
-    df.set_index('HYBAS_ID', inplace=True)
-
-    def upstream_id(bdf, bid):
-        return bdf[bdf['NEXT_DOWN'] == bid].index.values.tolist()
+    def upstream_ids(bdf, bid):
+        return bdf[bdf['NEXT_DOWN'] == bid]['HYBAS_ID']
 
     # Locate the downstream feature
-    ds = df.loc[fid]
+    ds = df.set_index("HYBAS_ID").loc[fid]
 
     # Do a first selection on the main basin ID of the downstream feature.
     sub = df[df['MAIN_BAS'] == ds['MAIN_BAS']]
@@ -65,30 +63,34 @@ def hydrobasins_upstream_features(fid, df):
     # Find upstream basins
     up = [fid, ]
     for b in up:
-        tmp = upstream_id(sub, b)
+        tmp = upstream_ids(sub, b)
         if len(tmp):
             up.extend(tmp)
 
-    return up
+    return sub[sub['HYBAS_ID'].isin(up)]
 
 
-def hydrobasins_aggregate(ids, shp):
+def hydrobasins_aggregate(gdf):
     """Aggregate multiple hydrobasin watersheds into a single geometry.
 
     Parameters
     ----------
     ids : sequence
       Basins ids, namely the HYBAS_ID attribute.
-    shp : path
-      Path to shapefile storing the hydrobasins geometries.
+    df : pd.DataFrame
+      Watershed attributes indexed by HYBAS_ID
 
     Returns
     -------
 
     """
+    # TODO: Review. Not sure it all makes sense.
+    def aggfunc(x):
+        if x.name in ['COAST', 'DIST_MAIN', 'DIST_SINK']:
+            return x.min()
+        elif x.name in ['SUB_AREA', 'LAKE']:
+            return x.sum()
+        else:
+            return x[0]
 
-    shape_crs = crs_sniffer(shp)
-    with fiona.Collection(shp, 'r', crs=shape_crs) as src:
-        gdf = gpd.GeoDataFrame.from_features(src, crs=shape_crs).set_index('HYBAS_ID')
-        up = gdf.loc[ids]
-        return up.dissolve(by='MAIN_BAS', aggfunc='sum')
+    return gdf.dissolve(by='MAIN_BAS', aggfunc=aggfunc)
