@@ -95,12 +95,6 @@ class ShapeSelectionProcess(Process):
 
         shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
         table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
-
-        if shape_description != 'hydrobasins_lake_na_lev12':
-            msg = 'Options for HydroBASINS levels and lakes will be in prod'
-            LOGGER.error(NotImplementedError(msg))
-            shape_description = 'hydrobasins_lake_na_lev12'
-
         shape_url = TESTDATA[shape_description]
 
         # Why not just map(float, lonlat.split(',')) ?
@@ -118,6 +112,9 @@ class ShapeSelectionProcess(Process):
             hybas_id = feat['properties']['HYBAS_ID']
 
             if collect_upstream:
+                if lakes is False or level != 12:
+                    raise ValueError("Set lakes to True and level to 12.")
+
                 # Read table of attributes relevant to upstream watershed identification
                 df = pd.read_csv(table)
 
