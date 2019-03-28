@@ -37,13 +37,8 @@ class TestGenericZonalStatsProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
 
-        assert {'statistics'}.issubset([*out])
-        assert out['statistics'].endswith('.json')
-
-        with open(out['statistics'], 'r') as f:
-            stats = json.load(f)[0]
-
-            assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset([*stats])
+        stats = json.loads(out['statistics'])
+        assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats[0])
 
     def test_simple_categorized_json(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
@@ -72,16 +67,12 @@ class TestGenericZonalStatsProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
 
-        assert ['statistics'] == [*out]
-        assert out['statistics'].endswith('.json')
+        stats = json.loads(out['statistics'])[0]
 
-        with open(out['statistics'], 'r') as f:
-            stats = json.load(f)[0]
+        assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
 
-            assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset([*stats])
-
-            assert set([str(x) for x in range(135, 228)]).issubset([*stats])
-            assert '228' not in [*stats]
+        assert set([str(x) for x in range(135, 228)]).issubset(stats)
+        assert '228' not in stats
 
     def test_simple_geojson(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
@@ -109,15 +100,10 @@ class TestGenericZonalStatsProcess:
 
         assert_response_success(resp)
         out = get_output(resp.xml)
+        feature = json.loads(out['statistics'])['features'][0]
 
-        assert ['statistics'] == [*out]
-        assert out['statistics'].endswith('.geojson')
+        stats = feature['properties']
+        assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
 
-        with open(out['statistics'], 'r') as f:
-            features = json.load(f)['features']
-
-            stats = features[0]['properties']
-            assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset([*stats])
-
-            geometry = shape(features[0]['geometry'])
-            assert isinstance(type(geometry), type(MultiPolygon))
+        geometry = shape(feature['geometry'])
+        assert isinstance(type(geometry), type(MultiPolygon))
