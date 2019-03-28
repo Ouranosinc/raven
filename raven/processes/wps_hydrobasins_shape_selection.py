@@ -110,7 +110,8 @@ class ShapeSelectionProcess(Process):
             # Find feature containing location
             feat = next(src.filter(bbox=bbox))
             hybas_id = feat['properties']['HYBAS_ID']
-
+            
+            # check conditions
             if collect_upstream:
                 if lakes is False or level != 12:
                     raise ValueError("Set lakes to True and level to 12.")
