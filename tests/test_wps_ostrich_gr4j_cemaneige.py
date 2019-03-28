@@ -58,16 +58,15 @@ class TestOstrichGR4JCemaNeigeProcess:
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='ostrich-gr4j-cemaneige',
             datainputs=datainputs)
-        
-        
+
         assert_response_success(resp)
-        
+
         out = get_output(resp.xml)
-        
+
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
-        
+
         # checking correctness of NSE (full period 1954-2010 with budget of 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")

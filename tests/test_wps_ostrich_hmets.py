@@ -66,7 +66,7 @@ class TestOstrichHMETSProcess:
         tmp_content = open(tmp_file).readlines()
 
         # TODO Julie :: values not adjusted yet!!! WPS needs to work first ...
-      
+
         # checking correctness of NSE (full period 1954-2010 with budget 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
