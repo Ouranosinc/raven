@@ -1,4 +1,4 @@
-from pywps import Process
+from pywps import Process, Format
 from raven.models import Raven
 from . import wpsio as wio
 import logging
@@ -76,6 +76,9 @@ class RavenProcess(Process):
         for key in response.outputs.keys():
             val = model.outputs[key]
             response.outputs[key].file = str(val)
+            if val.suffix == '.zip':
+                response.outputs[key].data_format = Format('application/zip', extension='.zip', encoding='base64')
+
 
         return response
 
