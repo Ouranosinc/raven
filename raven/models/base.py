@@ -65,16 +65,15 @@ class Raven:
                        'evspsbl': ['pet', 'evap', 'evapotranspiration'],
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                        }
+    _parallel_parameters = ['params', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id', 'hrus']
 
-    def __init__(self, workdir=None, test=False):
+    def __init__(self, workdir=None):
         """Initialize the RAVEN model.
 
         Parameters
         ----------
         workdir : str, Path
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
-        test : book
-          If True, copies the random number seed file (only for Ostrich).
         """
         workdir = workdir or tempfile.mkdtemp()
 
@@ -86,7 +85,6 @@ class Raven:
         self.ind_outputs = {}  # Individual files for all simulations
         self.outputs = {}  # Aggregated files
         self.singularity = False  # Set to True to launch Raven with singularity.
-        self.test = test
         self.raven_exec = raven.raven_exec
         self.raven_simg = raven.raven_simg
         self.ostrich_exec = raven.ostrich_exec
@@ -241,6 +239,8 @@ class Raven:
 
         for rvf in self.rvfiles:
             p = self.exec_path if rvf.is_tpl else self.model_path
+            if rvf.stem == 'OstRandomNumbers' and self.txt.random_seed == "":
+                continue
             rvf.write(p, **params)
 
     def setup(self, overwrite=False):
@@ -338,8 +338,27 @@ class Raven:
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
-        # Special case for param to allow looping.
-        params = kwds.pop('params', None)
+        # Special case for parallel parameters
+        pdict = {}
+        for p in self._parallel_parameters:
+            a = kwds.pop(p, None)
+
+            if p in ['params', 'hrus'] and a is not None:
+                pdict[p] = np.atleast_2d(a)
+            else:
+                pdict[p] = np.atleast_1d(a)
+
+        # Number of parallel loops is dictated by the number of parameters
+        nloops = len(pdict['params'])
+        for key, val in pdict.items():
+            if len(val) not in [1, nloops]:
+                raise ValueError("Parameter {} has incompatible dimension: {}. "
+                                 "Should be 1 or {}.".format(key, len(val), nloops))
+
+        # Resize parallel parameters to the largest size
+        for key, val in pdict.items():
+            if len(val) == 1:
+                pdict[key] = val.repeat(nloops, axis=0)
 
         # Update parameter objects
         for key, val in kwds.items():
@@ -359,17 +378,11 @@ class Raven:
         if self.rvi:
             self.handle_date_defaults(ts)
 
-        if params is not None:
-            arr = np.atleast_2d(params)
-        else:
-            arr = [None, ]
-
         procs = []
-        for i, a in enumerate(arr):
-            self.psim = i
-
-            if a is not None:
-                self.assign('params', a)
+        for self.psim in range(nloops):
+            for key, val in pdict.items():
+                if val[self.psim] is not None:
+                    self.assign(key, val[self.psim])
 
             cmd = self.setup_model_run(tuple(map(Path, ts)))
             procs.append(subprocess.Popen(cmd, cwd=self.cmd_path, stdout=subprocess.PIPE))
@@ -384,7 +397,7 @@ class Raven:
             proc.wait()
             # Julie: For debugging
             # for line in iter(proc.stdout.readline, b''):
-            #     print(line)
+            #    print(line)
         try:
             self.parse_results()
 
@@ -413,6 +426,7 @@ class Raven:
 
         for key, pattern in patterns.items():
             fns = self._get_output(pattern, path=path)
+            fns.sort()
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
 
@@ -423,23 +437,24 @@ class Raven:
 
         # If there is only one file, return its name directly.
         if len(files) == 1:
-            return str(files[0])
+            return files[0]
 
         # Otherwise try to create a new file aggregating all files.
         outfn = self.final_path / name
 
-        if name.endswith('.nc'):  # We aggregate along the params dimensions. Hard-coded for now.
+        if name.endswith('.nc') and not isinstance(self, raven.models.RavenMultiModel):
             ds = [xr.open_dataset(fn) for fn in files]
             try:
-                out = xr.concat(ds, 'params', data_vars='identical')
+                # We aggregate along the params dimensions.
+                # Hard-coded for now.
+                out = xr.concat(ds, 'params', data_vars='different')
                 out.to_netcdf(outfn)
                 return outfn
-            except ValueError:
+            except (ValueError, KeyError):
                 pass
 
         # Let's zip the files that could not be merged.
-        root, ext = os.path.splitext(outfn)
-        outfn = root + '.zip'
+        outfn = outfn.with_suffix('.zip')
 
         # Try to create a zip file
         with zipfile.ZipFile(outfn, 'w') as f:
@@ -571,9 +586,9 @@ class Raven:
         If the model is run multiple times, hydrograph will point to the latest version. To store the results of
         multiple runs, either create different model instances or explicitly copy the file to another disk location.
         """
-        if self.outputs['hydrograph'].endswith('.nc'):
+        if self.outputs['hydrograph'].suffix == '.nc':
             return xr.open_dataset(self.outputs['hydrograph'])
-        elif self.outputs['hydrograph'].endswith('.zip'):
+        elif self.outputs['hydrograph'].suffix == '.zip':
             return [xr.open_dataset(fn) for fn in self.ind_outputs['hydrograph']]
         else:
             raise ValueError
@@ -704,10 +719,6 @@ class Ostrich(Raven):
         """
         Raven.setup(self, overwrite)
 
-        if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
-            if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
-                os.remove(self.exec_path / 'OstRandomNumbers.txt')
-
         os.makedirs(str(self.final_path), exist_ok=True)
 
         self.write_ostrich_runs_raven()
@@ -728,7 +739,7 @@ class Ostrich(Raven):
 
         # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path)[0])
+            self.outputs[key] = self._get_output(pattern, path=self.exec_path)[0]
 
     def parse_errors(self):
         try:

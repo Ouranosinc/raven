@@ -1,3 +1,4 @@
+from raven import config
 from raven.processes import RavenProcess
 from pywps import LiteralInput
 from raven.models import MOHYSE
@@ -19,13 +20,15 @@ params = LiteralInput('params', 'Comma separated list of model parameters',
                       abstract='Parameters: ' + ', '.join(params_defaults._fields),
                       data_type='string',
                       default=', '.join(str(p) for p in list(params_defaults)),
-                      min_occurs=0)
+                      min_occurs=0,
+                      max_occurs=config.max_parallel_processes)
 
 hrus = LiteralInput('hrus', 'Comma separated list of HRU parameters',
                     abstract='Parameters: ' + ', '.join(hrus_defaults._fields),
                     data_type='string',
                     default=', '.join(str(p) for p in list(hrus_defaults)),
-                    min_occurs=0)
+                    min_occurs=0,
+                    max_occurs=config.max_parallel_processes)
 
 
 class RavenMOHYSEProcess(RavenProcess):

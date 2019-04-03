@@ -4,5 +4,6 @@ flake8
 bumpversion
 sphinx>=1.7
 sphinx-autoapi
+nbsphinx
 -e git+https://github.com/huard/sphinx-autodoc-pywps.git#egg=sphinx_autodoc_pywps
 

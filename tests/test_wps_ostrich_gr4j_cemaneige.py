@@ -14,7 +14,6 @@ from raven.processes import OstrichGR4JCemaNeigeProcess
 class TestOstrichGR4JCemaNeigeProcess:
 
     def test_simple(self):
-        os.environ['TEST_OSTRICH'] = '1'
         client = client_for(Service(processes=[OstrichGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))
 
         params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.053'
@@ -39,6 +38,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
+                     "random_seed=0" \
             .format(ts=TESTDATA['ostrich-gr4j-cemaneige-nc-ts'],
                     algorithm='DDS',
                     max_iterations=10,
@@ -62,6 +62,7 @@ class TestOstrichGR4JCemaNeigeProcess:
         assert_response_success(resp)
 
         out = get_output(resp.xml)
+
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
@@ -70,10 +71,11 @@ class TestOstrichGR4JCemaNeigeProcess:
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 0.5078130, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.486033, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2010 with budget of 50 would be RMSE=????)
+
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 36.3493, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 37.1449, 4, err_msg='RMSE is not matching expected value')

@@ -187,10 +187,12 @@ class RVI(RV):
         self.latitude = None
         self.longitude = None
         self.run_index = 0
+        self.raven_version = '2.9 rev#177'
 
         self._run_name = 'run'
         self._start_date = None
         self._end_date = None
+        self._now = None
         self._duration = 1
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
@@ -283,12 +285,15 @@ class RVI(RV):
         if self.start_date is not None and self.duration is not None:
             self._end_date = self.start_date + dt.timedelta(days=self.duration)
 
+    @property
+    def now(self):
+        return dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
-        self.random_seed = None
-        self._comment_random = '#'
+        self._random_seed = None
 
         super(Ost, self).__init__(**kwargs)
 
@@ -305,16 +310,16 @@ class Ost(RV):
 
     @property
     def random_seed(self):
-        return self._random_seed
+        if self._random_seed is not None:
+            return "RandomSeed {}".format(self._random_seed)
+        return ""
 
     @random_seed.setter
     def random_seed(self, value):
-        self._random_seed = value
-        self._comment_random = '#' if value is None else ''
-
-    @property
-    def comment_random(self):
-        return self._comment_random
+        if value >= 0:
+            self._random_seed = value
+        else:
+            self._random_seed = None
 
 
 def isinstance_namedtuple(x):

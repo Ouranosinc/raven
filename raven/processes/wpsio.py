@@ -5,7 +5,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 """
 
 from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
-from pywps import FORMATS
+from pywps import FORMATS, Format
 
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
@@ -133,7 +133,8 @@ model_name = LiteralInput('model_name', 'Hydrological model identifier',
 # --- #
 
 hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
-                           supported_formats=[FORMATS.NETCDF],
+                           supported_formats=[FORMATS.NETCDF,
+                                              Format('application/zip', extension='.zip', encoding='base64')],
                            abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
                                     'specified as `gauged` in the .rvh file. It reports period-ending time-'
                                     'averaged flows for the preceding time step, as is consistent with most '
@@ -164,17 +165,20 @@ storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
                                  'period-ending, i.e., this is the precipitation rate for the time step '
                                  'preceding the time stamp; all water storage variables represent '
                                  'instantaneous reports of the storage at the time stamp indicate.',
-                        supported_formats=[FORMATS.NETCDF],
+                        supported_formats=[FORMATS.NETCDF,
+                                           Format('application/zip', extension='.zip', encoding='base64')],
                         as_reference=True)
 
 solution = ComplexOutput('solution', 'solution.rvc file to restart another simulation with the conditions '
                                      'at the end of this simulation.',
-                         supported_formats=[FORMATS.TEXT],
+                         supported_formats=[FORMATS.TEXT,
+                                            Format('application/zip', extension='.zip', encoding='base64')],
                          as_reference=True)
 
 diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
                             abstract="Model diagnostic CSV file.",
-                            supported_formats=[FORMATS.TEXT],
+                            supported_formats=[FORMATS.TEXT,
+                                               Format('application/zip', extension='.zip', encoding='base64')],
                             as_reference=True)
 
 # --- OSTRICH --- #
@@ -193,6 +197,12 @@ max_iterations = LiteralInput('max_iterations', 'Maximum number of model evaluat
                               default=50,
                               allowed_values=list(range(25001)),
                               min_occurs=0)
+
+random_seed = LiteralInput('random_seed', 'Seed for random number generator',
+                           abstract="Set this value to obtain replicable results. Set to -1 to let it be random.",
+                           data_type='integer',
+                           default=-1,
+                           min_occurs=0)
 
 calibration = ComplexOutput('calibration', 'Ostrich calibration output',
                             abstract="Output file from Ostrich calibration run.",
@@ -216,39 +226,3 @@ calibrated_params = ComplexOutput('calibrated_params', 'Calibrated parameters',
 #                        abstract="Link to configuration files.",
 #                        supported_formats=)
 
-
-# ---------------------------------------- #
-# ---------------- Outputs --------------- #
-# ---------------------------------------- #
-
-hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
-                           supported_formats=[FORMATS.NETCDF],
-                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
-                                    'specified as `gauged` in the .rvh file. It reports period-ending time-'
-                                    'averaged flows for the preceding time step, as is consistent with most '
-                                    'measured stream gauge data (again, the initial flow conditions at the '
-                                    'start of the first time step are included). If observed hydrographs are '
-                                    'specified, they will be output adjacent to the corresponding modelled  '
-                                    'hydrograph. ',
-                           as_reference=True)
-
-storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
-                        abstract='A netCDF file describing the total storage of water (in mm) in all water '
-                                 'storage compartments for each time step of the simulation. Mass balance '
-                                 'errors, cumulative input (precipitation), and output (channel losses) are '
-                                 'also included. Note that the precipitation rates in this file are '
-                                 'period-ending, i.e., this is the precipitation rate for the time step '
-                                 'preceding the time stamp; all water storage variables represent '
-                                 'instantaneous reports of the storage at the time stamp indicate.',
-                        supported_formats=[FORMATS.NETCDF],
-                        as_reference=True)
-
-solution = ComplexOutput('solution', 'solution.rvc file to restart another simulation with the conditions '
-                                     'at the end of this simulation.',
-                         supported_formats=[FORMATS.TEXT],
-                         as_reference=True)
-
-diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
-                            abstract="Model diagnostic CSV file.",
-                            supported_formats=[FORMATS.TEXT],
-                            as_reference=True)
