@@ -22,7 +22,7 @@ class GraphSingleHydrographProcess(Process):
                                supported_formats=[FORMATS.NETCDF]),
                   ]
 
-        outputs = [ComplexOutput('graph_ensemble_hydrographs', 'Figure showing the simple hydrographs of the included models.',
+        outputs = [ComplexOutput('graph_single_hydrographs', 'Figure showing the simple hydrographs of the included models.',
                                  abstract="",
                                  as_reference=True,
                                  supported_formats=(Format(mime_type='image/png'), )),
@@ -75,13 +75,8 @@ class GraphSingleHydrographProcess(Process):
         fig_fn_spag = Path(self.workdir) / 'spaghetti_hydrographs.png'
         fig.savefig(fig_fn_spag)
         plt.close(fig)
-  #      zipPath=Path(self.workdir) / 'ensemble_hydrographs.zip'
-  #      with zipfile.ZipFile(zipPath,'w') as zip: 
-            
-  #           for file in [fig_fn_annual,fig_fn_simple]:
-  #              zip.write(file) 
-  #      #TODO: ZIP FIGURE FILES TOGETHER
-        response.outputs['graph_ensemble_hydrographs'].file = str(fig_fn_simple)
+
+        response.outputs['graph_single_hydrographs'].file = str(fig_fn_simple)
         response.outputs['graph_annual_hydrographs'].file = str(fig_fn_annual)
         response.outputs['graph_spaghetti_hydrographs'].file = str(fig_fn_spag)
         return response
