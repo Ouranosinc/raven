@@ -3,7 +3,6 @@ from raven.models import MOHYSE_OST
 from . import wpsio as wio
 import logging
 from pywps import FORMATS, LiteralInput, ComplexOutput
-import pdb
 from pathlib import Path
 
 LOGGER = logging.getLogger("PYWPS")
@@ -92,6 +91,7 @@ class OstrichMOHYSEProcess(OstrichProcess):
                     'hruslowerBounds': MOHYSE_OST.hrus}
     inputs = [wio.ts, lowerBounds, upperBounds, hrusupperBounds, hruslowerBounds, wio.algorithm,
               wio.max_iterations, wio.start_date, wio.end_date,
-              wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
+              wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation,
+              wio.random_seed]
 
     keywords = ["Ostrich", "Calibration", "DDS"]

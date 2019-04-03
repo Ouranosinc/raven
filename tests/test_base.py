@@ -76,9 +76,9 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [2.424726, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
+        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, -0.5078130, 4,
+        np.testing.assert_almost_equal(opt_func, -0.486033, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123                       #
@@ -154,14 +154,14 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [1.777842E+01, 3.317211E+00, 5.727342E+00, 1.419491E+00,
-                                                  1.382141E+01, 1.637954E+01, 7.166296E-01, 1.389346E-01,
-                                                  2.620464E-02, 2.245525E-01, 2.839426E-02, -2.003810E+00,
-                                                  9.479623E-01, 4.803857E-01, 2.524914E+00, 4.117232E-01,
-                                                  1.950058E-02, 4.494123E-02, 1.405815E-03, 2.815803E-02,
-                                                  1.007823E+00], 4,
+        np.testing.assert_almost_equal(opt_para, [1.806003e+01, 3.510955e+00, 1.195340e+01, 1.413509e+00,
+                                                  1.662893e+01, 1.794244e+01, -2.226484e-01, 1.391220e-01,
+                                                  5.429963e-02, 2.361525e-01, 2.706042e-02, -4.562373e+00,
+                                                  6.481391e-01, 5.493992e-01, 2.509283e+00, 4.213560e-01,
+                                                  1.784870e-02, 7.768531e-02, 4.568809e-03, 1.147092e-01,
+                                                  4.028124e-01], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 1.430270, 4,
+        np.testing.assert_almost_equal(opt_func, 2.2878, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123                       #

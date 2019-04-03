@@ -1,4 +1,4 @@
-from pywps import Process
+from pywps import Process, Format
 from raven.models import Raven
 from . import wpsio as wio
 import logging
@@ -51,26 +51,34 @@ class RavenProcess(Process):
         ts = [f.file for f in request.inputs.pop('ts')]
 
         # Parse all other input parameters
-        for name, obj in request.inputs.items():
+        kwds = defaultdict(list)
+        for name, objs in request.inputs.items():
+            for obj in objs:
 
-            # Namedtuples
-            if name in self.tuple_inputs:
-                arr = map(float, obj[0].data.split(','))
-                data = self.tuple_inputs[name](*arr)
+                # Namedtuples
+                if name in self.tuple_inputs:
+                    arr = map(float, obj.data.split(','))
+                    data = self.tuple_inputs[name](*arr)
 
-            # Other parameters
-            else:
-                data = obj[0].data
+                # Other parameters
+                else:
+                    data = obj.data
 
-            model.assign(name, data)
+                if name in model._parallel_parameters:
+                    kwds[name].append(data)
+                else:
+                    model.assign(name, data)
 
         # Launch model with input files
-        model(ts=ts)
+        model(ts=ts, **kwds)
 
         # Store output files name. If an output counts multiple files, they'll be zipped.
         for key in response.outputs.keys():
             val = model.outputs[key]
             response.outputs[key].file = str(val)
+            if val.suffix == '.zip':
+                response.outputs[key].data_format = Format('application/zip', extension='.zip', encoding='base64')
+
 
         return response
 

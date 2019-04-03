@@ -62,7 +62,7 @@ BeginConstraints
 EndConstraints
 
 # Randomsed control added
-{comment_random} RandomSeed {random_seed} # 123
+{random_seed}
 
 #Algorithm should be last in this file:
 
