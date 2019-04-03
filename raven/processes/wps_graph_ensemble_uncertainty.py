@@ -5,12 +5,13 @@ import zipfile
 from pathlib import Path
 from raven.utilities.graphs import mean_annual_hydrograph, hydrograph
 from matplotlib import pyplot as plt
+from pywps import FORMATS
 
 class GraphEnsUncertaintyProcess(Process):
     def __init__(self):
         inputs = [ComplexInput('sims', 'Stream flow simulations ensemble',
                                abstract='Stream flow simulation time series',
-                               supported_formats=(Format(mime_type='application/zip'),)),
+                               supported_formats=[FORMATS.NETCDF,Format(mime_type='application/zip')]),
                   ]
 
         outputs = [ComplexOutput('graph_ensemble_hydrographs', 'Figure showing the simple hydrographs of the included models.',
@@ -57,13 +58,6 @@ class GraphEnsUncertaintyProcess(Process):
         fig.savefig(fig_fn_simple)
         plt.close(fig)
     
-        
-  #      zipPath=Path(self.workdir) / 'ensemble_hydrographs.zip'
-  #      with zipfile.ZipFile(zipPath,'w') as zip: 
-            
-  #           for file in [fig_fn_annual,fig_fn_simple]:
-  #              zip.write(file) 
-  #      #TODO: ZIP FIGURE FILES TOGETHER
         response.outputs['graph_ensemble_hydrographs'].file = str(fig_fn_simple)
         response.outputs['graph_annual_hydrographs'].file = str(fig_fn_annual)
         return response
