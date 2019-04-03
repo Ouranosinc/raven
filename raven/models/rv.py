@@ -147,10 +147,20 @@ class RV(collections.Mapping):
 
 class RVT(RV):
     def __init__(self, **kwargs):
-        self.nc_index = None
+        self._nc_index = None
         self._nc_dimensions = None
 
         super(RVT, self).__init__(**kwargs)
+
+    @property
+    def nc_index(self):
+        if self._nc_index is not None:
+            return str(self._nc_index + 1)
+        return None
+
+    @nc_index.setter
+    def nc_index(self, value):
+        self._nc_index = value
 
     @property
     def nc_dimensions(self):
@@ -174,9 +184,9 @@ class RVT(RV):
 
         self._nc_dimensions = value
 
-        # If there is no spatial dimension, set the index to 0.
+        # If there is no spatial dimension, set the index to 1.
         if self.nc_index is None and len(value) == 1:
-            self.nc_index = 0
+            self.nc_index = 1
 
 
 class RVI(RV):
