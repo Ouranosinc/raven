@@ -165,7 +165,7 @@ def _convert_2d(fn):
                 'latitude': 54.4848,
                 'longitude': -123.3659}
 
-    ds = xr.open_dataset(fn).rename({'nstations': 'region'})
+    ds = xr.open_dataset(fn, decode_times=False).rename({'nstations': 'region'})
 
     for v in ds.data_vars:
         if v not in ['lon', 'lat']:
