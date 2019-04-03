@@ -151,11 +151,13 @@ class TestGR4JCN:
               latitude=54.4848,
               longitude=-123.3659,
               params=[0.529, -3.396, 407.29, 1.072, 16.9, 0.947],
-              nc_index=0,
+              nc_index=[0, 0],
+              name=['basin1', 'basin2'],
               )
 
         assert len(model.diagnostics) == 2
-        assert model.hydrograph.dims['params'] == 2
+        assert len(model.hydrograph.nbasins) == 2
+        np.testing.assert_array_equal(model.hydrograph.basin_name[:], ['basin1', 'basin2'])
 
 
 class TestGR4JCN_OST:
