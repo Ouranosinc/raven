@@ -25,6 +25,7 @@ dependencies:
 - shapely
 - bumpversion
 - statsmodels
+- matplotlib
 - pip:
   - spotpy
   - pysheds
