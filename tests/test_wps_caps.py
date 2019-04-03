@@ -30,7 +30,5 @@ def test_wps_caps():
                   'ostrich-hmets',
                   'ostrich-hbv-ec',
                   'objective-function',
-                  'graph_ensemble_uncertainty',
-                  'graph_single_hydrograph',
                   # 'regionalisation',
                   }

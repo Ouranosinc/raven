@@ -16,8 +16,6 @@ from .wps_ostrich_hbv_ec import OstrichHBVECProcess
 from .wps_objective_functions import ObjectiveFunctionProcess
 from .wps_regionalisation import RegionalisationProcess
 from .wps_raven_multi_model import RavenMultiModelProcess
-from .wps_graph_ensemble_uncertainty import GraphEnsUncertaintyProcess
-from .wps_graph_single_hydrograph import GraphSingleHydrographProcess
 
 
 processes = [
@@ -38,7 +36,5 @@ processes = [
     OstrichHBVECProcess(),
     ObjectiveFunctionProcess(),
     RavenMultiModelProcess(),
-    GraphEnsUncertaintyProcess(),
-    GraphSingleHydrographProcess()
     # RegionalisationProcess(),
 ]
