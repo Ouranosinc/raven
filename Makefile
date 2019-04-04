@@ -2,8 +2,13 @@
 APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
-CONDA := $(shell command -v conda 2> /dev/null)
 ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
+
+ifeq "$(ANACONDA_HOME)" ""
+ANACONDA_HOME := $(HOME)/miniconda3
+endif
+
+CONDA := $(shell command -v conda 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
@@ -61,8 +66,8 @@ anaconda:
 .PHONY: conda_env
 conda_env:
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	$(ANACONDA_HOME)/bin/conda create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	$(ANACONDA_HOME)/bin/conda env update -n $(CONDA_ENV) -f environment.yml
+	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: env_clean
 env_clean:
