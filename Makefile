@@ -67,7 +67,7 @@ conda_env:
 .PHONY: env_clean
 env_clean:
 	@echo "Removing conda env $(CONDA_ENV)"
-	@-"$(CONDA)" env remove -n $(CONDA_ENV) --yes --
+	@-"$(CONDA)" env remove -n $(CONDA_ENV) --yes
 
 ## Build targets
 
