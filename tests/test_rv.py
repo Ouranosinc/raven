@@ -101,11 +101,10 @@ class TestRV:
 class TestOst:
     def test_random(self):
         o = Ost()
-        assert o.comment_random == '#'
+        assert o.random_seed == ''
 
-        o = Ost(random_seed=0)
-        assert o.comment_random == ''
-        assert o.random_seed == 0
+        o.random_seed = 0
+        assert o.random_seed == 'RandomSeed 0'
 
 
 def test_isinstance_namedtuple():
