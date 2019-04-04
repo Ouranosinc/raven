@@ -60,7 +60,7 @@ class TestOstrich:
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
         ost = TESTDATA['ostrich-gr4j-cemaneige-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
@@ -97,7 +97,7 @@ class TestOstrich:
         ts = TESTDATA['raven-mohyse-nc-ts']
         ost = TESTDATA['ostrich-mohyse-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
@@ -138,7 +138,7 @@ class TestOstrich:
         ts = TESTDATA['raven-hmets-nc-ts']
         ost = TESTDATA['ostrich-hmets-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
@@ -186,7 +186,7 @@ class TestOstrich:
         ts = TESTDATA['raven-hbv-ec-nc-ts']
         ost = TESTDATA['ostrich-hbv-ec-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
