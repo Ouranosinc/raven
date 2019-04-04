@@ -61,8 +61,8 @@ anaconda:
 .PHONY: conda_env
 conda_env:
 	@echo "Updating conda environment $(CONDA_ENV) ..."
-	"$(ANACONDA_HOME)/bin/conda" create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
-	"$(ANACONDA_HOME)/bin/conda" env update -n $(CONDA_ENV) -f environment.yml
+	$(ANACONDA_HOME)/bin/conda create --yes -n $(CONDA_ENV) python=$(PYTHON_VERSION)
+	$(ANACONDA_HOME)/bin/conda env update -n $(CONDA_ENV) -f environment.yml
 
 .PHONY: env_clean
 env_clean:
