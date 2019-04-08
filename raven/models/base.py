@@ -25,7 +25,7 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RVFile, RV, RVI, isinstance_namedtuple
+from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost
 import numpy as np
 import shutil
 
@@ -239,7 +239,7 @@ class Raven:
 
         for rvf in self.rvfiles:
             p = self.exec_path if rvf.is_tpl else self.model_path
-            if rvf.stem == 'OstRandomNumbers' and self.txt.random_seed == "":
+            if rvf.stem == 'OstRandomNumbers' and isinstance(self.txt, Ost) and self.txt.random_seed == "":
                 continue
             rvf.write(p, **params)
 

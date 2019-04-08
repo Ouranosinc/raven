@@ -2,8 +2,13 @@
 APP_ROOT := $(CURDIR)
 APP_NAME := raven
 
-CONDA := $(shell command -v conda 2> /dev/null)
 ANACONDA_HOME := $(shell conda info --base 2> /dev/null)
+
+ifeq "$(ANACONDA_HOME)" ""
+ANACONDA_HOME := $(HOME)/miniconda3
+endif
+
+CONDA := $(shell command -v conda 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
@@ -67,7 +72,7 @@ conda_env:
 .PHONY: env_clean
 env_clean:
 	@echo "Removing conda env $(CONDA_ENV)"
-	@-"$(CONDA)" env remove -n $(CONDA_ENV) --yes --
+	@-"$(CONDA)" env remove -n $(CONDA_ENV) --yes
 
 ## Build targets
 

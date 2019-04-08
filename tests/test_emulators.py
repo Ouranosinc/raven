@@ -132,7 +132,7 @@ class TestGR4JCN:
 class TestGR4JCN_OST:
     def test_simple(self):
         ts = TESTDATA['ostrich-gr4j-cemaneige-nc-ts']
-        model = GR4JCN_OST(test=True)
+        model = GR4JCN_OST()
         params = (0.529, -3.396, 407.29, 1.072, 16.9, 0.053)
         low = (0.01, -15.0, 10.0, 0.0, 1.0, 0.0)
         high = (2.5, 10.0, 700.0, 7.0, 30.0, 1.0)
@@ -148,7 +148,7 @@ class TestGR4JCN_OST:
               lowerBounds=low,
               upperBounds=high,
               algorithm='DDS',
-              random_seed='0',
+              random_seed=0,
               max_iterations=10,
               )
 
@@ -207,7 +207,7 @@ class TestHMETS_OST:
 
     def test_simple(self):
         ts = TESTDATA['raven-hmets-nc-ts']
-        model = HMETS_OST(test=True)
+        model = HMETS_OST()
         params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
                   2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
         low = (0.3, 0.01, 0.5, 0.15, 0.0, 0.0, -2.0, 0.01, 0.0, 0.01, 0.005, -5.0, 0.0, 0.0, 0.0, 0.0,
@@ -226,7 +226,7 @@ class TestHMETS_OST:
               lowerBounds=low,
               upperBounds=high,
               algorithm='DDS',
-              random_seed='0',
+              random_seed=0,
               max_iterations=10,
               )
 
@@ -305,7 +305,7 @@ class TestMOHYSE:
 class TestMOHYSE_OST():
     def test_simple(self):
         ts = TESTDATA['ostrich-mohyse-nc-ts']
-        model = MOHYSE_OST(test=True)
+        model = MOHYSE_OST()
         params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453)
         hrus = (0.9039, 5.6167)
 
@@ -328,7 +328,7 @@ class TestMOHYSE_OST():
               hruslowerBounds=low_h,
               hrusupperBounds=high_h,
               algorithm='DDS',
-              random_seed='0',
+              random_seed=0,
               max_iterations=10,
               )
 
@@ -399,7 +399,7 @@ class TestHBVEC:
 class TestHBVEC_OST():
     def test_simple(self):
         ts = TESTDATA['ostrich-hbv-ec-nc-ts']
-        model = HBVEC_OST(test=True)
+        model = HBVEC_OST()
         params = (0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.506052, 3.438486, 38.32455, 0.4606565,
                   0.06303738, 2.277781, 4.873686, 0.5718813, 0.04505643, 0.877607, 18.94145, 2.036937, 0.4452843,
                   0.6771759, 1.141608, 1.024278)
