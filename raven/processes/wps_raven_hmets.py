@@ -37,7 +37,7 @@ params = LiteralInput('params', 'Comma separated list of model parameters',
 
 
 class RavenHMETSProcess(RavenProcess):
-    identifier = 'raven_hmets'
+    identifier = 'raven-hmets'
     abstract = 'HMETS hydrological model'
     title = ''
     version = ''
