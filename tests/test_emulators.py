@@ -1,9 +1,20 @@
-from . common import TESTDATA
+import pytest
+from . common import TESTDATA, _convert_2d
 from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
 from raven.models import RavenMultiModel
 import tempfile
 import datetime as dt
 import numpy as np
+import os
+
+
+@pytest.fixture
+def input2d(tmpdir):
+    """Convert 1D input to 2D output by copying all the time series along a new region dimension."""
+    ds = _convert_2d(TESTDATA['raven-gr4j-cemaneige-nc-ts'])
+    fn_out = os.path.join(tmpdir, 'input2d.nc')
+    ds.to_netcdf(fn_out)
+    return fn_out
 
 
 class TestGR4JCN:
@@ -112,7 +123,7 @@ class TestGR4JCN:
         model = GR4JCN()
         assert model.version == '2.9'
 
-    def test_parallel(self):
+    def test_parallel_params(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
         model = GR4JCN()
         model(ts,
@@ -127,6 +138,26 @@ class TestGR4JCN:
 
         assert len(model.diagnostics) == 2
         assert model.hydrograph.dims['params'] == 2
+
+    def test_parallel_basins(self, input2d):
+
+        ts = input2d
+        model = GR4JCN()
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=[0.529, -3.396, 407.29, 1.072, 16.9, 0.947],
+              nc_index=[0, 0],
+              name=['basin1', 'basin2'],
+              )
+
+        assert len(model.diagnostics) == 2
+        assert len(model.hydrograph.nbasins) == 2
+        np.testing.assert_array_equal(model.hydrograph.basin_name[:], ['basin1', 'basin2'])
 
 
 class TestGR4JCN_OST:

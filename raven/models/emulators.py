@@ -1,7 +1,7 @@
 from raven.models import Raven, Ostrich
 from pathlib import Path
 from collections import namedtuple
-from .rv import RV, RVI, Ost
+from .rv import RV, RVT, RVI, Ost
 
 
 class GR4JCN(Raven):
@@ -12,7 +12,7 @@ class GR4JCN(Raven):
     params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
 
     rvp = RV(params=params(None, None, None, None, None, None))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
     rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
@@ -46,7 +46,7 @@ class MOHYSE(Raven):
 
     rvp = RV(params=params(*((None, ) * 8)))
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=hrus(None, None))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
     rvd = RV(par_rezi_x10=None)
 
@@ -83,7 +83,7 @@ class HMETS(GR4JCN):
                                         'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'))
 
     rvp = RV(params=params(*((None,) * len(params._fields))))
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
     rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
              PHREATIC_hlf=None)
@@ -124,7 +124,7 @@ class HBVEC(GR4JCN):
 
     rvp = RV(params=params(*((None,) * len(params._fields))))
     rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=mae, mat=mat)
-    rvt = RV(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
              water_volume_transport_in_river_channel=None)
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
@@ -134,9 +134,9 @@ class HBVEC(GR4JCN):
         self.rvd['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
         self.rvd['par_x11_half'] = self.rvp.params.par_x11 / 2.0
 
-        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvd.tasmax_var]
-        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvd.tasmin_var]
-        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvd.evspsbl_var]
+        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
+        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
+        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
 
         tas = (tasmax + tasmin) / 2.
         self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
@@ -158,9 +158,15 @@ class HBVEC_OST(Ostrich, HBVEC):
               )
 
     def derived_parameters(self):
-        """Derived parameters are computed by Ostrich."""
-        pass
+        import xarray as xr
 
+        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
+        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
+        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
+
+        tas = (tasmax + tasmin) / 2.
+        self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
+        self.rvd.mae = self.mae(*evap.groupby('time.month').mean().values)
 
 def get_model(name):
     """Return the corresponding Raven emulated model instance.
