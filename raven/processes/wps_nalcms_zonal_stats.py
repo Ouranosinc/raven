@@ -34,7 +34,7 @@ NALCMS_CATEGORIES = {
 }
 
 
-class ZonalStatisticsProcess(Process):
+class NALCMSZonalStatisticsProcess(Process):
     """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions"""
 
     def __init__(self):
@@ -70,12 +70,12 @@ class ZonalStatisticsProcess(Process):
                           supported_formats=[FORMATS.JSON, FORMATS.GEOJSON]),
         ]
 
-        super(ZonalStatisticsProcess, self).__init__(
+        super(NALCMSZonalStatisticsProcess, self).__init__(
             self._handler,
-            identifier="zonal-stats",
-            title="Raster Zonal Statistics",
+            identifier="nalcms-zonal-stats",
+            title="NALCMS Land Use Zonal Statistics",
             version="1.0",
-            abstract="Return zonal statistics based on the boundaries of a vector file.",
+            abstract="Return zonal statistics for the CEC NALCMS based on the boundaries of a vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
