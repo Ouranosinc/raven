@@ -1,5 +1,6 @@
 six
 pywps>=4.2
+owslib>=0.17
 jinja2
 click
 psutil

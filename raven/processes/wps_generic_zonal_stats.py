@@ -6,9 +6,12 @@ from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
+from owslib.wcs import WebCoverageService
 from rasterstats import zonal_stats
-
+from rasterio import MemoryFile
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utilities import gis
+
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -31,7 +34,8 @@ class ZonalStatisticsProcess(Process):
                                        'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from'
                                        ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
                                        'https://doi.org/10.1029/2008EO100001')],
-                         min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
+                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF],
+                         ),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
@@ -68,7 +72,8 @@ class ZonalStatisticsProcess(Process):
     def _handler(self, request, response):
 
         shape_url = request.inputs['shape'][0].file
-        raster_url = request.inputs['raster'][0].file
+
+
         band = request.inputs['band'][0].data
         geojson_out = request.inputs['return_geojson'][0].data
         categorical = request.inputs['categorical'][0].data
@@ -77,9 +82,18 @@ class ZonalStatisticsProcess(Process):
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         rasters = ['.tiff', '.tif']
-        raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
 
-        vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
+        if 'raster' in request.inputs:
+            raster_url = request.inputs['raster'][0].file
+            raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
+            ras_crs = crs_sniffer(raster_file)
+        else:
+            bbox = gis.get_bbox(vector_file)
+            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
+            raster_file = MemoryFile(gis.get_dem(*bbox)).name
+            ras_crs = 'epsg:4326'
+
+        vec_crs = crs_sniffer(vector_file)
 
         if ras_crs != vec_crs:
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
