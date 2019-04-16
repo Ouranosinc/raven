@@ -1,6 +1,5 @@
 import logging
 import json
-import tempfile
 
 from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
@@ -100,7 +99,6 @@ class ZonalStatisticsProcess(Process):
                     feature_collect = stats
 
                 response.outputs['statistics'].data = json.dumps(feature_collect)
-
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)

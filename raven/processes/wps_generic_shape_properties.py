@@ -2,7 +2,6 @@ import fiona
 import json
 import logging
 
-
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check

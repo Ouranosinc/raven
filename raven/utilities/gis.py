@@ -1,7 +1,6 @@
 import fiona
 from raven.utils import crs_sniffer
 from shapely.geometry import shape, Point
-import geopandas as gpd
 
 
 def feature_contains(point, shp):
