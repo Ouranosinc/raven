@@ -84,8 +84,10 @@ class NALCMSZonalStatisticsProcess(Process):
 
     def _handler(self, request, response):
 
-        shape_url = request.inputs['shape'][0].file
+        # TODO: Deploy the CEC NALCMS 2010 data set on PAVICS GeoServer and access via WCS
         raster_url = request.inputs['raster'][0].file
+
+        shape_url = request.inputs['shape'][0].file
         geojson_out = request.inputs['return_geojson'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
