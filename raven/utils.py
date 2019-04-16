@@ -300,7 +300,7 @@ def multipolygon_check(f):
 def geom_transform(geom, source_crs=WGS84, target_crs=None):
     """Change the projection of a geometry.
 
-     Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
+    Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
 
     Parameters
     ----------
@@ -598,4 +598,54 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
                     resampling=rasterio.warp.Resampling.nearest
                 )
                 dst.write(dest, indexes=i)
+    return
+
+
+def generic_vector_reproject(vector, projected, driver='ESRI Shapefile', source_crs=WGS84, target_crs=None):
+    """Reproject all features and layers within a vector file
+
+    Parameters
+    ----------
+    vector : str or path
+      Path to a file containing a valid vector layer
+    projected: str or path
+      Path to a file to be written
+    driver: str
+      Desired file encoding. Default 'ESRI Shapefile'
+    source_crs : str or CRS
+      Projection identifier (proj4) for the source geometry, e.g. '+proj=longlat +datum=WGS84 +no_defs'.
+    target_crs : str or CRS
+      Projection identifier (proj4) for the target geometry.
+
+    Returns
+    -------
+    None
+    """
+
+    if target_crs is None:
+        msg = 'No target CRS is defined.'
+        raise ValueError(msg)
+
+    for i, layer_name in enumerate(fiona.listlayers(vector)):
+        with fiona.open(vector, 'r', crs=source_crs, layer=i) as src:
+            metadata = src.meta.copy()
+            metadata.update(
+                {
+                    'crs': target_crs,
+                    'driver': driver
+                }
+            )
+
+            with fiona.open(projected, 'w', **metadata) as sink:
+                for feature in src:
+
+                    try:
+                        geom = sgeo.shape(feature['geometry'])
+                        transformed = geom_transform(geom, source_crs, target_crs)
+                        feature['geometry'] = sgeo.mapping(transformed)
+                        sink.write(feature)
+
+                    except Exception as e:
+                        LOGGER.exception('{}: Unable to reproject feature {}'.format(e, feature['id']))
+
     return
