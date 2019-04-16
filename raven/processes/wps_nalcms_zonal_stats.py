@@ -1,5 +1,6 @@
 import logging
 import json
+import tempfile
 
 from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
@@ -7,7 +8,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, single_file_check
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -98,9 +99,15 @@ class NALCMSZonalStatisticsProcess(Process):
 
         vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
 
-        if ras_crs != vec_crs:
-            msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
+        if vec_crs != ras_crs:
+            msg = 'CRS for files {} and {} are not the same. Reprojecting...'.format(vector_file, raster_file)
             LOGGER.warning(msg)
+
+            # Reproject full vector to preserve feature attributes
+            projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
+                                                    dir=self.workdir).name
+            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs, target_crs=ras_crs)
+            vector_file = projected
 
         try:
             stats = zonal_stats(
