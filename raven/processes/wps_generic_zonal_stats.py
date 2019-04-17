@@ -73,7 +73,6 @@ class ZonalStatisticsProcess(Process):
 
         shape_url = request.inputs['shape'][0].file
 
-
         band = request.inputs['band'][0].data
         geojson_out = request.inputs['return_geojson'][0].data
         categorical = request.inputs['categorical'][0].data
@@ -86,14 +85,13 @@ class ZonalStatisticsProcess(Process):
         if 'raster' in request.inputs:
             raster_url = request.inputs['raster'][0].file
             raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
-            ras_crs = crs_sniffer(raster_file)
         else:
             bbox = gis.get_bbox(vector_file)
-            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
-            raster_file = MemoryFile(gis.get_dem(*bbox)).name
-            ras_crs = 'epsg:4326'
+            raster_url = 'public__EarthEnv_DEM90_NorthAmerica'
+            raster_file = MemoryFile(gis.get_dem(bbox)).name
 
         vec_crs = crs_sniffer(vector_file)
+        ras_crs = crs_sniffer(raster_file)
 
         if ras_crs != vec_crs:
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
@@ -115,6 +113,10 @@ class ZonalStatisticsProcess(Process):
 
                 response.outputs['statistics'].data = json.dumps(feature_collect)
 
+                # import tempfile
+                # thing = tempfile.NamedTemporaryFile('w', suffix='.json', delete=False).name
+                # with open(thing, 'w') as t:
+                #     json.dump(feature_collect, t)
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
