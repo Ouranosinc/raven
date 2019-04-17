@@ -1,7 +1,6 @@
 import fiona
 from raven.utils import crs_sniffer
 from shapely.geometry import shape, Point
-import geopandas as gpd
 
 
 def feature_contains(point, shp):
@@ -126,7 +125,7 @@ def get_bbox(fn):
     #         return src.bounds
 
 
-def get_dem(bbox):
+def get_dem(bbox, wcs_version='1.0.0'):
     """
     Return a subset of the EarthEnv NorthAmerica DEM.
 
@@ -134,6 +133,8 @@ def get_dem(bbox):
     ----------
     bbox : sequence
       Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
+    wcs_version : str
+      The OWSlib WCS protocol employed. Default: '1.0.0'
 
     Returns
     -------
@@ -147,16 +148,15 @@ def get_dem(bbox):
     from owslib.wcs import WebCoverageService
     from lxml import etree
 
-    # We should use 2.0.1. It is supported by GeoServer and the previous versions are deprecated.
-    version = '1.0.0'
     crs = 'epsg:4326'
     fmt = 'GeoTIFF'
     (lon0, lat0, lon1, lat1) = bbox
 
-    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version=version)
+    # We should use 2.0.1. It is supported by GeoServer and the previous versions are deprecated.
+    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version=wcs_version)
 
     # Need to compute the width and height based on the resolution.
-    if version == '1.0.0':
+    if wcs_version == '1.0.0':
         layer = 'public:EarthEnv_DEM90_NorthAmerica'
         resp = wcs.getCoverage(identifier=layer,
                                bbox=bbox,
@@ -164,9 +164,9 @@ def get_dem(bbox):
                                width=int((lon1 - lon0) * 10), height=int((lat1 - lat0) * 10))
 
     # This is not working.
-    elif version == '2.0.1':
-        layer = "public__EarthEnv_DEM90_NorthAmerica"
-        resp = wcs.getCoverage([layer, ],
+    elif wcs_version == '2.0.1':
+        layer = "public:EarthEnv_DEM90_NorthAmerica"
+        resp = wcs.getCoverage(identifier=[layer, ],
                                format='image/tiff',
                                subsets=[('i', lon0, lon1), ('j', lat0, lat1)])
 
