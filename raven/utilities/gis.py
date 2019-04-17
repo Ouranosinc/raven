@@ -121,6 +121,10 @@ def get_bbox(fn):
                 geom = shape(feature['geometry'])
                 return geom.bounds
 
+    # for i, layer_name in enumerate(fiona.listlayers(fn)):
+    #     with fiona.open(fn, 'r', layer=i) as src:
+    #         return src.bounds
+
 
 def get_dem(bbox):
     """
