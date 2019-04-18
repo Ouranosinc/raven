@@ -25,3 +25,5 @@ pyproj
 rasterio
 rasterstats
 shapely
+unidecode
+-e git://github.com/Ouranosinc/xclim.git@fix-191#egg=xclim

@@ -18,7 +18,7 @@ from .wps_regionalisation import RegionalisationProcess
 from .wps_raven_multi_model import RavenMultiModelProcess
 from .wps_graph_ensemble_uncertainty import GraphEnsUncertaintyProcess
 from .wps_graph_single_hydrograph import GraphSingleHydrographProcess
-
+from .wps_q_stats import TSStatsProcess
 
 processes = [
     RavenProcess(),
@@ -39,6 +39,7 @@ processes = [
     ObjectiveFunctionProcess(),
     RavenMultiModelProcess(),
     GraphEnsUncertaintyProcess(),
-    GraphSingleHydrographProcess()
+    GraphSingleHydrographProcess(),
+    TSStatsProcess(),
     # RegionalisationProcess(),
 ]
