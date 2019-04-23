@@ -1,5 +1,6 @@
 import fiona
-from raven.utils import crs_sniffer
+import collections
+from raven.utils import crs_sniffer, single_file_check
 from shapely.geometry import shape, Point
 
 
@@ -8,7 +9,7 @@ def feature_contains(point, shp):
 
     Parameters
     ----------
-    point : shapely.Point
+    point : shapely.Point or tuple
       Location coordinates.
     shp : str
       Path to the file storing the geometries.
@@ -23,18 +24,24 @@ def feature_contains(point, shp):
     This is really slow. Another approach is to use the `fiona.Collection.filter` method.
     """
 
-    if not isinstance(point, Point):
-        raise ValueError("point should be shapely.Point instance, got : {}".format(point))
+    if isinstance(point, collections.abc.Sequence) and not isinstance(point, str):
+        for coord in point:
+            if isinstance(coord,(int, float)):
+                pass
+    elif isinstance(point, Point):
+        pass
+    else:
+        raise ValueError("point should be shapely.Point or tuple of coordinates, got : {}".format(point))
 
-    shape_crs = crs_sniffer(shp)
-    with fiona.Env():
-        for i, layer_name in enumerate(fiona.listlayers(shp)):
-            with fiona.open(shp, 'r', crs=shape_crs, layer=i) as src:
-                for feat in iter(src):
-                    geom = shape(feat['geometry'])
+    shape_crs = crs_sniffer(single_file_check(shp))
 
-                    if geom.contains(point):
-                        return feat
+    for i, layer_name in enumerate(fiona.listlayers(shp)):
+        with fiona.open(shp, 'r', crs=shape_crs, layer=i) as src:
+            for feat in iter(src):
+                geom = shape(feat['geometry'])
+
+                if geom.contains(point):
+                    return feat
 
     raise LookupError("Could not find feature containing point {} in {}.".format(point, shp))
 
