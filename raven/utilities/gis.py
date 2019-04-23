@@ -100,13 +100,15 @@ def hydrobasins_aggregate(gdf):
     return gdf.dissolve(by='MAIN_BAS', aggfunc=aggfunc)
 
 
-def get_bbox(fn):
+def get_bbox(vector, all_features=True):
     """Return bounding box of first feature in file.
 
     Parameters
     ----------
-    fn : str
+    vector : str
       Path to file storing vector features.
+    all_features : bool
+      Return the bounding box for all features. Default: True.
 
     Returns
     -------
@@ -114,15 +116,17 @@ def get_bbox(fn):
       Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
 
     """
-    for i, layer_name in enumerate(fiona.listlayers(fn)):
-        with fiona.open(fn, 'r', layer=i) as src:
-            for feature in src:
-                geom = shape(feature['geometry'])
-                return geom.bounds
 
-    # for i, layer_name in enumerate(fiona.listlayers(fn)):
-    #     with fiona.open(fn, 'r', layer=i) as src:
-    #         return src.bounds
+    if not all_features:
+        for i, layer_name in enumerate(fiona.listlayers(vector)):
+            with fiona.open(vector, 'r', layer=i) as src:
+                for feature in src:
+                    geom = shape(feature['geometry'])
+                    return geom.bounds
+
+    for i, layer_name in enumerate(fiona.listlayers(vector)):
+        with fiona.open(vector, 'r', layer=i) as src:
+            return src.bounds
 
 
 def get_dem(bbox, wcs_version='1.0.0'):
