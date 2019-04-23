@@ -26,7 +26,7 @@ def feature_contains(point, shp):
 
     if isinstance(point, collections.abc.Sequence) and not isinstance(point, str):
         for coord in point:
-            if isinstance(coord,(int, float)):
+            if isinstance(coord, (int, float)):
                 pass
     elif isinstance(point, Point):
         pass
@@ -179,7 +179,7 @@ def get_dem(bbox, wcs_version='1.0.0'):
         layer = "public:EarthEnv_DEM90_NorthAmerica"
         resp = wcs.getCoverage(identifier=[layer, ],
                                format='image/tiff',
-                               subsets=[('i', lon0, lon1), ('j', lat0, lat1)])
+                               subsets=[('Long', lon0, lon1), ('Lat', lat0, lat1)])  # ('Deg', 0, 1000)])
 
     else:
         raise NotImplementedError

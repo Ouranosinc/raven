@@ -27,6 +27,7 @@ class ZonalStatisticsProcess(Process):
                                   ' The shape and raster should have a matching CRS.',
                          min_occurs=1, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
+            # TODO: Update the metadata to reflect the EarthEnv DEM90 data source
             ComplexInput('raster', 'Gridded raster data set',
                          abstract='The DEM to be queried. Defaults to the USGS HydroSHEDS DEM.',
                          metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
@@ -49,6 +50,9 @@ class ZonalStatisticsProcess(Process):
             LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
                          data_type='boolean', default='false',
                          min_occurs=1, max_occurs=1),
+            LiteralInput('WCS_VERSION', 'DEBUG FIELD SPECIFYING WCS VERSION USED TO ACCESS DEM',
+                         data_type='string', default='1.0.0',
+                         min_occurs=1, max_occurs=1)
         ]
 
         outputs = [
@@ -78,6 +82,8 @@ class ZonalStatisticsProcess(Process):
         categorical = request.inputs['categorical'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
+        WCS_VERSION = request.inputs['WCS_VERSION'][0].data
+
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         rasters = ['.tiff', '.tif']
@@ -88,7 +94,7 @@ class ZonalStatisticsProcess(Process):
         else:
             bbox = gis.get_bbox(vector_file)
             raster_url = 'public__EarthEnv_DEM90_NorthAmerica'
-            raster_file = MemoryFile(gis.get_dem(bbox)).name
+            raster_file = MemoryFile(gis.get_dem(bbox, wcs_version=WCS_VERSION)).name
 
         vec_crs = crs_sniffer(vector_file)
         ras_crs = crs_sniffer(raster_file)
