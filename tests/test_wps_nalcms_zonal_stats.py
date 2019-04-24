@@ -37,7 +37,7 @@ class TestNALCMSZonalStatsProcess:
         print(stats)
         assert {'count', 'nodata'}.issubset(stats)
 
-        assert {'Forest', 'Shrubs', 'Grass', 'Wetland', 'Crops', 'Urban', 'WaterIce'}.issubset(stats.keys())
+        assert {'Forest', 'Shrubs', 'Grass', 'Wetland', 'Crops', 'Urban', 'Water'}.issubset(stats.keys())
         assert '228' not in stats
 
     def test_simple_geojson(self):
