@@ -30,8 +30,8 @@ NALCMS_CATEGORIES = {
     15: 'Crops',
     16: 'Grass',
     17: 'Urban',
-    18: 'Water/Ice',
-    19: 'Water/Ice'
+    18: 'Water',
+    19: 'SnowIce',
 }
 
 
@@ -111,8 +111,8 @@ class NALCMSZonalStatisticsProcess(Process):
 
         try:
             stats = zonal_stats(
-                vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
-                band=1, categorical=True, category_cmap=NALCMS_CATEGORIES, all_touched=touches,
+                vector_file, raster_file, stats=['count', 'nodata'],
+                band=1, categorical=True, category_map=NALCMS_CATEGORIES, all_touched=touches,
                 geojson_out=geojson_out, raster_out=False)
 
             if not geojson_out:
