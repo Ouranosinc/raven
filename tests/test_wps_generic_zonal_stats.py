@@ -108,7 +108,7 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-    def test_geoserver_dem_100(self):
+    def test_geoserver_dem_wcs100(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [
             'select_all_touching={touches}',
@@ -137,7 +137,7 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-    def test_geoserver_dem_201(self):
+    def test_geoserver_dem_wcs201(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [
             'select_all_touching={touches}',
