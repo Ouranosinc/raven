@@ -6,9 +6,7 @@ from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
-from owslib.wcs import WebCoverageService
 from rasterstats import zonal_stats
-from rasterio import MemoryFile
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
 from raven.utilities import gis
 
@@ -51,7 +49,7 @@ class ZonalStatisticsProcess(Process):
                          data_type='boolean', default='false',
                          min_occurs=1, max_occurs=1),
             LiteralInput('WCS_VERSION', 'DEBUG FIELD SPECIFYING WCS VERSION USED TO ACCESS DEM',
-                         data_type='string', default='1.0.0',
+                         data_type='string', default='1.0.0', allowed_values=['1.0.0', '2.0.1'],
                          min_occurs=1, max_occurs=1)
         ]
 
@@ -93,8 +91,12 @@ class ZonalStatisticsProcess(Process):
             raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
         else:
             bbox = gis.get_bbox(vector_file)
-            raster_url = 'public__EarthEnv_DEM90_NorthAmerica'
-            raster_file = MemoryFile(gis.get_dem(bbox, wcs_version=WCS_VERSION)).name
+            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
+            raster_bytes = gis.get_dem(bbox, wcs_version=WCS_VERSION)
+            raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
+                                                      dir=self.workdir).name
+            with open(raster_file, 'wb') as f:
+                f.write(raster_bytes)
 
         vec_crs = crs_sniffer(vector_file)
         ras_crs = crs_sniffer(raster_file)
