@@ -43,10 +43,10 @@ class NALCMSZonalStatisticsProcess(Process):
                              'Commission for Environmental Cooperation North American Land Change Monitoring System',
                              'http://www.cec.org/tools-and-resources/map-files/land-cover-2010-landsat-30m'),
                                    Metadata(
-                                       "Latifovic, R., Homer, C., Ressl, R., Pouliot, D., Hossain, S.N., Colditz, R.R.,"
-                                       " Olthof, I., Giri, C., Victoria, A., 2012. North American land change"
-                                       " monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land"
-                                       " Cover: Principles and Applications, CRC-Press, pp. 303-324")],
+                                       'Latifovic, R., Homer, C., Ressl, R., Pouliot, D., Hossain, S.N., Colditz, R.R.,'
+                                       'Olthof, I., Giri, C., Victoria, A., (2012). North American land change '
+                                       'monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land '
+                                       'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
                          min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             LiteralInput('return_geojson', 'Return the geometry and statistics as properties in a GeoJSON',
                          data_type='boolean', default='true',
@@ -113,11 +113,7 @@ class NALCMSZonalStatisticsProcess(Process):
                 response.outputs['statistics'].data = json.dumps(stats)
 
             else:
-                if len(stats) > 1:
-                    feature_collect = {'type': 'FeatureCollection', 'features': stats}
-                else:
-                    feature_collect = stats
-
+                feature_collect = {'type': 'FeatureCollection', 'features': stats}
                 response.outputs['statistics'].data = json.dumps(feature_collect)
 
         except Exception as e:
