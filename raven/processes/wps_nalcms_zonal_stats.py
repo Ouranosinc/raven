@@ -12,27 +12,18 @@ from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, 
 
 LOGGER = logging.getLogger("PYWPS")
 
-NALCMS_CATEGORIES = {
-    1: 'Forest',
-    2: 'Forest',
-    3: 'Forest',
-    4: 'Forest',
-    5: 'Forest',
-    6: 'Forest',
-    7: 'Shrubs',
-    8: 'Shrubs',
-    9: 'Grass',
-    10: 'Grass',
-    11: 'Shrubs',
-    12: 'Grass',
-    13: 'Grass',
-    14: 'Wetland',
-    15: 'Crops',
-    16: 'Grass',
-    17: 'Urban',
-    18: 'Water',
-    19: 'SnowIce',
+categories = {
+    'Forest': [1, 2, 3, 4, 5, 6],
+    'Shrubs': [7, 8, 11],
+    'Grass': [9, 10, 12, 13, 16],
+    'Wetland': [14],
+    'Crops': [15],
+    'Urban': [17],
+    'Water': [18],
+    'SnowIce': [19]
 }
+
+NALCMS_CATEGORIES = {i: cat for (cat, ids) in categories.items() for i in ids}
 
 
 class NALCMSZonalStatisticsProcess(Process):
@@ -94,6 +85,9 @@ class NALCMSZonalStatisticsProcess(Process):
 
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+
+
+        # TODO: Set up the WCS call using the gis.get_bbox and gis.get_dem functions
         rasters = ['.tiff', '.tif']
         raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
 

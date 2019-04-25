@@ -34,11 +34,8 @@ class TestNALCMSZonalStatsProcess:
         out = get_output(resp.xml)
 
         stats = json.loads(out['statistics'])[0]
-        print(stats)
         assert {'count', 'nodata'}.issubset(stats)
-
         assert {'Forest', 'Shrubs', 'Grass', 'Wetland', 'Crops', 'Urban', 'Water'}.issubset(stats.keys())
-        assert '228' not in stats
 
     def test_simple_geojson(self):
         client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
