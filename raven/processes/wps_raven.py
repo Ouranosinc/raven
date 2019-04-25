@@ -1,9 +1,12 @@
+import logging
+from collections import defaultdict
+from pathlib import Path
+
 from pywps import Process, Format
+
 from raven.models import Raven
 from . import wpsio as wio
-import logging
-from pathlib import Path
-from collections import OrderedDict as Odict, defaultdict
+
 LOGGER = logging.getLogger("PYWPS")
 
 
@@ -78,7 +81,6 @@ class RavenProcess(Process):
             response.outputs[key].file = str(val)
             if val.suffix == '.zip':
                 response.outputs[key].data_format = Format('application/zip', extension='.zip', encoding='base64')
-
 
         return response
 
