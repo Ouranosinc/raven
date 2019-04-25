@@ -136,7 +136,7 @@ def get_bbox(vector, all_features=True):
             return src.bounds
 
 
-def get_dem(bbox, wcs_version='1.0.0'):
+def get_dem_wcs(bbox):
     """
     Return a subset of the EarthEnv NorthAmerica DEM.
 
@@ -144,8 +144,6 @@ def get_dem(bbox, wcs_version='1.0.0'):
     ----------
     bbox : sequence
       Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
-    wcs_version : str
-      The OWSlib WCS protocol employed. Default: '1.0.0'
 
     Returns
     -------
@@ -153,36 +151,21 @@ def get_dem(bbox, wcs_version='1.0.0'):
       A GeoTIFF array.
 
     """
-    # size: 143999, 87599
-    # bbox: -170, 10, -50, 83
-    # dlon = dlat = 1200
     from owslib.wcs import WebCoverageService
     from lxml import etree
 
-    crs = 'epsg:4326'
-    fmt = 'GeoTIFF'
     (lon0, lat0, lon1, lat1) = bbox
 
-    # We should use 2.0.1. It is supported by GeoServer and the previous versions are deprecated.
-    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version=wcs_version)
+    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version='2.0.1')
 
-    # Need to compute the width and height based on the resolution.
-    if wcs_version == '1.0.0':
-        layer = 'public:EarthEnv_DEM90_NorthAmerica'
-        resp = wcs.getCoverage(identifier=layer,
-                               bbox=bbox,
-                               format=fmt, crs=crs,
-                               width=int((lon1 - lon0) * 10), height=int((lat1 - lat0) * 10))
-
-    # This is not working.
-    elif wcs_version == '2.0.1':
+    try:
         layer = "public:EarthEnv_DEM90_NorthAmerica"
         resp = wcs.getCoverage(identifier=[layer, ],
                                format='image/tiff',
-                               subsets=[('Long', lon0, lon1), ('Lat', lat0, lat1)])  # ('Deg', 0, 1000)])
+                               subsets=[('Long', lon0, lon1), ('Lat', lat0, lat1)])
 
-    else:
-        raise NotImplementedError
+    except Exception as e:
+        raise Exception(e)
 
     data = resp.read()
 

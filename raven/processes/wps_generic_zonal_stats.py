@@ -25,16 +25,16 @@ class ZonalStatisticsProcess(Process):
                                   ' The shape and raster should have a matching CRS.',
                          min_occurs=1, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
-            # TODO: Update the metadata to reflect the EarthEnv DEM90 data source
             ComplexInput('raster', 'Gridded raster data set',
-                         abstract='The DEM to be queried. Defaults to the USGS HydroSHEDS DEM.',
-                         metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
+                         abstract='The DEM to be queried. Defaults to the EarthEnv-DEM90 product.',
+                         metadata=[Metadata('EarthEnv-DEM90', 'https://www.earthenv.org/DEM'),
                                    Metadata(
-                                       'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from'
-                                       ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
-                                       'https://doi.org/10.1029/2008EO100001')],
-                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF],
-                         ),
+                                       'Robinson, Natalie, James Regetz, and Robert P. Guralnick (2014). '
+                                       'EarthEnv-DEM90: A Nearly-Global, Void-Free, Multi-Scale Smoothed, 90m Digital '
+                                       'Elevation Model from Fused ASTER and SRTM Data. ISPRS Journal of '
+                                       'Photogrammetry and Remote Sensing 87: 57–67.',
+                                       'https://doi.org/10.1016/j.isprsjprs.2013.11.002')],
+                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
@@ -47,9 +47,6 @@ class ZonalStatisticsProcess(Process):
                          min_occurs=1, max_occurs=1),
             LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
                          data_type='boolean', default='false',
-                         min_occurs=1, max_occurs=1),
-            LiteralInput('WCS_VERSION', 'DEBUG FIELD SPECIFYING WCS VERSION USED TO ACCESS DEM',
-                         data_type='string', default='1.0.0', allowed_values=['1.0.0', '2.0.1'],
                          min_occurs=1, max_occurs=1)
         ]
 
@@ -80,8 +77,6 @@ class ZonalStatisticsProcess(Process):
         categorical = request.inputs['categorical'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
-        WCS_VERSION = request.inputs['WCS_VERSION'][0].data
-
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         rasters = ['.tiff', '.tif']
@@ -92,7 +87,7 @@ class ZonalStatisticsProcess(Process):
         else:
             bbox = gis.get_bbox(vector_file)
             raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
-            raster_bytes = gis.get_dem(bbox, wcs_version=WCS_VERSION)
+            raster_bytes = gis.get_dem_wcs(bbox)
             raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
                                                       dir=self.workdir).name
             with open(raster_file, 'wb') as f:
@@ -114,17 +109,8 @@ class ZonalStatisticsProcess(Process):
                 response.outputs['statistics'].data = json.dumps(stats)
 
             else:
-                if len(stats) > 1:
-                    feature_collect = {'type': 'FeatureCollection', 'features': stats}
-                else:
-                    feature_collect = stats
-
+                feature_collect = {'type': 'FeatureCollection', 'features': stats}
                 response.outputs['statistics'].data = json.dumps(feature_collect)
-
-                # import tempfile
-                # thing = tempfile.NamedTemporaryFile('w', suffix='.json', delete=False).name
-                # with open(thing, 'w') as t:
-                #     json.dump(feature_collect, t)
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
