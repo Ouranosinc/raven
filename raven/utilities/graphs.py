@@ -57,8 +57,7 @@ def hydrograph(file_list):
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
-    ax.set_title('Hydrograph between ' + first_date + ' and ' + last_date +
-                 '\n Selected basin: ' + basin_name + ' basin.')
+    ax.set_title('Hydrograph between {} and {}\nSelected basin: {} basin.'.format(first_date, last_date, basin_name))
     ax.legend()
     ax.grid()
 
@@ -123,8 +122,7 @@ def mean_annual_hydrograph(file_list):
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
-    ax.set_title('Hydrograph between ' + first_date + ' and ' + last_date +
-                 '\n Selected basin: ' + basin_name + ' basin.')
+    ax.set_title('Hydrograph between {} and {}\nSelected basin: {} basin.'.format(first_date, last_date, basin_name))
     ax.legend()
     ax.grid()
 
@@ -206,9 +204,8 @@ def spaghetti_annual_hydrograph(file):
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
-    ax.set_title('Spaghetti annual hydrograph between ' + first_date +
-                 ' and ' + last_date + '\n Selected basin: ' + basin_name +
-                 ' basin.')
+    ax.set_title('Spaghetti annual hydrograph between {} and {}'
+                 '\n Selected basin: {} basin.'.format(first_date, last_date, basin_name))
     ax.legend()
     ax.grid()
 
