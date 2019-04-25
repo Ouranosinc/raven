@@ -1,15 +1,14 @@
-import pytest
+# import pytest
 import datetime as dt
-import numpy as np
 
 from pywps import Service
 from pywps.tests import assert_response_success
 
-from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
-from raven.processes import RavenMultiModelProcess, GraphEnsUncertaintyProcess,GraphSingleHydrographProcess
+from raven.processes import RavenMultiModelProcess, GraphEnsUncertaintyProcess, GraphSingleHydrographProcess
+from .common import client_for, TESTDATA, CFG_FILE, get_output
 
 
-#@pytest.mark.dependency()
+# @pytest.mark.dependency()
 def test_raven_multi_model_process(request):
     client = client_for(Service(processes=[RavenMultiModelProcess(), ], cfgfiles=CFG_FILE))
 
@@ -51,28 +50,26 @@ def test_raven_multi_model_process(request):
     request.config.cache.set('zipfn', out['hydrograph'])
 
 
-#@pytest.mark.dependency(depends=['test_raven_multi_model_process'])
+# @pytest.mark.dependency(depends=['test_raven_multi_model_process'])
 def test_graph_ensemble_uncertainty(request):
     client = client_for(Service(processes=[GraphEnsUncertaintyProcess(), ], cfgfiles=CFG_FILE))
 
     zipfn = request.config.cache.get('zipfn', None)
-    
+
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='graph_ensemble_uncertainty',
         datainputs="sims=files@xlink:href=file://{};".format(zipfn))
-    
+
     assert_response_success(resp)
     # print(get_output(resp.xml))
 
 
 def test_graph_single_hydrograph(request):
-    
     client = client_for(Service(processes=[GraphSingleHydrographProcess(), ], cfgfiles=CFG_FILE))
-    datainputs="sim=files@xlink:href=file://{sim};".format(sim=TESTDATA['simfile_single'])
-    
+    datainputs = "sim=files@xlink:href=file://{sim};".format(sim=TESTDATA['simfile_single'])
+
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='graph_single_hydrograph',
         datainputs=datainputs)
 
     assert_response_success(resp)
-    

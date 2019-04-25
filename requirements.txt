@@ -5,6 +5,7 @@ click
 psutil
 numpy
 scipy
+matplotlib
 xarray
 pandas
 netCDF4

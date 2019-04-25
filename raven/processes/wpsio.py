@@ -225,4 +225,3 @@ calibrated_params = ComplexOutput('calibrated_params', 'Calibrated parameters',
 # config = ComplexOutput('config', 'Configuration files',
 #                        abstract="Link to configuration files.",
 #                        supported_formats=)
-
