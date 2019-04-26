@@ -8,10 +8,10 @@ The following graphs can be plotted:
 
 """
 
-from matplotlib import pyplot as plt
-import xarray as xr
-import pandas as pd
 import numpy as np
+import pandas as pd
+import xarray as xr
+from matplotlib import pyplot as plt
 
 
 def hydrograph(file_list):
@@ -25,7 +25,7 @@ def hydrograph(file_list):
     """
 
     ds = [xr.open_dataset(file) for file in file_list]
-  
+
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds[0].time.values)
     first_date = dates.min().strftime('%Y/%m/%d')
@@ -57,8 +57,7 @@ def hydrograph(file_list):
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
-    ax.set_title('Hydrograph between ' + first_date + ' and ' + last_date +
-                 '\n Selected basin: ' + basin_name + ' basin.')
+    ax.set_title('Hydrograph between {} and {}\nSelected basin: {} basin.'.format(first_date, last_date, basin_name))
     ax.legend()
     ax.grid()
 
@@ -85,7 +84,7 @@ def mean_annual_hydrograph(file_list):
     dates = pd.DatetimeIndex(ds[0].time.values)
     first_date = dates.min().strftime('%Y/%m/%d')
     last_date = dates.max().strftime('%Y/%m/%d')
-   
+
     basin_name = ds[0].basin_name.values[0]  # selected basin name
 
     fig, ax = plt.subplots()  # initialize figure
@@ -116,15 +115,14 @@ def mean_annual_hydrograph(file_list):
         np.linspace(0, 365, 13)[:-1], (
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-            ),
-        )
+        ),
+    )
 
     plt.xlim(0, mah_obs.shape[0])
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
-    ax.set_title('Hydrograph between ' + first_date + ' and ' + last_date +
-                 '\n Selected basin: ' + basin_name + ' basin.')
+    ax.set_title('Hydrograph between {} and {}\nSelected basin: {} basin.'.format(first_date, last_date, basin_name))
     ax.legend()
     ax.grid()
 
@@ -146,7 +144,7 @@ def spaghetti_annual_hydrograph(file):
 
     # Time series for the plot
     ds = xr.open_dataset(file)
-    
+
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds.time.values)
     first_date = dates.min().strftime('%Y/%m/%d')
@@ -164,17 +162,17 @@ def spaghetti_annual_hydrograph(file):
 
         for year in mah_obs.groups.keys():
             plt.plot(
-                np.arange(1, q_obs.values[mah_obs.groups[year]].shape[0]+1, 1),
+                np.arange(1, q_obs.values[mah_obs.groups[year]].shape[0] + 1, 1),
                 q_obs.values[mah_obs.groups[year]],
                 linewidth=1,
                 color='C0')
 
         plt.plot(
-                mah_obs_mean.dayofyear,
-                mah_obs_mean,
-                linewidth=2,
-                color='C0',
-                label='obs')
+            mah_obs_mean.dayofyear,
+            mah_obs_mean,
+            linewidth=2,
+            color='C0',
+            label='obs')
 
     # Plot the simulated streamflows for each hydrological model
     q_sim = ds.q_sim
@@ -183,7 +181,7 @@ def spaghetti_annual_hydrograph(file):
 
     for year in mah_sim.groups.keys():
         plt.plot(
-            np.arange(1, q_sim.values[mah_sim.groups[year]].shape[0]+1, 1),
+            np.arange(1, q_sim.values[mah_sim.groups[year]].shape[0] + 1, 1),
             q_sim.values[mah_sim.groups[year]],
             linewidth=1,
             color='C1')
@@ -199,16 +197,15 @@ def spaghetti_annual_hydrograph(file):
         np.linspace(0, 365, 13)[:-1], (
             'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-            ),
-        )
+        ),
+    )
 
     plt.xlim(0, mah_sim_mean.shape[0])
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
-    ax.set_title('Spaghetti annual hydrograph between ' + first_date +
-                 ' and ' + last_date + '\n Selected basin: ' + basin_name +
-                 ' basin.')
+    ax.set_title('Spaghetti annual hydrograph between {} and {}'
+                 '\n Selected basin: {} basin.'.format(first_date, last_date, basin_name))
     ax.legend()
     ax.grid()
 
