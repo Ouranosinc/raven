@@ -107,3 +107,32 @@ class TestGenericZonalStatsProcess:
 
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
+
+    def test_geoserver_dem_wcs(self):
+        client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
+        fields = [
+            'select_all_touching={touches}',
+            'return_geojson={return_geojson}',
+            'categorical={categorical}',
+            'band={band}',
+            'shape=file@xlink:href=file://{shape}', ]
+
+        datainputs = ';'.join(fields).format(
+            touches=True,
+            return_geojson=True,
+            categorical=False,
+            band=1,
+            shape=TESTDATA['mrc_subset'],
+        )
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='zonal-stats', datainputs=datainputs)
+
+        assert_response_success(resp)
+        out = get_output(resp.xml)
+        feature = json.loads(out['statistics'])['features'][0]
+
+        stats = feature['properties']
+        assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
+
+        geometry = shape(feature['geometry'])
+        assert isinstance(type(geometry), type(MultiPolygon))
