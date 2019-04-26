@@ -1,9 +1,7 @@
-# import pytest
 import datetime as dt
 
 from pywps import Service
 from pywps.tests import assert_response_success
-
 from raven.processes import RavenMultiModelProcess, GraphEnsUncertaintyProcess, GraphSingleHydrographProcess
 from .common import client_for, TESTDATA, CFG_FILE, get_output
 
@@ -65,6 +63,7 @@ def test_graph_ensemble_uncertainty(request):
 
     assert_response_success(resp)
     # print(get_output(resp.xml))
+
 
 @pytest.mark.skip
 def test_graph_single_hydrograph(request):
