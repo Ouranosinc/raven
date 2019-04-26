@@ -7,8 +7,9 @@ from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
-
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utilities import gis
+
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -25,13 +26,15 @@ class ZonalStatisticsProcess(Process):
                          min_occurs=1, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             ComplexInput('raster', 'Gridded raster data set',
-                         abstract='The DEM to be queried. Defaults to the USGS HydroSHEDS DEM.',
-                         metadata=[Metadata('HydroSheds Database', 'http://hydrosheds.org'),
+                         abstract='The DEM to be queried. Defaults to the EarthEnv-DEM90 product.',
+                         metadata=[Metadata('EarthEnv-DEM90', 'https://www.earthenv.org/DEM'),
                                    Metadata(
-                                       'Lehner, B., Verdin, K., Jarvis, A. (2008): New global hydrography derived from'
-                                       ' spaceborne elevation data. Eos, Transactions, AGU, 89(10): 93-94.',
-                                       'https://doi.org/10.1029/2008EO100001')],
-                         min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
+                                       'Robinson, Natalie, James Regetz, and Robert P. Guralnick (2014). '
+                                       'EarthEnv-DEM90: A Nearly-Global, Void-Free, Multi-Scale Smoothed, 90m Digital '
+                                       'Elevation Model from Fused ASTER and SRTM Data. ISPRS Journal of '
+                                       'Photogrammetry and Remote Sensing 87: 57–67.',
+                                       'https://doi.org/10.1016/j.isprsjprs.2013.11.002')],
+                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
@@ -44,7 +47,7 @@ class ZonalStatisticsProcess(Process):
                          min_occurs=1, max_occurs=1),
             LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
                          data_type='boolean', default='false',
-                         min_occurs=1, max_occurs=1),
+                         min_occurs=1, max_occurs=1)
         ]
 
         outputs = [
@@ -68,7 +71,7 @@ class ZonalStatisticsProcess(Process):
     def _handler(self, request, response):
 
         shape_url = request.inputs['shape'][0].file
-        raster_url = request.inputs['raster'][0].file
+
         band = request.inputs['band'][0].data
         geojson_out = request.inputs['return_geojson'][0].data
         categorical = request.inputs['categorical'][0].data
@@ -77,9 +80,21 @@ class ZonalStatisticsProcess(Process):
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         rasters = ['.tiff', '.tif']
-        raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
 
-        vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
+        if 'raster' in request.inputs:
+            raster_url = request.inputs['raster'][0].file
+            raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
+        else:
+            bbox = gis.get_bbox(vector_file)
+            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
+            raster_bytes = gis.get_dem_wcs(bbox)
+            raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
+                                                      dir=self.workdir).name
+            with open(raster_file, 'wb') as f:
+                f.write(raster_bytes)
+
+        vec_crs = crs_sniffer(vector_file)
+        ras_crs = crs_sniffer(raster_file)
 
         if ras_crs != vec_crs:
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
@@ -94,11 +109,7 @@ class ZonalStatisticsProcess(Process):
                 response.outputs['statistics'].data = json.dumps(stats)
 
             else:
-                if len(stats) > 1:
-                    feature_collect = {'type': 'FeatureCollection', 'features': stats}
-                else:
-                    feature_collect = stats
-
+                feature_collect = {'type': 'FeatureCollection', 'features': stats}
                 response.outputs['statistics'].data = json.dumps(feature_collect)
 
         except Exception as e:
