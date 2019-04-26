@@ -101,7 +101,6 @@ class ZonalStatisticsProcess(Process):
 
                 response.outputs['statistics'].data = json.dumps(feature_collect)
 
-
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
             LOGGER.error(msg)
