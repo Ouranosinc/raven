@@ -1,6 +1,7 @@
-from raven.models import Raven, Ostrich
-from pathlib import Path
 from collections import namedtuple
+from pathlib import Path
+
+from raven.models import Raven, Ostrich
 from .rv import RV, RVT, RVI, Ost
 
 
@@ -44,7 +45,7 @@ class MOHYSE(Raven):
     params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 9)]))
     hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
 
-    rvp = RV(params=params(*((None, ) * 8)))
+    rvp = RV(params=params(*((None,) * 8)))
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=hrus(None, None))
     rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
     rvi = RVI()
@@ -125,7 +126,7 @@ class HBVEC(GR4JCN):
     rvp = RV(params=params(*((None,) * len(params._fields))))
     rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=mae, mat=mat)
     rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-             water_volume_transport_in_river_channel=None)
+              water_volume_transport_in_river_channel=None)
     rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
     def derived_parameters(self):
@@ -167,6 +168,7 @@ class HBVEC_OST(Ostrich, HBVEC):
         tas = (tasmax + tasmin) / 2.
         self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
         self.rvd.mae = self.mae(*evap.groupby('time.month').mean().values)
+
 
 def get_model(name):
     """Return the corresponding Raven emulated model instance.
