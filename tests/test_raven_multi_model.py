@@ -1,4 +1,4 @@
-from . common import TESTDATA
+from .common import TESTDATA
 from raven.models import RavenMultiModel
 import datetime as dt
 
