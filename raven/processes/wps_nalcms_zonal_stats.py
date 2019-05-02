@@ -9,6 +9,7 @@ from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
 from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, single_file_check
+from raven.utilities import gis
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -24,6 +25,7 @@ categories = {
 }
 
 NALCMS_CATEGORIES = {i: cat for (cat, ids) in categories.items() for i in ids}
+NALCMS_PROJ4 = '+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs=True'
 
 
 class NALCMSZonalStatisticsProcess(Process):
@@ -47,7 +49,11 @@ class NALCMSZonalStatisticsProcess(Process):
                                        'Olthof, I., Giri, C., Victoria, A., (2012). North American land change '
                                        'monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land '
                                        'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
-                         min_occurs=1, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
+                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
+            LiteralInput('band', 'Raster band',
+                         data_type='integer', default=1,
+                         abstract='Band of raster examined to perform zonal statistics. Default: 1',
+                         min_occurs=1, max_occurs=1),
             LiteralInput('return_geojson', 'Return the geometry and statistics as properties in a GeoJSON',
                          data_type='boolean', default='true',
                          min_occurs=1, max_occurs=1),
@@ -76,37 +82,50 @@ class NALCMSZonalStatisticsProcess(Process):
 
     def _handler(self, request, response):
 
-        # TODO: Deploy the CEC NALCMS 2010 data set on PAVICS GeoServer and access via WCS
-        raster_url = request.inputs['raster'][0].file
-
         shape_url = request.inputs['shape'][0].file
+        band = request.inputs['band'][0].data
         geojson_out = request.inputs['return_geojson'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+        vec_crs = crs_sniffer(vector_file)
 
+        if 'raster' in request.inputs:  # For raster files using the UNFAO Land Cover Classification System (19 types)
+            rasters = ['.tiff', '.tif']
+            raster_url = request.inputs['raster'][0].file
+            raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
+            ras_crs = crs_sniffer(raster_file)
 
-        # TODO: Set up the WCS call using the gis.get_bbox and gis.get_dem functions
-        rasters = ['.tiff', '.tif']
-        raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
+            if vec_crs != ras_crs:
+                msg = 'CRS for files {} and {} are not the same. Reprojecting...'.format(vector_file, raster_file)
+                LOGGER.warning(msg)
 
-        vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
+                # Reproject full vector to preserve feature attributes
+                projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
+                                                        dir=self.workdir).name
+                generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs,
+                                         target_crs=ras_crs)
+                vector_file = projected
 
-        if vec_crs != ras_crs:
-            msg = 'CRS for files {} and {} are not the same. Reprojecting...'.format(vector_file, raster_file)
-            LOGGER.warning(msg)
-
-            # Reproject full vector to preserve feature attributes
-            projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
+        else:  # using the NALCMS data from GeoServer
+            laea_vector = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
                                                     dir=self.workdir).name
-            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs, target_crs=ras_crs)
-            vector_file = projected
+            generic_vector_reproject(vector_file, laea_vector, driver='GeoJSON', source_crs=vec_crs,
+                                     target_crs=NALCMS_PROJ4)
+
+            bbox = gis.get_bbox(laea_vector)
+            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
+            raster_bytes = gis.get_nalcms_wcs(bbox)
+            raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
+                                                      dir=self.workdir).name
+            with open(raster_file, 'wb') as f:
+                f.write(raster_bytes)
 
         try:
             stats = zonal_stats(
                 vector_file, raster_file, stats=['count', 'nodata'],
-                band=1, categorical=True, category_map=NALCMS_CATEGORIES, all_touched=touches,
+                band=band, categorical=True, category_map=NALCMS_CATEGORIES, all_touched=touches,
                 geojson_out=geojson_out, raster_out=False)
 
             if not geojson_out:

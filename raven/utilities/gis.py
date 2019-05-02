@@ -137,8 +137,9 @@ def get_bbox(vector, all_features=True):
 
 
 def get_dem_wcs(bbox):
-    """
-    Return a subset of the EarthEnv NorthAmerica DEM.
+    """Return a subset of the EarthEnv NorthAmerica DEM.
+
+    Subsetting based on WGS84 (Long, Lat) boundaries
 
     Parameters
     ----------
@@ -163,6 +164,55 @@ def get_dem_wcs(bbox):
         resp = wcs.getCoverage(identifier=[layer, ],
                                format='image/tiff',
                                subsets=[('Long', lon0, lon1), ('Lat', lat0, lat1)])
+
+    except Exception as e:
+        raise Exception(e)
+
+    data = resp.read()
+
+    try:
+        etree.fromstring(data)
+        # The response is an XML file describing the server error.
+        raise ChildProcessError(data)
+
+    except etree.XMLSyntaxError:
+        # The response is the DEM array.
+        return data
+
+
+def get_nalcms_wcs(bbox, year=2010):
+    """Return a subset of the CEC North American Land Change Monitoring System image.
+
+    Subsetting based on(Easting, Northing) using a LAEA projected coordinate system.
+
+    Parameters
+    ----------
+    bbox : sequence
+      Geographic coordinates of the bounding box (E0, N0, E1, N1).
+    year : int
+      Year of interest. Default: 2010.
+
+    Returns
+    -------
+    bytes
+      A GeoTIFF array.
+
+    """
+    from owslib.wcs import WebCoverageService
+    from lxml import etree
+
+    (E0, N0, E1, N1) = bbox
+
+    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version='2.0.1')
+
+    if year not in [2005, 2010]:
+        raise NotImplementedError
+
+    try:
+        layer = "public:CEC_NALCMS_LandUse_{}".format(year)
+        resp = wcs.getCoverage(identifier=[layer, ],
+                               format='image/tiff',
+                               subsets=[('E', E0, E1), ('N', N0, N1)])
 
     except Exception as e:
         raise Exception(e)

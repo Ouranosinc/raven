@@ -1,12 +1,13 @@
 import logging
 import json
+import tempfile
 
 from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic_vector_reproject
 from raven.utilities import gis
 
 
@@ -85,7 +86,7 @@ class ZonalStatisticsProcess(Process):
             raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
         else:
             bbox = gis.get_bbox(vector_file)
-            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
+            raster_url = 'public:CEC_NALCMS_LandUse_2010'
             raster_bytes = gis.get_dem_wcs(bbox)
             raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
                                                       dir=self.workdir).name
@@ -98,6 +99,12 @@ class ZonalStatisticsProcess(Process):
         if ras_crs != vec_crs:
             msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
             LOGGER.warning(msg)
+
+            # Reproject full vector to preserve feature attributes
+            projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
+                                                    dir=self.workdir).name
+            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs, target_crs=ras_crs)
+            vector_file = projected
 
         try:
             stats = zonal_stats(
