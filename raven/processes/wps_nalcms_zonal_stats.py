@@ -1,15 +1,15 @@
-import logging
 import json
+import logging
 import tempfile
 
-from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
+from pywps import LiteralInput, ComplexInput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, single_file_check
 from raven.utilities import gis
+from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, single_file_check
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -44,11 +44,11 @@ class NALCMSZonalStatisticsProcess(Process):
                          metadata=[Metadata(
                              'Commission for Environmental Cooperation North American Land Change Monitoring System',
                              'http://www.cec.org/tools-and-resources/map-files/land-cover-2010-landsat-30m'),
-                                   Metadata(
-                                       'Latifovic, R., Homer, C., Ressl, R., Pouliot, D., Hossain, S.N., Colditz, R.R.,'
-                                       'Olthof, I., Giri, C., Victoria, A., (2012). North American land change '
-                                       'monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land '
-                                       'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
+                             Metadata(
+                                 'Latifovic, R., Homer, C., Ressl, R., Pouliot, D., Hossain, S.N., Colditz, R.R.,'
+                                 'Olthof, I., Giri, C., Victoria, A., (2012). North American land change '
+                                 'monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land '
+                                 'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
                          min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
@@ -109,12 +109,13 @@ class NALCMSZonalStatisticsProcess(Process):
                 vector_file = projected
 
         else:  # using the NALCMS data from GeoServer
-            laea_vector = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
+            projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
                                                     dir=self.workdir).name
-            generic_vector_reproject(vector_file, laea_vector, driver='GeoJSON', source_crs=vec_crs,
+            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs,
                                      target_crs=NALCMS_PROJ4)
+            vector_file = projected
 
-            bbox = gis.get_bbox(laea_vector)
+            bbox = gis.get_bbox(projected)
             raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
             raster_bytes = gis.get_nalcms_wcs(bbox)
             raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
