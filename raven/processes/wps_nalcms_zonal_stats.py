@@ -13,7 +13,29 @@ from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, 
 
 LOGGER = logging.getLogger("PYWPS")
 
-categories = {
+TRUE_CATEGORIES = {
+    1: 'Temperate or sub-polar needleleaf forest',
+    2: 'Sub-polar taiga needleleaf forest',
+    3: 'Tropical or sub-tropical broadleaf evergreen forest',
+    4: 'Tropical or sub-tropical broadleaf deciduous forest',
+    5: 'Temperate or sub-polar broadleaf deciduous forest',
+    6: 'Mixed forest',
+    7: 'Tropical or sub-tropical shrubland',
+    8: 'Temperate or sub-polar shrubland',
+    9: 'Tropical or sub-tropical grassland',
+    10: 'Temperate or sub-polar grassland',
+    11: 'Sub-polar or polar shrubland-lichen-moss',
+    12: 'Sub-polar or polar grassland-lichen-moss',
+    13: 'Sub-polar or polar barren-lichen-moss',
+    14: 'Wetland',
+    15: 'Cropland',
+    16: 'Barren lands',
+    17: 'Urban',
+    18: 'Water',
+    19: 'Snow and Ice',
+}
+
+simplified = {
     'Forest': [1, 2, 3, 4, 5, 6],
     'Shrubs': [7, 8, 11],
     'Grass': [9, 10, 12, 13, 16],
@@ -23,8 +45,7 @@ categories = {
     'Water': [18],
     'SnowIce': [19]
 }
-
-NALCMS_CATEGORIES = {i: cat for (cat, ids) in categories.items() for i in ids}
+SIMPLE_CATEGORIES = {i: cat for (cat, ids) in simplified.items() for i in ids}
 NALCMS_PROJ4 = '+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs=True'
 
 
@@ -50,6 +71,10 @@ class NALCMSZonalStatisticsProcess(Process):
                                  'monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land '
                                  'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
                          min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
+            LiteralInput('simple_categories', 'Use simplified land classification categories for hydrological '
+                                              'modelling purposes. Default: True',
+                         data_type='boolean', default='false',
+                         min_occurs=1, max_occurs=1),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
@@ -80,6 +105,7 @@ class NALCMSZonalStatisticsProcess(Process):
     def _handler(self, request, response):
 
         shape_url = request.inputs['shape'][0].file
+        simple_categories = request.inputs['simple_categories'][0].data
         band = request.inputs['band'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
@@ -119,10 +145,15 @@ class NALCMSZonalStatisticsProcess(Process):
             with open(raster_file, 'wb') as f:
                 f.write(raster_bytes)
 
+        if simple_categories:
+            categories = SIMPLE_CATEGORIES
+        else:
+            categories = TRUE_CATEGORIES
+
         try:
             stats = zonal_stats(
                 vector_file, raster_file, stats=['count', 'nodata'],
-                band=band, categorical=True, category_map=NALCMS_CATEGORIES, all_touched=touches,
+                band=band, categorical=True, category_map=categories, all_touched=touches,
                 geojson_out=True, raster_out=False)
 
             feature_collect = {'type': 'FeatureCollection', 'features': stats}
