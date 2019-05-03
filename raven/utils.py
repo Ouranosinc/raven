@@ -300,7 +300,7 @@ def multipolygon_check(f):
 def geom_transform(geom, source_crs=WGS84, target_crs=None):
     """Change the projection of a geometry.
 
-     Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
+    Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
 
     Parameters
     ----------
@@ -547,7 +547,7 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, f
     return
 
 
-def generic_raster_warp(raster_file, processed_raster, projection, raster_compression=RASTERIO_TIFF_COMPRESSION):
+def generic_raster_warp(raster_file, warped_raster, target_crs, raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
     Reproject a raster file.
 
@@ -555,18 +555,21 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
     ----------
     raster_file : str
       Path to input raster.
-    processed_raster : str
+    warped_raster : str
       Path to output raster.
-    projection : str
+    target_crs : str
       Target projection identifier.
     raster_compression: str
       Level of data compression. Default: 'lzw'.
     """
     with rasterio.open(raster_file, 'r') as src:
 
+        # Calculate grid properties based on projection
         affine, width, height = rasterio.warp.calculate_default_transform(
-            src.crs, projection, src.width, src.height, *src.bounds
+            src.crs, target_crs, src.width, src.height, *src.bounds
         )
+
+        # Copy relevant metadata from parent raster
         metadata = src.meta.copy()
         metadata.update(
             {
@@ -574,13 +577,13 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
                 "height": height,
                 "width": width,
                 "transform": affine,
-                "crs": projection,
+                "crs": target_crs,
                 "compress": raster_compression,
             }
         )
         data = src.read()
 
-        with rasterio.open(processed_raster, 'w', **metadata) as dst:
+        with rasterio.open(warped_raster, 'w', **metadata) as dst:
             for i, band in enumerate(data, 1):
                 # Create an empty array
                 dest = zeros_like(band)
@@ -594,8 +597,61 @@ def generic_raster_warp(raster_file, processed_raster, projection, raster_compre
                     src_crs=src.crs,
                     dst_nodata=src.nodata,
                     dst_transform=affine,
-                    dst_crs=projection,
+                    dst_crs=target_crs,
                     resampling=rasterio.warp.Resampling.nearest
                 )
                 dst.write(dest, indexes=i)
+    return
+
+
+def generic_vector_reproject(vector, projected, driver='ESRI Shapefile', source_crs=WGS84, target_crs=None):
+    """Reproject all features and layers within a vector file
+
+    Parameters
+    ----------
+    vector : str or path
+      Path to a file containing a valid vector layer.
+    projected: str or path
+      Path to a file to be written.
+    driver: str
+      Desired file encoding. Default 'ESRI Shapefile'.
+    source_crs : str or CRS
+      Projection identifier (proj4) for the source geometry, Default: '+proj=longlat +datum=WGS84 +no_defs'.
+    target_crs : str or CRS
+      Projection identifier (proj4) for the target geometry.
+
+    Returns
+    -------
+    None
+    """
+
+    if target_crs is None:
+        msg = 'No target CRS is defined.'
+        raise ValueError(msg)
+
+    for i, layer_name in enumerate(fiona.listlayers(vector)):
+        with fiona.open(vector, 'r', crs=source_crs, layer=i) as src:
+
+            # Copy relevant metadata from parent vector
+            metadata = src.meta.copy()
+            metadata.update(
+                {
+                    'crs': target_crs,
+                    'driver': driver
+                }
+            )
+
+            with fiona.open(projected, 'w', **metadata) as sink:
+                for feature in src:
+
+                    # Perform vector reprojection using Shapely on each feature
+                    try:
+                        geom = sgeo.shape(feature['geometry'])
+                        transformed = geom_transform(geom, source_crs, target_crs)
+                        feature['geometry'] = sgeo.mapping(transformed)
+                        sink.write(feature)
+
+                    except Exception as e:
+                        LOGGER.exception('{}: Unable to reproject feature {}'.format(e, feature['id']))
+
     return

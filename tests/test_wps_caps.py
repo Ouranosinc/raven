@@ -24,6 +24,7 @@ def test_wps_caps():
                   'shape-properties',
                   'shape-selection',
                   'terrain-analysis',
+                  'nalcms-zonal-stats',
                   'zonal-stats',
                   'ostrich-gr4j-cemaneige',
                   'ostrich-mohyse',
