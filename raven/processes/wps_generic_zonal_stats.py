@@ -7,7 +7,7 @@ from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic_vector_reproject
 from raven.utilities import gis
 
 
@@ -39,9 +39,6 @@ class ZonalStatisticsProcess(Process):
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
                          min_occurs=1, max_occurs=1),
-            LiteralInput('return_geojson', 'Return the geometry and statistics as properties in a GeoJSON',
-                         data_type='boolean', default='true',
-                         min_occurs=1, max_occurs=1),
             LiteralInput('categorical', 'Return distinct pixel categories',
                          data_type='boolean', default='false',
                          min_occurs=1, max_occurs=1),
@@ -71,9 +68,7 @@ class ZonalStatisticsProcess(Process):
     def _handler(self, request, response):
 
         shape_url = request.inputs['shape'][0].file
-
         band = request.inputs['band'][0].data
-        geojson_out = request.inputs['return_geojson'][0].data
         categorical = request.inputs['categorical'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
@@ -87,30 +82,31 @@ class ZonalStatisticsProcess(Process):
         else:
             bbox = gis.get_bbox(vector_file)
             raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
-            raster_bytes = gis.get_dem_wcs(bbox)
+            raster_bytes = gis.get_raster_wcs(bbox, geographic=True, layer=raster_url)
             raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
                                                       dir=self.workdir).name
             with open(raster_file, 'wb') as f:
                 f.write(raster_bytes)
 
-        vec_crs = crs_sniffer(vector_file)
-        ras_crs = crs_sniffer(raster_file)
+        vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
 
         if ras_crs != vec_crs:
-            msg = 'CRS for files {} and {} are not the same.'.format(vector_file, raster_file)
+            msg = 'CRS for files {} and {} are not the same. Reprojecting vector...'.format(vector_file, raster_file)
             LOGGER.warning(msg)
+
+            # Reproject full vector to preserve feature attributes
+            projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
+                                                    dir=self.workdir).name
+            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs, target_crs=ras_crs)
+            vector_file = projected
 
         try:
             stats = zonal_stats(
                 vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
-                band=band, categorical=categorical, all_touched=touches, geojson_out=geojson_out, raster_out=False)
+                band=band, categorical=categorical, all_touched=touches, geojson_out=True, raster_out=False)
 
-            if not geojson_out:
-                response.outputs['statistics'].data = json.dumps(stats)
-
-            else:
-                feature_collect = {'type': 'FeatureCollection', 'features': stats}
-                response.outputs['statistics'].data = json.dumps(feature_collect)
+            feature_collect = {'type': 'FeatureCollection', 'features': stats}
+            response.outputs['statistics'].data = json.dumps(feature_collect)
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)

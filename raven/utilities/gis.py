@@ -136,14 +136,20 @@ def get_bbox(vector, all_features=True):
             return src.bounds
 
 
-def get_dem_wcs(bbox):
-    """
-    Return a subset of the EarthEnv NorthAmerica DEM.
+def get_raster_wcs(bbox, geographic=True, layer=None):
+    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+
+    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundries.
 
     Parameters
     ----------
     bbox : sequence
-      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
+      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1)
+    geographic : bool
+      If True, uses "Long" and "Lat" in WCS call. Otherwise uses "E" and "N".
+    layer : str
+      Layer name of raster exposed on GeoServer instance. E.g. 'public:CEC_NALCMS_LandUse_2010'
 
     Returns
     -------
@@ -154,15 +160,19 @@ def get_dem_wcs(bbox):
     from owslib.wcs import WebCoverageService
     from lxml import etree
 
-    (lon0, lat0, lon1, lat1) = bbox
+    (left, down, right, up) = bbox
+
+    if geographic:
+        x, y = 'Long', 'Lat'
+    else:
+        x, y = 'E', 'N'
 
     wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version='2.0.1')
 
     try:
-        layer = "public:EarthEnv_DEM90_NorthAmerica"
         resp = wcs.getCoverage(identifier=[layer, ],
                                format='image/tiff',
-                               subsets=[('Long', lon0, lon1), ('Lat', lat0, lat1)])
+                               subsets=[(x, left, right), (y, down, up)])
 
     except Exception as e:
         raise Exception(e)
