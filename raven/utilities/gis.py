@@ -136,15 +136,20 @@ def get_bbox(vector, all_features=True):
             return src.bounds
 
 
-def get_dem_wcs(bbox):
-    """Return a subset of the EarthEnv NorthAmerica DEM.
+def get_raster_wcs(bbox, geographic=True, layer=None):
+    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
-    Subsetting based on WGS84 (Long, Lat) boundaries
+    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundries.
 
     Parameters
     ----------
     bbox : sequence
-      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
+      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1)
+    geographic : bool
+      If True, uses "Long" and "Lat" in WCS call. Otherwise uses "E" and "N".
+    layer : str
+      Layer name of raster exposed on GeoServer instance. E.g. 'public:CEC_NALCMS_LandUse_2010'
 
     Returns
     -------
@@ -155,64 +160,19 @@ def get_dem_wcs(bbox):
     from owslib.wcs import WebCoverageService
     from lxml import etree
 
-    (lon0, lat0, lon1, lat1) = bbox
+    (left, down, right, up) = bbox
+
+    if geographic:
+        x, y = 'Long', 'Lat'
+    else:
+        x, y = 'E', 'N'
 
     wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version='2.0.1')
 
     try:
-        layer = "public:EarthEnv_DEM90_NorthAmerica"
         resp = wcs.getCoverage(identifier=[layer, ],
                                format='image/tiff',
-                               subsets=[('Long', lon0, lon1), ('Lat', lat0, lat1)])
-
-    except Exception as e:
-        raise Exception(e)
-
-    data = resp.read()
-
-    try:
-        etree.fromstring(data)
-        # The response is an XML file describing the server error.
-        raise ChildProcessError(data)
-
-    except etree.XMLSyntaxError:
-        # The response is the DEM array.
-        return data
-
-
-def get_nalcms_wcs(bbox, year=2010):
-    """Return a subset of the CEC North American Land Change Monitoring System image.
-
-    Subsetting based on(Easting, Northing) using a LAEA projected coordinate system.
-
-    Parameters
-    ----------
-    bbox : sequence
-      Geographic coordinates of the bounding box (E0, N0, E1, N1).
-    year : int
-      Year of interest. Default: 2010.
-
-    Returns
-    -------
-    bytes
-      A GeoTIFF array.
-
-    """
-    from owslib.wcs import WebCoverageService
-    from lxml import etree
-
-    (E0, N0, E1, N1) = bbox
-
-    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version='2.0.1')
-
-    if year not in [2005, 2010]:
-        raise NotImplementedError
-
-    try:
-        layer = "public:CEC_NALCMS_LandUse_{}".format(year)
-        resp = wcs.getCoverage(identifier=[layer, ],
-                               format='image/tiff',
-                               subsets=[('E', E0, E1), ('N', N0, N1)])
+                               subsets=[(x, left, right), (y, down, up)])
 
     except Exception as e:
         raise Exception(e)

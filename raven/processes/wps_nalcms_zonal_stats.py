@@ -35,12 +35,12 @@ class NALCMSZonalStatisticsProcess(Process):
         inputs = [
             ComplexInput('shape', 'Vector Shape',
                          abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
-                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.'
-                                  ' The shape and raster should have a matching CRS.',
+                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
                          min_occurs=1, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             ComplexInput('raster', 'Gridded Land Use raster data set',
-                         abstract='The Land Use raster to be queried. Default is the CEC NALCMS (2010)',
+                         abstract='The Land Use raster to be queried. Default is the CEC NALCMS 2010. Provided raster '
+                                  'must use the UN FAO Land Cover Classification System (19 types).',
                          metadata=[Metadata(
                              'Commission for Environmental Cooperation North American Land Change Monitoring System',
                              'http://www.cec.org/tools-and-resources/map-files/land-cover-2010-landsat-30m'),
@@ -54,17 +54,14 @@ class NALCMSZonalStatisticsProcess(Process):
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
                          min_occurs=1, max_occurs=1),
-            LiteralInput('return_geojson', 'Return the geometry and statistics as properties in a GeoJSON',
-                         data_type='boolean', default='true',
-                         min_occurs=1, max_occurs=1),
             LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
                          data_type='boolean', default='false',
                          min_occurs=1, max_occurs=1),
         ]
 
         outputs = [
-            ComplexOutput('statistics', 'DEM properties within the region defined by `shape`.',
-                          abstract='Elevation statistics: min, max, mean, median, sum, nodata',
+            ComplexOutput('statistics', 'DEM properties within the region defined by the vector provided.',
+                          abstract='Category pixel counts using simplified UNFAO ',
                           supported_formats=[FORMATS.JSON, FORMATS.GEOJSON]),
         ]
 
@@ -84,7 +81,6 @@ class NALCMSZonalStatisticsProcess(Process):
 
         shape_url = request.inputs['shape'][0].file
         band = request.inputs['band'][0].data
-        geojson_out = request.inputs['return_geojson'][0].data
         touches = request.inputs['select_all_touching'][0].data
 
         vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
@@ -116,8 +112,8 @@ class NALCMSZonalStatisticsProcess(Process):
             vector_file = projected
 
             bbox = gis.get_bbox(projected)
-            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
-            raster_bytes = gis.get_nalcms_wcs(bbox)
+            raster_url = 'public:CEC_NALCMS_LandUse_2010'
+            raster_bytes = gis.get_raster_wcs(bbox, geographic=False, layer=raster_url)
             raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
                                                       dir=self.workdir).name
             with open(raster_file, 'wb') as f:
@@ -127,14 +123,10 @@ class NALCMSZonalStatisticsProcess(Process):
             stats = zonal_stats(
                 vector_file, raster_file, stats=['count', 'nodata'],
                 band=band, categorical=True, category_map=NALCMS_CATEGORIES, all_touched=touches,
-                geojson_out=geojson_out, raster_out=False)
+                geojson_out=True, raster_out=False)
 
-            if not geojson_out:
-                response.outputs['statistics'].data = json.dumps(stats)
-
-            else:
-                feature_collect = {'type': 'FeatureCollection', 'features': stats}
-                response.outputs['statistics'].data = json.dumps(feature_collect)
+            feature_collect = {'type': 'FeatureCollection', 'features': stats}
+            response.outputs['statistics'].data = json.dumps(feature_collect)
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)

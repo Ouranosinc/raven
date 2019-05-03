@@ -10,42 +10,12 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output
 
 class TestNALCMSZonalStatsProcess:
 
-    def test_simple_categorized_json(self):
-        client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
-
-        fields = [
-            'select_all_touching={touches}',
-            'band={band}',
-            'return_geojson={return_geojson}',
-            'shape=file@xlink:href=file://{shape}',
-            'raster=file@xlink:href=file://{raster}'
-        ]
-
-        datainputs = ';'.join(fields).format(
-            touches=True,
-            band=1,
-            return_geojson=False,
-            shape=TESTDATA['mrc_subset'],
-            raster=TESTDATA['cec_nalcms_2010']
-        )
-
-        resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='nalcms-zonal-stats', datainputs=datainputs)
-
-        assert_response_success(resp)
-        out = get_output(resp.xml)
-
-        stats = json.loads(out['statistics'])[0]
-        assert {'count', 'nodata'}.issubset(stats)
-        assert {'Forest', 'Shrubs', 'Grass', 'Wetland', 'Crops', 'Urban', 'Water'}.issubset(stats.keys())
-
     def test_simple_geojson(self):
         client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
 
         fields = [
             'select_all_touching={touches}',
             'band={band}',
-            'return_geojson={return_geojson}',
             'shape=file@xlink:href=file://{shape}',
             'raster=file@xlink:href=file://{raster}'
         ]
@@ -53,7 +23,6 @@ class TestNALCMSZonalStatsProcess:
         datainputs = ';'.join(fields).format(
             touches=True,
             band=1,
-            return_geojson=True,
             shape=TESTDATA['mrc_subset'],
             raster=TESTDATA['cec_nalcms_2010']
         )
@@ -76,13 +45,11 @@ class TestNALCMSZonalStatsProcess:
         fields = [
             'select_all_touching={touches}',
             'band={band}',
-            'return_geojson={return_geojson}',
             'shape=file@xlink:href=file://{shape}', ]
 
         datainputs = ';'.join(fields).format(
             touches=True,
             band=1,
-            return_geojson=True,
             shape=TESTDATA['mrc_subset'],
         )
         resp = client.get(
