@@ -13,7 +13,7 @@ RUN conda update -n base conda
 
 # Create conda environment
 COPY environment.yml /opt/wps/
-RUN conda env create -n wps -f /opt/wps/environment.yml
+RUN conda create --yes -n wps python=3.6 && conda env update -n wps -f /opt/wps/environment.yml
 
 # Copy WPS project
 COPY . /opt/wps
