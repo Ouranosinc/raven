@@ -11,13 +11,14 @@ RUN apt-get update && apt-get install -y \
 # Update conda
 RUN conda update -n base conda
 
+# Create conda environment
+COPY environment.yml /opt/wps/
+RUN conda env create -n wps -f /opt/wps/environment.yml
+
 # Copy WPS project
 COPY . /opt/wps
 
 WORKDIR /opt/wps
-
-# Create conda environment
-RUN conda env create -n wps -f environment.yml
 
 # Install WPS
 RUN ["/bin/bash", "-c", "source activate wps && python setup.py develop"]
