@@ -31,7 +31,6 @@ class TestShapeSelectionProcess:
         out = get_output(resp.xml)
 
         assert {'feature', 'upstream_ids'}.issubset([*out])
-        raise Exception(out)
 
     def test_lac_saint_jean(self):
         client = client_for(Service(processes=[ShapeSelectionProcess(), ], cfgfiles=CFG_FILE))
