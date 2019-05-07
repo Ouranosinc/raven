@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import tempfile
 from pathlib import Path
 
 import fiona
@@ -96,9 +97,15 @@ class ShapeSelectionProcess(Process):
         table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
         shape_url = TESTDATA[shape_description]
 
-        # Why not just map(float, lonlat.split(',')) ?
+        # Why not just map(float, lonlat.split(',')) ? re: The function allows users to use a space or other characters
         lon, lat = parse_lonlat(lonlat)
         bbox = (lon, lat, lon, lat)
+
+        # wfs_hydrobasins = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
+        #                                         dir=self.workdir).name
+        # hydrobasin_bytes = gis.get_hydrobasins_wfs(bbox, lakes=lakes, level=level)
+        # with open(hydrobasins, 'wb') as f:
+        #     f.write(hydrobasin_bytes)
 
         extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
