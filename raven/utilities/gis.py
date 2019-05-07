@@ -189,7 +189,7 @@ def get_raster_wcs(coordinates, geographic=True, layer=None):
         return data
 
 
-def get_hydrobasins_wfs(coordinates, attributes=None, filter=None, level=12, lakes=True):
+def get_hydrobasins_wfs(coordinates=None, attributes=None, filter=None, level=12, lakes=True):
     """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
     For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
@@ -201,7 +201,7 @@ def get_hydrobasins_wfs(coordinates, attributes=None, filter=None, level=12, lak
       Geographic coordinates of the bounding box (left, down, right, up)
     attributes : str
       Attribute/field to be queried.
-    filter: str or int
+    filter: str
       Value for attribute queried.
     level : int
       Level of granularity requested for the lakes vector (1:12). Default: 12.
@@ -215,28 +215,34 @@ def get_hydrobasins_wfs(coordinates, attributes=None, filter=None, level=12, lak
 
     """
     from owslib.wfs import WebFeatureService
-    from owslib.fes import PropertyIsEqualTo
+    from owslib.fes import PropertyIsLike
     from lxml import etree
 
     layer = 'public:USGS_HydroBASINS_{}na_lev{}'.format('lake_' if lakes else '', level)
 
     if attributes is not None and filter is not None:
-        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='2.0.0', timeout=30)
 
         try:
-            filter_request = PropertyIsEqualTo(propertyname=attributes, literal=filter)
-            filterxml = etree.tostring(filter_request.toXML().decode('utf-8'))
+            attributes = str(attributes)
+            filter = str(filter)
+        except ValueError:
+            raise Exception('Unable to cast attribute/filter to string')
 
+        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='1.1.0', timeout=30)
+
+        try:
+            filter_request = PropertyIsLike(propertyname=attributes, literal=filter, wildCard='*')
+            filterxml = etree.tostring(filter_request.toXML()).decode('utf-8')
             resp = wfs.getfeature(typename=layer, filter=filterxml)
 
         except Exception as e:
             raise Exception(e)
 
     elif coordinates is not None:
-        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='2.0.0', timeout=30)
+        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='1.1.0', timeout=30)
 
         try:
-            resp = wfs.getFeature(typename=layer, bbox=coordinates, srsname='urn:x-ogc:def:crs:EPSG:4326')
+            resp = wfs.getfeature(typename=layer, bbox=coordinates, srsname='urn:x-ogc:def:crs:EPSG:4326')
         except Exception as e:
             raise Exception(e)
     else:
@@ -244,18 +250,18 @@ def get_hydrobasins_wfs(coordinates, attributes=None, filter=None, level=12, lak
 
     data = resp.read()
 
-    try:
-        etree.fromstring(data)
-        # The response is an XML file describing the server error.
-        raise ChildProcessError(data)
-
-    except etree.XMLSyntaxError:
-        # The response is the DEM array.
-        return data
+    return data
 
 
 if __name__ == '__main__':
+    import tempfile
     coords = None
-    d = get_hydrobasins_wfs(coords, attributes='MAIN_BAS', filter=7120000010)
+    d = get_hydrobasins_wfs(coords, attributes='MAIN_BAS', filter='7120000010')
 
-    print(d)
+    temp = tempfile.NamedTemporaryFile(suffix='.gml', delete=False).name
+    with open(temp, 'w') as f:
+        f.write(d)
+
+    with fiona.open(temp, 'r') as f:
+        print(f.crs)
+
