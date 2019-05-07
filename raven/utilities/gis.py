@@ -251,17 +251,3 @@ def get_hydrobasins_wfs(coordinates=None, attributes=None, filter=None, level=12
     data = resp.read()
 
     return data
-
-
-if __name__ == '__main__':
-    import tempfile
-    coords = None
-    d = get_hydrobasins_wfs(coords, attributes='MAIN_BAS', filter='7120000010')
-
-    temp = tempfile.NamedTemporaryFile(suffix='.gml', delete=False).name
-    with open(temp, 'w') as f:
-        f.write(d)
-
-    with fiona.open(temp, 'r') as f:
-        print(f.crs)
-
