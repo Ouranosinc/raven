@@ -136,7 +136,7 @@ def get_bbox(vector, all_features=True):
             return src.bounds
 
 
-def get_raster_wcs(bbox, geographic=True, layer=None):
+def get_raster_wcs(coordinates, geographic=True, layer=None):
     """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
     For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
@@ -144,8 +144,8 @@ def get_raster_wcs(bbox, geographic=True, layer=None):
 
     Parameters
     ----------
-    bbox : sequence
-      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1)
+    coordinates : sequence
+      Geographic coordinates of the bounding box (left, down, right, up)
     geographic : bool
       If True, uses "Long" and "Lat" in WCS call. Otherwise uses "E" and "N".
     layer : str
@@ -160,7 +160,7 @@ def get_raster_wcs(bbox, geographic=True, layer=None):
     from owslib.wcs import WebCoverageService
     from lxml import etree
 
-    (left, down, right, up) = bbox
+    (left, down, right, up) = coordinates
 
     if geographic:
         x, y = 'Long', 'Lat'
@@ -187,3 +187,75 @@ def get_raster_wcs(bbox, geographic=True, layer=None):
     except etree.XMLSyntaxError:
         # The response is the DEM array.
         return data
+
+
+def get_hydrobasins_wfs(coordinates, attributes=None, filter=None, level=12, lakes=True):
+    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+
+    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundries.
+
+    Parameters
+    ----------
+    coordinates : sequence
+      Geographic coordinates of the bounding box (left, down, right, up)
+    attributes : str
+      Attribute/field to be queried.
+    filter: str or int
+      Value for attribute queried.
+    level : int
+      Level of granularity requested for the lakes vector (1:12). Default: 12.
+    lakes : bool
+      Whether or not the vector should include the delimitation of lakes.
+
+    Returns
+    -------
+    bytes
+      A GeoTIFF array.
+
+    """
+    from owslib.wfs import WebFeatureService
+    from owslib.fes import PropertyIsEqualTo
+    from lxml import etree
+
+    layer = 'public:USGS_HydroBASINS_{}na_lev{}'.format('lake_' if lakes else '', level)
+
+    if attributes is not None and filter is not None:
+        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='2.0.0', timeout=30)
+
+        try:
+            filter_request = PropertyIsEqualTo(propertyname=attributes, literal=filter)
+            filterxml = etree.tostring(filter_request.toXML().decode('utf-8'))
+
+            resp = wfs.getfeature(typename=layer, filter=filterxml)
+
+        except Exception as e:
+            raise Exception(e)
+
+    elif coordinates is not None:
+        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='2.0.0', timeout=30)
+
+        try:
+            resp = wfs.getFeature(typename=layer, bbox=coordinates, srsname='urn:x-ogc:def:crs:EPSG:4326')
+        except Exception as e:
+            raise Exception(e)
+    else:
+        raise NotImplementedError
+
+    data = resp.read()
+
+    try:
+        etree.fromstring(data)
+        # The response is an XML file describing the server error.
+        raise ChildProcessError(data)
+
+    except etree.XMLSyntaxError:
+        # The response is the DEM array.
+        return data
+
+
+if __name__ == '__main__':
+    coords = None
+    d = get_hydrobasins_wfs(coords, attributes='MAIN_BAS', filter=7120000010)
+
+    print(d)
