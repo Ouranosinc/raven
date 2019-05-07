@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import requests
 import tempfile
 from pathlib import Path
 
@@ -13,25 +14,25 @@ from pywps import Process, FORMATS
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
 from raven.utils import crs_sniffer
-from tests.common import TESTDATA
+# from tests.common import TESTDATA
 
 LOGGER = logging.getLogger("PYWPS")
-
-DATA = Path(__file__).parent / 'hydrobasins_tables'
-HYBAS = {
-    'lake_lev07': DATA / 'hybas_lake_na_lev07.csv',
-    'lake_lev08': DATA / 'hybas_lake_na_lev08.csv',
-    'lake_lev09': DATA / 'hybas_lake_na_lev09.csv',
-    'lake_lev10': DATA / 'hybas_lake_na_lev10.csv',
-    'lake_lev11': DATA / 'hybas_lake_na_lev11.csv',
-    'lake_lev12': DATA / 'hybas_lake_na_lev12.csv',
-    'lev07': DATA / 'hybas_na_lev07.csv',
-    'lev08': DATA / 'hybas_na_lev08.csv',
-    'lev09': DATA / 'hybas_na_lev09.csv',
-    'lev10': DATA / 'hybas_na_lev10.csv',
-    'lev11': DATA / 'hybas_na_lev11.csv',
-    'lev12': DATA / 'hybas_na_lev12.csv',
-}
+#
+# DATA = Path(__file__).parent / 'hydrobasins_tables'
+# HYBAS = {
+#     'lake_lev07': DATA / 'hybas_lake_na_lev07.csv',
+#     'lake_lev08': DATA / 'hybas_lake_na_lev08.csv',
+#     'lake_lev09': DATA / 'hybas_lake_na_lev09.csv',
+#     'lake_lev10': DATA / 'hybas_lake_na_lev10.csv',
+#     'lake_lev11': DATA / 'hybas_lake_na_lev11.csv',
+#     'lake_lev12': DATA / 'hybas_lake_na_lev12.csv',
+#     'lev07': DATA / 'hybas_na_lev07.csv',
+#     'lev08': DATA / 'hybas_na_lev08.csv',
+#     'lev09': DATA / 'hybas_na_lev09.csv',
+#     'lev10': DATA / 'hybas_na_lev10.csv',
+#     'lev11': DATA / 'hybas_na_lev11.csv',
+#     'lev12': DATA / 'hybas_na_lev12.csv',
+# }
 
 
 class ShapeSelectionProcess(Process):
@@ -93,45 +94,66 @@ class ShapeSelectionProcess(Process):
         collect_upstream = request.inputs['aggregate_upstream'][0].data
         lonlat = request.inputs['location'][0].data
 
-        shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
-        table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
-        shape_url = TESTDATA[shape_description]
+        # shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
+        # table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
+        # shape_url = TESTDATA[shape_description]
 
-        # Why not just map(float, lonlat.split(',')) ? re: The function allows users to use a space or other characters
+        # extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
+        # shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
+
         lon, lat = parse_lonlat(lonlat)
         bbox = (lon, lat, lon, lat)
 
-        # wfs_hydrobasins = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
-        #                                         dir=self.workdir).name
-        # hydrobasin_bytes = gis.get_hydrobasins_wfs(bbox, lakes=lakes, level=level)
-        # with open(hydrobasins, 'wb') as f:
-        #     f.write(hydrobasin_bytes)
+        shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
+                                                dir=self.workdir).name
+        hybas_bytes = gis.get_hydrobasins_wfs(bbox, lakes=lakes, level=level)
+        with open(shape_url, 'w') as f:
+            f.write(hybas_bytes)
 
         extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
 
         shape_crs = crs_sniffer(shp)
+
         with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
-            # Find feature containing location
-            feat = next(src.filter(bbox=bbox))
+            # Find HYBAS_ID
+            feat = next(src)  # src.filter(bbox=bbox))
             hybas_id = feat['properties']['HYBAS_ID']
 
-            # check conditions
             if collect_upstream:
+
+                main_bas = feat['properties']['MAIN_BAS']
+
                 if lakes is False or level != 12:
                     raise ValueError("Set lakes to True and level to 12.")
 
+                # Collect features from GeoServer
+                region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
+                                                     dir=self.workdir).name
+                # raise Exception(main_bas)
+                region_bytes = gis.get_hydrobasins_wfs(attributes='MAIN_BAS', filter=main_bas)
+                with open(region, 'w') as f:
+                    f.write(region_bytes)
+
+                # import time
+                # time.sleep(300)
+
                 # Read table of attributes relevant to upstream watershed identification
-                df = pd.read_csv(table)
+                df = gpd.read_file(region)
 
                 # Get upstream features, including feat
                 up = gis.hydrobasins_upstream_ids(hybas_id, df)
 
+                upfile = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
+                                                     dir=self.workdir).name
+                up.to_file(upfile, driver='GeoJSON')
+
                 # Read only upstream geometries
-                gdf = gpd.GeoDataFrame.from_features((src.get(i) for i in up.index))
+                # gdf = gpd.GeoDataFrame.from_features((src.get(i) for i in up.index))
 
                 # Aggregate upstream features into a single geometry.
+                gdf = gpd.read_file(upfile)
                 agg = gis.hydrobasins_aggregate(gdf)
 
                 response.outputs['feature'].data = agg.to_json()
