@@ -1,5 +1,6 @@
 import fiona
 import collections
+
 from raven.utils import crs_sniffer, single_file_check
 from shapely.geometry import shape, Point
 
@@ -88,7 +89,7 @@ def hydrobasins_aggregate(gdf):
     ----------
     ids : sequence
       Basins ids, namely the HYBAS_ID attribute.
-    df : pd.DataFrame
+    gdf : pd.DataFrame
       Watershed attributes indexed by HYBAS_ID
 
     Returns
@@ -103,6 +104,9 @@ def hydrobasins_aggregate(gdf):
             return x.sum()
         else:
             return x[0]
+
+    # Buffer function to fix invalid geometries
+    gdf['geometry'] = gdf.buffer(0)
 
     return gdf.dissolve(by='MAIN_BAS', aggfunc=aggfunc)
 
@@ -187,7 +191,7 @@ def get_raster_wcs(coordinates, geographic=True, layer=None):
         return data
 
 
-def get_hydrobasins_wfs(coordinates=None, attributes=None, filter=None, level=12, lakes=True):
+def get_hydrobasins_location_wfs(coordinates=None, level=12, lakes=True):
     """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
     For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
@@ -197,10 +201,6 @@ def get_hydrobasins_wfs(coordinates=None, attributes=None, filter=None, level=12
     ----------
     coordinates : sequence
       Geographic coordinates of the bounding box (left, down, right, up)
-    attributes : str
-      Attribute/field to be queried.
-    filter: str
-      Value for attribute queried.
     level : int
       Level of granularity requested for the lakes vector (1:12). Default: 12.
     lakes : bool
@@ -213,32 +213,11 @@ def get_hydrobasins_wfs(coordinates=None, attributes=None, filter=None, level=12
 
     """
     from owslib.wfs import WebFeatureService
-    from owslib.fes import PropertyIsLike
-    from lxml import etree
 
     layer = 'public:USGS_HydroBASINS_{}na_lev{}'.format('lake_' if lakes else '', level)
 
-    if attributes is not None and filter is not None:
-
-        try:
-            attributes = str(attributes)
-            filter = str(filter)
-        except ValueError:
-            raise Exception('Unable to cast attribute/filter to string')
-
+    if coordinates is not None:
         wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='1.1.0', timeout=30)
-
-        try:
-            filter_request = PropertyIsLike(propertyname=attributes, literal=filter, wildCard='*')
-            filterxml = etree.tostring(filter_request.toXML()).decode('utf-8')
-            resp = wfs.getfeature(typename=layer, filter=filterxml)
-
-        except Exception as e:
-            raise Exception(e)
-
-    elif coordinates is not None:
-        wfs = WebFeatureService('http://boreas.ouranos.ca/geoserver/wfs', version='1.1.0', timeout=30)
-
         try:
             resp = wfs.getfeature(typename=layer, bbox=coordinates, srsname='urn:x-ogc:def:crs:EPSG:4326')
         except Exception as e:
@@ -247,5 +226,60 @@ def get_hydrobasins_wfs(coordinates=None, attributes=None, filter=None, level=12
         raise NotImplementedError
 
     data = resp.read()
-
     return data
+
+
+def get_hydrobasins_attributes_wfs(attribute=None, value=None, level=12, lakes=True):
+    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+
+    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundries.
+
+    Parameters
+    ----------
+    attribute : str
+      Attribute/field to be queried.
+    value: str
+      Value for attribute queried.
+    level : int
+      Level of granularity requested for the lakes vector (1:12). Default: 12.
+    lakes : bool
+      Whether or not the vector should include the delimitation of lakes.
+
+    Returns
+    -------
+    bytes
+      A GeoTIFF array.
+
+    """
+    from requests import Request
+    from owslib.fes import PropertyIsLike
+    from lxml import etree
+
+    url = 'http://boreas.ouranos.ca/geoserver/wfs'
+    layer = 'public:USGS_HydroBASINS_{}na_lev{}'.format('lake_' if lakes else '', level)
+
+    if attribute is not None and value is not None:
+
+        try:
+            attribute = str(attribute)
+            value = str(value)
+
+        except ValueError:
+            raise Exception('Unable to cast attribute/filter to string')
+
+        try:
+            filter_request = PropertyIsLike(propertyname=attribute, literal=value, wildCard='*')
+            filterxml = etree.tostring(filter_request.toXML()).decode('utf-8')
+            params = dict(service='WFS', version='1.1.0', request='GetFeature', typename=layer, outputFormat='json',
+                          filter=filterxml)
+
+            q = Request('GET', url, params=params).prepare().url
+
+        except Exception as e:
+            raise Exception(e)
+
+    else:
+        raise NotImplementedError
+
+    return q

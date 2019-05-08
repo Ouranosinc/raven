@@ -13,7 +13,7 @@ from pywps import Process, FORMATS
 
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
-from raven.utils import crs_sniffer
+from raven.utils import crs_sniffer, generic_vector_reproject
 # from tests.common import TESTDATA
 
 LOGGER = logging.getLogger("PYWPS")
@@ -106,7 +106,7 @@ class ShapeSelectionProcess(Process):
 
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
-        hybas_bytes = gis.get_hydrobasins_wfs(bbox, lakes=lakes, level=level)
+        hybas_bytes = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
         with open(shape_url, 'w') as f:
             f.write(hybas_bytes)
 
@@ -129,28 +129,21 @@ class ShapeSelectionProcess(Process):
                     raise ValueError("Set lakes to True and level to 12.")
 
                 # Collect features from GeoServer
-                region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
+                region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                      dir=self.workdir).name
-                # raise Exception(main_bas)
-                region_bytes = gis.get_hydrobasins_wfs(attributes='MAIN_BAS', filter=main_bas)
-                with open(region, 'w') as f:
-                    f.write(region_bytes)
 
-                # import time
-                # time.sleep(300)
+                region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
+                                                                lakes=lakes, level=level)
 
-                # Read table of attributes relevant to upstream watershed identification
-                df = gpd.read_file(region)
+                # Read table of relevant features sharing main basin
+                df = gpd.read_file(region_url)
+                df.to_file(region, driver='GeoJSON')
 
-                # Get upstream features, including feat
+                # Identify upstream sub-basins and write to a new file
                 up = gis.hydrobasins_upstream_ids(hybas_id, df)
-
                 upfile = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                      dir=self.workdir).name
                 up.to_file(upfile, driver='GeoJSON')
-
-                # Read only upstream geometries
-                # gdf = gpd.GeoDataFrame.from_features((src.get(i) for i in up.index))
 
                 # Aggregate upstream features into a single geometry.
                 gdf = gpd.read_file(upfile)
