@@ -84,7 +84,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=TESTDATA['mrc_subset'],
+            shape=TESTDATA['basin_test'],
         )
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='nalcms-zonal-stats', datainputs=datainputs)

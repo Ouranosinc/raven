@@ -108,7 +108,7 @@ def hydrobasins_aggregate(gdf):
 
 
 def get_bbox(vector, all_features=True):
-    """Return bounding box of first feature in file.
+    """Return bounding box of all features or the first feature in file.
 
     Parameters
     ----------
@@ -125,15 +125,13 @@ def get_bbox(vector, all_features=True):
     """
 
     if not all_features:
-        for i, layer_name in enumerate(fiona.listlayers(vector)):
-            with fiona.open(vector, 'r', layer=i) as src:
-                for feature in src:
-                    geom = shape(feature['geometry'])
-                    return geom.bounds
+        with fiona.open(vector, 'r') as src:
+            for feature in src:
+                geom = shape(feature['geometry'])
+                return geom.bounds
 
-    for i, layer_name in enumerate(fiona.listlayers(vector)):
-        with fiona.open(vector, 'r', layer=i) as src:
-            return src.bounds
+    with fiona.open(vector, 'r') as src:
+        return src.bounds
 
 
 def get_raster_wcs(bbox, geographic=True, layer=None):
