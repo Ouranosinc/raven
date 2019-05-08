@@ -78,6 +78,7 @@ TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_souther
 TESTDATA['hydrobasins_lake_na_lev12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
 TESTDATA['cec_nalcms_2010'] = TD / 'cec_nalcms2010_30m' / 'cec_nalcms_subQC.tiff'
 TESTDATA['simfile_single'] = TD / 'hydro_simulations' / 'raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc'
+TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 
 
 class WpsTestClient(WpsClient):
