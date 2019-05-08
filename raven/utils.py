@@ -329,7 +329,10 @@ def geom_transform(geom, source_crs=WGS84, target_crs=None):
             geom)
         return reprojected
     except Exception as e:
-        raise(e)
+        msg = '{}: Failed to reproject geometry'.format(e)
+        LOGGER.error(msg)
+        raise Exception(msg)
+
 
 def geom_prop(geom):
     """Return a dictionary of geometry properties.
@@ -532,7 +535,6 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, f
 
     """
     with rasterio.open(raster_file, 'r', ) as src:
-
         mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True, pad=padded,
                                                      all_touched=touches, filled=fill_with_nodata)
         mask_meta = src.meta.copy()
@@ -568,7 +570,6 @@ def generic_raster_warp(raster_file, warped_raster, target_crs, raster_compressi
       Level of data compression. Default: 'lzw'.
     """
     with rasterio.open(raster_file, 'r') as src:
-
         # Calculate grid properties based on projection
         affine, width, height = rasterio.warp.calculate_default_transform(
             src.crs, target_crs, src.width, src.height, *src.bounds
