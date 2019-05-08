@@ -97,4 +97,3 @@ class TestNALCMSZonalStatsProcess:
         assert {'count', 'nodata'}.issubset(stats)
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
-        print(geometry)
