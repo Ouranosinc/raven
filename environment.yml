@@ -27,8 +27,9 @@ dependencies:
 - bumpversion
 - statsmodels
 - matplotlib
+- pip
 - pip:
   - spotpy
   - pysheds
   # - pycrs:
-  - -e git+https://github.com/Ouranosinc/xclim.git@fix-191#egg=xclim
+  - -e git+https://github.com/Ouranosinc/xclim.git@v0.8-beta#egg=xclim
