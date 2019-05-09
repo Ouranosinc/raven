@@ -9,6 +9,7 @@ from .wps_hydrobasins_shape_selection import ShapeSelectionProcess
 from .wps_generic_raster_subset import RasterSubsetProcess
 from .wps_generic_terrain_analysis import TerrainAnalysisProcess
 from .wps_generic_zonal_stats import ZonalStatisticsProcess
+from .wps_nalcms_zonal_stats import NALCMSZonalStatisticsProcess
 from .wps_ostrich_gr4j_cemaneige import OstrichGR4JCemaNeigeProcess
 from .wps_ostrich_mohyse import OstrichMOHYSEProcess
 from .wps_ostrich_hmets import OstrichHMETSProcess
@@ -32,6 +33,7 @@ processes = [
     ShapeSelectionProcess(),
     TerrainAnalysisProcess(),
     ZonalStatisticsProcess(),
+    NALCMSZonalStatisticsProcess(),
     OstrichGR4JCemaNeigeProcess(),
     OstrichMOHYSEProcess(),
     OstrichHMETSProcess(),
@@ -41,5 +43,7 @@ processes = [
     GraphEnsUncertaintyProcess(),
     GraphSingleHydrographProcess(),
     TSStatsProcess(),
+    FreqAnalysisProcess(),
+    BaseFlowIndexProcess(),
     # RegionalisationProcess(),
 ]

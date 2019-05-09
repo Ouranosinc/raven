@@ -2,7 +2,6 @@ import fiona
 import json
 import logging
 
-
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
@@ -28,9 +27,7 @@ class ShapePropertiesProcess(Process):
                          ' NAD83 / Quebec Lambert)',
                          data_type='integer',
                          default=32198,
-                         min_occurs=1, max_occurs=1)
-        ]
-
+                         min_occurs=1, max_occurs=1)]
         outputs = [
             ComplexOutput('properties', 'Feature schemas',
                           abstract='Geographic representations and descriptions of shape properties: '
@@ -62,8 +59,8 @@ class ShapePropertiesProcess(Process):
 
         try:
             projection = CRS.from_epsg(projected_crs)
-            if not projection.is_projected:
-                msg = 'Destination CRS {} is not projected.' \
+            if projection.is_geographic:
+                msg = 'Desired CRS {} is geographic. ' \
                       'Areal analysis values will be in decimal-degree units.'.format(projection.to_epsg())
                 LOGGER.warning(msg)
         except Exception as e:
@@ -82,6 +79,7 @@ class ShapePropertiesProcess(Process):
                         prop = {'id': feature['id']}
                         prop.update(feature['properties'])
                         prop.update(geom_prop(transformed))
+
                         # Recompute the centroid location using the original projection
                         prop['centroid'] = geom_prop(geom)['centroid']
 

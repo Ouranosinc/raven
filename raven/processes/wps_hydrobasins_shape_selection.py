@@ -3,16 +3,15 @@ import json
 import logging
 from pathlib import Path
 
+import fiona
+import geopandas as gpd
+import pandas as pd
 from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
-from raven.utils import archive_sniffer, single_file_check, parse_lonlat
-from shapely.geometry import Point
-from raven.utilities import gis
-from raven.utils import crs_sniffer
-import fiona
-import pandas as pd
-import geopandas as gpd
 
+from raven.utilities import gis
+from raven.utils import archive_sniffer, single_file_check, parse_lonlat
+from raven.utils import crs_sniffer
 from tests.common import TESTDATA
 
 LOGGER = logging.getLogger("PYWPS")
