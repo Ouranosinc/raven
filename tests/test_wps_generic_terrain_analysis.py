@@ -1,9 +1,10 @@
+import json
+
 from pywps import Service
 from pywps.tests import assert_response_success
-from .common import client_for, TESTDATA, CFG_FILE, get_output
 
 from raven.processes import TerrainAnalysisProcess
-import json
+from .common import client_for, TESTDATA, CFG_FILE, get_output
 
 
 class TestGenericTerrainAnalysisProcess:
@@ -20,7 +21,7 @@ class TestGenericTerrainAnalysisProcess:
         datainputs = ';'.join(fields).format(
             raster=TESTDATA['earthenv_dem_90m'],
             shape=TESTDATA['mrc_subset'],
-            projected_crs='32198',
+            projected_crs='6622',
             touches=True,
         )
 
@@ -44,7 +45,7 @@ class TestGenericTerrainAnalysisProcess:
 
         datainputs = ';'.join(fields).format(
             shape=TESTDATA['mrc_subset'],
-            projected_crs='32198',
+            projected_crs='6622',
             touches=True,
         )
 
