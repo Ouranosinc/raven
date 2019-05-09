@@ -145,9 +145,6 @@ class TerrainAnalysisProcess(Process):
             properties.append(dem_prop(clipped_fn, features[i], directory=self.workdir))
         properties.append(dem_prop(clipped_fn, directory=self.workdir))
 
-        import time
-        time.sleep(60)
-
         response.outputs['properties'].data = json.dumps(properties)
 
         return response

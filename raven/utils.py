@@ -1,4 +1,3 @@
-
 import json
 import logging
 import math
@@ -599,7 +598,7 @@ def generic_raster_warp(raster, output, target_crs, raster_compression=RASTERIO_
     return
 
 
-def generic_vector_reproject(vector, projected, keep_fields=True, source_crs=WGS84, target_crs=None):
+def generic_vector_reproject(vector, projected, source_crs=WGS84, target_crs=None):
     """Reproject all features and layers within a vector file and return a GeoJSON
 
     Parameters

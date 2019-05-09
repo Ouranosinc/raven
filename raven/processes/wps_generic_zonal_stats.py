@@ -10,7 +10,6 @@ from rasterstats import zonal_stats
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic_vector_reproject
 from raven.utilities import gis
 
-
 LOGGER = logging.getLogger("PYWPS")
 
 
