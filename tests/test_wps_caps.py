@@ -24,6 +24,7 @@ def test_wps_caps():
                   'shape-properties',
                   'shape-selection',
                   'terrain-analysis',
+                  'nalcms-zonal-stats',
                   'zonal-stats',
                   'ostrich-gr4j-cemaneige',
                   'ostrich-mohyse',
@@ -32,5 +33,8 @@ def test_wps_caps():
                   'objective-function',
                   'graph_ensemble_uncertainty',
                   'graph_single_hydrograph',
+                  'ts_stats',
+                  'freq_analysis',
+                  'base_flow_index',
                   # 'regionalisation',
                   }

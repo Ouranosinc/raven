@@ -1,7 +1,7 @@
 import fiona
-from raven.utils import crs_sniffer
+import collections
+from raven.utils import crs_sniffer, single_file_check
 from shapely.geometry import shape, Point
-import geopandas as gpd
 
 
 def feature_contains(point, shp):
@@ -9,7 +9,7 @@ def feature_contains(point, shp):
 
     Parameters
     ----------
-    point : shapely.Point
+    point : shapely.Point or tuple
       Location coordinates.
     shp : str
       Path to the file storing the geometries.
@@ -24,18 +24,24 @@ def feature_contains(point, shp):
     This is really slow. Another approach is to use the `fiona.Collection.filter` method.
     """
 
-    if not isinstance(point, Point):
-        raise ValueError("point should be shapely.Point instance, got : {}".format(point))
+    if isinstance(point, collections.abc.Sequence) and not isinstance(point, str):
+        for coord in point:
+            if isinstance(coord, (int, float)):
+                pass
+    elif isinstance(point, Point):
+        pass
+    else:
+        raise ValueError("point should be shapely.Point or tuple of coordinates, got : {}".format(point))
 
-    shape_crs = crs_sniffer(shp)
-    with fiona.Env():
-        for i, layer_name in enumerate(fiona.listlayers(shp)):
-            with fiona.open(shp, 'r', crs=shape_crs, layer=i) as src:
-                for feat in iter(src):
-                    geom = shape(feat['geometry'])
+    shape_crs = crs_sniffer(single_file_check(shp))
 
-                    if geom.contains(point):
-                        return feat
+    for i, layer_name in enumerate(fiona.listlayers(shp)):
+        with fiona.open(shp, 'r', crs=shape_crs, layer=i) as src:
+            for feat in iter(src):
+                geom = shape(feat['geometry'])
+
+                if geom.contains(point):
+                    return feat
 
     raise LookupError("Could not find feature containing point {} in {}.".format(point, shp))
 
@@ -99,3 +105,85 @@ def hydrobasins_aggregate(gdf):
             return x[0]
 
     return gdf.dissolve(by='MAIN_BAS', aggfunc=aggfunc)
+
+
+def get_bbox(vector, all_features=True):
+    """Return bounding box of first feature in file.
+
+    Parameters
+    ----------
+    vector : str
+      Path to file storing vector features.
+    all_features : bool
+      Return the bounding box for all features. Default: True.
+
+    Returns
+    -------
+    list
+      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
+
+    """
+
+    if not all_features:
+        for i, layer_name in enumerate(fiona.listlayers(vector)):
+            with fiona.open(vector, 'r', layer=i) as src:
+                for feature in src:
+                    geom = shape(feature['geometry'])
+                    return geom.bounds
+
+    for i, layer_name in enumerate(fiona.listlayers(vector)):
+        with fiona.open(vector, 'r', layer=i) as src:
+            return src.bounds
+
+
+def get_raster_wcs(bbox, geographic=True, layer=None):
+    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+
+    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundries.
+
+    Parameters
+    ----------
+    bbox : sequence
+      Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1)
+    geographic : bool
+      If True, uses "Long" and "Lat" in WCS call. Otherwise uses "E" and "N".
+    layer : str
+      Layer name of raster exposed on GeoServer instance. E.g. 'public:CEC_NALCMS_LandUse_2010'
+
+    Returns
+    -------
+    bytes
+      A GeoTIFF array.
+
+    """
+    from owslib.wcs import WebCoverageService
+    from lxml import etree
+
+    (left, down, right, up) = bbox
+
+    if geographic:
+        x, y = 'Long', 'Lat'
+    else:
+        x, y = 'E', 'N'
+
+    wcs = WebCoverageService('http://boreas.ouranos.ca/geoserver/ows', version='2.0.1')
+
+    try:
+        resp = wcs.getCoverage(identifier=[layer, ],
+                               format='image/tiff',
+                               subsets=[(x, left, right), (y, down, up)])
+
+    except Exception as e:
+        raise Exception(e)
+
+    data = resp.read()
+
+    try:
+        etree.fromstring(data)
+        # The response is an XML file describing the server error.
+        raise ChildProcessError(data)
+
+    except etree.XMLSyntaxError:
+        # The response is the DEM array.
+        return data
