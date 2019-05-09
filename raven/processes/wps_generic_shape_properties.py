@@ -23,10 +23,10 @@ class ShapePropertiesProcess(Process):
                          supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON],
                          min_occurs=1, max_occurs=1),
             LiteralInput('projected_crs',
-                         'Coordinate Reference System for area calculation (Default: EPSG:32198,'
-                         ' NAD83 / Quebec Lambert)',
+                         'Coordinate Reference System for area calculation (Default: EPSG:6622,'
+                         ' NAD83(CSRS) / Quebec Lambert)',
                          data_type='integer',
-                         default=32198,
+                         default=6622,
                          min_occurs=1, max_occurs=1)]
         outputs = [
             ComplexOutput('properties', 'Feature schemas',
