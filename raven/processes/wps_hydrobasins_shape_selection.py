@@ -1,38 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
-import requests
 import tempfile
-from pathlib import Path
 
 import fiona
 import geopandas as gpd
-import pandas as pd
 from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
 
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
-from raven.utils import crs_sniffer, generic_vector_reproject
-# from tests.common import TESTDATA
+
+from raven.utils import crs_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
-#
-# DATA = Path(__file__).parent / 'hydrobasins_tables'
-# HYBAS = {
-#     'lake_lev07': DATA / 'hybas_lake_na_lev07.csv',
-#     'lake_lev08': DATA / 'hybas_lake_na_lev08.csv',
-#     'lake_lev09': DATA / 'hybas_lake_na_lev09.csv',
-#     'lake_lev10': DATA / 'hybas_lake_na_lev10.csv',
-#     'lake_lev11': DATA / 'hybas_lake_na_lev11.csv',
-#     'lake_lev12': DATA / 'hybas_lake_na_lev12.csv',
-#     'lev07': DATA / 'hybas_na_lev07.csv',
-#     'lev08': DATA / 'hybas_na_lev08.csv',
-#     'lev09': DATA / 'hybas_na_lev09.csv',
-#     'lev10': DATA / 'hybas_na_lev10.csv',
-#     'lev11': DATA / 'hybas_na_lev11.csv',
-#     'lev12': DATA / 'hybas_na_lev12.csv',
-# }
 
 
 class ShapeSelectionProcess(Process):
@@ -118,7 +99,8 @@ class ShapeSelectionProcess(Process):
         with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
             # Find HYBAS_ID
-            feat = next(src)  # src.filter(bbox=bbox))
+
+            feat = next(src)
             hybas_id = feat['properties']['HYBAS_ID']
 
             if collect_upstream:

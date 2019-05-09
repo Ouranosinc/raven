@@ -2,7 +2,6 @@ import json
 import logging
 import tempfile
 
-import geopandas as gpd
 import shapely.geometry as sgeo
 import shapely.ops as ops
 from pywps import LiteralInput, ComplexInput, ComplexOutput
@@ -10,9 +9,9 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterio.crs import CRS
 
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check, boundary_check
-from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop
 from raven.utilities import gis
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check, boundary_check
+from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop, generic_vector_reproject
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -39,11 +38,11 @@ class TerrainAnalysisProcess(Process):
                          min_occurs=1, max_occurs=1,
                          supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
             LiteralInput('projected_crs',
-                         'Coordinate Reference System for terrain analysis (Default: EPSG:32198,'
-                         ' "NAD83 / Quebec Lambert").'
-                         ' The CRS chosen should be projected and appropriate for the region of interest.',
+                         'Coordinate Reference System for terrain analysis (Default: EPSG:6622, "NAD83(CSRS) /'
+                         ' Quebec Lambert". The CRS chosen should be projected and appropriate for the region'
+                         ' of interest.',
                          data_type='integer',
-                         default=32198,
+                         default=6622,
                          min_occurs=1, max_occurs=1),
             LiteralInput('select_all_touching', 'Perform calculation on boundary pixels',
                          data_type='boolean', default='false',
@@ -120,26 +119,31 @@ class TerrainAnalysisProcess(Process):
             warped_fn = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False,
                                                     dir=self.workdir).name
             generic_raster_warp(raster_file, warped_fn, projection.to_proj4())
+
         else:
             warped_fn = raster_file
 
         # Perform the terrain analysis
         # ----------------------------
-        gdf = gpd.GeoDataFrame.from_file(vector_file, crs=vec_crs)
+        rpj = tempfile.NamedTemporaryFile(prefix='reproj_', suffix='.json', delete=False, dir=self.workdir).name
+        generic_vector_reproject(vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_proj4())
+        with open(rpj) as src:
+            geo = json.load(src)
 
-        reprojected_gdf = gdf.to_crs(epsg=projection.to_epsg())
-        union = sgeo.shape(ops.unary_union(reprojected_gdf['geometry']))
+        features = [sgeo.shape(feat['geometry']) for feat in geo['features']]
+        union = ops.unary_union(features)
+
         clipped_fn = tempfile.NamedTemporaryFile(prefix='clipped_', suffix='.tiff', delete=False,
                                                  dir=self.workdir).name
-
         # Ensure that values for regions outside of clip are kept
-        generic_raster_clip(warped_fn, clipped_fn, union, touches=touches, fill_with_nodata=False, padded=True)
+        generic_raster_clip(raster=warped_fn, output=clipped_fn, geometry=union, touches=touches,
+                            fill_with_nodata=True, padded=True)
 
         # Compute DEM properties for each feature.
         properties = []
-        for i in range(len(reprojected_gdf)):
-            properties.append(dem_prop(warped_fn, reprojected_gdf['geometry'][i]))
-        properties.append(dem_prop(warped_fn))
+        for i in range(len(features)):
+            properties.append(dem_prop(clipped_fn, features[i], directory=self.workdir))
+        properties.append(dem_prop(clipped_fn, directory=self.workdir))
 
         response.outputs['properties'].data = json.dumps(properties)
 

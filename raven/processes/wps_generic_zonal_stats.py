@@ -10,7 +10,6 @@ from rasterstats import zonal_stats
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic_vector_reproject
 from raven.utilities import gis
 
-
 LOGGER = logging.getLogger("PYWPS")
 
 
@@ -97,7 +96,7 @@ class ZonalStatisticsProcess(Process):
             # Reproject full vector to preserve feature attributes
             projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
                                                     dir=self.workdir).name
-            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs, target_crs=ras_crs)
+            generic_vector_reproject(vector_file, projected, source_crs=vec_crs, target_crs=ras_crs)
             vector_file = projected
 
         try:
