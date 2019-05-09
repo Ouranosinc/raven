@@ -192,10 +192,10 @@ def get_raster_wcs(coordinates, geographic=True, layer=None):
 
 
 def get_hydrobasins_location_wfs(coordinates=None, level=12, lakes=True):
-    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+    """Return features from the USGS HydroBASINS data set using bounding box coordinates and WFS 1.1.0 protocol.
 
-    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
-    on projected coordinate system (Easting, Northing) boundries.
+    For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundaries.
 
     Parameters
     ----------
@@ -209,7 +209,7 @@ def get_hydrobasins_location_wfs(coordinates=None, level=12, lakes=True):
     Returns
     -------
     bytes
-      A GeoTIFF array.
+      A GML-encoded vector feature.
 
     """
     from owslib.wfs import WebFeatureService
@@ -230,16 +230,16 @@ def get_hydrobasins_location_wfs(coordinates=None, level=12, lakes=True):
 
 
 def get_hydrobasins_attributes_wfs(attribute=None, value=None, level=12, lakes=True):
-    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+    """Return features from the USGS HydroBASINS data set using attribute value selection and WFS 1.1.0 protocol.
 
-    For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
-    on projected coordinate system (Easting, Northing) boundries.
+    For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
+    on projected coordinate system (Easting, Northing) boundaries.
 
     Parameters
     ----------
     attribute : str
       Attribute/field to be queried.
-    value: str
+    value: str or float or int
       Value for attribute queried.
     level : int
       Level of granularity requested for the lakes vector (1:12). Default: 12.
@@ -248,8 +248,8 @@ def get_hydrobasins_attributes_wfs(attribute=None, value=None, level=12, lakes=T
 
     Returns
     -------
-    bytes
-      A GeoTIFF array.
+    str
+      URL to the GeoJSON-encoded WFS response.
 
     """
     from requests import Request
