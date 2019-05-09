@@ -14,7 +14,7 @@ class TestShapeSelectionProcess:
             'location={location}',
             'level={level}',
             'lakes={lakes}',
-            'aggregate_upstream_ids={aggregate_upstream}',
+            'aggregate_upstream={aggregate_upstream}',
         ]
 
         datainputs = ';'.join(fields).format(
