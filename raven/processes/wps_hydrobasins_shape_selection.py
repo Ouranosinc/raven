@@ -139,6 +139,7 @@ class ShapeSelectionProcess(Process):
                 df = gpd.read_file(region_url)
                 df.to_file(region, driver='GeoJSON')
 
+                # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
                 # Identify upstream sub-basins and write to a new file
                 up = gis.hydrobasins_upstream_ids(hybas_id, df)
                 upfile = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
