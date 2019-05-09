@@ -1,3 +1,4 @@
+
 import json
 import logging
 import math
@@ -14,9 +15,9 @@ import numpy as np
 import pyproj
 import rasterio
 import rasterio.mask
+import rasterio.vrt
 import rasterio.warp
 import shapely.geometry as sgeo
-from numpy import zeros_like
 from osgeo.gdal import DEMProcessing
 from rasterio.crs import CRS
 from shapely.ops import transform
@@ -367,7 +368,7 @@ def geom_prop(geom):
     return parameters
 
 
-def dem_prop(dem, geom=None):
+def dem_prop(dem, geom=None, directory=None):
     """Return raster properties for each geometry.
 
     This
@@ -378,6 +379,8 @@ def dem_prop(dem, geom=None):
       DEM raster in reprojected coordinates.
     geom : shapely.geometry
       Geometry over which aggregate properties will be computed. If None compute properties over entire raster.
+    directory : str or path
+      Folder to save the GDAL terrain anlaysis outputs
 
     Returns
     -------
@@ -386,17 +389,17 @@ def dem_prop(dem, geom=None):
     """
 
     fns = dict()
-    fns['dem'] = tempfile.NamedTemporaryFile(prefix='dem', suffix='.tiff', delete=False).name if geom is not None \
-        else dem
+    fns['dem'] = tempfile.NamedTemporaryFile(prefix='dem', suffix='.tiff', dir=directory, delete=False).name \
+        if geom is not None else dem
     for key in ['slope', 'aspect']:
-        fns[key] = tempfile.NamedTemporaryFile(prefix=key, suffix='.tiff', delete=False).name
+        fns[key] = tempfile.NamedTemporaryFile(prefix=key, suffix='.tiff', dir=directory, delete=False).name
 
     # Clip to relevant area or read original raster
     if geom is None:
         with rasterio.open(dem) as f:
             elevation = f.read(1, masked=True)
     else:
-        generic_raster_clip(dem, fns['dem'], geom)
+        generic_raster_clip(raster=dem, output=fns['dem'], geometry=geom)
         with rasterio.open(fns['dem']) as f:
             elevation = f.read(1, masked=True)
 
@@ -511,16 +514,16 @@ def circular_mean_aspect(angles):
     return degrees
 
 
-def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, fill_with_nodata=True, padded=True,
+def generic_raster_clip(raster, output, geometry, touches=False, fill_with_nodata=True, padded=True,
                         raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
     Crop a raster file to a given geometry.
 
     Parameters
     ----------
-    raster_file : str
+    raster : str
       Path to input raster.
-    processed_raster : str
+    output : str
       Path to output raster.
     geometry : shapely.geometry
       Geometry defining the region to crop.
@@ -534,7 +537,7 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, f
       Level of data compression. Default: 'lzw'.
 
     """
-    with rasterio.open(raster_file, 'r', ) as src:
+    with rasterio.open(raster, 'r', ) as src:
         mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True, pad=padded,
                                                      all_touched=touches, filled=fill_with_nodata)
         mask_meta = src.meta.copy()
@@ -549,68 +552,54 @@ def generic_raster_clip(raster_file, processed_raster, geometry, touches=True, f
         )
 
         # Write the new masked image
-        with rasterio.open(processed_raster, 'w', **mask_meta) as dst:
+        with rasterio.open(output, 'w', **mask_meta) as dst:
             dst.write(mask_image)
     return
 
 
-def generic_raster_warp(raster_file, warped_raster, target_crs, raster_compression=RASTERIO_TIFF_COMPRESSION):
+def generic_raster_warp(raster, output, target_crs, raster_compression=RASTERIO_TIFF_COMPRESSION):
     """
     Reproject a raster file.
 
     Parameters
     ----------
-    raster_file : str
+    raster : str
       Path to input raster.
-    warped_raster : str
+    output : str
       Path to output raster.
-    target_crs : str
+    target_crs : str or dict
       Target projection identifier.
     raster_compression: str
       Level of data compression. Default: 'lzw'.
     """
-    with rasterio.open(raster_file, 'r') as src:
-        # Calculate grid properties based on projection
-        affine, width, height = rasterio.warp.calculate_default_transform(
-            src.crs, target_crs, src.width, src.height, *src.bounds
-        )
+    with rasterio.open(raster, 'r') as src:
+        # Reproject raster using WarpedVRT class
+        with rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt:
+            # Calculate grid properties based on projection
+            affine, width, height = rasterio.warp.calculate_default_transform(
+                src.crs, target_crs, src.width, src.height, *src.bounds
+            )
 
-        # Copy relevant metadata from parent raster
-        metadata = src.meta.copy()
-        metadata.update(
-            {
-                "driver": "GTiff",
-                "height": height,
-                "width": width,
-                "transform": affine,
-                "crs": target_crs,
-                "compress": raster_compression,
-            }
-        )
-        data = src.read()
+            # Copy relevant metadata from parent raster
+            metadata = src.meta.copy()
+            metadata.update(
+                {
+                    "driver": "GTiff",
+                    "height": height,
+                    "width": width,
+                    "transform": affine,
+                    "crs": target_crs,
+                    "compress": raster_compression,
+                }
+            )
+            data = vrt.read()
 
-        with rasterio.open(warped_raster, 'w', **metadata) as dst:
-            for i, band in enumerate(data, 1):
-                # Create an empty array
-                dest = zeros_like(band)
-
-                # Warp raster with crs/affine and fill nodata from source values
-                rasterio.warp.reproject(
-                    source=band,
-                    destination=dest,
-                    src_nodata=src.nodata,
-                    src_transform=src.transform,
-                    src_crs=src.crs,
-                    dst_nodata=src.nodata,
-                    dst_transform=affine,
-                    dst_crs=target_crs,
-                    resampling=rasterio.warp.Resampling.nearest
-                )
-                dst.write(dest, indexes=i)
+            with rasterio.open(output, 'w', **metadata) as dst:
+                dst.write(data)
     return
 
 
-def generic_vector_reproject(vector, projected, source_crs=WGS84, target_crs=None):
+def generic_vector_reproject(vector, projected, keep_fields=True, source_crs=WGS84, target_crs=None):
     """Reproject all features and layers within a vector file and return a GeoJSON
 
     Parameters
@@ -644,7 +633,6 @@ def generic_vector_reproject(vector, projected, source_crs=WGS84, target_crs=Non
                         geom = sgeo.shape(feature['geometry'])
                         transformed = geom_transform(geom, source_crs, target_crs)
                         feature['geometry'] = sgeo.mapping(transformed)
-                        feature['properties'] = json.dumps(feature['properties'])
                         output['features'].append(feature)
                     except Exception as e:
                         msg = '{}: Unable to reproject feature {}'.format(e, feature)

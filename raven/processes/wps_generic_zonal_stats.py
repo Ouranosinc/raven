@@ -97,7 +97,7 @@ class ZonalStatisticsProcess(Process):
             # Reproject full vector to preserve feature attributes
             projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
                                                     dir=self.workdir).name
-            generic_vector_reproject(vector_file, projected, driver='GeoJSON', source_crs=vec_crs, target_crs=ras_crs)
+            generic_vector_reproject(vector_file, projected, source_crs=vec_crs, target_crs=ras_crs)
             vector_file = projected
 
         try:

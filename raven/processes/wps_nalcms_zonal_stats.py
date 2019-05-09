@@ -127,13 +127,13 @@ class NALCMSZonalStatisticsProcess(Process):
                 projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
                                                         dir=self.workdir).name
                 generic_vector_reproject(vector_file, projected, source_crs=vec_crs, target_crs=ras_crs)
-                vector_file = projected
+            else:
+                projected = vector_file
 
         else:  # using the NALCMS data from GeoServer
             projected = tempfile.NamedTemporaryFile(prefix='reprojected_', suffix='.json', delete=False,
                                                     dir=self.workdir).name
             generic_vector_reproject(vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4)
-            vector_file = projected
 
             bbox = gis.get_bbox(projected)
             raster_url = 'public:CEC_NALCMS_LandUse_2010'
@@ -150,7 +150,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
         try:
             stats = zonal_stats(
-                vector_file, raster_file, stats=['count', 'nodata'],
+                projected, raster_file, stats=['count', 'nodata'],
                 band=band, categorical=True, category_map=categories, all_touched=touches,
                 geojson_out=True, raster_out=False)
 
