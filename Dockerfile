@@ -21,7 +21,7 @@ COPY . /opt/wps
 WORKDIR /opt/wps
 
 # Install WPS
-RUN ["/bin/bash", "-c", "source activate wps && python setup.py develop"]
+RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
