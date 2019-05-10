@@ -5,7 +5,7 @@ LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.1.0"
 
 # Update Debian system
 RUN apt-get update && apt-get install -y \
- build-essential \
+ build-essential unzip libnetcdf-dev \
 && rm -rf /var/lib/apt/lists/*
 
 # Update conda
