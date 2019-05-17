@@ -12,7 +12,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from matplotlib import pyplot as plt
-
+from scipy import stats
+from raven.utilities.mk_test import mk_test_calc
 
 def hydrograph(file_list):
     """
@@ -210,5 +211,68 @@ def spaghetti_annual_hydrograph(file):
     ax.grid()
 
     plt.tight_layout()
+
+    return fig
+
+
+def ts_graphs(file,trend=True,alpha=0.05):
+    """
+    graphs for time series statistics
+
+    INPUTS:
+        file -- xclim file containing streamflow statistics for one run
+
+    Create a figure with the statistics so one can see a trend in the data
+    """
+
+    # Time series for the plot
+    ds = xr.open_dataset(file)
+    titlename=ds['ts_stats'].description
+    values=ds['ts_stats'].values[:]
+    
+    values[0]=2
+    values[1]=1
+    values[2]=3
+    values[3]=3
+    values[4]=3
+    values[5]=5
+    values[6]=6
+    values[7]=7
+    values[8]=10
+    values[9]=4
+    
+  
+    
+    # Get time data for the plot
+    dates = pd.DatetimeIndex(ds.time.values)
+    first_date = dates.min().strftime('%Y/%m/%d')
+    last_date = dates.max().strftime('%Y/%m/%d')
+   
+    if trend==True:
+        res = stats.theilslopes(values, dates)
+        trd, h,p, z  = mk_test_calc(values,alpha=alpha)
+        titlename = titlename + ", Mann-Kendall h=" + str(h) + ", p-value=" + str(np.round(p,4))
+
+    fig, ax = plt.subplots()
+    ax.plot(dates, values, label='time-series index')
+    
+    plt.xlim([first_date, last_date])
+    ax.set_xlabel('Time')
+    ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
+
+    ax.set_title(titlename)
+    
+    ax.grid()
+    plt.tight_layout()
+      
+    if trend == True:
+         
+         # TODO: This does not work yet, trying to compute the y-value of a datetime x-axis value * a slope...
+         ax.plot(dates, res[1] + res[0] * dates,
+         linestyle='--',
+         linewidth=2,
+         label='Sen\'s Slope')
+
+    ax.legend()   
 
     return fig
