@@ -24,7 +24,7 @@ def test_tsstats_process():
     assert_response_success(resp)
     out = get_output(resp.xml)['output']
     xr.open_dataset(out[7:])
-
+  
 
 def test_freqanalysis_process():
 
@@ -48,6 +48,7 @@ def test_freqanalysis_process():
     out = get_output(resp.xml)['output']
     xr.open_dataset(out[7:])
 
+    
 
 def test_baseflowindex_process():
     client = client_for(Service(processes=[BaseFlowIndexProcess(), ], cfgfiles=CFG_FILE))
@@ -64,3 +65,4 @@ def test_baseflowindex_process():
     assert_response_success(resp)
     out = get_output(resp.xml)['output']
     xr.open_dataset(out[7:])
+   
