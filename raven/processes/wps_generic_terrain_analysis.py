@@ -136,7 +136,7 @@ class TerrainAnalysisProcess(Process):
         clipped_fn = tempfile.NamedTemporaryFile(prefix='clipped_', suffix='.tiff', delete=False,
                                                  dir=self.workdir).name
         # Ensure that values for regions outside of clip are kept
-        generic_raster_clip(raster=warped_fn, output=clipped_fn, geometry=union, touches=touches,
+        generic_raster_clip(raster=warped_fn, output=clipped_fn, geometry=features, touches=touches,
                             fill_with_nodata=True, padded=True)
 
         # Compute DEM properties for each feature.
