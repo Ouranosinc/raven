@@ -8,7 +8,7 @@ from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
-# We should extract the properties before performing the regionalization, using 
+# We should extract the properties before performing the regionalization, using
 # The tools from the GIS noteoboks for example, to get the ungauged catchment properties
 
 
@@ -79,8 +79,15 @@ class RegionalisationProcess(RavenProcess):
                            default=0.6,
                            min_occurs=0)
 
+    properties = LiteralInput('properties', 'Regionalization properties',
+                              abstract="To do",
+                              data_type='string',
+                              min_occurs=0,
+                              max_occurs=42,
+                              allowed_values=['longitude', 'latitude', 'to be completed'])
+
     inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
-              wio.model_name, ndonors, min_NSE, method]
+              wio.model_name, ndonors, min_NSE, method, properties]
 
     outputs = [wio.hydrograph, wio.ensemble]
 
@@ -95,20 +102,23 @@ class RegionalisationProcess(RavenProcess):
         longitude = request.inputs.pop('longitude')[0].data
         min_NSE = request.inputs.pop('min_NSE')[0].data
 
+        if 'properties' in request.inputs:
+            properties = [p.data for p in request.inputs['properties']]
+        else:
+            properties = ['longitude', 'latitude']
+
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 
         nash, params = read_gauged_params(model_name)
-        variables = ['longitude', 'latitude']
-        props = read_gauged_properties()[variables]
+        props = read_gauged_properties()[properties]
 
         # TODO: Replace by function determining catchment properties from DEM and land use file and Hydrosheds data.
         def get_catchment_properties(lat, lon):
             return {'longitude': .7, 'latitude': .7, 'area': '4250.6', 'elevation': '843.0'}
 
         catchment_props = get_catchment_properties(latitude, longitude)
-        properties = ['longitude', 'latitude']
         ungauged_props = {key: catchment_props[key] for key in properties}
         kwds.update(catchment_props)
 
