@@ -308,21 +308,32 @@ def get_ungauged_properties(latitude, longitude):
 
     # Read the netCDF file
     # nc_file = Dataset(inputs_file[0], 'r')
-
+    
+    # TODO: This should be performed beforehand, in the jupyter Notebook. Get
+    # the missing properties from calls to the hydroBasins and 3 GIS scripts 
+    # (Terrain, Shape properties and NALCMS_zonal_stats). Then call this code.
+    
     """
     # For now, until we test for real and pass the parameter
-    properties_to_use = ['latitude',
-                         'longitude',
-                         'area',
-                         'avg_elevation',
-                         'avg_slope',
-                         'land_forest',
-                         'land_grass',
-                         'land_impervious',
-                         'land_urban']
+    properties_to_use = ['Area',
+                         'Centroid_Lat',
+                         'Centroid_Lon',
+                         'Gravelius',
+                         'Perimeter',
+                         'Elevation',
+                         'Slope',
+                         'Aspect',
+                         'Forest',
+                         'Grass',
+                         'Wetland',
+                         'Water',
+                         'Urban',
+                         'Shrubs',
+                         'Crops',
+                         'SnowIce']
     """
 
-    return {'latitude': latitude, 'longitude': longitude}
+    return {'latitude': latitude, 'longitude': longitude, }
 
 
 def IDW(qsims, dist):

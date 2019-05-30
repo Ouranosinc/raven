@@ -23,8 +23,8 @@ inputs = dict(start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2002, 1, 1),
               name='Salmon',
               run_name='test',
-              latitude=.7,
-              longitude=.7,
+              latitude=45,
+              longitude=-80,
               min_NSE=0.6,
               )
 

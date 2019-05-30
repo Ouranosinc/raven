@@ -8,13 +8,8 @@ from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
-# TODO: latitude and longitude have a different meaning here if we're using them to get the catchment properties.
-#  Normally for other WPS Raven processes, they refer to the centroid, here they'd refer to the outlet, correct ?
-#  ANSWER: No, we're still talking about the centroid! basically the closer the center of mass of the catchment, the
-#          more likely the catchments will be physically and hydrologically similar, according to the philosophy
-#          behind the method.
-# But I mean in this process, aren't we passing lat, lon to extract properties for a new watershed? And then we'll
-# extract the centroid lat and lon for the analysis.
+# We should extract the properties before performing the regionalization, using 
+# The tools from the GIS noteoboks for example, to get the ungauged catchment properties
 
 
 class RegionalisationProcess(RavenProcess):
