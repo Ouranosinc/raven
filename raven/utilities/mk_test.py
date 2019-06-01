@@ -8,6 +8,8 @@ from __future__ import division
 import numpy as np
 from scipy.stats import norm
 
+# TODO: This utility is written in python2 and will fail in python3 (e.g. no xrange)
+
 
 def mk_test_calc(x, alpha=0.05):
     """
@@ -66,7 +68,7 @@ def mk_test_calc(x, alpha=0.05):
         z = (s - 1)/np.sqrt(var_s)
     elif s < 0:
         z = (s + 1)/np.sqrt(var_s)
-    else: # s == 0:
+    else:  # s == 0:
         z = 0
 
     # calculate the p_value
