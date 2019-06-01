@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from matplotlib import pyplot as plt
@@ -15,14 +14,14 @@ class GraphIndicatorAnalysis(Process):
         inputs = [ComplexInput('ts_stats', 'Stream flow time series statistics calculated by wps_tsstats',
                                abstract='Stream flow time-series statistics',
                                supported_formats=[FORMATS.NETCDF, Format(mime_type='application/zip')]),
-    
+
                   LiteralInput('trend', 'Show trend in data using Thiel-Sen method',
                                abstract='Display trend in time-series statistics',
                                data_type='boolean',
                                default=True,
                                min_occurs=0,
                                max_occurs=1),
-                  
+
                   LiteralInput('alpha', 'test for trend using Mann-Kendall test',
                                abstract='Test for trend in time-series statistics',
                                data_type='float',
@@ -30,7 +29,7 @@ class GraphIndicatorAnalysis(Process):
                                min_occurs=0,
                                max_occurs=1)
                   ]
-        
+
         outputs = [
             ComplexOutput('graph_ts_stats', 'Figure showing the time-series of the indices.',
                           abstract="Time-series of statistical indices ",
@@ -54,12 +53,11 @@ class GraphIndicatorAnalysis(Process):
     def _handler(self, request, response):
         sim_fn = request.inputs['ts_stats'][0].file
         tr = request.inputs['trend'][0].data
-        alph= request.inputs['alpha'][0].data
-        
+        alph = request.inputs['alpha'][0].data
 
         # Create and save graphic
-        fig = ts_graphs(sim_fn,trend=tr, alpha=alph)
-        
+        fig = ts_graphs(sim_fn, trend=tr, alpha=alph)
+
         fig_ts_stats = Path(self.workdir) / 'ts_graphs.png'
         fig.savefig(fig_ts_stats)
         plt.close(fig)
