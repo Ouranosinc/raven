@@ -4,7 +4,6 @@ Created on Wed Jul 29 09:16:06 2015
 @author: Michael Schramm
 """
 
-from __future__ import division
 import numpy as np
 from scipy.stats import norm
 
@@ -126,10 +125,10 @@ def check_num_samples(beta, delta, std_dev, alpha=0.05, n=4, num_iter=1000,
     """
     # Initialize the parameters
     power = 1.0 - beta
-    P_d = 0.0
+    p_d = 0.0
     cycle_num = 0
-    min_diff_P_d_and_power = abs(P_d - power)
-    best_P_d = P_d
+    min_diff_P_d_and_power = abs(p_d - power)
+    best_P_d = p_d
     max_n = n
     min_n = n
     max_n_cycle = 1
@@ -142,37 +141,37 @@ def check_num_samples(beta, delta, std_dev, alpha=0.05, n=4, num_iter=1000,
     # Compute an estimate of probability of detecting a trend if the estimate
     # Is not close enough to the specified statistical power value or if the
     # number of iterations exceeds the number of defined cycles.
-    while abs(P_d - power) > tol and cycle_num < num_cycles:
+    while abs(p_d - power) > tol and cycle_num < num_cycles:
         cycle_num += 1
         print("Cycle Number: {}".format(cycle_num))
         count_of_trend_detections = 0
 
         # Perform MK test for random sample.
-        for i in xrange(num_iter):
+        for i in range(num_iter):
             r = np.random.normal(loc=0.0, scale=std_dev, size=n)
             x = r + delta * np.arange(n)
-            trend, h, p, z = mk_test(x, alpha)
+            trend, h, p, z = mk_test_calc(x, alpha)
             if h:
                 count_of_trend_detections += 1
-        P_d = float(count_of_trend_detections) / num_iter
+        p_d = float(count_of_trend_detections) / num_iter
 
-        # Determine if P_d is close to the power value.
-        if abs(P_d - power) < tol:
-            print("P_d: {}".format(P_d))
+        # Determine if p_d is close to the power value.
+        if abs(p_d - power) < tol:
+            print("P_d: {}".format(p_d))
             print("{} samples are required".format(n))
             return n
 
         # Determine if the calculated probability is closest to the statistical
         # power.
-        if min_diff_P_d_and_power > abs(P_d - power):
-            min_diff_P_d_and_power = abs(P_d - power)
-            best_P_d = P_d
+        if min_diff_P_d_and_power > abs(p_d - power):
+            min_diff_P_d_and_power = abs(p_d - power)
+            best_P_d = p_d
 
         # Update max or min n.
-        if n > max_n and abs(best_P_d - P_d) < tol:
+        if n > max_n and abs(best_P_d - p_d) < tol:
             max_n = n
             max_n_cycle = cycle_num
-        elif n < min_n and abs(best_P_d - P_d) < tol:
+        elif n < min_n and abs(best_P_d - p_d) < tol:
             min_n = n
             min_n_cycle = cycle_num
 
@@ -183,19 +182,19 @@ def check_num_samples(beta, delta, std_dev, alpha=0.05, n=4, num_iter=1000,
               abs(min_n - n) == 0 and
               cycle_num - min_n_cycle >= m):
             print("Number of samples required has converged.")
-            print("P_d: {}".format(P_d))
+            print("P_d: {}".format(p_d))
             print("Approximately {} samples are required".format(n))
             return n
 
         # Determine whether to increase or decrease the number of samples.
-        if P_d < power:
+        if p_d < power:
             n += 1
-            print("P_d: {}".format(P_d))
+            print("P_d: {}".format(p_d))
             print("Increasing n to {}".format(n))
             print("")
         else:
             n -= 1
-            print("P_d: {}".format(P_d))
+            print("P_d: {}".format(p_d))
             print("Decreasing n to {}".format(n))
             print("")
             if n == 0:
