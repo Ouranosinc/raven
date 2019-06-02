@@ -7,6 +7,8 @@ from pywps.tests import assert_response_success
 from raven.processes import RegionalisationProcess
 from .common import client_for, TESTDATA, get_output, urlretrieve, CFG_FILE
 import xarray as xr
+import json
+
 
 datainputs = "ts=files@xlink:href=file://{ts};" \
              "start_date={start_date};" \
@@ -17,7 +19,8 @@ datainputs = "ts=files@xlink:href=file://{ts};" \
              "model_name={model_name};" \
              "min_NSE={min_NSE};" \
              "ndonors={ndonors};" \
-             "method={method};"
+             "method={method};" \
+             "properties={properties};"
 
 inputs = dict(start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2002, 1, 1),
@@ -26,6 +29,7 @@ inputs = dict(start_date=dt.datetime(2000, 1, 1),
               latitude=45,
               longitude=-80,
               min_NSE=0.6,
+              properties=json.dumps({'latitude': 45, 'longitude': -80,})  # 'elevation': 100, 'area': 3500, 'forest': 0.4})
               )
 
 
