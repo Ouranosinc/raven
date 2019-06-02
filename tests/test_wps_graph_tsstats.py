@@ -15,8 +15,7 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output
 
 def test_graph_timeseries_stats(request):
     client = client_for(Service(processes=[GraphIndicatorAnalysis(), ], cfgfiles=CFG_FILE))
-    datainputs = "ts_stats=files@xlink:href=file://{ts_stats};".format(ts_stats=TESTDATA['tsstats'])
-
+    
     datainputs = "ts_stats=files@xlink:href=file://{ts_stats};" \
                  "trend={trend};" \
                  "alpha={alpha};" \
