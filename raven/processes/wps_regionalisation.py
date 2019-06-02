@@ -1,7 +1,8 @@
 import xarray as xr
 from . import wpsio as wio
 import logging
-from pywps import Process, LiteralInput
+import json
+from pywps import Process, LiteralInput, ComplexInput, FORMATS
 from pathlib import Path
 from raven.utilities import regionalize, read_gauged_properties, read_gauged_params
 from .wps_raven import RavenProcess
@@ -79,12 +80,12 @@ class RegionalisationProcess(RavenProcess):
                            default=0.6,
                            min_occurs=0)
 
-    properties = LiteralInput('properties', 'Regionalization properties',
-                              abstract="To do",
-                              data_type='string',
-                              min_occurs=0,
-                              max_occurs=42,
-                              allowed_values=['longitude', 'latitude', 'to be completed'])
+    properties = ComplexInput('properties', 'Regionalization properties',
+                              abstract="json string storing dictionary of properties.",
+                              min_occurs=1,
+                              max_occurs=1,
+                              supported_formats=[FORMATS.JSON, ])
+
 
     inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
               wio.model_name, ndonors, min_NSE, method, properties]
@@ -101,11 +102,9 @@ class RegionalisationProcess(RavenProcess):
         latitude = request.inputs.pop('latitude')[0].data
         longitude = request.inputs.pop('longitude')[0].data
         min_NSE = request.inputs.pop('min_NSE')[0].data
+        properties = request.inputs.pop('properties')[0].data
 
-        if 'properties' in request.inputs:
-            properties = [p.data for p in request.inputs['properties']]
-        else:
-            properties = ['longitude', 'latitude']
+        properties = json.loads(properties)
 
         kwds = {}
         for key, val in request.inputs.items():
