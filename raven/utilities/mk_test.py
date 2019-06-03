@@ -177,10 +177,10 @@ def check_num_samples(beta, delta, std_dev, alpha=0.05, n=4, num_iter=1000,
 
         # In case the tolerance is too small we'll stop the cycling when the
         # number of cycles, n, is cycling between the same values.
-        elif (abs(max_n - n) == 0 and
-              cycle_num - max_n_cycle >= m or
-              abs(min_n - n) == 0 and
-              cycle_num - min_n_cycle >= m):
+        elif (abs(max_n - n) == 0
+              and cycle_num - max_n_cycle >= m
+              or abs(min_n - n) == 0
+              and cycle_num - min_n_cycle >= m):
             print("Number of samples required has converged.")
             print("P_d: {}".format(p_d))
             print("Approximately {} samples are required".format(n))
