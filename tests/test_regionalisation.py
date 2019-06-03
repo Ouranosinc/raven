@@ -4,7 +4,7 @@ from .common import TESTDATA
 
 
 def test_regionalization():
-    model = 'HMETS'
+    model = 'GR4JCN'
     nash, params = reg.read_gauged_params(model)
     variables = ['latitude', 'longitude', 'area','forest']
     props = reg.read_gauged_properties(variables)
