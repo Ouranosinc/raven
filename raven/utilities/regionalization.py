@@ -11,10 +11,10 @@ from raven.models import get_model
 from . import coords
 import logging
 LOGGER = logging.getLogger("PYWPS")
-
+import pdb
 
 # Added directory for test data (smaller database wth only 10 donor catchments)
-DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data' / 'tests'
+DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
 
 
 def regionalize(method, model, nash, params=None, props=None, target_props=None, size=5,
@@ -138,7 +138,7 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     return qsim, ens
 
 
-def read_gauged_properties():
+def read_gauged_properties(properties):
     """Return table of gauged catchments properties over North America.
 
     Returns
@@ -146,8 +146,10 @@ def read_gauged_properties():
     pd.DataFrame
       Catchment properties keyed by catchment ID.
     """
-    return pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
+    proptable=pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
                        index_col='ID')
+    
+    return proptable[properties]
 
 
 def read_gauged_params(model):
@@ -163,7 +165,7 @@ def read_gauged_params(model):
 
     params = pd.read_csv(DATA_DIR / '{}_parameters.csv'.format(model),
                          index_col='ID')
-
+    pdb.set_trace()
     return params['NASH'], params.iloc[:, 1:]
 
 
@@ -287,53 +289,6 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
         out = gauged_params.values
 
     return out
-
-
-def get_ungauged_properties(latitude, longitude):
-    """
-    Return the properties of the watershed whose outlet location is given.
-
-    Parameters
-    ----------
-    latitude : float
-      Coordinate of the catchment's outlet.
-    longitude : float
-      Coordinate of the catchment's outlet.
-
-    Returns
-    -------
-    dict
-      Catchment properties: area, mean elevation, centroid latitude and longitude, average slope, ...
-    """
-
-    # Read the netCDF file
-    # nc_file = Dataset(inputs_file[0], 'r')
-    
-    # TODO: This should be performed beforehand, in the jupyter Notebook. Get
-    # the missing properties from calls to the hydroBasins and 3 GIS scripts 
-    # (Terrain, Shape properties and NALCMS_zonal_stats). Then call this code.
-    
-    """
-    # For now, until we test for real and pass the parameter
-    properties_to_use = ['Area',
-                         'Centroid_Lat',
-                         'Centroid_Lon',
-                         'Gravelius',
-                         'Perimeter',
-                         'Elevation',
-                         'Slope',
-                         'Aspect',
-                         'Forest',
-                         'Grass',
-                         'Wetland',
-                         'Water',
-                         'Urban',
-                         'Shrubs',
-                         'Crops',
-                         'SnowIce']
-    """
-
-    return {'latitude': latitude, 'longitude': longitude, }
 
 
 def IDW(qsims, dist):
