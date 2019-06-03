@@ -7,6 +7,8 @@ from pywps.tests import assert_response_success
 from raven.processes import RegionalisationProcess
 from .common import client_for, TESTDATA, get_output, urlretrieve, CFG_FILE
 import xarray as xr
+import json
+
 
 import json
 
