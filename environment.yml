@@ -26,6 +26,7 @@ dependencies:
 - rtree
 - shapely
 - bumpversion
+- scipy<1.3
 - statsmodels
 - matplotlib
 - pip
@@ -33,4 +34,4 @@ dependencies:
   - spotpy
   - pysheds
   # - pycrs:
-  - -e git+https://github.com/Ouranosinc/xclim.git@5c0273#egg=xclim
+  - -e git+https://github.com/Ouranosinc/xclim.git@19483e7#egg=xclim
