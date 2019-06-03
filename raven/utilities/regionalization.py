@@ -11,7 +11,7 @@ from raven.models import get_model
 from . import coords
 import logging
 LOGGER = logging.getLogger("PYWPS")
-import pdb
+
 
 # Added directory for test data (smaller database wth only 10 donor catchments)
 DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
@@ -165,7 +165,7 @@ def read_gauged_params(model):
 
     params = pd.read_csv(DATA_DIR / '{}_parameters.csv'.format(model),
                          index_col='ID')
-    pdb.set_trace()
+
     return params['NASH'], params.iloc[:, 1:]
 
 
