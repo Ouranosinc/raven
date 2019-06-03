@@ -48,8 +48,8 @@ class TestRegionalisation:
         client = client_for(Service(processes=[RegionalisationProcess(), ], cfgfiles=CFG_FILE))
 
         inp = inputs.copy()
-        inp['ts'] = TESTDATA['raven-mohyse-nc-ts']
-        inp['model_name'] = 'MOHYSE'
+        inp['ts'] = TESTDATA['raven-hmets-nc-ts']
+        inp['model_name'] = 'GR4JCN'
         inp['ndonors'] = 2
         inp['method'] = method
         
