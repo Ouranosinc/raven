@@ -20,6 +20,7 @@ matrix:
       python: "3.6"
       env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - PY_IGNORE_IMPORTMISMATCH=1
         - PEP8=true
 branches:
   only:
