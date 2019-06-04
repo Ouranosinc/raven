@@ -41,6 +41,9 @@ Raven_errors.txt
 # PyCharm
 *.idea
 
+# vim
+*.swp
+
 # Kate
 *.kate-swp
 
