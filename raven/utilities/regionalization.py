@@ -10,8 +10,8 @@ import xarray as xr
 from raven.models import get_model
 from . import coords
 import logging
-LOGGER = logging.getLogger("PYWPS")
 
+LOGGER = logging.getLogger("PYWPS")
 
 # Added directory for test data (smaller database wth only 10 donor catchments)
 DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
@@ -146,9 +146,9 @@ def read_gauged_properties(properties):
     pd.DataFrame
       Catchment properties keyed by catchment ID.
     """
-    proptable=pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
-                       index_col='ID')
-    
+    proptable = pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
+                            index_col='ID')
+
     return proptable[properties]
 
 
