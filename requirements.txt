@@ -29,3 +29,5 @@ pyproj
 rasterio
 rasterstats
 shapely
+unidecode
+# xclim It seems to be installed by pip in src/ and confuse pytest.
