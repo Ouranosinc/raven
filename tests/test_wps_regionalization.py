@@ -7,6 +7,10 @@ from pywps.tests import assert_response_success
 from raven.processes import RegionalisationProcess
 from .common import client_for, TESTDATA, get_output, urlretrieve, CFG_FILE
 import xarray as xr
+import json
+
+
+import json
 
 datainputs = "ts=files@xlink:href=file://{ts};" \
              "start_date={start_date};" \
@@ -17,16 +21,23 @@ datainputs = "ts=files@xlink:href=file://{ts};" \
              "model_name={model_name};" \
              "min_NSE={min_NSE};" \
              "ndonors={ndonors};" \
-             "method={method};"
+             "method={method};" \
+             "properties={properties};" \
+             "area={area};" \
+             "elevation={elevation};"
 
 inputs = dict(start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2002, 1, 1),
               name='Salmon',
               run_name='test',
-              latitude=.7,
-              longitude=.7,
+              latitude=45,
+              longitude=-80,
               min_NSE=0.6,
+              properties=json.dumps({'latitude': 45, 'longitude': -80, 'forest': 0.7}),
+              area=5600,
+              elevation=100,
               )
+              
 
 
 class TestRegionalisation:
@@ -38,10 +49,10 @@ class TestRegionalisation:
 
         inp = inputs.copy()
         inp['ts'] = TESTDATA['raven-hmets-nc-ts']
-        inp['model_name'] = 'HMETS'
+        inp['model_name'] = 'GR4JCN'
         inp['ndonors'] = 2
         inp['method'] = method
-
+        
         resp = client.get(service='WPS', request='execute', version='1.0.0',
                           identifier='regionalisation',
                           datainputs=datainputs.format(**inp))
