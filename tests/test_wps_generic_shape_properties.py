@@ -1,5 +1,4 @@
 import geojson
-from time import sleep
 import json
 import tempfile
 import numpy as np
@@ -106,8 +105,6 @@ class TestGenericShapePropertiesProcess:
         temp = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
         with open(temp.name, 'w') as f:
             geojson.dump(geo_def, f, indent=4)
-
-        sleep(60)
         return temp
 
     def test_simple(self):
