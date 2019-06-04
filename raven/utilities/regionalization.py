@@ -146,9 +146,9 @@ def read_gauged_properties(properties):
     pd.DataFrame
       Catchment properties keyed by catchment ID.
     """
-    proptable=pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
-                       index_col='ID')
-    
+    proptable = pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
+                            index_col='ID')
+
     return proptable[properties]
 
 
