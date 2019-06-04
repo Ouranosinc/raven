@@ -29,13 +29,14 @@ def test_freqanalysis_process():
     client = client_for(Service(processes=[FreqAnalysisProcess(), ], cfgfiles=CFG_FILE))
 
     datainputs = "da=files@xlink:href=file://{da};" \
-                 "t={t};" \
+                 "t={t1};" \
+                 "t={t2};" \
                  "dist={dist};" \
                  "freq={freq};" \
                  "mode={mode};" \
                  "season={season};" \
                  "variable={v};" \
-        .format(da=TESTDATA['simfile_single'], freq='YS', mode='max', t=2, dist="gumbel_r", season='JJA',
+        .format(da=TESTDATA['simfile_single'], freq='YS', mode='max', t1=2, t2=50, dist="gumbel_r", season='JJA',
                 v='q_sim')
 
     resp = client.get(
@@ -44,7 +45,8 @@ def test_freqanalysis_process():
 
     assert_response_success(resp)
     out = get_output(resp.xml)['output']
-    xr.open_dataset(out[7:])
+    ds = xr.open_dataset(out[7:])
+    assert ds.freq_analysis.shape == (2, 1)
 
 
 def test_baseflowindex_process():

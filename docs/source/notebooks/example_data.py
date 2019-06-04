@@ -64,3 +64,5 @@ TESTDATA['melcc_water'] = TD / 'melcc_water_management' / 'zone_gestion_leau_sai
 # TODO: Replace the following files with subsets and set originals as production data
 TESTDATA['earthenv_dem_90m'] = TD / 'earthenv_dem_90m' / 'earthenv_dem90_southernQuebec.tiff'
 TESTDATA['hydrobasins_lake_na_lev12'] = TD / 'usgs_hydrobasins' / 'hybas_lake_na_lev12_v1c.zip'
+
+TESTDATA['simfile_single'] = TD / 'hydro_simulations' / 'raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc'
