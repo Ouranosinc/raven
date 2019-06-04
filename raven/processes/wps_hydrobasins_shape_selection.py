@@ -10,6 +10,7 @@ from pywps import Process, FORMATS
 
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
+
 from raven.utils import crs_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
@@ -98,6 +99,7 @@ class ShapeSelectionProcess(Process):
         with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
             # Find HYBAS_ID
+
             feat = next(src)
             hybas_id = feat['properties']['HYBAS_ID']
 
@@ -111,6 +113,7 @@ class ShapeSelectionProcess(Process):
                 # Collect features from GeoServer
                 region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                      dir=self.workdir).name
+
                 region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
                                                                 lakes=lakes, level=level)
 
