@@ -81,12 +81,11 @@ class RegionalisationProcess(RavenProcess):
                               max_occurs=1,
                               supported_formats=[FORMATS.JSON, ])
 
-    
     inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
               wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
 
     outputs = [wio.hydrograph, wio.ensemble]
-    
+
     def _handler(self, request, response):
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
@@ -103,7 +102,7 @@ class RegionalisationProcess(RavenProcess):
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
-        
+
         nash, params = read_gauged_params(model_name)
         props = read_gauged_properties(properties)
 

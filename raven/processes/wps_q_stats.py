@@ -8,10 +8,10 @@ stats = Stats(identifier='ts_stats',
               compute=generic.select_resample_op)
 
 freq = FA(identifier='freq_analysis',
-             long_name='N-year return period {mode} {indexer} {window}-day flow',
-             description="Streamflow frequency analysis for the {mode} {indexer} {window}-day flow "
-                         "estimated using the {dist} distribution.",
-             compute=generic.frequency_analysis)
+          long_name='N-year return period {mode} {indexer} {window}-day flow',
+          description="Streamflow frequency analysis for the {mode} {indexer} {window}-day flow "
+                      "estimated using the {dist} distribution.",
+          compute=generic.frequency_analysis)
 
 TSStatsProcess = make_xclim_indicator_process('TSStats', stats)
 
