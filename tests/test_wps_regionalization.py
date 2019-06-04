@@ -33,7 +33,6 @@ class TestRegionalisation:
 
     @pytest.mark.parametrize("method", ('MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'))
     def testRegionalisationHMETS(self, method):
-
         client = client_for(Service(processes=[RegionalisationProcess(), ], cfgfiles=CFG_FILE))
 
         inp = inputs.copy()
