@@ -80,6 +80,7 @@ TESTDATA['cec_nalcms_2010'] = TD / 'cec_nalcms2010_30m' / 'cec_nalcms_subQC.tiff
 TESTDATA['simfile_single'] = TD / 'hydro_simulations' / 'raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc'
 TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
+TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
 
 
 class WpsTestClient(WpsClient):
