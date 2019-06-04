@@ -9,9 +9,6 @@ from .common import client_for, TESTDATA, get_output, urlretrieve, CFG_FILE
 import xarray as xr
 import json
 
-
-import json
-
 datainputs = "ts=files@xlink:href=file://{ts};" \
              "start_date={start_date};" \
              "end_date={end_date};" \
@@ -37,7 +34,6 @@ inputs = dict(start_date=dt.datetime(2000, 1, 1),
               area=5600,
               elevation=100,
               )
-              
 
 
 class TestRegionalisation:
@@ -51,7 +47,7 @@ class TestRegionalisation:
         inp['model_name'] = 'GR4JCN'
         inp['ndonors'] = 2
         inp['method'] = method
-        
+
         resp = client.get(service='WPS', request='execute', version='1.0.0',
                           identifier='regionalisation',
                           datainputs=datainputs.format(**inp))

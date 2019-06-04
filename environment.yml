@@ -32,4 +32,5 @@ dependencies:
 - pip:
   - spotpy
   - pysheds
+  - geojson
   # - pycrs

@@ -101,8 +101,8 @@ class TestGenericShapePropertiesProcess:
 
         geo_def = geojson.Polygon(coords)
         # raise Warning(geo_def)
-
         # raise Exception(geo_def.errors())
+
         temp = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
         with open(temp.name, 'w') as f:
             geojson.dump(geo_def, f, indent=4)
