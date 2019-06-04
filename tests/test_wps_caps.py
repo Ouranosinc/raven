@@ -36,6 +36,6 @@ def test_wps_caps():
                   'ts_stats',
                   'freq_analysis',
                   'base_flow_index',
-                  # 'regionalisation',
                   'ts_stats_graph',
+                  'regionalisation',
                   }

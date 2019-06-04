@@ -536,6 +536,9 @@ def generic_raster_clip(raster, output, geometry, touches=False, fill_with_nodat
       Level of data compression. Default: 'lzw'.
 
     """
+    if not (type(geometry) in (list, tuple)):
+        geometry = [geometry]
+
     with rasterio.open(raster, 'r', ) as src:
         mask_image, mask_affine = rasterio.mask.mask(src, geometry, crop=True, pad=padded,
                                                      all_touched=touches, filled=fill_with_nodata)
