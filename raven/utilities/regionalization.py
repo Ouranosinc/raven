@@ -10,8 +10,8 @@ import xarray as xr
 from raven.models import get_model
 from . import coords
 import logging
-LOGGER = logging.getLogger("PYWPS")
 
+LOGGER = logging.getLogger("PYWPS")
 
 # Added directory for test data (smaller database wth only 10 donor catchments)
 DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data' / 'tests'

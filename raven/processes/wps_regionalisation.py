@@ -1,12 +1,15 @@
-import xarray as xr
-from . import wpsio as wio
 import logging
-from pywps import Process, LiteralInput
 from pathlib import Path
+
+import xarray as xr
+from pywps import Process, LiteralInput
+
 from raven.utilities import regionalize, read_gauged_properties, read_gauged_params
+from . import wpsio as wio
 from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
+
 
 # TODO: latitude and longitude have a different meaning here if we're using them to get the catchment properties.
 #  Normally for other WPS Raven processes, they refer to the centroid, here they'd refer to the outlet, correct ?
