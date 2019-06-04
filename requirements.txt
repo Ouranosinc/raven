@@ -29,3 +29,4 @@ pyproj
 rasterio
 rasterstats
 shapely
+geojson
