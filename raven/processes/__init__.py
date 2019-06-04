@@ -41,6 +41,6 @@ processes = [
     ObjectiveFunctionProcess(),
     RavenMultiModelProcess(),
     GraphEnsUncertaintyProcess(),
-    GraphSingleHydrographProcess()
-    # RegionalisationProcess(),
+    GraphSingleHydrographProcess(),
+    RegionalisationProcess(),
 ]
