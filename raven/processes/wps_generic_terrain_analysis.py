@@ -142,7 +142,7 @@ class TerrainAnalysisProcess(Process):
         # Compute DEM properties for each feature.
         properties = []
         for i in range(len(features)):
-            properties.append(dem_prop(clipped_fn, features[i], directory=self.workdir))
+            properties.append(dem_prop(clipped_fn, geom=features[i], directory=self.workdir))
         properties.append(dem_prop(clipped_fn, directory=self.workdir))
 
         response.outputs['properties'].data = json.dumps(properties)
