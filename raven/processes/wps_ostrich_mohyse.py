@@ -58,13 +58,13 @@ lowerBounds = LiteralInput('lowerBounds', 'Comma separated list of model paramet
                            default=', '.join(str(p) for p in list(Lparams_defaults)),
                            min_occurs=0)
 
-hrusupperBounds = LiteralInput('upperBounds', 'Comma separated list of hru parameters Upper Bounds',
+hrusupperBounds = LiteralInput('hrusupperBounds', 'Comma separated list of hru parameters Upper Bounds',
                                abstract='Uhrus: ' + ', '.join(Uhrus_defaults._fields),
                                data_type='string',
                                default=', '.join(str(p) for p in list(Uhrus_defaults)),
                                min_occurs=0)
 
-hruslowerBounds = LiteralInput('lowerBounds', 'Comma separated list of hru parameters Lower Bounds',
+hruslowerBounds = LiteralInput('hruslowerBounds', 'Comma separated list of hru parameters Lower Bounds',
                                abstract='Lhrus: ' + ', '.join(Lhrus_defaults._fields),
                                data_type='string',
                                default=', '.join(str(p) for p in list(Lhrus_defaults)),

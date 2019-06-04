@@ -81,12 +81,11 @@ class RegionalisationProcess(RavenProcess):
                               max_occurs=1,
                               supported_formats=[FORMATS.JSON, ])
 
-    
     inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
               wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
 
     outputs = [wio.hydrograph, wio.ensemble]
-    
+
     def _handler(self, request, response):
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
@@ -94,8 +93,8 @@ class RegionalisationProcess(RavenProcess):
         model_name = request.inputs.pop('model_name')[0].data
         method = request.inputs.pop('method')[0].data
         ndonors = request.inputs.pop('ndonors')[0].data
-        latitude = request.inputs.pop('latitude')[0].data
-        longitude = request.inputs.pop('longitude')[0].data
+        # latitude = request.inputs.pop('latitude')[0].data
+        # longitude = request.inputs.pop('longitude')[0].data
         min_NSE = request.inputs.pop('min_NSE')[0].data
         properties = request.inputs.pop('properties')[0].data
         properties = json.loads(properties)
@@ -103,12 +102,12 @@ class RegionalisationProcess(RavenProcess):
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
-        
+
         nash, params = read_gauged_params(model_name)
         props = read_gauged_properties(properties)
 
         ungauged_props = {key: properties[key] for key in properties}
-        #kwds.update(properties) # This fails as properties are not part of the Raven keywords (i.e. "forest")
+        # kwds.update(properties) # This fails as properties are not part of the Raven keywords (i.e. "forest")
 
         qsim, ensemble = regionalize(method, model_name, nash, params,
                                      props, ungauged_props,
