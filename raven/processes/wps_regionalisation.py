@@ -110,6 +110,7 @@ class RegionalisationProcess(RavenProcess):
         props = read_gauged_properties(properties)
 
         ungauged_props = {key: properties[key] for key in properties}
+
         # kwds.update(properties) # This fails as properties are not part of the Raven keywords (i.e. "forest")
 
         qsim, ensemble = regionalize(method, model_name, nash, params,
