@@ -33,9 +33,5 @@ def test_wps_caps():
                   'objective-function',
                   'graph_ensemble_uncertainty',
                   'graph_single_hydrograph',
-                  'ts_stats',
-                  'freq_analysis',
-                  'base_flow_index',
-                  # 'regionalisation',
-                  'ts_stats_graph',
+                  'regionalisation',
                   }
