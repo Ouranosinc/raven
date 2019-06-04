@@ -187,5 +187,5 @@ pep8:
 .PHONY: docs
 docs:
 	@echo "Generating docs with Sphinx ..."
-	@-bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);$(MAKE) -C $@ clean html"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);$(MAKE) -C $@ clean html"
 	@echo "open your browser: firefox docs/build/html/index.html"
