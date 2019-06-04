@@ -25,7 +25,7 @@ import csv
 import datetime as dt
 import six
 import xarray as xr
-from .rv import RVFile, RV, RVI, isinstance_namedtuple
+from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost
 import numpy as np
 import shutil
 
@@ -65,17 +65,16 @@ class Raven:
                        'evspsbl': ['pet', 'evap', 'evapotranspiration'],
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
                        }
-    _parallel_parameters = ['params', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id', 'hrus']
+    _parallel_parameters = ['params', 'nc_index', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id',
+                            'hrus']
 
-    def __init__(self, workdir=None, test=False):
+    def __init__(self, workdir=None):
         """Initialize the RAVEN model.
 
         Parameters
         ----------
         workdir : str, Path
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
-        test : book
-          If True, copies the random number seed file (only for Ostrich).
         """
         workdir = workdir or tempfile.mkdtemp()
 
@@ -87,7 +86,6 @@ class Raven:
         self.ind_outputs = {}  # Individual files for all simulations
         self.outputs = {}  # Aggregated files
         self.singularity = False  # Set to True to launch Raven with singularity.
-        self.test = test
         self.raven_exec = raven.raven_exec
         self.raven_simg = raven.raven_simg
         self.ostrich_exec = raven.ostrich_exec
@@ -111,6 +109,7 @@ class Raven:
         self.exec_path = self.workdir / 'exec'
         self.final_path = self.workdir / self.final_dir
         self._psim = 0
+        self._pdim = None  # Parallel dimension (either params or nbasins)
 
     @property
     def output_path(self):
@@ -242,6 +241,8 @@ class Raven:
 
         for rvf in self.rvfiles:
             p = self.exec_path if rvf.is_tpl else self.model_path
+            if rvf.stem == 'OstRandomNumbers' and isinstance(self.txt, Ost) and self.txt.random_seed == "":
+                continue
             rvf.write(p, **params)
 
     def setup(self, overwrite=False):
@@ -283,9 +284,11 @@ class Raven:
           Run index.
         """
         # Match the input files
-        files, var_names = self._assign_files(ts, self.rvt.keys())
+        files, var_names, dimensions = self._assign_files(ts)
         self.rvt.update(files, force=True)
-        self.rvd.update(var_names, force=True)
+        self.rvt.update(var_names, force=True)
+        if dimensions:
+            self.rvt.update({'nc_dimensions': dimensions}, force=True)
 
         # Compute derived parameters
         self.derived_parameters()
@@ -337,7 +340,7 @@ class Raven:
         if isinstance(ts, (six.string_types, Path)):
             ts = [ts, ]
 
-        # Special case for parallel parameters
+        # Case for potentially parallel parameters
         pdict = {}
         for p in self._parallel_parameters:
             a = kwds.pop(p, None)
@@ -347,8 +350,11 @@ class Raven:
             else:
                 pdict[p] = np.atleast_1d(a)
 
-        # Number of parallel loops is dictated by the number of parameters
-        nloops = len(pdict['params'])
+        # Number of parallel loops is dictated by the number of parameters or nc_index.
+        nloops = max(len(pdict['params']), len(pdict['nc_index']))
+        if nloops > 1:
+            self._pdim = 'nbasins' if len(pdict['nc_index']) > 1 else 'params'
+
         for key, val in pdict.items():
             if len(val) not in [1, nloops]:
                 raise ValueError("Parameter {} has incompatible dimension: {}. "
@@ -359,7 +365,7 @@ class Raven:
             if len(val) == 1:
                 pdict[key] = val.repeat(nloops, axis=0)
 
-        # Update parameter objects
+        # Update non-parallel parameter objects
         for key, val in kwds.items():
 
             if key in self._rvext:
@@ -377,6 +383,7 @@ class Raven:
         if self.rvi:
             self.handle_date_defaults(ts)
 
+        # Loop over parallel parameters
         procs = []
         for self.psim in range(nloops):
             for key, val in pdict.items():
@@ -396,7 +403,7 @@ class Raven:
             proc.wait()
             # Julie: For debugging
             # for line in iter(proc.stdout.readline, b''):
-            #     print(line)
+            #    print(line)
         try:
             self.parse_results()
 
@@ -444,9 +451,8 @@ class Raven:
         if name.endswith('.nc') and not isinstance(self, raven.models.RavenMultiModel):
             ds = [xr.open_dataset(fn) for fn in files]
             try:
-                # We aggregate along the params dimensions.
-                # Hard-coded for now.
-                out = xr.concat(ds, 'params', data_vars='different')
+                # We aggregate along the pdim dimensions.
+                out = xr.concat(ds, self._pdim, data_vars='different')
                 out.to_netcdf(outfn)
                 return outfn
             except (ValueError, KeyError):
@@ -469,16 +475,13 @@ class Raven:
             out += f.read_text()
         return out
 
-    def _assign_files(self, fns, variables):
+    def _assign_files(self, fns):
         """Find for each variable the file storing it's data and the name of the netCDF variable.
 
         Parameters
         ----------
         fns : sequence
           Paths to netCDF files.
-        variables : sequence
-          Names of the variables to look for. Specify their CF standard name, a dictionary of
-          alternative names will be used for the lookup.
 
         Returns
         -------
@@ -489,22 +492,40 @@ class Raven:
         """
         files = {}
         var_names = {}
+        dimensions = {}
+        shape = {}
 
         for fn in fns:
             if '.nc' in fn.suffix:
                 with xr.open_dataset(fn) as ds:
-                    for var in variables:
-                        for alt_name in self._variable_names[var]:
+                    for var, alt_names in self._variable_names.items():
+                        if var not in self.rvt.keys():
+                            continue
+                        for alt_name in alt_names:
                             if alt_name in ds.data_vars:
                                 files[var] = fn
                                 var_names[var + '_var'] = alt_name
+                                dimensions[var] = ds[alt_name].dims
+                                shape[var] = ds[alt_name].shape
                                 break
 
-        for var in variables:
-            if var not in files.keys():
+        for var in self._variable_names.keys():
+            if var in self.rvt.keys() and var not in files.keys():
                 raise ValueError("{} not found in files.".format(var))
 
-        return files, var_names
+        sdims = set(dimensions.values())
+        if len(sdims) == 0:
+            dims = None
+        if len(sdims) == 1:
+            dims = sdims.pop()
+        if len(sdims) > 1:
+            raise AttributeError("All forcing variables should have the same dimensions.")
+
+        sh = set(shape.values())
+        if len(sh) > 1:
+            raise AttributeError("All forcing variables should have the same shape.")
+
+        return files, var_names, dims
 
     def _get_output(self, pattern, path):
         """Match actual output files to known expected files.
@@ -703,10 +724,6 @@ class Ostrich(Raven):
         """
         Raven.setup(self, overwrite)
 
-        if 'OstRandomNumbers' in [f.stem for f in self.rvfiles]:
-            if not (self.test or os.environ.get('TEST_OSTRICH', None) == '1'):
-                os.remove(self.exec_path / 'OstRandomNumbers.txt')
-
         os.makedirs(str(self.final_path), exist_ok=True)
 
         self.write_ostrich_runs_raven()
@@ -727,7 +744,7 @@ class Ostrich(Raven):
 
         # Store output file names in dict
         for key, pattern in patterns.items():
-            self.outputs[key] = str(self._get_output(pattern, path=self.exec_path)[0])
+            self.outputs[key] = self._get_output(pattern, path=self.exec_path)[0]
 
     def parse_errors(self):
         try:

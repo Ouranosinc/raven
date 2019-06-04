@@ -108,4 +108,3 @@ class TestRavenGR4JCemaNeigeProcess:
         tmp_file, _ = urlretrieve(get_output(resp.xml)['hydrograph'])
         ds = xr.open_dataset(tmp_file)
         assert ds.variables['q_sim'].shape[0] == 2
-

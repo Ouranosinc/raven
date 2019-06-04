@@ -14,7 +14,6 @@ from raven.processes import OstrichHBVECProcess
 class TestOstrichHBVECProcess:
 
     def test_simple(self):
-        os.environ['TEST_OSTRICH'] = '1'
         client = client_for(Service(processes=[OstrichHBVECProcess(), ], cfgfiles=CFG_FILE))
 
         params = '0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.5060520, 3.438486, \
@@ -40,6 +39,7 @@ class TestOstrichHBVECProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
+                     "random_seed=0" \
             .format(ts=TESTDATA['ostrich-hbv-ec-nc-ts'],
                     algorithm='DDS',
                     max_iterations=10,
@@ -73,10 +73,10 @@ class TestOstrichHBVECProcess:
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -2.842420E-01, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, -2.67594E-01, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2010 would be RMSE=????)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 58.7157, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 58.3339, 4, err_msg='RMSE is not matching expected value')

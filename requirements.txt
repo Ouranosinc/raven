@@ -1,12 +1,16 @@
 six
 pywps>=4.2
+owslib>=0.17
+lxml
 jinja2
 click
 psutil
 numpy
 scipy
+matplotlib
 xarray
 pandas
+requests
 netCDF4
 dask
 pathlib

@@ -145,6 +145,50 @@ class RV(collections.Mapping):
                 self[key] = val
 
 
+class RVT(RV):
+    def __init__(self, **kwargs):
+        self._nc_index = None
+        self._nc_dimensions = None
+
+        super(RVT, self).__init__(**kwargs)
+
+    @property
+    def nc_index(self):
+        if self._nc_index is not None:
+            return str(self._nc_index + 1)
+        return None
+
+    @nc_index.setter
+    def nc_index(self, value):
+        self._nc_index = value
+
+    @property
+    def nc_dimensions(self):
+        """Return dimensions as Raven expects it:
+        - time
+        - station time
+        - lon lat time
+        """
+        dims = list(self._nc_dimensions)
+
+        # Move the time dimension at the end
+        dims.remove('time')
+        dims.append('time')
+
+        return ' '.join(dims)
+
+    @nc_dimensions.setter
+    def nc_dimensions(self, value):
+        if 'time' not in value:
+            raise ValueError("Raven expects a time dimension.")
+
+        self._nc_dimensions = value
+
+        # If there is no spatial dimension, set the index to 1.
+        if self.nc_index is None and len(value) == 1:
+            self.nc_index = 1
+
+
 class RVI(RV):
     def __init__(self, **kwargs):
         self.name = None
@@ -259,8 +303,7 @@ class RVI(RV):
 class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
-        self.random_seed = None
-        self._comment_random = '#'
+        self._random_seed = None
 
         super(Ost, self).__init__(**kwargs)
 
@@ -277,16 +320,16 @@ class Ost(RV):
 
     @property
     def random_seed(self):
-        return self._random_seed
+        if self._random_seed is not None:
+            return "RandomSeed {}".format(self._random_seed)
+        return ""
 
     @random_seed.setter
     def random_seed(self, value):
-        self._random_seed = value
-        self._comment_random = '#' if value is None else ''
-
-    @property
-    def comment_random(self):
-        return self._comment_random
+        if value >= 0:
+            self._random_seed = value
+        else:
+            self._random_seed = None
 
 
 def isinstance_namedtuple(x):

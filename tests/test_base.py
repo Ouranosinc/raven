@@ -60,7 +60,7 @@ class TestOstrich:
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
         ost = TESTDATA['ostrich-gr4j-cemaneige-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
@@ -76,7 +76,7 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [2.423961 ,   3.758972 , 204.3856   ,   5.866946 ,  16.60408  ,0.3728098], 4,
+        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
         np.testing.assert_almost_equal(opt_func, -0.486033, 4,
                                        err_msg='calibrated NSE is not matching expected value')
@@ -97,7 +97,7 @@ class TestOstrich:
         ts = TESTDATA['raven-mohyse-nc-ts']
         ost = TESTDATA['ostrich-mohyse-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
@@ -138,7 +138,7 @@ class TestOstrich:
         ts = TESTDATA['raven-hmets-nc-ts']
         ost = TESTDATA['ostrich-hmets-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)
@@ -154,12 +154,12 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [ 1.806003e+01,  3.510955e+00,  1.195340e+01,  1.413509e+00,
-                                                   1.662893e+01,  1.794244e+01, -2.226484e-01,  1.391220e-01,
-                                                   5.429963e-02,  2.361525e-01,  2.706042e-02, -4.562373e+00,
-                                                   6.481391e-01,  5.493992e-01,  2.509283e+00,  4.213560e-01,
-                                                   1.784870e-02,  7.768531e-02,  4.568809e-03,  1.147092e-01,
-                                                   4.028124e-01], 4,
+        np.testing.assert_almost_equal(opt_para, [1.806003e+01, 3.510955e+00, 1.195340e+01, 1.413509e+00,
+                                                  1.662893e+01, 1.794244e+01, -2.226484e-01, 1.391220e-01,
+                                                  5.429963e-02, 2.361525e-01, 2.706042e-02, -4.562373e+00,
+                                                  6.481391e-01, 5.493992e-01, 2.509283e+00, 4.213560e-01,
+                                                  1.784870e-02, 7.768531e-02, 4.568809e-03, 1.147092e-01,
+                                                  4.028124e-01], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
         np.testing.assert_almost_equal(opt_func, 2.2878, 4,
                                        err_msg='calibrated NSE is not matching expected value')
@@ -186,7 +186,7 @@ class TestOstrich:
         ts = TESTDATA['raven-hbv-ec-nc-ts']
         ost = TESTDATA['ostrich-hbv-ec-rv']
 
-        model = Ostrich(test=True)
+        model = Ostrich()
         model.configure(ost)
         print(model.exec_path)
         model(ts)

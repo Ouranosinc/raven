@@ -114,4 +114,3 @@ class TestRavenHMETSProcess:
         ds = xr.open_dataset(tmp_file)
 
         assert ds.variables['q_sim'].shape[0] == 3
-

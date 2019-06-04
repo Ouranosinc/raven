@@ -5,6 +5,7 @@ channels:
 - defaults
 dependencies:
 - pywps>=4.2
+- owslib>=0.17
 - poppler
 - jinja2
 - click
@@ -25,6 +26,7 @@ dependencies:
 - shapely
 - bumpversion
 - statsmodels
+- matplotlib
 - pip:
   - spotpy
   - pysheds
