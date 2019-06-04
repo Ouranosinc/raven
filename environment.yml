@@ -6,6 +6,7 @@ channels:
 dependencies:
 - pip
 - pywps>=4.2
+- unidecode
 - owslib>=0.17
 - poppler
 - jinja2
@@ -33,4 +34,7 @@ dependencies:
   - spotpy
   - pysheds
   - geojson
-  # - pycrs
+  # - pycrs:
+  - -e git+https://github.com/Ouranosinc/xclim.git@e0c7175#egg=xclim
+
+

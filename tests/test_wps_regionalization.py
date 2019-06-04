@@ -9,6 +9,7 @@ from .common import client_for, TESTDATA, get_output, urlretrieve, CFG_FILE
 import xarray as xr
 import json
 
+
 datainputs = "ts=files@xlink:href=file://{ts};" \
              "start_date={start_date};" \
              "end_date={end_date};" \
