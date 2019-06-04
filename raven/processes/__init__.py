@@ -46,6 +46,6 @@ processes = [
     TSStatsProcess(),
     FreqAnalysisProcess(),
     BaseFlowIndexProcess(),
-    # RegionalisationProcess(),
     GraphIndicatorAnalysis(),
+    RegionalisationProcess(),
 ]

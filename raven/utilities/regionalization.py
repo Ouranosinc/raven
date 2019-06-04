@@ -10,11 +10,11 @@ import xarray as xr
 from raven.models import get_model
 from . import coords
 import logging
+
 LOGGER = logging.getLogger("PYWPS")
 
-
 # Added directory for test data (smaller database wth only 10 donor catchments)
-DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data' / 'tests'
+DATA_DIR = Path(__file__).parent.parent.parent / 'tests' / 'testdata' / 'regionalisation_data'
 
 
 def regionalize(method, model, nash, params=None, props=None, target_props=None, size=5,
@@ -138,7 +138,7 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
     return qsim, ens
 
 
-def read_gauged_properties():
+def read_gauged_properties(properties):
     """Return table of gauged catchments properties over North America.
 
     Returns
@@ -146,8 +146,10 @@ def read_gauged_properties():
     pd.DataFrame
       Catchment properties keyed by catchment ID.
     """
-    return pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
-                       index_col='ID')
+    proptable = pd.read_csv(DATA_DIR / 'gauged_catchment_properties.csv',
+                            index_col='ID')
+
+    return proptable[properties]
 
 
 def read_gauged_params(model):
@@ -287,42 +289,6 @@ def regionalization_params(method, gauged_params, gauged_properties, ungauged_pr
         out = gauged_params.values
 
     return out
-
-
-def get_ungauged_properties(latitude, longitude):
-    """
-    Return the properties of the watershed whose outlet location is given.
-
-    Parameters
-    ----------
-    latitude : float
-      Coordinate of the catchment's outlet.
-    longitude : float
-      Coordinate of the catchment's outlet.
-
-    Returns
-    -------
-    dict
-      Catchment properties: area, mean elevation, centroid latitude and longitude, average slope, ...
-    """
-
-    # Read the netCDF file
-    # nc_file = Dataset(inputs_file[0], 'r')
-
-    """
-    # For now, until we test for real and pass the parameter
-    properties_to_use = ['latitude',
-                         'longitude',
-                         'area',
-                         'avg_elevation',
-                         'avg_slope',
-                         'land_forest',
-                         'land_grass',
-                         'land_impervious',
-                         'land_urban']
-    """
-
-    return {'latitude': latitude, 'longitude': longitude}
 
 
 def IDW(qsims, dist):
