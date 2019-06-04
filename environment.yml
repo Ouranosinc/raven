@@ -5,6 +5,7 @@ channels:
 - defaults
 dependencies:
 - pywps>=4.2
+- unidecode
 - owslib>=0.17
 - poppler
 - jinja2
@@ -25,9 +26,12 @@ dependencies:
 - rtree
 - shapely
 - bumpversion
+- scipy<1.3
 - statsmodels
 - matplotlib
+- pip
 - pip:
   - spotpy
   - pysheds
-  # - pycrs
+  # - pycrs:
+  - -e git+https://github.com/Ouranosinc/xclim.git@e0c7175#egg=xclim

@@ -6,9 +6,9 @@ from .common import TESTDATA
 def test_regionalization():
     model = 'GR4JCN'
     nash, params = reg.read_gauged_params(model)
-    variables = ['longitude', 'latitude']
-    props = reg.read_gauged_properties()[variables]
-    ungauged_props = {'longitude': .7, 'latitude': .7}
+    variables = ['latitude', 'longitude', 'area', 'forest']
+    props = reg.read_gauged_properties(variables)
+    ungauged_props = {'latitude': 40.4848, 'longitude': -103.3659, 'area': 4250.6, 'forest': 0.4}
 
     qsim, ens = reg.regionalize('SP_IDW', model, nash, params,
                                 props, ungauged_props,
