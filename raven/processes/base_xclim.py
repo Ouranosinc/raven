@@ -44,7 +44,7 @@ class _XclimIndicatorProcess(Process):
             ComplexOutput('output', 'Function output in netCDF',
                           abstract="The indicator values computed on the original input grid.",
                           as_reference=True,
-                          supported_formats=[FORMATS.DODS, FORMATS.NETCDF]
+                          supported_formats=[FORMATS.NETCDF]
                           ),
 
             ComplexOutput('output_log', 'Logging information',
@@ -142,25 +142,30 @@ class _XclimIndicatorProcess(Process):
         kwds = {}
         LOGGER.debug("received inputs: " + ", ".join(request.inputs.keys()))
         for name, input_queue in request.inputs.items():
-            input = input_queue[0]
             LOGGER.debug(input_queue)
-            if isinstance(input, ComplexInput):
-                ds = self.try_opendap(input)
+            values = []
 
-                if name in ds.data_vars:
-                    kwds[name] = ds.data_vars[name]
-                elif 'variable' in request.inputs:
-                    kwds[name] = ds.data_vars[request.inputs['variable'][0].data]
-                else:
-                    for key, val in ds.data_vars.items():
-                        kwds[name] = val
-                        break
+            for input in input_queue:
+                if isinstance(input, ComplexInput):
+                    ds = self.try_opendap(input)
 
-            elif isinstance(input, LiteralInput):
-                LOGGER.debug(input.data)
-                if name == 'variable':
-                    continue
-                kwds[name] = input.data
+                    if name in ds.data_vars:
+                        value = ds.data_vars[name]
+                    elif 'variable' in request.inputs:
+                        value = ds.data_vars[request.inputs['variable'][0].data]
+                    else:
+                        for key, val in ds.data_vars.items():
+                            value = val
+                            break
+
+                elif isinstance(input, LiteralInput):
+                    LOGGER.debug(input.data)
+                    value = input.data
+
+                values.append(value)
+
+            kwds[name] = values.pop() if len(values) == 1 else values
+            kwds.pop('variable', None)
 
         self.write_log("Running computation")
         LOGGER.debug(kwds)
@@ -257,6 +262,7 @@ def make_t(name, abstract=''):
                         abstract=abstract,
                         data_type='integer',
                         min_occurs=1,
+                        max_occurs=100,
                         )
 
 
