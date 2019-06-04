@@ -33,5 +33,5 @@ def test_wps_caps():
                   'objective-function',
                   'graph_ensemble_uncertainty',
                   'graph_single_hydrograph',
-                  # 'regionalisation',
+                  'regionalisation',
                   }

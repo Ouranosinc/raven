@@ -1,25 +1,16 @@
-import xarray as xr
 from . import wpsio as wio
 import logging
-from pywps import Process, LiteralInput
+from pywps import LiteralInput, ComplexInput, FORMATS
+import json
 from pathlib import Path
 from raven.utilities import regionalize, read_gauged_properties, read_gauged_params
 from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
-# TODO: latitude and longitude have a different meaning here if we're using them to get the catchment properties.
-#  Normally for other WPS Raven processes, they refer to the centroid, here they'd refer to the outlet, correct ?
-#  ANSWER: No, we're still talking about the centroid! basically the closer the center of mass of the catchment, the
-#          more likely the catchments will be physically and hydrologically similar, according to the philosophy
-#          behind the method.
-# But I mean in this process, aren't we passing lat, lon to extract properties for a new watershed? And then we'll
-# extract the centroid lat and lon for the analysis.
-
 
 class RegionalisationProcess(RavenProcess):
     """
-    TODO: Include a description of each method.
     Notes
     -----
     The available regionalization methods are:
@@ -84,11 +75,18 @@ class RegionalisationProcess(RavenProcess):
                            default=0.6,
                            min_occurs=0)
 
+    properties = ComplexInput('properties', 'Regionalization properties',
+                              abstract="json string storing dictionary of properties.",
+                              min_occurs=1,
+                              max_occurs=1,
+                              supported_formats=[FORMATS.JSON, ])
+
+    
     inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
-              wio.model_name, ndonors, min_NSE, method]
+              wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
 
     outputs = [wio.hydrograph, wio.ensemble]
-
+    
     def _handler(self, request, response):
         response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
@@ -99,23 +97,18 @@ class RegionalisationProcess(RavenProcess):
         latitude = request.inputs.pop('latitude')[0].data
         longitude = request.inputs.pop('longitude')[0].data
         min_NSE = request.inputs.pop('min_NSE')[0].data
+        properties = request.inputs.pop('properties')[0].data
+        properties = json.loads(properties)
 
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
-
+        
         nash, params = read_gauged_params(model_name)
-        variables = ['longitude', 'latitude']
-        props = read_gauged_properties()[variables]
+        props = read_gauged_properties(properties)
 
-        # TODO: Replace by function determining catchment properties from DEM and land use file and Hydrosheds data.
-        def get_catchment_properties(lat, lon):
-            return {'longitude': .7, 'latitude': .7, 'area': '4250.6', 'elevation': '843.0'}
-
-        catchment_props = get_catchment_properties(latitude, longitude)
-        properties = ['longitude', 'latitude']
-        ungauged_props = {key: catchment_props[key] for key in properties}
-        kwds.update(catchment_props)
+        ungauged_props = {key: properties[key] for key in properties}
+        #kwds.update(properties) # This fails as properties are not part of the Raven keywords (i.e. "forest")
 
         qsim, ensemble = regionalize(method, model_name, nash, params,
                                      props, ungauged_props,
