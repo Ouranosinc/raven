@@ -12,8 +12,8 @@ class TestShapeSelectionProcess:
 
         fields = [
             'location={location}',
-            #'level={level}',
-            #'lakes={lakes}',
+            # 'level={level}',
+            # 'lakes={lakes}',
             'aggregate_upstream={aggregate_upstream}',
         ]
 
@@ -37,8 +37,8 @@ class TestShapeSelectionProcess:
 
         fields = [
             'location={location}',
-            #'level={level}',
-            #'lakes={lakes}',
+            # 'level={level}',
+            # 'lakes={lakes}',
             'aggregate_upstream={aggregate_upstream}',
         ]
 
@@ -76,8 +76,8 @@ class TestShapeSelectionProcess:
 
         fields = [
             'location={location}',
-            #'level={level}',
-            #'lakes={lakes}',
+            # 'level={level}',
+            # 'lakes={lakes}',
             'aggregate_upstream={aggregate_upstream}',
         ]
 

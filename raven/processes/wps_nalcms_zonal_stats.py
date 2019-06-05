@@ -168,11 +168,10 @@ class NALCMSZonalStatisticsProcess(Process):
                     lu[v] += prop.pop(k, 0)
 
                 prop['land-use'] = lu
-                #prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
+                # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
             feature_collect = {'type': 'FeatureCollection', 'features': stats}
             response.outputs['statistics'].data = json.dumps(feature_collect)
-
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
