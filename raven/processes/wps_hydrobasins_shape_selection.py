@@ -7,6 +7,7 @@ import fiona
 import geopandas as gpd
 from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
+from pywps.exceptions import InvalidParameterValue
 
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
@@ -16,7 +17,7 @@ from raven.utils import crs_sniffer
 LOGGER = logging.getLogger("PYWPS")
 
 
-class ShapeSelectionProcess(Process):
+class HydroShedsSelectionProcess(Process):
     """Given lat/lon coordinates and a file containing vector data, return the feature containing the coordinates."""
 
     def __init__(self):
@@ -24,25 +25,23 @@ class ShapeSelectionProcess(Process):
             LiteralInput('location', 'Location coordinates (lon, lat)',
                          abstract="Location coordinates (longitude, latitude) for point of interest.",
                          data_type='string',
-                         default='-68.724444, 50.646667',
-                         min_occurs=1,
-                         max_occurs=1),
-            LiteralInput('level', 'Resolution level of HydroBASINS Shapes',
-                         data_type='integer',
-                         default=12,
-                         allowed_values=[7, 8, 9, 10, 11, 12],
-                         min_occurs=1,
-                         max_occurs=1),
-            LiteralInput('lakes', 'Use the HydroBASINS version that includes lake outlines',
-                         data_type='boolean',
-                         default='true',
-                         min_occurs=1,
-                         max_occurs=1),
+                         ),
+            # LiteralInput('level', 'Resolution level of HydroBASINS Shapes',
+            #              data_type='integer',
+            #              default=12,
+            #              allowed_values=[7, 8, 9, 10, 11, 12],
+            #              min_occurs=0,
+            #              max_occurs=1),
+            # LiteralInput('lakes', 'Use the HydroBASINS version that includes lake outlines',
+            #              data_type='boolean',
+            #              default='true',
+            #              min_occurs=0,
+            #              max_occurs=1),
             LiteralInput('aggregate_upstream',
                          'Attempt to capture both the containing basin and all tributary basins from point',
                          data_type='boolean',
                          default='false',
-                         min_occurs=1,
+                         min_occurs=0,
                          max_occurs=1),
         ]
 
@@ -56,12 +55,12 @@ class ShapeSelectionProcess(Process):
                           supported_formats=[FORMATS.JSON])
         ]
 
-        super(ShapeSelectionProcess, self).__init__(
+        super(HydroShedsSelectionProcess, self).__init__(
             self._handler,
-            identifier="shape-selection",
-            title="Shape Selection",
+            identifier="hydrosheds-select",
+            title="Select an HydroSheds watershed",
             version="1.0",
-            abstract="Return a feature within a polygon vector file based on lon/lat coordinates.",
+            abstract="Return a watershed from the HydroSheds database as a polygon vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -70,8 +69,8 @@ class ShapeSelectionProcess(Process):
 
     def _handler(self, request, response):
 
-        level = request.inputs['level'][0].data
-        lakes = request.inputs['lakes'][0].data
+        level = 12  # request.inputs['level'][0].data
+        lakes = True  #request.inputs['lakes'][0].data
         collect_upstream = request.inputs['aggregate_upstream'][0].data
         lonlat = request.inputs['location'][0].data
 
@@ -87,9 +86,12 @@ class ShapeSelectionProcess(Process):
 
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
+
         hybas_bytes = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
         with open(shape_url, 'w') as f:
             f.write(hybas_bytes)
+
+        response.update_status('Found downstream watershed', status_percentage=10)
 
         extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
@@ -108,7 +110,7 @@ class ShapeSelectionProcess(Process):
                 main_bas = feat['properties']['MAIN_BAS']
 
                 if lakes is False or level != 12:
-                    raise ValueError("Set lakes to True and level to 12.")
+                    raise InvalidParameterValue("Set lakes to True and level to 12.")
 
                 # Collect features from GeoServer
                 region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
@@ -132,7 +134,8 @@ class ShapeSelectionProcess(Process):
                 gdf = gpd.read_file(upfile)
                 agg = gis.hydrobasins_aggregate(gdf)
 
-                response.outputs['feature'].data = agg.to_json()
+                feat = json.loads(agg.to_json())['features'][0]
+                response.outputs['feature'].data = json.dumps(feat)
                 response.outputs['upstream_ids'].data = json.dumps(up['HYBAS_ID'].tolist())
 
             else:
