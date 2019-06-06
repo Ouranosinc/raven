@@ -23,6 +23,9 @@ WORKDIR /opt/wps
 # Install WPS
 RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
 
+RUN make raven_dev
+RUN make ostrich_dev
+
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
 ENTRYPOINT ["/bin/bash", "-c"]
