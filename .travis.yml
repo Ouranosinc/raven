@@ -5,7 +5,7 @@ matrix:
   include:
     - os: osx
       python: "3.5"
-      name: "macOS"
+      name: "macOS (Python3.5)"
       env:
         - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - os: linux
@@ -21,12 +21,19 @@ matrix:
       env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
         - PEP8=true
+    - os: linux
+      name: "Linux (Python3.5 + docs)"
+      python: "3.5"
+      dist: xenial
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - DOCS=true
 branches:
   only:
     - master
 sudo: false
 before_install:
-  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev; else brew install netcdf; fi
+  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev pandoc; else brew install netcdf pandoc; fi
 install:
   - make install
   - make start
@@ -46,4 +53,5 @@ before_script:
   - sleep 2
 script:
   - make test
+  - if [[ $DOCS = true ]]; then make docs; fi
   - if [[ $PEP8 = true ]]; then make pep8; fi
