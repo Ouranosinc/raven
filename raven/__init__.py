@@ -8,7 +8,7 @@ import warnings
 
 __author__ = """David Huard"""
 __email__ = 'huard.david@ouranos.ca'
-__version__ = '0.6.2'
+__version__ = '0.6.3'
 
 raven_exec = Path(__file__).parent.parent / 'bin' / 'raven'
 if not raven_exec.exists():
