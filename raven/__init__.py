@@ -20,6 +20,6 @@ if not ostrich_exec.exists():
 
 raven_simg = Path(__file__).parent.parent / 'bin' / 'hydro-raven-latest.simg'
 if not raven_simg.exists():
-     warnings.warn("The Raven Singularity image has not been downloaded. Execute \n"
+    warnings.warn("The Raven Singularity image has not been downloaded. Execute \n"
                   "$ singularity pull shub://132.217.141.54/hydro/raven:latest \n"
                   "and store the image in raven/bin/")
