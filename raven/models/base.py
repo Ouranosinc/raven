@@ -746,6 +746,8 @@ class Ostrich(Raven):
         for key, pattern in patterns.items():
             self.outputs[key] = self._get_output(pattern, path=self.exec_path)[0]
 
+        self.outputs['calibparams'] = self.calibrated_params
+
     def parse_errors(self):
         try:
             raven_err = self._get_output('OstExeOut.txt', path=self.exec_path)[0].read_text()
