@@ -1,8 +1,8 @@
 version: '3'
 services:
-  emu:
+  raven:
     build: .
-    image: huard/raven
+    image: local_raven
     ports:
       - "9099:9099"
 
