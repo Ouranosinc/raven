@@ -320,7 +320,17 @@ class TestHMETS_OST:
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -6.350490E-01, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
-
+        hmets = HMETS()
+        hmets(ts,
+              start_date=dt.datetime(1954, 1, 1),
+              duration=208,
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=opt_para,
+              )
+        np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'])
 
 class TestMOHYSE:
 
