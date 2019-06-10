@@ -277,7 +277,7 @@ class TestHMETS_OST:
 
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.2878, 4)
 
-        opt_para = model.calibrated_params
+        opt_para = model.optimized_parameters
         opt_func = model.obj_func
 
         # # Random number seed: 123
@@ -328,9 +328,9 @@ class TestHMETS_OST:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              params=opt_para,
+              params=model.calibrated_params,
               )
-        np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'])
+        np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
 
 class TestMOHYSE:
 
@@ -388,7 +388,7 @@ class TestMOHYSE_OST():
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.3826810, 4)
 
-        opt_para = model.calibrated_params
+        opt_para = model.optimized_parameters
         opt_func = model.obj_func
 
         # # Random number seed: 123

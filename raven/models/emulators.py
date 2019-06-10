@@ -114,6 +114,28 @@ class HMETS_OST(Ostrich, HMETS):
         """Derived parameters are computed by Ostrich."""
         pass
 
+    def ost2raven(self, ops):
+        """Return a list of parameter names calibrated by Ostrich that match Raven's parameters.
+
+        Parameters
+        ----------
+        ops: dict
+          Optimal parameter set returned by Ostrich.
+
+        Returns
+        -------
+        HMETSParams named tuple
+          Parameters expected by Raven.
+        """
+        names = ['par_x{:02}'.format(i) for i in range(1, 22)]
+        names[5] = 'par_sum_x05_x06'
+        names[9] = 'par_sum_x09_x10'
+
+        out = [ops[n] for n in names]
+        out[19] *= 1000
+        out[20] *= 1000
+        return self.params(*out)
+
 
 class HBVEC(GR4JCN):
     identifier = 'hbvec'
