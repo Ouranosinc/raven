@@ -2,7 +2,7 @@ version: '3'
 services:
   raven:
     build: .
-    image: pavics/raven
+    image: local_raven
     ports:
       - "9099:9099"
 
