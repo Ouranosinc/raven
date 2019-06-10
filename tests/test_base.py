@@ -93,6 +93,7 @@ class TestOstrich:
 
         assert Path(model.outputs['calibration']).exists()
 
+
     def test_mohyse_with_no_tags(self):
         ts = TESTDATA['raven-mohyse-nc-ts']
         ost = TESTDATA['ostrich-mohyse-rv']
