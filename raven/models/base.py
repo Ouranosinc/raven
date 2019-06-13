@@ -775,7 +775,7 @@ class Ostrich(Raven):
         ops = re.search(r'.*Optimal Parameter Set(.*?)\n{2}', txt, re.DOTALL).groups()[0]
 
         p = re.findall('(\w+)\s*:\s*([\S]+)', ops)
-        return OrderedDict((k, float(v)) for k,v in p)
+        return OrderedDict((k, float(v)) for k, v in p)
 
     def ost2raven(self, ops):
         """Return model parameters.
@@ -788,7 +788,7 @@ class Ostrich(Raven):
         if hasattr(self, 'params'):
             n = len(self.params._fields)
             pattern = 'par_x{}' if n < 8 else 'par_x{:02}'
-            names = [pattern.format(i+1) for i in range(n)]
+            names = [pattern.format(i + 1) for i in range(n)]
             return self.params(*(ops[n] for n in names))
         else:
             return ops.values()
