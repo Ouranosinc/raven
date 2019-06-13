@@ -294,9 +294,7 @@ def multipolygon_check(f):
            :params *args: shapely.geometry
            """
         if isinstance(type(args[0]), sgeo.multipolygon.MultiPolygon):
-            print('BLAHA')
             LOGGER.warning("Shape is a Multipolygon.")
-        print('ok!')
         f(*args, **kwargs)
     return wrapper
 
