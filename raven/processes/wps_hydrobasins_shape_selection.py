@@ -58,7 +58,7 @@ class HydroShedsSelectionProcess(Process):
         super(HydroShedsSelectionProcess, self).__init__(
             self._handler,
             identifier="hydrosheds-select",
-            title="Select an HydroSheds watershed",
+            title="Select a HydroBASINS watershed geometry",
             version="1.0",
             abstract="Return a watershed from the HydroSheds database as a polygon vector file.",
             metadata=[],
@@ -113,9 +113,10 @@ class HydroShedsSelectionProcess(Process):
                     raise InvalidParameterValue("Set lakes to True and level to 12.")
 
                 # Collect features from GeoServer
+                response.update_status('Collecting relevant features', status_percentage=70)
+
                 region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                      dir=self.workdir).name
-
                 region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
                                                                 lakes=lakes, level=level)
 
@@ -136,7 +137,7 @@ class HydroShedsSelectionProcess(Process):
 
                 feat = json.loads(agg.to_json())['features'][0]
                 response.outputs['feature'].data = json.dumps(feat)
-                response.outputs['upstream_ids'].data = json.dumps(up['HYBAS_ID'].tolist())
+                response.outputs['upstream_ids'].data = json.dumps(up['id'].tolist())
 
             else:
                 response.outputs['feature'].data = json.dumps(feat)
