@@ -69,9 +69,9 @@ def generic_extract_archive(resources, output_dir=None):
 
     Parameters
     ----------
-    resources: list
+    resources: list(bytes or str or PathLike)
       list of archive files (if netCDF files are in list, they are passed and returned as well in the return).
-    output_dir: str or path
+    output_dir: str or PathLike
       string or Path to a working location (default: temporary folder).
 
     Returns
@@ -288,19 +288,20 @@ def boundary_check(*args, max_y=60, min_y=-60):
 
 
 def multipolygon_check(f):
-    pass
-    # def wrapper(*args, **kwargs):
-    #     """Perform a check to verify a geometry is a MultiPolygon
-    #
-    #        :params *args: shapely.geometry
-    #        """
-    #     if isinstance(type(*args), sgeo.multipolygon.MultiPolygon):
-    #         LOGGER.warning("Shape is a Multipolygon.")
-    #     print('ok!')
-    # return wrapper
+    def wrapper(*args, **kwargs):
+        """Perform a check to verify a geometry is a MultiPolygon
+
+           :params *args: shapely.geometry
+           """
+        if isinstance(type(args[0]), sgeo.multipolygon.MultiPolygon):
+            print('BLAHA')
+            LOGGER.warning("Shape is a Multipolygon.")
+        print('ok!')
+        f(*args, **kwargs)
+    return wrapper
 
 
-# @multipolygon_check
+@multipolygon_check
 def geom_transform(geom, source_crs=WGS84, target_crs=None):
     """Change the projection of a geometry.
 
