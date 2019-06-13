@@ -21,6 +21,7 @@ from .wps_graph_ensemble_uncertainty import GraphEnsUncertaintyProcess
 from .wps_graph_single_hydrograph import GraphSingleHydrographProcess
 from .wps_q_stats import TSStatsProcess, FreqAnalysisProcess, BaseFlowIndexProcess
 from .wps_indicator_analysis import GraphIndicatorAnalysis
+from .wps_graph_objective_function_fit import GraphObjectiveFunctionFitProcess
 
 processes = [
     RavenProcess(),
@@ -48,4 +49,5 @@ processes = [
     BaseFlowIndexProcess(),
     GraphIndicatorAnalysis(),
     RegionalisationProcess(),
+    GraphObjectiveFunctionFitProcess(),
 ]

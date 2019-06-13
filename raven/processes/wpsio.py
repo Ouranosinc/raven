@@ -181,6 +181,11 @@ diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
                                                Format('application/zip', extension='.zip', encoding='base64')],
                             as_reference=True)
 
+calibparams = LiteralOutput('calibparams', 'Calibrated prameters',
+                            abstract='Comma separated list of parameters.',
+                            data_type='string')
+
+
 # --- OSTRICH --- #
 
 algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate model parameters',
