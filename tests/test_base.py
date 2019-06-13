@@ -65,7 +65,7 @@ class TestOstrich:
         print(model.exec_path)
         model(ts)
 
-        opt_para = model.calibrated_params
+        opt_para = model.optimized_parameters
         opt_func = model.obj_func
 
         assert len(opt_para) == 6
@@ -93,7 +93,6 @@ class TestOstrich:
 
         assert Path(model.outputs['calibration']).exists()
 
-
     def test_mohyse_with_no_tags(self):
         ts = TESTDATA['raven-mohyse-nc-ts']
         ost = TESTDATA['ostrich-mohyse-rv']
@@ -103,7 +102,7 @@ class TestOstrich:
         print(model.exec_path)
         model(ts)
 
-        opt_para = model.calibrated_params
+        opt_para = model.optimized_parameters
         opt_func = model.obj_func
 
         assert len(opt_para) == 10
@@ -144,7 +143,7 @@ class TestOstrich:
         print(model.exec_path)
         model(ts)
 
-        opt_para = model.calibrated_params
+        opt_para = model.optimized_parameters
         opt_func = model.obj_func
 
         assert len(opt_para) == 21
@@ -192,7 +191,7 @@ class TestOstrich:
         print(model.exec_path)
         model(ts)
 
-        opt_para = model.calibrated_params
+        opt_para = model.optimized_parameters
         opt_func = model.obj_func
 
         assert len(opt_para) == 21
