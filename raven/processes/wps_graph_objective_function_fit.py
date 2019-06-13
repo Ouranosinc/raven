@@ -16,6 +16,7 @@ from pywps import Process
 
 from raven.utilities.graphs import mean_annual_hydrograph, hydrograph
 
+
 class GraphObjectiveFunctionFitProcess(Process):
     def __init__(self):
         inputs = [ComplexInput('sims', 'NetCDF containing q_sim and q_obs for model calibration fit check.',
@@ -50,8 +51,7 @@ class GraphObjectiveFunctionFitProcess(Process):
 
     def _handler(self, request, response):
         sim_fn = request.inputs['sims'][0].file
-      
-        
+
         # Create and save graphic
         fig = mean_annual_hydrograph([sim_fn])
         fig_fn_annual = Path(self.workdir) / 'graph_objfun_annual_fit.png'

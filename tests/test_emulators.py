@@ -1,11 +1,12 @@
-import pytest
-from . common import TESTDATA, _convert_2d
-from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
-from raven.models import RavenMultiModel
-import tempfile
 import datetime as dt
-import numpy as np
 import os
+import tempfile
+
+import numpy as np
+import pytest
+
+from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
+from .common import TESTDATA, _convert_2d
 
 
 @pytest.fixture
@@ -140,7 +141,6 @@ class TestGR4JCN:
         assert model.hydrograph.dims['params'] == 2
 
     def test_parallel_basins(self, input2d):
-
         ts = input2d
         model = GR4JCN()
         model(ts,
@@ -212,14 +212,14 @@ class TestGR4JCN_OST:
 
         gr4j = GR4JCN()
         gr4j(ts,
-              start_date=dt.datetime(1954, 1, 1),
-              duration=208,
-              area=4250.6,
-              elevation=843.0,
-              latitude=54.4848,
-              longitude=-123.3659,
-              params=opt_para,
-              )
+             start_date=dt.datetime(1954, 1, 1),
+             duration=208,
+             area=4250.6,
+             elevation=843.0,
+             latitude=54.4848,
+             longitude=-123.3659,
+             params=opt_para,
+             )
         np.testing.assert_almost_equal(gr4j.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'])
 
 
@@ -331,6 +331,7 @@ class TestHMETS_OST:
               params=model.calibrated_params,
               )
         np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
+
 
 class TestMOHYSE:
 

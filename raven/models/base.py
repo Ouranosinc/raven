@@ -14,20 +14,22 @@ GR4JCemaneige: The Raven emulator for GR4J-Cemaneige. Uses template configuratio
 automatically filled in.
 
 """
-import raven
-from pathlib import Path
-from collections import OrderedDict, defaultdict
+import csv
+import datetime as dt
 import os
+import shutil
 import stat
 import subprocess
 import tempfile
-import csv
-import datetime as dt
+from collections import OrderedDict
+from pathlib import Path
+
+import numpy as np
 import six
 import xarray as xr
+
+import raven
 from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost
-import numpy as np
-import shutil
 
 
 class Raven:
@@ -95,7 +97,7 @@ class Raven:
         self.rvfiles = []
 
         # Configuration file extensions + rvd for derived parameters.
-        self._rvext = self._rvext + ('rvd', )
+        self._rvext = self._rvext + ('rvd',)
 
         # For subclasses where the configuration file templates are known in advance.
         if self.templates:
@@ -272,7 +274,7 @@ class Raven:
                     "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create general subdirectories
-        os.makedirs(str(self.exec_path))    # workdir/exec
+        os.makedirs(str(self.exec_path))  # workdir/exec
         os.makedirs(str(self.final_path))  # workdir/final
 
     def setup_model_run(self, ts):
@@ -678,7 +680,7 @@ class Ostrich(Raven):
 
     @staticmethod
     def _allowed_extensions():
-        return Raven._allowed_extensions() + ('txt', )
+        return Raven._allowed_extensions() + ('txt',)
 
     @property
     def ostrich_cmd(self):
@@ -774,7 +776,7 @@ class Ostrich(Raven):
         txt = open(self.outputs['calibration']).read()
         ops = re.search(r'.*Optimal Parameter Set(.*?)\n{2}', txt, re.DOTALL).groups()[0]
 
-        p = re.findall('(\w+)\s*:\s*([\S]+)', ops)
+        p = re.findall(r'(\w+)\s*:\s*([\S]+)', ops)
         return OrderedDict((k, float(v)) for k, v in p)
 
     def ost2raven(self, ops):
