@@ -77,6 +77,7 @@ class Raven:
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
         """
         workdir = workdir or tempfile.mkdtemp()
+        self._createdrvs = []
 
         # Convert rvs into instance attributes, otherwise they'd be instance attributes.
         for rv in self._rvext:
@@ -243,7 +244,8 @@ class Raven:
             p = self.exec_path if rvf.is_tpl else self.model_path
             if rvf.stem == 'OstRandomNumbers' and isinstance(self.txt, Ost) and self.txt.random_seed == "":
                 continue
-            rvf.write(p, **params)
+            fn = rvf.write(p, **params)
+            self._createdrvs.append(fn)
 
     def setup(self, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
@@ -435,6 +437,8 @@ class Raven:
             fns.sort()
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
+
+        self.outputs['rvconfig'] = self._merge_output(self._createdrvs, 'rv.zip')
 
     def _merge_output(self, files, name):
         """Merge multiple output files into one if possible, otherwise return a list of files.
@@ -746,6 +750,8 @@ class Ostrich(Raven):
         for key, pattern in patterns.items():
             self.outputs[key] = self._get_output(pattern, path=self.exec_path)[0]
 
+        self.outputs['calibparams'] = ', '.join(map(str, self.calibrated_params))
+
     def parse_errors(self):
         try:
             raven_err = self._get_output('OstExeOut.txt', path=self.exec_path)[0].read_text()
@@ -762,13 +768,45 @@ class Ostrich(Raven):
 
         return "{}\n{}".format(ost_err, raven_err)
 
+    def parse_optimal_parameter_set(self):
+        """Return dictionary of optimal parameter set."""
+        import re
+        txt = open(self.outputs['calibration']).read()
+        ops = re.search(r'.*Optimal Parameter Set(.*?)\n{2}', txt, re.DOTALL).groups()[0]
+
+        p = re.findall('(\w+)\s*:\s*([\S]+)', ops)
+        return OrderedDict((k, float(v)) for k, v in p)
+
+    def ost2raven(self, ops):
+        """Return model parameters.
+
+        Note
+        ----
+        This method should be subclassed by emulators for which Ostrich has different parameters than the original
+        Raven model.
+        """
+        if hasattr(self, 'params'):
+            n = len(self.params._fields)
+            pattern = 'par_x{}' if n < 8 else 'par_x{:02}'
+            names = [pattern.format(i + 1) for i in range(n)]
+            return self.params(*(ops[n] for n in names))
+        else:
+            return ops.values()
+
     @property
     def calibrated_params(self):
-        return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 2:]
+        """The dictionary of optimal parameters estimated by Ostrich."""
+        ops = self.parse_optimal_parameter_set()
+        return self.ost2raven(ops)
 
     @property
     def obj_func(self):
         return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 1]
+
+    @property
+    def optimized_parameters(self):
+        """These are the raw parameters returned by Ostrich."""
+        return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 2:]
 
 
 def make_executable(fn):

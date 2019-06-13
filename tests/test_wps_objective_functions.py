@@ -3,7 +3,7 @@ import numpy as np
 from pywps import Service
 from pywps.tests import assert_response_success
 
-from raven.processes import ObjectiveFunctionProcess
+from raven.processes import GraphObjectiveFunctionFitProcess, ObjectiveFunctionProcess
 from .common import client_for, TESTDATA, CFG_FILE, get_output
 from raven.models import Raven
 import tempfile
@@ -60,3 +60,18 @@ class TestObjectiveFunctionProcess:
         m = json.loads(out)
 
         np.testing.assert_almost_equal(m['rmse'], gr4j.diagnostics['DIAG_RMSE'], 4)
+
+    def test_wps_graph_objective_function_fit(self,gr4j):
+        client = client_for(Service(processes=[GraphObjectiveFunctionFitProcess(), ], cfgfiles=CFG_FILE)) 
+        
+        datainputs = "sims=files@xlink:href=file://{sims};"\
+                    .format(sims=gr4j.outputs['hydrograph'])
+                     
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='graph_objective_function_fit',
+            datainputs=datainputs)
+
+        assert_response_success(resp)
+        
+        
+        
