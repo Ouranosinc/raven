@@ -73,7 +73,7 @@ class _XclimIndicatorProcess(Process):
         for name, attrs in params.items():
             if name in ['tas', 'tasmin', 'tasmax', 'pr', 'prsn']:
                 inputs.append(make_nc_input(name))
-            if name in ['da', 'q']:
+            if name in ['da', 'q', 'arr']:
                 inputs.append(make_nc_input(name))
                 inputs.append(make_variable())
             elif name in ['tn10', 'tn90', 't10', 't90']:
