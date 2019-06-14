@@ -16,13 +16,12 @@ class RavenHPCProcess(object):
         """
         logger = logging.getLogger(__name__)
 
-
         logger.debug("Creating connection")
         self.hpc_connection = hpc_connection.HPCConnection(connection_cfg_dict)
         self.process_name = process_name
         self.live_job_id = None
-        self.template_path = connection_cfg_dict.get("template_path", "./")
-        self.shub_hostname = connection_cfg_dict.get("SHubHostname", constants.shub_server)
+        self.template_path = constants.template_path
+        self.shub_hostname = constants.shub_server
         self.last_progress = 0
 
     def check_connection(self):
@@ -84,7 +83,7 @@ class RavenHPCProcess(object):
             progressfile = 'out/Raven_progress.txt'
         if self.process_name == 'ostrich':
             progressfile = 'OstProgress0.txt'
-        s = progress = None
+        s = None
         try:
 
 #            s, progress = self.hpc_connection.get_status(self.live_job_id, progressfile)
@@ -112,5 +111,5 @@ class RavenHPCProcess(object):
     def cleanup(self):
 
         # remote
-        # self.hpc_connection.cleanup(self.live_job_id)
-        pass
+        self.hpc_connection.cleanup(self.live_job_id)
+

@@ -34,14 +34,14 @@ class HPCConnection(object):
         else:
             self.logger.debug("{}: initializing with default values".format(clsname))
 
-        self.hostname = init_dict.get("hostname", "cedar.computecanada.ca")
-        self.user = init_dict.get("user", "crim01") #"lalondem")
-        self.home_dir = init_dict.get("home_dir", os.path.join("/home", self.user))
+        self.hostname = constants.hpc_hostname
+        self.user = constants.user
+        self.home_dir = os.path.join(constants.cc_working_dir, self.user)
         self.src_data_path = init_dict.get("src_data_path", "./data")
-        self.template_path = init_dict.get("template_path", "./")
-        self.batchscript_tmplt_filename = init_dict.get("batchscript_fname", "./batch_template.txt")
+        self.template_path = constants.template_path
         self.logger.debug("Host being used is {}, under username {}".format(self.hostname, self.user))
-        self.client = ParallelSSHClient([self.hostname], user=self.user, keepalive_seconds=300)
+        self.client = ParallelSSHClient([self.hostname], pkey=init_dict.get("ssh_key_filename", constants.ssh_key_filename),
+                                        user=self.user, keepalive_seconds=300)
         self.remote_abs_working_folder = None
         self.remote_working_folder = None
         self.active_dataset_name = None
@@ -178,9 +178,9 @@ class HPCConnection(object):
             self.logger.debug("Untarring received file to {}".format(absolute_local_out_dir))
             os.system("tar xf "+local_tar+"_"+self.hostname+" -C "+absolute_local_out_dir)
             if cleanup_temp:
-                print("todo: cleanup tmp file")
-                # os.remove(local_tar+"_" + self.hostname)
-                pass
+                #print("todo: cleanup tmp file")
+                os.remove(local_tar+"_" + self.hostname)
+
 
         except Exception as e:
             self.logger.error("Exception during file transfer from remote: {}".format(e))
@@ -236,7 +236,7 @@ class HPCConnection(object):
     def submit_job(self, script_fname):
 
         self.logger.debug("Submitting job {}".format(script_fname))
-        output = self.client.run_command(constants.sbatch_cmd + " --parsable " + script_fname)
+        output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd + " --parsable " + script_fname)
         errmsg = next(output[self.hostname]["stderr"], None)
 
         if errmsg is not None:
@@ -273,8 +273,8 @@ class HPCConnection(object):
 #            print("SFTPIOError")
 #            return False
         except Exception as e:
-            pass
-            #print("!{}!".format(e))
+#            pass
+            print("!{}!".format(e))
 
         return filecontent
 
