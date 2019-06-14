@@ -84,14 +84,14 @@ def newmainfct(argv):
                 job_finished = True
             if out is None:
                 print("Temp error")
-            #dr, dw, de = select([sys.stdin], [], [], 0)
+            # dr, dw, de = select([sys.stdin], [], [], 0)
             if sys.stdin in select([sys.stdin], [], [], 0)[0]:
                 raven_proc.cancel()
 
         except Exception as e:
             print("Exception @monitor")
             print(e)
-            #job_finished = True
+            # job_finished = True
 
     # Check if job ended  normally
     if abnormal_ending:
@@ -100,7 +100,6 @@ def newmainfct(argv):
         raven_proc.retrieve(out_dir)
 
     raven_proc.cleanup()
-
     print("done.")
 
 

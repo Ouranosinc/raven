@@ -15,7 +15,6 @@ class RavenHPCProcess(object):
         :param connection_cfg_dict:
         """
         logger = logging.getLogger(__name__)
-
         logger.debug("Creating connection")
         self.hpc_connection = hpc_connection.HPCConnection(connection_cfg_dict)
         self.process_name = process_name
@@ -48,7 +47,6 @@ class RavenHPCProcess(object):
             srcfilee = os.path.join(self.template_path, "Ost-RAVEN.sh")
             self.hpc_connection.copy_singlefile_to_remote(srcfilee, is_executable=True)
             self.hpc_connection.create_remote_subdir("model/output")
-
 
         jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
 
@@ -86,9 +84,7 @@ class RavenHPCProcess(object):
         s = None
         try:
 
-#            s, progress = self.hpc_connection.get_status(self.live_job_id, progressfile)
             s = self.hpc_connection.get_status(self.live_job_id)
-#            print("status: "+s)
             if s == "RUNNING":
 
                 if progressfile is not None:
@@ -101,7 +97,6 @@ class RavenHPCProcess(object):
                             progress = match_obj.group(1)
                             self.last_progress = progress
 
-                                # progress_data = json.load(f)
         except SessionError:
             print("reconnecting")
             self.hpc_connection.reconnect()
