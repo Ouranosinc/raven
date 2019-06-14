@@ -3,7 +3,7 @@ from string import digits, ascii_uppercase, ascii_lowercase
 
 from pssh.clients import ParallelSSHClient
 from pssh.exceptions import AuthenticationException, UnknownHostException, \
-                            ConnectionErrorException, SessionError, SFTPIOError, SCPError
+                            ConnectionErrorException, SCPError
 import time
 import os
 import re
@@ -40,14 +40,14 @@ class HPCConnection(object):
         self.src_data_path = init_dict.get("src_data_path", "./data")
         self.template_path = constants.template_path
         self.logger.debug("Host being used is {}, under username {}".format(self.hostname, self.user))
-        self.client = ParallelSSHClient([self.hostname], pkey=init_dict.get("ssh_key_filename", constants.ssh_key_filename),
+        self.client = ParallelSSHClient([self.hostname], pkey=init_dict.get("ssh_key_filename",
+                                        constants.ssh_key_filename),
                                         user=self.user, keepalive_seconds=300)
         self.remote_abs_working_folder = None
         self.remote_working_folder = None
         self.active_dataset_name = None
         self.live_job_id = None
 
-#unravenized: ok
     def check_connection(self):
 
         status = True
@@ -63,7 +63,6 @@ class HPCConnection(object):
 
         return status, msg
 
-# unravenized: ok
     def copy_data_to_remote(self, dataset_, remote_temp_folder=None):
         """
         Copies data contained in a local directory over to a remote destination
@@ -118,7 +117,6 @@ class HPCConnection(object):
         os.remove("/tmp/"+remote_temp_folder+".tar")
 
     # output files in base_dir/jobname/out
-#unravenized: ok
     def copy_data_from_remote(self, jobid, absolute_local_out_dir, cleanup_temp=True):
 
         self.logger.debug("Copying data from remote")
@@ -144,7 +142,7 @@ class HPCConnection(object):
             line = ""
             for l in output[self.hostname].stdout:
                 line += l
-            #print(line)
+            # print(line)
             tar_size = int(re.match("[0-9]*", line).group(0))
 
             self.logger.info("{} bytes to copy from remote".format(tar_size))
@@ -178,16 +176,13 @@ class HPCConnection(object):
             self.logger.debug("Untarring received file to {}".format(absolute_local_out_dir))
             os.system("tar xf "+local_tar+"_"+self.hostname+" -C "+absolute_local_out_dir)
             if cleanup_temp:
-                #print("todo: cleanup tmp file")
+                # print("todo: cleanup tmp file")
                 os.remove(local_tar+"_" + self.hostname)
-
 
         except Exception as e:
             self.logger.error("Exception during file transfer from remote: {}".format(e))
 
-
     def copy_singlefile_to_remote(self, local_filename, remote_path=".", is_executable=False):
-
 
         r = os.path.join(self.remote_abs_working_folder, remote_path, os.path.basename(local_filename))
         g = self.client.copy_file(local_filename, r)
@@ -201,13 +196,13 @@ class HPCConnection(object):
         self.client.run_command("chmod 777 " + os.path.join(self.remote_abs_working_folder, remote_subdir))
 
     # executable_ is either raven or ostrich
-# unravenized: ok
+
     def copy_batchscript(self, executable_, guessed_duration, datafile_basename, batch_tmplt_fname, shub_hostname):
 
         template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
-        tmplt = tmplt.replace("ACCOUNT", constants.cc_account_info)   #def-fouchers
+        tmplt = tmplt.replace("ACCOUNT", constants.cc_account_info)
         tmplt = tmplt.replace("DURATION", guessed_duration)
         tmplt = tmplt.replace("TEMP_PATH", self.remote_abs_working_folder)
         tmplt = tmplt.replace("INPUT_PATH", self.remote_abs_working_folder)
@@ -232,11 +227,11 @@ class HPCConnection(object):
 
         return os.path.join(self.remote_abs_working_folder, subst_fname)
 
-# unravenized: ok
     def submit_job(self, script_fname):
 
         self.logger.debug("Submitting job {}".format(script_fname))
-        output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd + " --parsable " + script_fname)
+        output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd +
+                                         " --parsable " + script_fname)
         errmsg = next(output[self.hostname]["stderr"], None)
 
         if errmsg is not None:
@@ -251,34 +246,30 @@ class HPCConnection(object):
 
         return self.live_job_id
 
-# unravenized: ok
     def read_from_remote(self, remote_filename):
 
         filecontent = []
         try:
             local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
-            #print("Trying to read progress file ->"+local_progress_file)
+            # print("Trying to read progress file ->"+local_progress_file)
             g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, remote_filename),
-                                                             local_filename)  # scp_recv            joinall(g, raise_error=True)
+                                             local_filename)
             suffixed_local_filename = local_filename + "_" + self.hostname
             with open(suffixed_local_filename) as f:
-               for line in f:
-                   filecontent.append(line)
+                for line in f:
+                    filecontent.append(line)
 
             if os.path.exists(suffixed_local_filename):
                 os.remove(suffixed_local_filename)
-
 
 #        except SFTPIOError:
 #            print("SFTPIOError")
 #            return False
         except Exception as e:
-#            pass
             print("!{}!".format(e))
 
         return filecontent
 
-# unravenized: ok
     def get_status(self, jobid):
 
         self.logger.debug("Inside get_status: executing sacct")
@@ -306,13 +297,11 @@ class HPCConnection(object):
         if status_output is None:
             raise Exception("Error parsing sacct output: {}".format(stdout_str))
 
-
         if status_output not in ["COMPLETED", "PENDING", "RUNNING", "TIMEOUT", "CANCELLED"]:
             raise Exception("Status error: state {} unknown".format(status_output))
 
         return status_output
 
-# unravenized: ok
     def cancel_job(self, jobid):
 
         cmd = constants.scancel_cmd + " {}".format(jobid)
@@ -365,7 +354,6 @@ class HPCConnection(object):
 
             return found
     """
-
 
     def cleanup(self, jobid):
 
