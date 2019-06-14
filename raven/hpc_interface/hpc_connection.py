@@ -266,12 +266,16 @@ class HPCConnection(object):
 #            print("SFTPIOError")
 #            return False
         except Exception as e:
-            print("!{}!".format(e))
+            pass # e.g. missing progress file as execution starts
 
         return filecontent
 
     def get_status(self, jobid):
-
+        """
+        
+        :param jobid: 
+        :return: 
+        """
         self.logger.debug("Inside get_status: executing sacct")
         cmd = constants.squeue_cmd + " -j {} -n -p -b".format(jobid)
 
@@ -303,7 +307,11 @@ class HPCConnection(object):
         return status_output
 
     def cancel_job(self, jobid):
-
+        """
+        
+        :param jobid: 
+        :return: 
+        """
         cmd = constants.scancel_cmd + " {}".format(jobid)
 
         output = self.client.run_command(cmd)
@@ -357,13 +365,17 @@ class HPCConnection(object):
 
     def cleanup(self, jobid):
 
-        output1 = self.client.run_command("rm -rf {}".format(self.remote_abs_working_folder))
-        output2 = self.client.run_command("rm slurm-{}.out".format(jobid))
-
         try:
-            print(next(output1[self.hostname]["stdout"]))
-            print(next(output2[self.hostname]["stdout"]))
-            print(next(output1[self.hostname]["stderr"]))
-            print(next(output2[self.hostname]["stderr"]))
-        except:
-            pass
+            self.logger.debug("Deleting the remote folder")
+            output1 = self.client.run_command("rm -rf {}".format(os.path.join(self.home_dir,
+                                                                     self.remote_abs_working_folder)))
+            self.logger.debug("Deleting the slurm log file")
+            logfilepath = os.path.join(self.home_dir, "slurm-{}.out".format(jobid))
+            output2 = self.client.run_command("rm {}".format(logfilepath))
+            self.logger.debug(next(output1[self.hostname]["stdout"]))
+            self.logger.debug(next(output2[self.hostname]["stdout"]))
+            self.logger.debug(next(output1[self.hostname]["stderr"]))
+            self.logger.debug(next(output2[self.hostname]["stderr"]))
+
+        except Exception as e:
+            self.logger.debug("Hmm file cleanup failed: {}".format(e))
