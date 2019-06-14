@@ -1,7 +1,7 @@
 from pywps import Service
 from pywps.tests import assert_response_success
 
-from raven.processes import TSStatsProcess, FreqAnalysisProcess, BaseFlowIndexProcess
+from raven.processes import TSStatsProcess, FreqAnalysisProcess, FitProcess, BaseFlowIndexProcess
 from .common import client_for, TESTDATA, CFG_FILE, get_output
 import xarray as xr
 
@@ -47,6 +47,25 @@ def test_freqanalysis_process():
     out = get_output(resp.xml)['output']
     ds = xr.open_dataset(out[7:])
     assert ds.freq_analysis.shape == (2, 1)
+
+
+def test_fit_process():
+    client = client_for(Service(processes=[FitProcess(), ], cfgfiles=CFG_FILE))
+
+    datainputs = "arr=files@xlink:href=file://{da};" \
+                 "dist={dist};" \
+                 "variable={v};" \
+        .format(da=TESTDATA['tsstats'], dist="gumbel_r", v='ts_stats')
+
+    resp = client.get(
+        service='WPS', request='Execute', version='1.0.0', identifier='fit',
+        datainputs=datainputs)
+
+    assert_response_success(resp)
+    out = get_output(resp.xml)['output']
+    ds = xr.open_dataset(out[7:])
+    assert ds.fit.shape == (2, 1)
+
 
 
 def test_baseflowindex_process():
