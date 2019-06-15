@@ -96,6 +96,7 @@ class RavenHPCProcess(object):
     def cancel(self):
 
         self.hpc_connection.cancel_job(self.live_job_id)
+        #self.cleanup()
 
     def monitor(self):
 
@@ -112,8 +113,8 @@ class RavenHPCProcess(object):
             if s == "RUNNING":
 
                 if progressfile is not None:
-                    progressfile_content = self.hpc_connection.read_from_remote(progressfile)
 
+                    progressfile_content = self.hpc_connection.read_from_remote(progressfile)
                     for line in progressfile_content:
 
                         match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
