@@ -54,7 +54,7 @@ def hydrograph(file_list):
             dates,
             sim,
             linewidth=2,
-            label='sim: ' +  basin_name)
+            label='sim: ' + basin_name)
 
     plt.xlim([first_date, last_date])
     plt.ylim(bottom=0, top=None)
@@ -299,7 +299,6 @@ def ts_fit_graph(ts, params):
 
     fig, axes = plt.subplots(n, figsize=(10, 6), squeeze=False)
 
-
     for i in range(n):
         ax = axes.flat[i]
         ax2 = plt.twinx(ax)
@@ -309,7 +308,8 @@ def ts_fit_graph(ts, params):
         density, bins, patches = ax.hist(ts.isel(nbasins=i).dropna(dim='time'),
                                          alpha=.5, density=True, bins='auto',
                                          label="__nolabel__")
-        ax2.hist(ts.isel(nbasins=i).dropna(dim='time'), bins=bins, facecolor="none", edgecolor='gray', linewidth=1,)
+        ax2.hist(ts.isel(nbasins=i).dropna(dim='time'), bins=bins, facecolor=(1, 1, 1, 0.01), edgecolor='gray',
+                 linewidth=1,)
 
         # Plot pdf of distribution
         dc = get_dist(dist)(*params.isel(nbasins=i))
@@ -329,6 +329,3 @@ def ts_fit_graph(ts, params):
 
     plt.tight_layout()
     return fig
-
-
-

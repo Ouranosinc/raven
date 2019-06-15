@@ -170,7 +170,7 @@ class _XclimIndicatorProcess(Process):
         self.write_log("Running computation")
         LOGGER.debug(kwds)
         out = self.xci(**kwds)
-        out_fn = os.path.join(self.workdir, 'out.nc')
+        out_fn = os.path.join(self.workdir, 'out_{}.nc'.format(self.identifier))
 
         self.write_log("Writing the output netcdf")
         out.to_netcdf(out_fn)

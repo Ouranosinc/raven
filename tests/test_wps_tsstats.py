@@ -49,13 +49,12 @@ def test_freqanalysis_process():
     assert ds.freq_analysis.shape == (2, 1)
 
 
-def test_fit_process():
+def test_fit_process(ts_stats):
     client = client_for(Service(processes=[FitProcess(), ], cfgfiles=CFG_FILE))
 
-    datainputs = "arr=files@xlink:href=file://{da};" \
+    datainputs = "da=files@xlink:href=file://{da};" \
                  "dist={dist};" \
-                 "variable={v};" \
-        .format(da=TESTDATA['tsstats'], dist="gumbel_r", v='ts_stats')
+        .format(da=ts_stats, dist="gumbel_r")
 
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='fit',
@@ -64,8 +63,7 @@ def test_fit_process():
     assert_response_success(resp)
     out = get_output(resp.xml)['output']
     ds = xr.open_dataset(out[7:])
-    assert ds.fit.shape == (2, 1)
-
+    assert ds.params.shape == (2, 1)
 
 
 def test_baseflowindex_process():
