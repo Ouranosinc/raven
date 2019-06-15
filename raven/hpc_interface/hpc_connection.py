@@ -251,16 +251,14 @@ class HPCConnection(object):
         filecontent = []
         try:
             local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
-            # print("Trying to read progress file ->"+local_progress_file)
             g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, remote_filename),
                                              local_filename)
+            joinall(g, raise_error=True)
             suffixed_local_filename = local_filename + "_" + self.hostname
             with open(suffixed_local_filename) as f:
                 for line in f:
+                    self.logger.debug(line)
                     filecontent.append(line)
-
-            if os.path.exists(suffixed_local_filename):
-                os.remove(suffixed_local_filename)
 
 #        except SFTPIOError:
 #            print("SFTPIOError")
@@ -372,6 +370,11 @@ class HPCConnection(object):
             self.logger.debug("Deleting the slurm log file")
             logfilepath = os.path.join(self.home_dir, "slurm-{}.out".format(jobid))
             output2 = self.client.run_command("rm {}".format(logfilepath))
+            self.logger.debug("Deleting the local progress file")
+            local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
+            suffixed_local_filename = local_filename + "_" + self.hostname
+            os.remove(suffixed_local_filename)
+
             self.logger.debug(next(output1[self.hostname]["stdout"]))
             self.logger.debug(next(output2[self.hostname]["stdout"]))
             self.logger.debug(next(output1[self.hostname]["stderr"]))
