@@ -2,8 +2,7 @@
 from pathlib import Path
 
 from matplotlib import pyplot as plt
-from plotly.tools import mpl_to_plotly
-from plotly.offline import plot
+# from plotly.tools import mpl_to_plotly
 from pywps import ComplexInput, LiteralInput, ComplexOutput
 from pywps import FORMATS
 from pywps import Format
@@ -79,13 +78,13 @@ class GraphFitProcess(Process):
 
         if format == 'plotly':
             # This is not working great with this figure due to the twin axes.
-
+            raise NotImplementedError
             # Create plotly object
-            obj = mpl_to_plotly(fig)
+            # obj = mpl_to_plotly(fig)
 
             # Convert to JSON
-            response.outputs['graph_fit'].data = obj.to_json()
-            response.outputs['graph_fit'].data_format = Format('application/json')
+            # response.outputs['graph_fit'].data = obj.to_json()
+            # response.outputs['graph_fit'].data_format = Format('application/json')
 
         else:
             fig_fn = Path(self.workdir) / ('ts_fit.' + format)
