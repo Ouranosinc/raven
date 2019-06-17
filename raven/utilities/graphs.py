@@ -13,6 +13,7 @@ import pandas as pd
 import xarray as xr
 from matplotlib import pyplot as plt
 from scipy import stats
+
 from raven.utilities.mk_test import mk_test_calc
 
 
@@ -53,7 +54,7 @@ def hydrograph(file_list):
             dates,
             sim,
             linewidth=2,
-            label='sim: ' +  basin_name)
+            label='sim: ' + basin_name)
 
     plt.xlim([first_date, last_date])
     plt.ylim(bottom=0, top=None)
@@ -81,7 +82,7 @@ def mean_annual_hydrograph(file_list):
 
     # Time series for the plot
     ds = [xr.open_dataset(file) for file in file_list]
-  
+
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds[0].time.values)
     first_date = dates.min().strftime('%Y/%m/%d')
