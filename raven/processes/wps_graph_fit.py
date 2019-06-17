@@ -34,7 +34,6 @@ class GraphFitProcess(Process):
                                allowed_values=['png', 'jpeg', 'pdf'])
                   ]
 
-
         outputs = [
             ComplexOutput('graph_fit', 'Graphic',
                           abstract="Graphic showing time series histogram and the probability density "
