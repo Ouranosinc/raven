@@ -40,8 +40,8 @@ class HPCConnection(object):
         self.src_data_path = init_dict.get("src_data_path", "./data")
         self.template_path = constants.template_path
         self.logger.debug("Host being used is {}, under username {}".format(self.hostname, self.user))
-        self.client = ParallelSSHClient([self.hostname], pkey=init_dict.get("ssh_key_filename",
-                                        constants.ssh_key_filename),
+        self.keypath = init_dict.get("ssh_key_filename", constants.ssh_key_filename)
+        self.client = ParallelSSHClient([self.hostname], pkey=self.keypath,
                                         user=self.user, keepalive_seconds=300)
         self.remote_abs_working_folder = None
         self.remote_working_folder = None
@@ -330,7 +330,8 @@ class HPCConnection(object):
 
     def reconnect(self):
 
-        self.client = ParallelSSHClient([self.hostname], user=self.user, keepalive_seconds=300)
+        self.client = ParallelSSHClient([self.hostname], pkey=self.keypath,
+                                        user=self.user, keepalive_seconds=300)
     """
     def check_slurmoutput_for(self, substr, jobid):
 
