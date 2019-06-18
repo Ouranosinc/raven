@@ -135,7 +135,7 @@ model_name = LiteralInput('model_name', 'Hydrological model identifier',
 hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                            supported_formats=[FORMATS.NETCDF,
                                               Format('application/zip', extension='.zip', encoding='base64')],
-                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
+                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins '
                                     'specified as `gauged` in the .rvh file. It reports period-ending time-'
                                     'averaged flows for the preceding time step, as is consistent with most '
                                     'measured stream gauge data (again, the initial flow conditions at the '
@@ -144,16 +144,13 @@ hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                                     'hydrograph. ',
                            as_reference=True)
 
-# TODO: adjust abstract
 ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (mm)',
                          supported_formats=[FORMATS.NETCDF],
-                         abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
-                                  'specified as `gauged` in the .rvh file. It reports period-ending time-'
-                                  'averaged flows for the preceding time step, as is consistent with most '
-                                  'measured stream gauge data (again, the initial flow conditions at the '
-                                  'start of the first time step are included). If observed hydrographs are '
-                                  'specified, they will be output adjacent to the corresponding modelled  '
-                                  'hydrograph. ',
+                         abstract='A netCDF file containing the outflow hydrographs (in m3/s) for the basin '
+                                  'on which the regionalization method has been applied. The number of outflow '
+                                  'hydrographs is equal to the number of donors (ndonors) passed to the method. '
+                                  'The average of these hydrographs (either using equal or Inverse-Distance Weights) '
+                                  'is the hydrograph generated in "hydrograph".',
                          as_reference=True)
 
 
