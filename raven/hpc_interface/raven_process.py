@@ -107,25 +107,33 @@ class RavenHPCProcess(object):
         if self.process_name == 'ostrich':
             progressfile = 'OstProgress0.txt'
         s = None
-        try:
+        reconnect = False
+        while True:
+            try:
 
-            s = self.hpc_connection.get_status(self.live_job_id)
-            if s == "RUNNING":
+                s = self.hpc_connection.get_status(self.live_job_id)
+                if s == "RUNNING":
 
-                if progressfile is not None:
+                    if progressfile is not None:
 
-                    progressfile_content = self.hpc_connection.read_from_remote(progressfile)
-                    for line in progressfile_content:
+                        progressfile_content = self.hpc_connection.read_from_remote(progressfile)
+                        for line in progressfile_content:
 
-                        match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
-                        if match_obj:
-                            progress = match_obj.group(1)
-                            self.last_progress = progress
+                            match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
+                            if match_obj:
+                                progress = match_obj.group(1)
+                                self.last_progress = progress
+                break
 
-        except SessionError:
-            self.logger.debug("Lost connection, reconnecting")
-            self.hpc_connection.reconnect()
-            s = "n/a"
+            except SessionError:
+                s = "n/a"
+                if reconnect == False:
+                    self.logger.debug("Lost connection, reconnecting")
+                    self.hpc_connection.reconnect()
+                    reconnect = True
+                else:
+                    self.logger.debug("Can't connect, giving up")
+                    break
 
         return s, self.last_progress
 
