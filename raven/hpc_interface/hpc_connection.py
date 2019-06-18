@@ -104,6 +104,8 @@ class HPCConnection(object):
         self.logger.debug("Untarring remote data: {}".format(s))
 
         output = self.client.run_command(s)
+        self.client.join(output)
+
         errmsg = next(output[self.hostname]["stderr"], None)
         if errmsg is not None:
             self.logger.error("Error: " + errmsg)
@@ -130,14 +132,16 @@ class HPCConnection(object):
         try:
             self.logger.debug("  Copying slurm file to {}".format(absolute_output_data_path))
             output = self.client.run_command("cp " + stdout_file + " " + absolute_output_data_path)
-
+            self.client.join(output)
             self.logger.debug(output)
             self.logger.debug("  Tarring remote folder")
             output = self.client.run_command("tar cf " + absolute_tar_fname + " -C " + absolute_output_data_path+" .")
+            self.client.join(output)
             self.logger.debug(output)
-            time.sleep(30)  # patch since run_command sems non-blocking
+            #time.sleep(30)  # patch since run_command sems non-blocking
             self.logger.debug("Picking up tar file size")
             output = self.client.run_command("du -sb " + absolute_tar_fname)
+            self.client.join(output)
             self.logger.debug(output)
             line = ""
             for l in output[self.hostname].stdout:
@@ -232,6 +236,7 @@ class HPCConnection(object):
         self.logger.debug("Submitting job {}".format(script_fname))
         output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd +
                                          " --parsable " + script_fname)
+        self.client.join(output)
         errmsg = next(output[self.hostname]["stderr"], None)
 
         if errmsg is not None:
@@ -249,23 +254,34 @@ class HPCConnection(object):
     def read_from_remote(self, remote_filename):
 
         filecontent = []
-        try:
-            local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
-            g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, remote_filename),
-                                             local_filename)
-            joinall(g, raise_error=True)
-            suffixed_local_filename = local_filename + "_" + self.hostname
-            with open(suffixed_local_filename) as f:
-                for line in f:
-                    self.logger.debug(line)
-                    filecontent.append(line)
+        self.logger.debug("read_from_remote")
+        retry = True
+        # maybe remote file is being overwritten, try again if remote copy fails
+        while True:
+            try:
+                local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
+                g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, remote_filename),
+                                                 local_filename)
+                joinall(g, raise_error=True)
+                suffixed_local_filename = local_filename + "_" + self.hostname
+                self.logger.debug("  Opening copied file")
+                with open(suffixed_local_filename) as f:
+                    for line in f:
+                        self.logger.debug(line)
+                        filecontent.append(line)
+                break
+    #        except SFTPIOError:
+    #            print("SFTPIOError")
+    #            return False
+            except Exception as e:
 
-#        except SFTPIOError:
-#            print("SFTPIOError")
-#            return False
-        except Exception as e:
-            pass # e.g. missing progress file as execution starts
+                if retry:
+                    self.logger.debug("exception {}, retrying".format(e)) #pass # e.g. missing progress file as execution starts
+                    retry = False
+                else:
+                    break
 
+        self.logger.debug("End read_from_remote")
         return filecontent
 
     def get_status(self, jobid):
@@ -278,6 +294,7 @@ class HPCConnection(object):
         cmd = constants.squeue_cmd + " -j {} -n -p -b".format(jobid)
 
         output = self.client.run_command(cmd)
+        self.client.join(output)
         status_output = None  # 1 line expected
 
         errmsg = next(output[self.hostname]["stderr"], None)
@@ -313,7 +330,7 @@ class HPCConnection(object):
         cmd = constants.scancel_cmd + " {}".format(jobid)
 
         output = self.client.run_command(cmd)
-
+        self.client.join(output)
         errmsg = next(output[self.hostname]["stderr"], None)
         if errmsg is not None:
             for e in output[self.hostname]["stderr"]:
