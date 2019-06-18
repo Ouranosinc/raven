@@ -1,9 +1,10 @@
-import sys
 import getopt
-import time
-import raven_process
 import logging
+import sys
+import time
 from select import select
+
+import raven_process
 
 """
 Expected data structure (raven)
@@ -12,7 +13,6 @@ src_data_dir/datasetname/datasetname.rv?
 
 
 def newmainfct(argv):
-
     logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG, filename="hpclog.txt", filemode='w')
 
     try:
@@ -40,7 +40,8 @@ def newmainfct(argv):
         elif opt == "-t":
             template_dir = arg
         elif opt == "-n":
-            do_cleanup = False
+            # do_cleanup = False
+            pass
 
     if dataset is None or template_dir is None:
         print("Missing arg!")
@@ -58,7 +59,7 @@ def newmainfct(argv):
     if status:
         print("Network connections are ok")
     else:
-        print("Network error: "+msg)
+        print("Network error: " + msg)
 
     # jobinfo = process_cmd(executable, client,hostname,"Submit")
     print("Submitting job...")
@@ -79,7 +80,7 @@ def newmainfct(argv):
             if out == "COMPLETED":
                 job_finished = True
             if out == "TIMEOUT" or out == "CANCELLED":
-                print("Uhoh: job "+out)
+                print("Uhoh: job " + out)
                 abnormal_ending = True
                 job_finished = True
             if out is None:
@@ -105,5 +106,4 @@ def newmainfct(argv):
 
 # -d workingdir -i rootdatafile -o outdir
 if __name__ == '__main__':
-
     newmainfct(sys.argv[1:])

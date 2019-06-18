@@ -1,6 +1,7 @@
+import logging
 import os
 import re
-import logging
+
 import constants
 import hpc_connection
 from pssh.exceptions import SessionError
@@ -67,7 +68,7 @@ class RavenHPCProcess(object):
             self.live_job_id = jobid
 
         except Exception as e:
-            if re.search("tar",repr(e)) is not None:
+            if re.search("tar", repr(e)) is not None:
                 raise Exception("Unable to submit job: bad input folder?")
             raise Exception("Unable to submit job: {}".format(e))
 
@@ -82,6 +83,7 @@ class RavenHPCProcess(object):
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
         self.hpc_connection.copy_data_from_remote(self.live_job_id, output_folder)
+
     """
     def job_ended_normally(self):
 
@@ -93,10 +95,11 @@ class RavenHPCProcess(object):
         print("todo: provide slurm output")
         return output_ok
     """
+
     def cancel(self):
 
         self.hpc_connection.cancel_job(self.live_job_id)
-        #self.cleanup()
+        # self.cleanup()
 
     def monitor(self):
 
@@ -127,7 +130,7 @@ class RavenHPCProcess(object):
 
             except SessionError:
                 s = "n/a"
-                if reconnect == False:
+                if reconnect is False:
                     self.logger.debug("Lost connection, reconnecting")
                     self.hpc_connection.reconnect()
                     reconnect = True
@@ -141,4 +144,3 @@ class RavenHPCProcess(object):
         self.logger.debug("Cleaning up...")
         # remote
         self.hpc_connection.cleanup(self.live_job_id)
-
