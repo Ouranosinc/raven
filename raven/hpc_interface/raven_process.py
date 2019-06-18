@@ -125,6 +125,7 @@ class RavenHPCProcess(object):
         except SessionError:
             self.logger.debug("Lost connection, reconnecting")
             self.hpc_connection.reconnect()
+            s = "n/a"
 
         return s, self.last_progress
 
