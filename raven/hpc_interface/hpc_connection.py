@@ -1,16 +1,15 @@
-from random import sample
-from string import digits, ascii_uppercase, ascii_lowercase
-
-from pssh.clients import ParallelSSHClient
-from pssh.exceptions import AuthenticationException, UnknownHostException, \
-                            ConnectionErrorException, SCPError
-import time
+import logging
 import os
 import re
 import subprocess
-import logging
+from random import sample
+from string import digits, ascii_uppercase, ascii_lowercase
+
 import constants
 from gevent import joinall
+from pssh.clients import ParallelSSHClient
+from pssh.exceptions import AuthenticationException, UnknownHostException, \
+    ConnectionErrorException, SCPError
 
 
 def rand_fname(length=8):
@@ -80,15 +79,18 @@ class HPCConnection(object):
         self.remote_working_folder = remote_temp_folder
         self.active_dataset_name = dataset_
         self.logger.debug("Creating remote folder {}".format(full_remote_path))
-        self.client.run_command("mkdir "+full_remote_path)
+        self.client.run_command("mkdir " + full_remote_path)
 
-    #    data_path_content = os.listdir(path=src_data_path)
-    #    assert(len(data_path_content) == 1)
-    #    df_basename = data_path_content[0]
+        #    data_path_content = os.listdir(path=src_data_path)
+        #    assert(len(data_path_content) == 1)
+        #    df_basename = data_path_content[0]
         df_basename = dataset_
 
-        self.logger.debug("system cmd: "+"tar cvf /tmp/" + remote_temp_folder +
-                          ".tar -C " + os.path.join(local_datapath, df_basename)+" .")
+        # self.logger.debug("system cmd: " + "tar cvf /tmp/" + remote_temp_folder + ".tar -C "
+        #                   + os.path.join(local_datapath, df_basename) + " .")
+        self.logger.debug("system cmd: tar cvf /tmp/{0}.tar -C {1} .".format(remote_temp_folder,
+                                                                             os.path.join(local_datapath, df_basename)))
+
         os.system("tar cf /tmp/" + remote_temp_folder + ".tar -C " + os.path.join(local_datapath, df_basename) + " .")
         try:
             self.logger.debug("Copying data tar file")
@@ -109,20 +111,20 @@ class HPCConnection(object):
         errmsg = next(output[self.hostname]["stderr"], None)
         if errmsg is not None:
             self.logger.error("Error: " + errmsg)
-            raise Exception("Error untarring data file: "+errmsg)
+            raise Exception("Error untarring data file: " + errmsg)
 
         errmsg = next(output[self.hostname]["stdout"], None)
         if errmsg is not None:
             self.logger.debug("stdout: " + errmsg)
 
-        self.logger.debug("Remove remote temp tar file "+"/tmp/"+remote_temp_folder+".tar")
-        os.remove("/tmp/"+remote_temp_folder+".tar")
+        self.logger.debug("Remove remote temp tar file " + "/tmp/" + remote_temp_folder + ".tar")
+        os.remove("/tmp/" + remote_temp_folder + ".tar")
 
     # output files in base_dir/jobname/out
     def copy_data_from_remote(self, jobid, absolute_local_out_dir, cleanup_temp=True):
 
         self.logger.debug("Copying data from remote")
-        absolute_tar_fname = os.path.join(self.remote_abs_working_folder, self.remote_working_folder+"_out.tar")
+        absolute_tar_fname = os.path.join(self.remote_abs_working_folder, self.remote_working_folder + "_out.tar")
 
         absolute_output_data_path = os.path.join(self.remote_abs_working_folder, "out")
         stdout_file = os.path.join(self.home_dir, "slurm-" + jobid + ".out")
@@ -135,10 +137,10 @@ class HPCConnection(object):
             self.client.join(output)
             self.logger.debug(output)
             self.logger.debug("  Tarring remote folder")
-            output = self.client.run_command("tar cf " + absolute_tar_fname + " -C " + absolute_output_data_path+" .")
+            output = self.client.run_command("tar cf " + absolute_tar_fname + " -C " + absolute_output_data_path + " .")
             self.client.join(output)
             self.logger.debug(output)
-            #time.sleep(30)  # patch since run_command sems non-blocking
+            # time.sleep(30)  # patch since run_command sems non-blocking
             self.logger.debug("Picking up tar file size")
             output = self.client.run_command("du -sb " + absolute_tar_fname)
             self.client.join(output)
@@ -150,7 +152,7 @@ class HPCConnection(object):
             tar_size = int(re.match("[0-9]*", line).group(0))
 
             self.logger.info("{} bytes to copy from remote".format(tar_size))
-            local_tar = "/tmp/"+self.remote_working_folder + "_out.tar"
+            local_tar = "/tmp/" + self.remote_working_folder + "_out.tar"
             # g = self.client.scp_recv(absolute_tar_fname, local_tar)
             self.logger.debug("Remote tar file is {}".format(absolute_tar_fname))
 
@@ -160,7 +162,7 @@ class HPCConnection(object):
                 g = self.client.copy_remote_file(absolute_tar_fname, local_tar)  # scp_recv
                 joinall(g, raise_error=True)
 
-                output = subprocess.check_output("du -sb "+local_tar+"_"+self.hostname, shell=True)
+                output = subprocess.check_output("du -sb " + local_tar + "_" + self.hostname, shell=True)
                 recv_tar_size = int(re.match("[0-9]*", output.decode('utf-8')).group(0))
 
                 self.logger.debug("Received: {} bytes".format(recv_tar_size))
@@ -178,10 +180,10 @@ class HPCConnection(object):
 
             # os.mkdir(path.join(absolute_local_out_dir,jobname)
             self.logger.debug("Untarring received file to {}".format(absolute_local_out_dir))
-            os.system("tar xf "+local_tar+"_"+self.hostname+" -C "+absolute_local_out_dir)
+            os.system("tar xf " + local_tar + "_" + self.hostname + " -C " + absolute_local_out_dir)
             if cleanup_temp:
                 # print("todo: cleanup tmp file")
-                os.remove(local_tar+"_" + self.hostname)
+                os.remove(local_tar + "_" + self.hostname)
 
         except Exception as e:
             self.logger.error("Exception during file transfer from remote: {}".format(e))
@@ -216,26 +218,28 @@ class HPCConnection(object):
         tmplt = tmplt.replace("EXEC", executable_)
 
         # subst_template_file, subst_fname = tempfile.mkstemp(suffix=".sh")
-        subst_fname = self.remote_working_folder+".sh"
-        file = open("/tmp/"+subst_fname, 'w')
+        subst_fname = self.remote_working_folder + ".sh"
+        file = open("/tmp/" + subst_fname, 'w')
         file.write(tmplt)
         file.close()
 
         self.client.run_command("mkdir " + abs_remote_output_dir)
         self.client.run_command("chmod 777 " + self.remote_abs_working_folder)
         self.client.run_command("chmod 777 " + abs_remote_output_dir)
-        g = self.client.copy_file("/tmp/"+subst_fname, os.path.join(self.remote_abs_working_folder, subst_fname))
+        g = self.client.copy_file("/tmp/" + subst_fname, os.path.join(self.remote_abs_working_folder, subst_fname))
         joinall(g, raise_error=True)
         self.client.run_command("chmod ugo+x " + os.path.join(self.remote_abs_working_folder, subst_fname))
-        os.remove("/tmp/"+subst_fname)
+        os.remove("/tmp/" + subst_fname)
 
         return os.path.join(self.remote_abs_working_folder, subst_fname)
 
     def submit_job(self, script_fname):
 
         self.logger.debug("Submitting job {}".format(script_fname))
-        output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd +
-                                         " --parsable " + script_fname)
+        # output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd +
+        #                                  " --parsable " + script_fname)
+        output = self.client.run_command(
+            "cd {}; {} --parsable {}".format(self.home_dir, constants.sbatch_cmd, script_fname))
         self.client.join(output)
         errmsg = next(output[self.hostname]["stderr"], None)
 
@@ -244,7 +248,7 @@ class HPCConnection(object):
                 errmsg += e + "\n"
 
             self.logger.error("  Error: {}".format(errmsg))
-            raise Exception("Error: "+errmsg)
+            raise Exception("Error: " + errmsg)
 
         self.live_job_id = next(output[self.hostname]["stdout"])
         self.logger.debug("  Job id {}".format(self.live_job_id))
@@ -270,13 +274,14 @@ class HPCConnection(object):
                         self.logger.debug(line)
                         filecontent.append(line)
                 break
-    #        except SFTPIOError:
-    #            print("SFTPIOError")
-    #            return False
+            #        except SFTPIOError:
+            #            print("SFTPIOError")
+            #            return False
             except Exception as e:
 
                 if retry:
-                    self.logger.debug("exception {}, retrying".format(e)) #pass # e.g. missing progress file as execution starts
+                    self.logger.debug(
+                        "exception {}, retrying".format(e))  # pass # e.g. missing progress file as execution starts
                     retry = False
                 else:
                     break
@@ -286,9 +291,8 @@ class HPCConnection(object):
 
     def get_status(self, jobid):
         """
-        
-        :param jobid: 
-        :return: 
+        :param jobid:
+        :return:
         """
         self.logger.debug("Inside get_status: executing sacct")
         cmd = constants.squeue_cmd + " -j {} -n -p -b".format(jobid)
@@ -303,10 +307,10 @@ class HPCConnection(object):
                 errmsg += e + "\n"
             self.logger.debug("  stderr: {}".format(errmsg))
 
-            raise Exception("Error: "+errmsg)
+            raise Exception("Error: " + errmsg)
 
         stdout_str = ""
-        for line in output[self.hostname]["stdout"]:    # errmsg is None
+        for line in output[self.hostname]["stdout"]:  # errmsg is None
             stdout_str += line + "\n"
             fields = line.split('|')
             if len(fields) >= 2:
@@ -323,9 +327,8 @@ class HPCConnection(object):
 
     def cancel_job(self, jobid):
         """
-        
-        :param jobid: 
-        :return: 
+        :param jobid:
+        :return:
         """
         cmd = constants.scancel_cmd + " {}".format(jobid)
 
@@ -349,6 +352,7 @@ class HPCConnection(object):
 
         self.client = ParallelSSHClient([self.hostname], pkey=self.keypath,
                                         user=self.user, keepalive_seconds=300)
+
     """
     def check_slurmoutput_for(self, substr, jobid):
 
@@ -384,7 +388,7 @@ class HPCConnection(object):
         try:
             self.logger.debug("Deleting the remote folder")
             output1 = self.client.run_command("rm -rf {}".format(os.path.join(self.home_dir,
-                                                                     self.remote_abs_working_folder)))
+                                                                              self.remote_abs_working_folder)))
             self.logger.debug("Deleting the slurm log file")
             logfilepath = os.path.join(self.home_dir, "slurm-{}.out".format(jobid))
             output2 = self.client.run_command("rm {}".format(logfilepath))
