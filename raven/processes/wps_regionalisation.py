@@ -57,7 +57,7 @@ class RegionalisationProcess(RavenProcess):
                           abstract="""
     Regionalisation method to use, one of MLR, SP, PS, SP_IDW,
     PS_IDW, SP_IDW_RA, PS_IDW_RA.
-    
+
     The available regionalization methods are:
 
         Multiple linear regression (MLR)
@@ -90,7 +90,7 @@ class RegionalisationProcess(RavenProcess):
             dataset to estimate model parameters using Multiple Linear Regression. Parameters whose regression r-squared
             is higher than 0.5 are replaced by the MLR-estimated value.
 
-    """,  
+    """,
                           data_type='string',
                           allowed_values=(
                               'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'),
@@ -113,38 +113,40 @@ class RegionalisationProcess(RavenProcess):
     properties = ComplexInput('properties', 'Regionalization properties',
                               abstract="json string storing dictionary of properties. The available properties are: "
                               "area (km2), longitude (dec.degrees), latitude (dec. degrees), gravelius, perimeter (m), "
-                              "elevation (m), slope(%), aspect, forest (%), grass (%), wetland (%), water (%), urban (%), "
-                              "shrubs (%), crops (%) and snowIce (%).",
+                              "elevation (m), slope(%), aspect, forest (%), grass (%), wetland (%), water (%), "
+                              "urban (%), shrubs (%), crops (%) and snowIce (%).",
                               min_occurs=1,
                               max_occurs=1,
                               supported_formats=[FORMATS.JSON, ])
 
-    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude,
+    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude, wio.name,
               wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
 
     outputs = [wio.hydrograph, wio.ensemble]
 
     def _handler(self, request, response):
-        response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
 
         ts = [e.file for e in request.inputs.pop('ts')]
         model_name = request.inputs.pop('model_name')[0].data
         method = request.inputs.pop('method')[0].data
         ndonors = request.inputs.pop('ndonors')[0].data
-        #latitude = request.inputs.pop('latitude')[0].data
-        #longitude = request.inputs.pop('longitude')[0].data
         min_NSE = request.inputs.pop('min_NSE')[0].data
         properties = request.inputs.pop('properties')[0].data
         properties = json.loads(properties)
+        # TODO: lat and lon from properties could be confused with lat and lon to run model. Should they be the same ?
 
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 
-        nash, params = read_gauged_params(model_name)
-        props = read_gauged_properties(properties)
+        response.update_status('Inputs are read', 1)
 
+        nash, params = read_gauged_params(model_name)
+        response.update_status('Gauged params are read', 2)
+
+        props = read_gauged_properties(properties.keys())
         ungauged_props = {key: properties[key] for key in properties}
+        response.update_status('Gauged properties are read', 3)
 
         qsim, ensemble = regionalize(method, model_name, nash, params,
                                      props, ungauged_props,
@@ -152,13 +154,14 @@ class RegionalisationProcess(RavenProcess):
                                      min_NSE=min_NSE,
                                      ts=ts,
                                      **kwds)
+        response.update_status('Computed regionalization', 99)
 
         # Write output
         nc_qsim = Path(self.workdir) / 'qsim.nc'
         qsim.to_netcdf(nc_qsim)
         response.outputs['hydrograph'].file = str(nc_qsim)
 
-        # TODO: Commplete attributes
+        # TODO: Complete attributes
         nc_ensemble = Path(self.workdir) / 'ensemble.nc'
         ensemble.to_netcdf(nc_ensemble)
         response.outputs['ensemble'].file = str(nc_ensemble)
