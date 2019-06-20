@@ -130,7 +130,7 @@ class Raven:
     @property
     def version(self):
         import re
-        out = subprocess.check_output([self.raven_exec, ])
+        out = subprocess.check_output([self.raven_exec, ], input=b'\n')
         match = re.search(r"Version (\S+) ", out.decode('utf-8'))
         if match:
             return match.groups()[0]
