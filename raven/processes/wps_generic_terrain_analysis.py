@@ -54,6 +54,10 @@ class TerrainAnalysisProcess(Process):
                           abstract='DEM properties (mean elevation, slope, and aspect) for each geometry.',
                           supported_formats=[FORMATS.JSON],
                           ),
+            ComplexOutput('dem', "Subsetted digital elevation model",
+                          abstract="DEM GeoTIFF image",
+                          as_reference=True,
+                          supported_formats=[FORMATS.GEOTIFF, ])
         ]
 
         super(TerrainAnalysisProcess, self).__init__(
@@ -146,5 +150,6 @@ class TerrainAnalysisProcess(Process):
         properties.append(dem_prop(clipped_fn, directory=self.workdir))
 
         response.outputs['properties'].data = json.dumps(properties)
+        response.outputs['dem'].file = clipped_fn
 
         return response
