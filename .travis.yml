@@ -1,34 +1,57 @@
-language: python
-python:
-  - "2.7"
-  - "3.6"
-os:
-  - linux
-#  - osx
+
+language: generic
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      python: "3.5"
+      name: "macOS (Python3.5)"
+      env:
+        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
+    - os: linux
+      name: "Linux (Python2.7)"
+      dist: xenial
+      python: "2.7"
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+    - os: linux
+      name: "Linux (Python3.6 + pep8)"
+      dist: xenial
+      python: "3.6"
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - PEP8=true
+    - os: linux
+      name: "Linux (Python3.5 + docs)"
+      python: "3.5"
+      dist: xenial
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - DOCS=true
+branches:
+  only:
+    - master
 sudo: false
+before_install:
+  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev pandoc; else brew install netcdf pandoc; fi
 install:
-  # Python 3.x is default
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-  # Prepare env with Python version
-  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
-  # Update now the env with our environment
-  - conda env update -f environment.yml
-  - source activate raven
-  # Packages for testing
-  - conda install pytest flake8
-  # Install Emu WPS
-  - python setup.py install
+  - make install
+  - make start
+#  - sleep 2
+#  # Prepare env with Python version
+#  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
+#  # Update now the env with our environment
+#  - conda env update -f environment.yml
+#  - source activate raven
+#  # Packages for testing
+#  - conda install pytest flake8
+#  # Install Emu WPS
+#  - python setup.py install
 before_script:
-  # Start WPS service on port 5000 on 0.0.0.0
-  - raven start --daemon --bind-host 0.0.0.0 --port 5000
+#  # Start WPS service on port 5000 on 0.0.0.0
+#  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
 script:
-  - pytest
-  - flake8
+  - make test
+  - if [[ $DOCS = true ]]; then make docs; fi
+  - if [[ $PEP8 = true ]]; then make pep8; fi

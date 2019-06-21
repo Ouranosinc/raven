@@ -4,7 +4,36 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- pywps=4.1.0
+- pip
+- pywps>=4.2
+- unidecode
+- owslib>=0.17
+- poppler
 - jinja2
 - click
 - psutil
+- xarray
+- dask
+- pandas
+- geopandas
+- netcdf4
+- libnetcdf
+- gdal>=2.3
+- fiona
+- pyproj
+- affine
+- rasterio
+- rasterstats
+- rtree
+- shapely
+- bumpversion
+- scipy<1.3
+- statsmodels
+- matplotlib
+- pip:
+  - spotpy
+  - pysheds
+  - geojson
+  # - pycrs:
+  - -e git+https://github.com/Ouranosinc/xclim.git@v0.10.1-beta#egg=xclim
+  

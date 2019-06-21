@@ -5,12 +5,12 @@ Raven
    :target: http://raven.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/huard/raven.svg?branch=master
-   :target: https://travis-ci.org/huard/raven
+.. image:: https://travis-ci.org/Ouranosinc/raven.svg?branch=master
+   :target: https://travis-ci.org/Ouranosinc/raven
    :alt: Travis Build
 
-.. image:: https://img.shields.io/github/license/huard/raven.svg
-    :target: https://github.com/huard/raven/blob/master/LICENSE.txt
+.. image:: https://img.shields.io/github/license/Ouranosinc/raven.svg
+    :target: https://github.com/Ouranosinc/raven/blob/master/LICENSE.txt
     :alt: GitHub license
 
 .. image:: https://badges.gitter.im/bird-house/birdhouse.svg

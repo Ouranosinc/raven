@@ -1,0 +1,22 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+/opt/Raven_rev157/raven_rev.exe /data/$*  -o /data_out/
+
+%files
+./Raven_rev157 /opt
+
+%environment
+
+%labels
+AUTHOR marc.lalonde@crim.ca
+
+
+%post
+apt-get update && apt-get -y install wget vim make build-essential libnetcdf-dev
+mkdir /data
+mkdir /data_out
+chmod 777 /data_out 
+cd /opt/Raven_rev157 && make
+
