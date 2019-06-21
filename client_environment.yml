@@ -1,0 +1,25 @@
+# conda env create -f environment.yml
+name: birdy
+channels:
+  - birdhouse
+  - conda-forge
+  - defaults
+dependencies:
+  - matplotlib
+  - xarray
+  - numpy
+  - birdhouse-birdy
+  - netcdf4
+  - pydap
+  - cartopy
+  - descartes
+  - xclim
+  # to edit .ipynb
+  - jupyter
+  # to be launched by image jupyterhub/jupyterhub
+  - notebook
+  # for pip packages
+  - pip
+  - pip:
+    # visual debugger for Jupyter Notebook, not working with JupyterLab at this moment
+    - pixiedust
