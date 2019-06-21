@@ -1,11 +1,9 @@
 from pywps import Service
-import pytest
-from pywps.tests import assert_response_success
 
-from .common import client_for
 from raven.processes import processes
+from .common import client_for
 
-@pytest.mark.skip
+
 def test_wps_caps():
     client = client_for(Service(processes=processes))
     resp = client.get(service='wps', request='getcapabilities', version='1.0.0')
@@ -13,7 +11,34 @@ def test_wps_caps():
                             '/wps:ProcessOfferings'
                             '/wps:Process'
                             '/ows:Identifier')
-    assert sorted(names.split()) == [
-        'inout',
-        'sleep',
-        'wordcounter']
+    sn = set(names.split())
+
+    assert sn == {'gr4j-cemaneige',
+                  'raster-subset',
+                  'raven',
+                  'raven-multi-model',
+                  'raven-gr4j-cemaneige',
+                  'raven-mohyse',
+                  'raven-hmets',
+                  'raven-hbv-ec',
+                  'shape-properties',
+                  'hydrosheds-select',
+                  'terrain-analysis',
+                  'nalcms-zonal-stats',
+                  'zonal-stats',
+                  'ostrich-gr4j-cemaneige',
+                  'ostrich-mohyse',
+                  'ostrich-hmets',
+                  'ostrich-hbv-ec',
+                  'objective-function',
+                  'graph_ensemble_uncertainty',
+                  'graph_single_hydrograph',
+                  'ts_stats',
+                  'freq_analysis',
+                  'base_flow_index',
+                  'ts_stats_graph',
+                  'regionalisation',
+                  'graph_objective_function_fit',
+                  'fit',
+                  'graph_fit'
+                  }

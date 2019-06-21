@@ -7,7 +7,10 @@
    installation
    configuration
    processes
+   notebooks/index
    changes
+   developer
+
 
 Indices and tables
 ==================

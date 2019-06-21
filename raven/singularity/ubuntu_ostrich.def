@@ -1,0 +1,28 @@
+Bootstrap: localimage 
+From: raven.img
+
+%runscript
+
+cd /data
+ln -s /opt/Ostrich_2017-12-19_plus_progressJSON/OstrichGCC .
+./OstrichGCC
+cp -r processor_0/* /data_out/
+
+#mpirun  /opt/Source/OstrichMPI
+
+%files
+./Ostrich_2017-12-19_plus_progressJSON/ /opt
+
+%environment
+
+%labels
+#AUTHOR marc.lalonde@crim.ca
+
+
+%post
+apt-get update && apt-get -y install wget vim make build-essential libnetcdf-dev libopenmpi-dev ssh 
+#mkdir /data
+#mkdir /data_out
+#chmod 777 /data_out 
+cd /opt/Ostrich_2017-12-19_plus_progressJSON/ && make GCC
+

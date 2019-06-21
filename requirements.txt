@@ -1,5 +1,35 @@
-pywps>=4.0.0
+six
+pywps>=4.2
+owslib>=0.17
+lxml
 jinja2
 click
 psutil
+numpy
+scipy
+matplotlib
 xarray
+pandas
+requests
+netCDF4
+dask
+pathlib
+toolz
+spotpy
+statsmodels
+# GIS LIBRARIES
+# pycrs --- Depends on online database requests --> SLOW
+gdal~=2.3
+pysheds
+affine
+rtree
+fiona
+geopandas
+pyproj
+rasterio
+rasterstats
+shapely
+unidecode
+geojson
+# xclim It seems to be installed by pip in src/ and confuse pytest.
+

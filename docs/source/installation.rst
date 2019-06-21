@@ -76,11 +76,12 @@ You can also use the ``Makefile`` to start and stop the service:
   $ tail -f pywps.log
   $ make stop
 
+..
+    Run Raven as Docker container
+    -----------------------------
 
-Run Raven as Docker container
------------------------------
+    You can also run Raven as a Docker container, see the :ref:`Tutorial <tutorial>`.
 
-You can also run Raven as a Docker container, see the :ref:`Tutorial <tutorial>`.
 
 Use Ansible to deploy Raven on your System
 ------------------------------------------

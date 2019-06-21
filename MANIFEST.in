@@ -2,5 +2,6 @@ include Makefile
 include *.txt
 include *.rst
 recursive-include raven *
+recursive-include tests *
 global-exclude __pycache__
 global-exclude *.py[co]
