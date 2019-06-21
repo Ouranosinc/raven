@@ -1,5 +1,6 @@
-from raven.utilities import regionalization as reg
 import datetime as dt
+
+from raven.utilities import regionalization as reg
 from .common import TESTDATA
 
 
@@ -24,7 +25,7 @@ def test_regionalization():
                                 size=2,
                                 ts=TESTDATA['raven-hmets-nc-ts'])
 
-    assert(qsim.max() > 1)
-    assert(len(ens) == 2)
+    assert (qsim.max() > 1)
+    assert (len(ens) == 2)
     assert 'realization' in ens.dims
     assert 'param' in ens.dims

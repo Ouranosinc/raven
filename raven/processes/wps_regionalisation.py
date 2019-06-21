@@ -1,9 +1,12 @@
-from . import wpsio as wio
-import logging
-from pywps import LiteralInput, ComplexInput, FORMATS
 import json
+import logging
 from pathlib import Path
+
+from pywps import ComplexInput, FORMATS
+from pywps import LiteralInput
+
 from raven.utilities import regionalize, read_gauged_properties, read_gauged_params
+from . import wpsio as wio
 from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
