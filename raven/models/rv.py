@@ -68,6 +68,7 @@ class RVFile:
             content = content.format(**kwds)
 
         fn.write_text(content)
+        return fn
 
     @property
     def tags(self):
