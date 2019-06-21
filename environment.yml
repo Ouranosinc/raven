@@ -34,4 +34,4 @@ dependencies:
   - spotpy
   - pysheds
   # - pycrs:
-  - -e git+https://github.com/Ouranosinc/xclim.git@e0c7175#egg=xclim
+  - -e git+https://github.com/Ouranosinc/xclim.git@v0.10.1-beta#egg=xclim

@@ -39,4 +39,6 @@ def test_wps_caps():
                   'ts_stats_graph',
                   'regionalisation',
                   'graph_objective_function_fit',
+                  'fit',
+                  'graph_fit'
                   }

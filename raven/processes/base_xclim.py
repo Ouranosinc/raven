@@ -73,7 +73,7 @@ class _XclimIndicatorProcess(Process):
         for name, attrs in params.items():
             if name in ['tas', 'tasmin', 'tasmax', 'pr', 'prsn']:
                 inputs.append(make_nc_input(name))
-            if name in ['da', 'q']:
+            if name in ['da', 'q', 'arr']:
                 inputs.append(make_nc_input(name))
                 inputs.append(make_variable())
             elif name in ['tn10', 'tn90', 't10', 't90']:
@@ -170,7 +170,7 @@ class _XclimIndicatorProcess(Process):
         self.write_log("Running computation")
         LOGGER.debug(kwds)
         out = self.xci(**kwds)
-        out_fn = os.path.join(self.workdir, 'out.nc')
+        out_fn = os.path.join(self.workdir, 'out_{}.nc'.format(self.identifier))
 
         self.write_log("Writing the output netcdf")
         out.to_netcdf(out_fn)
