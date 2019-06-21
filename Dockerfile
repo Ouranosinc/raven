@@ -1,7 +1,7 @@
 # vim:set ft=dockerfile:
 FROM continuumio/miniconda3
 MAINTAINER https://github.com/huard/raven
-LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.1.0"
+LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.6.3"
 
 # Update Debian system
 RUN apt-get update && apt-get install -y \
@@ -19,6 +19,9 @@ RUN conda create --yes -n wps python=3.6 && conda env update -n wps -f /opt/wps/
 COPY . /opt/wps
 
 WORKDIR /opt/wps
+
+RUN make raven_dev
+RUN make ostrich_dev
 
 # Install WPS
 RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]

@@ -13,7 +13,9 @@ import pandas as pd
 import xarray as xr
 from matplotlib import pyplot as plt
 from scipy import stats
+
 from raven.utilities.mk_test import mk_test_calc
+from xclim.utils import units2pint
 
 
 def hydrograph(file_list):
@@ -53,7 +55,7 @@ def hydrograph(file_list):
             dates,
             sim,
             linewidth=2,
-            label='sim: ' + '<model_name>')
+            label='sim: ' + basin_name)
 
     plt.xlim([first_date, last_date])
     plt.ylim(bottom=0, top=None)
@@ -111,7 +113,7 @@ def mean_annual_hydrograph(file_list):
             mah.dayofyear,
             mah,
             linewidth=2,
-            label='sim: ' + '<model_name>')
+            label='sim: ' + basin_name)
 
     plt.xticks(
         np.linspace(0, 365, 13)[:-1], (
@@ -274,4 +276,57 @@ def ts_graphs(file, trend=True, alpha=0.05):
 
     ax.legend()
 
+    return fig
+
+
+def ts_fit_graph(ts, params):
+    """Create graphic showing an histogram of the data and the distribution fitted to it.
+
+    Parameters
+    ----------
+    ts : str
+      Path to netCDF file storing the time series.
+    params : str
+      Path to netCDF file storing the distribution parameters.
+
+    Returns
+    -------
+    fig
+    """
+    from xclim.generic import get_dist
+
+    n = ts.nbasins.size
+    dist = params.attrs['long_name'].split(' ')[0]
+
+    fig, axes = plt.subplots(n, figsize=(10, 6), squeeze=False)
+
+    for i in range(n):
+        ax = axes.flat[i]
+        ax2 = plt.twinx(ax)
+        p = params.isel(nbasins=i)
+
+        # Plot histogram of time series as density then as a normal count.
+        density, bins, patches = ax.hist(ts.isel(nbasins=i).dropna(dim='time'),
+                                         alpha=.5, density=True, bins='auto',
+                                         label="__nolabel__")
+        ax2.hist(ts.isel(nbasins=i).dropna(dim='time'), bins=bins, facecolor=(1, 1, 1, 0.01), edgecolor='gray',
+                 linewidth=1,)
+
+        # Plot pdf of distribution
+        dc = get_dist(dist)(*params.isel(nbasins=i))
+        mn = dc.ppf(.01)
+        mx = dc.ppf(.99)
+        q = np.linspace(mn, mx, 200)
+        pdf = dc.pdf(q)
+        ps = ', '.join(["{:.1f}".format(x) for x in p.values])
+        ax.plot(q, pdf, '-', label="{}({})".format(params.attrs['scipy_dist'], ps))
+
+        # Labels
+        ax.set_xlabel("{} (${:~P}$)".format(ts.long_name, units2pint(ts.units)))
+        ax.set_ylabel("Probability density")
+        ax2.set_ylabel("Histogram count")
+
+        ax.legend(frameon=False)
+
+    plt.tight_layout()
     return fig

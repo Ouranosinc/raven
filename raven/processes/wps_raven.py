@@ -2,7 +2,7 @@ import logging
 from collections import defaultdict
 from pathlib import Path
 
-from pywps import Process, Format
+from pywps import Process, Format, LiteralOutput
 
 from raven.models import Raven
 from . import wpsio as wio
@@ -78,9 +78,12 @@ class RavenProcess(Process):
         # Store output files name. If an output counts multiple files, they'll be zipped.
         for key in response.outputs.keys():
             val = model.outputs[key]
-            response.outputs[key].file = str(val)
-            if val.suffix == '.zip':
-                response.outputs[key].data_format = Format('application/zip', extension='.zip', encoding='base64')
+            if isinstance(response.outputs[key], LiteralOutput):
+                response.outputs[key].data = str(val)
+            else:
+                response.outputs[key].file = str(val)
+                if val.suffix == '.zip':
+                    response.outputs[key].data_format = Format('application/zip', extension='.zip', encoding='base64')
 
         return response
 

@@ -12,6 +12,12 @@ README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
 reqs = [line.strip() for line in open('requirements.txt')]
+docs_reqs = [
+    'sphinx>=1.7',
+    'sphinx-autoapi',
+    'nbsphinx',
+    'sphinx-autodoc-pywps @ git+ssh://git@github.com/huard/sphinx-autodoc-pywps.git#egg=sphinx_autodoc_pywps'
+]
 
 classifiers = [
     'Development Status :: 3 - Alpha',
@@ -43,7 +49,8 @@ setup(name='raven',
       packages=find_packages(),
       include_package_data=True,
       install_requires=reqs,
+      extras_require={'docs': docs_reqs},
       entry_points={
           'console_scripts': [
-             'raven=raven.cli:cli',
-          ]},)
+              'raven=raven.cli:cli',
+          ]}, )
