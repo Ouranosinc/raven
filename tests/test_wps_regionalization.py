@@ -64,3 +64,28 @@ class TestRegionalisation:
 
         with xr.open_dataset(ensemble) as ds:
             assert 'realization' in ds.q_sim.dims
+
+    def test_notebook(self):
+        client = client_for(Service(processes=[RegionalisationProcess(), ], cfgfiles=CFG_FILE))
+
+        inp = inputs.copy()
+        inp.update(
+            ts=TESTDATA['raven-hmets-nc-ts'],
+            start_date=dt.datetime(2000, 1, 1),
+            end_date=dt.datetime(2002, 1, 1),
+            area=4250.6,
+            elevation=843.0,
+            latitude=54.4848,
+            longitude=-123.3659,
+            method='PS',  # One of the methods described above
+            model_name='HMETS',  # One of the two models are allowed: HMETS and GR4JCN
+            min_nse=0.7,
+            ndonors=5,  # Number of donors we want to use. Usually between 4 and 8 is a robust number.
+            properties=json.dumps({'latitude': 54.4848, 'longitude': -123.3659, 'forest': 0.4}),
+        )
+
+        resp = client.get(service='WPS', request='execute', version='1.0.0',
+                          identifier='regionalisation',
+                          datainputs=datainputs.format(**inp))
+
+        assert_response_success(resp)

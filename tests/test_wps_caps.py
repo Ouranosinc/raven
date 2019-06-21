@@ -22,7 +22,7 @@ def test_wps_caps():
                   'raven-hmets',
                   'raven-hbv-ec',
                   'shape-properties',
-                  'shape-selection',
+                  'hydrosheds-select',
                   'terrain-analysis',
                   'nalcms-zonal-stats',
                   'zonal-stats',
@@ -38,4 +38,7 @@ def test_wps_caps():
                   'base_flow_index',
                   'ts_stats_graph',
                   'regionalisation',
+                  'graph_objective_function_fit',
+                  'fit',
+                  'graph_fit'
                   }

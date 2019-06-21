@@ -2,18 +2,18 @@ from pywps import Service
 from pywps.tests import assert_response_success
 from .common import client_for, CFG_FILE, get_output
 
-from raven.processes import ShapeSelectionProcess
+from raven.processes import HydroShedsSelectionProcess
 
 
 class TestShapeSelectionProcess:
 
     def test_manicouagan(self):
-        client = client_for(Service(processes=[ShapeSelectionProcess(), ], cfgfiles=CFG_FILE))
+        client = client_for(Service(processes=[HydroShedsSelectionProcess(), ], cfgfiles=CFG_FILE))
 
         fields = [
             'location={location}',
-            'level={level}',
-            'lakes={lakes}',
+            # 'level={level}',
+            # 'lakes={lakes}',
             'aggregate_upstream={aggregate_upstream}',
         ]
 
@@ -25,7 +25,7 @@ class TestShapeSelectionProcess:
         )
 
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='shape-selection', datainputs=datainputs)
+            service='WPS', request='Execute', version='1.0.0', identifier='hydrosheds-select', datainputs=datainputs)
 
         assert_response_success(resp)
         out = get_output(resp.xml)
@@ -33,12 +33,12 @@ class TestShapeSelectionProcess:
         assert {'feature', 'upstream_ids'}.issubset([*out])
 
     def test_lac_saint_jean(self):
-        client = client_for(Service(processes=[ShapeSelectionProcess(), ], cfgfiles=CFG_FILE))
+        client = client_for(Service(processes=[HydroShedsSelectionProcess(), ], cfgfiles=CFG_FILE))
 
         fields = [
             'location={location}',
-            'level={level}',
-            'lakes={lakes}',
+            # 'level={level}',
+            # 'lakes={lakes}',
             'aggregate_upstream={aggregate_upstream}',
         ]
 
@@ -57,10 +57,10 @@ class TestShapeSelectionProcess:
         )
 
         resp_upstream = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='shape-selection',
+            service='WPS', request='Execute', version='1.0.0', identifier='hydrosheds-select',
             datainputs=datainputs_upstream)
         resp_subbasin = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='shape-selection',
+            service='WPS', request='Execute', version='1.0.0', identifier='hydrosheds-select',
             datainputs=datainputs_subbasin)
 
         assert_response_success(resp_upstream)
@@ -72,12 +72,12 @@ class TestShapeSelectionProcess:
         assert {'feature', 'upstream_ids'}.issubset([*out_subbasin])
 
     def test_smallwood_reservoir(self):
-        client = client_for(Service(processes=[ShapeSelectionProcess(), ], cfgfiles=CFG_FILE))
+        client = client_for(Service(processes=[HydroShedsSelectionProcess(), ], cfgfiles=CFG_FILE))
 
         fields = [
             'location={location}',
-            'level={level}',
-            'lakes={lakes}',
+            # 'level={level}',
+            # 'lakes={lakes}',
             'aggregate_upstream={aggregate_upstream}',
         ]
 
@@ -89,7 +89,7 @@ class TestShapeSelectionProcess:
         )
 
         resp = client.get(
-            service='WPS', request='Execute', version='1.0.0', identifier='shape-selection', datainputs=datainputs)
+            service='WPS', request='Execute', version='1.0.0', identifier='hydrosheds-select', datainputs=datainputs)
 
         assert_response_success(resp)
         out = get_output(resp.xml)

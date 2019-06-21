@@ -1,4 +1,4 @@
-from xclim.streamflow import Stats, generic, base_flow_index, FA
+from xclim.streamflow import Stats, generic, base_flow_index, FA, fit
 from .base_xclim import make_xclim_indicator_process
 
 
@@ -13,8 +13,11 @@ freq = FA(identifier='freq_analysis',
                       "estimated using the {dist} distribution.",
           compute=generic.frequency_analysis)
 
+
 TSStatsProcess = make_xclim_indicator_process('TSStats', stats)
 
 FreqAnalysisProcess = make_xclim_indicator_process('FreqAnalysis', freq)
+
+FitProcess = make_xclim_indicator_process('Fit', fit)
 
 BaseFlowIndexProcess = make_xclim_indicator_process('BaseFlowIndex', base_flow_index)

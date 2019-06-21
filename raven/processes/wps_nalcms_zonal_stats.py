@@ -1,6 +1,7 @@
 import json
 import logging
 import tempfile
+from collections import defaultdict
 
 from pywps import ComplexOutput
 from pywps import LiteralInput, ComplexInput
@@ -74,14 +75,14 @@ class NALCMSZonalStatisticsProcess(Process):
             LiteralInput('simple_categories', 'Use simplified land classification categories for hydrological '
                                               'modelling purposes. Default: True',
                          data_type='boolean', default='false',
-                         min_occurs=1, max_occurs=1),
+                         min_occurs=0, max_occurs=1),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
                          abstract='Band of raster examined to perform zonal statistics. Default: 1',
-                         min_occurs=1, max_occurs=1),
+                         min_occurs=0, max_occurs=1),
             LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
                          data_type='boolean', default='false',
-                         min_occurs=1, max_occurs=1),
+                         min_occurs=0, max_occurs=1),
         ]
 
         outputs = [
@@ -113,6 +114,8 @@ class NALCMSZonalStatisticsProcess(Process):
         vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
         vec_crs = crs_sniffer(vector_file)
 
+        response.update_status('Accessed vector', status_percentage=5)
+
         if 'raster' in request.inputs:  # For raster files using the UNFAO Land Cover Classification System (19 types)
             rasters = ['.tiff', '.tif']
             raster_url = request.inputs['raster'][0].file
@@ -143,6 +146,8 @@ class NALCMSZonalStatisticsProcess(Process):
             with open(raster_file, 'wb') as f:
                 f.write(raster_bytes)
 
+        response.update_status('Accessed raster', status_percentage=10)
+
         if simple_categories:
             categories = SIMPLE_CATEGORIES
         else:
@@ -150,9 +155,20 @@ class NALCMSZonalStatisticsProcess(Process):
 
         try:
             stats = zonal_stats(
-                projected, raster_file, stats=['count', 'nodata'],
-                band=band, categorical=True, category_map=categories, all_touched=touches,
+                projected, raster_file, stats=['count', 'nodata', 'nan'],
+                band=band, categorical=True, all_touched=touches,
                 geojson_out=True, raster_out=False)
+
+            lu = defaultdict(lambda: 0)
+            for stat in stats:
+                prop = stat['properties']
+
+                # Rename land-use categories
+                for k, v in categories.items():
+                    lu[v] += prop.pop(k, 0)
+
+                prop['land-use'] = lu
+                # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
             feature_collect = {'type': 'FeatureCollection', 'features': stats}
             response.outputs['statistics'].data = json.dumps(feature_collect)
