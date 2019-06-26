@@ -30,6 +30,7 @@ Raven can be compiled and installed, or simply deployed using docker. A hosted v
 
 Documentation
 -------------
+
 Get started with notebook tutorials in the official documentation at https://pavics-raven.readthedocs.io
 
 Submit bug reports, questions and feature requests at https://github.com/Ouranosinc/raven/issues
@@ -47,6 +48,7 @@ This package was created with Cookiecutter_ and the `bird-house/cookiecutter-bir
 
 License
 -------
+
 Raven is released under the MIT License.
 
 
