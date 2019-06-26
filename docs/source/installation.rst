@@ -3,12 +3,6 @@
 Installation
 ============
 
-Install from Anaconda
----------------------
-
-.. todo::
-
-   Prepare Conda package.
 
 Install from GitHub
 -------------------
@@ -17,7 +11,7 @@ Check out code from the Raven GitHub repo and start the installation:
 
 .. code-block:: sh
 
-   $ git clone https://github.com/huard/raven.git
+   $ git clone https://github.com/Ouranosinc/raven.git
    $ cd raven
    $ conda env create -f environment.yml
    $ source activate raven
@@ -31,7 +25,7 @@ We provide also a ``Makefile`` to run this installation without additional steps
 
 .. code-block:: sh
 
-   $ git clone https://github.com/huard/raven.git
+   $ git clone https://github.com/Ouranosinc/raven.git
    $ cd raven
    $ make clean    # cleans up a previous Conda environment
    $ make install  # installs Conda if necessary and runs the above installation steps
