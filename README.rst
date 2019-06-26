@@ -25,7 +25,7 @@ Raven is an open source server project offering hydrological modeling and analys
 
 Raven was made to help scientists run hydrological modeling experiments with climate change projections. It includes four lumped daily hydrological models (GR4J-CN, HBV-EC, HMETS, MOHYSE) that can be run in multi-model experiments. Meteorological input variables as well as streamflow and storage outputs use the netCDF format. Raven bundles model calibration processes, time series analysis (with xarray_), hydrological indicators and frequency analysis (using xclim_). On top of this, a database of pre-calibrated model parameters over North America is available to perform model regionalization, allowing simulations in watersheds with no streamflow observations. The properties of custom watersheds can be extracted from a Digital Elevation Model and a land-use database.
 
-Raven can be compiled and installed, or simply deployed using docker. A hosted version is available at https://pavics.ouranos.ca/twitcher/ows/proxy/raven.
+Raven can be compiled and installed, or simply deployed using docker. A hosted version is available at Ouranos_ at https://pavics.ouranos.ca/twitcher/ows/proxy/raven.
 
 
 Documentation
@@ -40,10 +40,7 @@ Credits
 
 This project was funded by the CANARIE_ research software program.
 
-.. image:: imgs/CANARIE_v.jpg
-   :width: 100px
-
-Its hydrological models are themselves based on the `Raven`_ modeling framework.
+Hydrological models are based on the `Raven`_ modeling framework.
 
 This package was created with Cookiecutter_ and the `bird-house/cookiecutter-birdhouse`_ project template.
 
@@ -52,7 +49,7 @@ License
 -------
 Raven is released under the MIT License:
 
-   .. include:: LICENSE.txt
+   .. include:: ./LICENSE.txt
 
 
 .. _`birdy`: https://birdy.readthedocs.io
@@ -62,3 +59,4 @@ Raven is released under the MIT License:
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
 .. _`Raven`: http://raven.uwaterloo.ca
 .. _`CANARIE`: https://www.canarie.ca
+.. _`Ouranos`: https://www.ouranos.ca/
