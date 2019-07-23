@@ -88,7 +88,7 @@ class HydroShedsSelectionProcess(Process):
                                                 dir=self.workdir).name
 
         hybas_bytes = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
-        with open(shape_url, 'w') as f:
+        with open(shape_url, 'wb') as f:
             f.write(hybas_bytes)
 
         response.update_status('Found downstream watershed', status_percentage=10)
@@ -104,6 +104,7 @@ class HydroShedsSelectionProcess(Process):
 
             feat = next(src)
             hybas_id = feat['properties']['HYBAS_ID']
+            gml_id = feat['properties']['gml_id']
 
             if collect_upstream:
 
@@ -141,6 +142,6 @@ class HydroShedsSelectionProcess(Process):
 
             else:
                 response.outputs['feature'].data = json.dumps(feat)
-                response.outputs['upstream_ids'].data = json.dumps([hybas_id, ])
+                response.outputs['upstream_ids'].data = json.dumps([gml_id, ])
 
         return response
