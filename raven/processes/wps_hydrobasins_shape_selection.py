@@ -17,8 +17,9 @@ from raven.utils import crs_sniffer
 LOGGER = logging.getLogger("PYWPS")
 
 
-class HydroShedsSelectionProcess(Process):
-    """Given lat/lon coordinates and a file containing vector data, return the feature containing the coordinates."""
+class HydroBasinsSelectionProcess(Process):
+    """Given lat/lon coordinates that point to a North American watershed,
+     return the feature containing the coordinates or the entire upstream water basin."""
 
     def __init__(self):
         inputs = [
@@ -55,9 +56,9 @@ class HydroShedsSelectionProcess(Process):
                           supported_formats=[FORMATS.JSON])
         ]
 
-        super(HydroShedsSelectionProcess, self).__init__(
+        super(HydroBasinsSelectionProcess, self).__init__(
             self._handler,
-            identifier="hydrosheds-select",
+            identifier="hydrobasins-select",
             title="Select a HydroBASINS watershed geometry",
             version="1.0",
             abstract="Return a watershed from the HydroSheds database as a polygon vector file.",
@@ -87,9 +88,10 @@ class HydroShedsSelectionProcess(Process):
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
 
-        hybas_bytes = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
-        with open(shape_url, 'wb') as f:
-            f.write(hybas_bytes)
+        hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
+
+        with open(shape_url, 'w') as f:
+            f.write(hybas_gml)
 
         response.update_status('Found downstream watershed', status_percentage=10)
 
@@ -101,7 +103,6 @@ class HydroShedsSelectionProcess(Process):
         with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
             # Find HYBAS_ID
-
             feat = next(src)
             hybas_id = feat['properties']['HYBAS_ID']
             gml_id = feat['properties']['gml_id']
