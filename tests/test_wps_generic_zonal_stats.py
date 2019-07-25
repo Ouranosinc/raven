@@ -80,13 +80,12 @@ class TestGenericZonalStatsProcess:
             except ValueError:
                 if key in ['count', 'nodata']:
                     continue
-
         assert category_counts == stats['count']
 
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-    def test_geoserver_dem_wcs(self):
+    def test_geoserver_dem_wcs_simple(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [
             'select_all_touching={touches}',
@@ -109,6 +108,45 @@ class TestGenericZonalStatsProcess:
 
         stats = feature['properties']
         assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
+
+        geometry = shape(feature['geometry'])
+        assert isinstance(type(geometry), type(MultiPolygon))
+
+
+    def test_geoserver_dem_wcs_categorized(self):
+        client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
+        fields = [
+            'select_all_touching={touches}',
+            'categorical={categorical}',
+            'band={band}',
+            'shape=file@xlink:href=file://{shape}', ]
+
+        datainputs = ';'.join(fields).format(
+            touches=True,
+            categorical=True,
+            band=1,
+            shape=TESTDATA['mrc_subset'],
+        )
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='zonal-stats', datainputs=datainputs)
+
+        assert_response_success(resp)
+        out = get_output(resp.xml)
+        feature = json.loads(out['statistics'])['features'][0]
+
+        stats = feature['properties']
+        assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
+
+        # Check for accurate pixel counts
+        category_counts = 0
+        for key, val in stats.items():
+            try:
+                int(key)
+                category_counts += val
+            except ValueError:
+                if key in ['count', 'nodata']:
+                    continue
+        assert category_counts == stats['count']
 
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
