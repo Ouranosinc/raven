@@ -14,12 +14,12 @@ import fiona.crs
 import numpy as np
 import pyproj
 import rasterio
-from rasterio.crs import CRS
 import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
 import shapely.geometry as sgeo
 from osgeo.gdal import DEMProcessing
+from rasterio.crs import CRS
 from shapely.ops import transform
 
 LOGGER = logging.getLogger("RAVEN")
