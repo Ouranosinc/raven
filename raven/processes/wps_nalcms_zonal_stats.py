@@ -1,7 +1,7 @@
 import json
 import logging
 import tempfile
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 from pywps import ComplexOutput
 from pywps import LiteralInput, ComplexInput
@@ -159,8 +159,8 @@ class NALCMSZonalStatisticsProcess(Process):
                 band=band, categorical=True, all_touched=touches,
                 geojson_out=True, raster_out=False)
 
-            lu = defaultdict(lambda: 0)
             for stat in stats:
+                lu = defaultdict(lambda: 0)
                 prop = stat['properties']
 
                 # Rename land-use categories
