@@ -42,7 +42,7 @@ class TestNALCMSZonalStatsProcess:
         category_counts = 0
         for key, val in stats['land-use'].items():
             category_counts += val
-        assert (category_counts + stats['nodata']) == stats['count']
+        assert category_counts == stats['count']
 
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
@@ -79,7 +79,7 @@ class TestNALCMSZonalStatsProcess:
         category_counts = 0
         for key, val in stats['land-use'].items():
             category_counts += val
-        assert (category_counts + stats['nodata']) == stats['count']
+        assert category_counts == stats['count']
 
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
