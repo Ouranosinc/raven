@@ -71,6 +71,18 @@ class TestGenericZonalStatsProcess:
         stats = feature['properties']
         assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
 
+        # Check for accurate pixel counts
+        category_count = 0
+        for key, val in stats.items():
+            try:
+                int(key)
+                category_count += val
+            except ValueError:
+                if key in ['count', 'nodata']:
+                    continue
+
+        assert (category_count + stats['nodata']) == stats['count']
+
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
