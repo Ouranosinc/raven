@@ -6,6 +6,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 
 from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
 from pywps import FORMATS, Format
+from raven import config
 
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
@@ -75,59 +76,75 @@ start_date = LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
                                    'Defaults to the start of the forcing file. ',
                           data_type='dateTime',
                           default='0001-01-01 00:00:00',
-                          min_occurs=0)
+                          min_occurs=0,
+                          max_occurs=config.max_parallel_processes)
 
 end_date = LiteralInput('end_date', 'Simulation end date (AAAA-MM-DD)',
                         abstract='End date of the simulation (AAAA-MM-DD). '
                                  'Defaults to the end of the forcing file.',
                         data_type='dateTime',
                         default='0001-01-01 00:00:00',
-                        min_occurs=0)
+                        min_occurs=0,
+                        max_occurs=config.max_parallel_processes)
 
 duration = LiteralInput('duration', 'Simulation duration (days)',
                         abstract='Number of simulated days, defaults to the length of the input forcings.',
                         data_type='nonNegativeInteger',
                         default=0,
-                        min_occurs=0)
+                        min_occurs=0,
+                        max_occurs=config.max_parallel_processes)
 
 run_name = LiteralInput('run_name', 'Simulation name',
                         abstract='The name given to the simulation, for example <watershed>_<experiment>',
                         data_type='string',
                         default='raven-gr4j-cemaneige-sim',
-                        min_occurs=0)
+                        min_occurs=0,
+                        max_occurs=config.max_parallel_processes)
 
 name = LiteralInput('name', 'Watershed name',
                     abstract='The name of the watershed the model is run for.',
                     data_type='string',
                     default='watershed',
-                    min_occurs=0)
+                    min_occurs=0,
+                    max_occurs=config.max_parallel_processes)
 
 area = LiteralInput('area', 'Watershed area (km2)',
                     abstract='Watershed area (km2)',
                     data_type='float',
                     default=0.,
-                    min_occurs=0)
+                    min_occurs=0,
+                    max_occurs=config.max_parallel_processes)
 
 latitude = LiteralInput('latitude', 'Latitude',
                         abstract="Watershed's centroid latitude",
                         data_type='float',
-                        min_occurs=1)
+                        min_occurs=1,
+                        max_occurs=config.max_parallel_processes)
 
 longitude = LiteralInput('longitude', 'Longitude',
                          abstract="Watershed's centroid longitude",
                          data_type='float',
-                         min_occurs=1)
+                         min_occurs=1,
+                         max_occurs=config.max_parallel_processes)
 
 elevation = LiteralInput('elevation', 'Elevation (m)',
                          abstract="Watershed's mean elevation (m)",
                          data_type='float',
-                         min_occurs=1)
+                         min_occurs=1,
+                         max_occurs=config.max_parallel_processes)
 
 model_name = LiteralInput('model_name', 'Hydrological model identifier',
                           abstract="Hydrological model identifier: {HMETS, GR4JCN, MOHYSE}",
                           data_type='string',
                           allowed_values=('HMETS', 'GR4JCN', 'MOHYSE'),
-                          min_occurs=1)
+                          min_occurs=1,
+                          max_occurs=config.max_parallel_processes)
+
+nc_index = LiteralInput('nc_index', 'NetCDF input index',
+                        abstract="TODO",
+                        data_type='integer',
+                        min_occurs=0,
+                        max_occurs=config.max_parallel_processes)
 
 
 # --- #
@@ -135,7 +152,7 @@ model_name = LiteralInput('model_name', 'Hydrological model identifier',
 hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                            supported_formats=[FORMATS.NETCDF,
                                               Format('application/zip', extension='.zip', encoding='base64')],
-                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
+                           abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins '
                                     'specified as `gauged` in the .rvh file. It reports period-ending time-'
                                     'averaged flows for the preceding time step, as is consistent with most '
                                     'measured stream gauge data (again, the initial flow conditions at the '
@@ -144,16 +161,13 @@ hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                                     'hydrograph. ',
                            as_reference=True)
 
-# TODO: adjust abstract
 ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (mm)',
                          supported_formats=[FORMATS.NETCDF],
-                         abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins'
-                                  'specified as `gauged` in the .rvh file. It reports period-ending time-'
-                                  'averaged flows for the preceding time step, as is consistent with most '
-                                  'measured stream gauge data (again, the initial flow conditions at the '
-                                  'start of the first time step are included). If observed hydrographs are '
-                                  'specified, they will be output adjacent to the corresponding modelled  '
-                                  'hydrograph. ',
+                         abstract='A netCDF file containing the outflow hydrographs (in m3/s) for the basin '
+                                  'on which the regionalization method has been applied. The number of outflow '
+                                  'hydrographs is equal to the number of donors (ndonors) passed to the method. '
+                                  'The average of these hydrographs (either using equal or Inverse-Distance Weights) '
+                                  'is the hydrograph generated in "hydrograph".',
                          as_reference=True)
 
 
@@ -180,6 +194,11 @@ diagnostics = ComplexOutput('diagnostics', 'Performance diagnostic values',
                             supported_formats=[FORMATS.TEXT,
                                                Format('application/zip', extension='.zip', encoding='base64')],
                             as_reference=True)
+
+calibparams = LiteralOutput('calibparams', 'Calibrated prameters',
+                            abstract='Comma separated list of parameters.',
+                            data_type='string')
+
 
 # --- OSTRICH --- #
 
