@@ -5,7 +5,7 @@ from pywps.tests import assert_response_success
 from shapely.geometry import shape, MultiPolygon
 
 from raven.processes import ZonalStatisticsProcess
-from .common import client_for, TESTDATA, CFG_FILE, get_output
+from .common import client_for, TESTDATA, CFG_FILE, get_output, count_pixels
 
 
 class TestGenericZonalStatsProcess:
@@ -72,14 +72,7 @@ class TestGenericZonalStatsProcess:
         assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
 
         # Check for accurate pixel counts
-        category_counts = 0
-        for key, val in stats.items():
-            try:
-                int(key)
-                category_counts += val
-            except ValueError:
-                if key in ['count', 'nodata']:
-                    continue
+        category_counts = count_pixels(stats, numeric_categories=True)
         assert category_counts == stats['count']
 
         geometry = shape(feature['geometry'])
@@ -112,7 +105,6 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-
     def test_geoserver_dem_wcs_categorized(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [
@@ -138,14 +130,7 @@ class TestGenericZonalStatsProcess:
         assert {'count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'}.issubset(stats)
 
         # Check for accurate pixel counts
-        category_counts = 0
-        for key, val in stats.items():
-            try:
-                int(key)
-                category_counts += val
-            except ValueError:
-                if key in ['count', 'nodata']:
-                    continue
+        category_counts = count_pixels(stats, numeric_categories=True)
         assert category_counts == stats['count']
 
         geometry = shape(feature['geometry'])
