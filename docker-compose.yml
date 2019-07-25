@@ -1,0 +1,13 @@
+version: '3'
+services:
+  raven:
+    build: .
+    image: local_raven
+    ports:
+      - "9099:9099"
+
+
+# docker-compose build
+# docker-compose up
+# docker-compose down
+# docker-compose rm
