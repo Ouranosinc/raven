@@ -22,7 +22,7 @@ def test_wps_caps():
                   'raven-hmets',
                   'raven-hbv-ec',
                   'shape-properties',
-                  'hydrosheds-select',
+                  'hydrobasins-select',
                   'terrain-analysis',
                   'nalcms-zonal-stats',
                   'zonal-stats',

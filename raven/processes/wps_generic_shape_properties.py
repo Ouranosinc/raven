@@ -5,7 +5,7 @@ import logging
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
-from raven.utils import geom_transform, geom_prop
+from raven.utils import geom_transform, geom_prop, multipolygon_check
 from rasterio.crs import CRS
 from shapely.geometry import shape
 
@@ -74,6 +74,8 @@ class ShapePropertiesProcess(Process):
                 with fiona.open(vector_file, 'r', crs=shape_crs, layer=i) as src:
                     for feature in src:
                         geom = shape(feature['geometry'])
+
+                        multipolygon_check(geom)
 
                         transformed = geom_transform(geom, source_crs=shape_crs, target_crs=projection)
                         prop = {'id': feature['id']}
