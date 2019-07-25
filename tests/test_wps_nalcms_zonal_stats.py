@@ -116,7 +116,6 @@ class TestNALCMSZonalStatsProcess:
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-
     def test_wcs_true_categories(self):
         client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [

@@ -10,15 +10,16 @@ from functools import partial
 from re import search
 
 import fiona
+import fiona.crs
 import numpy as np
 import pyproj
 import rasterio
+from rasterio.crs import CRS
 import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
 import shapely.geometry as sgeo
 from osgeo.gdal import DEMProcessing
-from rasterio.crs import CRS
 from shapely.ops import transform
 
 LOGGER = logging.getLogger("RAVEN")
@@ -168,23 +169,26 @@ def crs_sniffer(*args):
             if str(file).lower().endswith(vectors):
                 if str(file).lower().endswith('.gpkg'):
                     if len(fiona.listlayers(file)) > 1:
-                        msg = 'Multilayer GeoPackages are currently unsupported'
-                        LOGGER.warning(msg)
-                        raise NotImplementedError(msg)
+                        raise NotImplementedError
                 with fiona.open(file, 'r') as src:
-                    found_crs = CRS(src.crs).to_proj4()
-                    src.close()
+                    found_crs = fiona.crs.to_string(src.crs)
             elif str(file).lower().endswith(rasters):
                 with rasterio.open(file, 'r') as src:
                     found_crs = CRS(src.crs).to_proj4()
-                    src.close()
             else:
-                FileNotFoundError('Invalid filename suffix')
-        except Exception as e:
-            msg = '{}: Unable to read crs from {}'.format(e, args)
-            LOGGER.exception(msg)
-        finally:
-            crs_list.append(found_crs)
+                raise FileNotFoundError('Invalid filename suffix')
+        except FileNotFoundError as e:
+            msg = '{}: Unable to open file {}'.format(e, args)
+            LOGGER.warning(msg)
+            raise Exception(msg)
+        except NotImplementedError as e:
+            msg = '{}: Multilayer GeoPackages are currently unsupported'.format(e)
+            LOGGER.error(msg)
+            raise Exception(msg)
+        except RuntimeError:
+            pass
+
+        crs_list.append(found_crs)
 
     if crs_list is None:
         msg = 'No CRS definitions found in {}.'.format(args)
@@ -192,9 +196,9 @@ def crs_sniffer(*args):
 
     if len(crs_list) == 1:
         if crs_list[0] == '':
-            msg = 'No CRS definitions found in {}. Using {}'.format(args, WGS84)
+            msg = 'No CRS definitions found in {}. Using {}'.format(args, WGS84_PROJ4)
             LOGGER.warning(msg)
-            return WGS84
+            return WGS84_PROJ4
         return crs_list[0]
     return crs_list
 
@@ -603,7 +607,7 @@ def generic_raster_warp(raster, output, target_crs, raster_compression=RASTERIO_
     return
 
 
-def generic_vector_reproject(vector, projected, source_crs=WGS84, target_crs=None):
+def generic_vector_reproject(vector, projected, source_crs=WGS84_PROJ4, target_crs=None):
     """Reproject all features and layers within a vector file and return a GeoJSON
 
     Parameters
