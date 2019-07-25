@@ -1,7 +1,7 @@
 import json
 import logging
 import tempfile
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from pywps import ComplexOutput
 from pywps import LiteralInput, ComplexInput
