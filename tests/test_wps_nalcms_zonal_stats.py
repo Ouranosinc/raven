@@ -35,13 +35,14 @@ class TestNALCMSZonalStatsProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
         stats = json.loads(out['statistics'])[0]
-        assert {'count', 'nodata', 'nan'}.issubset(stats)
-
-        category_counts = count_pixels(stats)
-        assert category_counts == stats['count']
+        assert not {'count', 'nodata', 'nan'}.issubset(stats)
 
         geometry = json.loads(out['features'])
         assert isinstance(type(geometry), type(MultiPolygon))
+
+        category_counts = count_pixels(stats)
+        assert category_counts == geometry['features'][0]['properties']['count']
+        assert sum(stats.values()) == geometry['features'][0]['properties']['count']
 
     def test_true_categories(self):
         client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
@@ -68,13 +69,14 @@ class TestNALCMSZonalStatsProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
         stats = json.loads(out['statistics'])[0]
-        assert {'count', 'nodata', 'nan'}.issubset(stats)
-
-        category_counts = count_pixels(stats)
-        assert category_counts == stats['count']
+        assert not {'count', 'nodata', 'nan'}.issubset(stats)
 
         geometry = json.loads(out['features'])
         assert isinstance(type(geometry), type(MultiPolygon))
+
+        category_counts = count_pixels(stats)
+        assert category_counts == geometry['features'][0]['properties']['count']
+        assert sum(stats.values()) == geometry['features'][0]['properties']['count']
 
     def test_wcs_simplified_categories(self):
         client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
@@ -96,13 +98,14 @@ class TestNALCMSZonalStatsProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
         stats = json.loads(out['statistics'])[0]
-        assert {'count', 'nodata', 'nan'}.issubset(stats)
-
-        category_counts = count_pixels(stats)
-        assert category_counts == stats['count']
+        assert not {'count', 'nodata', 'nan'}.issubset(stats)
 
         geometry = json.loads(out['features'])
         assert isinstance(type(geometry), type(MultiPolygon))
+
+        category_counts = count_pixels(stats)
+        assert category_counts == geometry['features'][0]['properties']['count']
+        assert sum(stats.values()) == geometry['features'][0]['properties']['count']
 
     def test_wcs_true_categories(self):
         client = client_for(Service(processes=[NALCMSZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
@@ -124,10 +127,11 @@ class TestNALCMSZonalStatsProcess:
         assert_response_success(resp)
         out = get_output(resp.xml)
         stats = json.loads(out['statistics'])[0]
-        assert {'count', 'nodata', 'nan'}.issubset(stats)
-
-        category_counts = count_pixels(stats)
-        assert category_counts == stats['count']
+        assert not {'count', 'nodata', 'nan'}.issubset(stats)
 
         geometry = json.loads(out['features'])
         assert isinstance(type(geometry), type(MultiPolygon))
+
+        category_counts = count_pixels(stats)
+        assert category_counts == geometry['features'][0]['properties']['count']
+        assert sum(stats.values()) == geometry['features'][0]['properties']['count']

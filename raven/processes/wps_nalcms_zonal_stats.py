@@ -175,8 +175,6 @@ class NALCMSZonalStatisticsProcess(Process):
                 # Rename land-use categories
                 for k, v in categories.items():
                     lu[v] += prop.pop(k, 0)
-                for k in summary_stats:
-                    lu[k] = prop.pop(k, 0)
 
                 prop.update(lu)
                 land_use.append(lu)
