@@ -19,7 +19,7 @@ matrix:
       addons:
         apt:
           packages:
-          - lib-netcdf-dev
+          - libnetcdf-dev
       env:
           - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
           - PEP8=true
@@ -30,7 +30,7 @@ matrix:
       addons:
         apt:
           packages:
-          - lib-netcdf-dev
+          - libnetcdf-dev
       env:
           - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
           - DOCS=true
