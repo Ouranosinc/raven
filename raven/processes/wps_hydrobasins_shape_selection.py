@@ -17,8 +17,9 @@ from raven.utils import crs_sniffer
 LOGGER = logging.getLogger("PYWPS")
 
 
-class HydroShedsSelectionProcess(Process):
-    """Given lat/lon coordinates and a file containing vector data, return the feature containing the coordinates."""
+class HydroBasinsSelectionProcess(Process):
+    """Given lat/lon coordinates that point to a North American watershed,
+     return the feature containing the coordinates or the entire upstream water basin."""
 
     def __init__(self):
         inputs = [
@@ -55,10 +56,10 @@ class HydroShedsSelectionProcess(Process):
                           supported_formats=[FORMATS.JSON])
         ]
 
-        super(HydroShedsSelectionProcess, self).__init__(
+        super(HydroBasinsSelectionProcess, self).__init__(
             self._handler,
-            identifier="hydrosheds-select",
-            title="Select an HydroSheds watershed",
+            identifier="hydrobasins-select",
+            title="Select a HydroBASINS watershed geometry",
             version="1.0",
             abstract="Return a watershed from the HydroSheds database as a polygon vector file.",
             metadata=[],
@@ -87,9 +88,10 @@ class HydroShedsSelectionProcess(Process):
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
 
-        hybas_bytes = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
+        hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
+
         with open(shape_url, 'w') as f:
-            f.write(hybas_bytes)
+            f.write(hybas_gml)
 
         response.update_status('Found downstream watershed', status_percentage=10)
 
@@ -101,9 +103,9 @@ class HydroShedsSelectionProcess(Process):
         with fiona.Collection(shp, 'r', crs=shape_crs) as src:
 
             # Find HYBAS_ID
-
             feat = next(src)
             hybas_id = feat['properties']['HYBAS_ID']
+            gml_id = feat['properties']['gml_id']
 
             if collect_upstream:
 
@@ -113,9 +115,10 @@ class HydroShedsSelectionProcess(Process):
                     raise InvalidParameterValue("Set lakes to True and level to 12.")
 
                 # Collect features from GeoServer
+                response.update_status('Collecting relevant features', status_percentage=70)
+
                 region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                      dir=self.workdir).name
-
                 region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
                                                                 lakes=lakes, level=level)
 
@@ -136,10 +139,10 @@ class HydroShedsSelectionProcess(Process):
 
                 feat = json.loads(agg.to_json())['features'][0]
                 response.outputs['feature'].data = json.dumps(feat)
-                response.outputs['upstream_ids'].data = json.dumps(up['HYBAS_ID'].tolist())
+                response.outputs['upstream_ids'].data = json.dumps(up['id'].tolist())
 
             else:
                 response.outputs['feature'].data = json.dumps(feat)
-                response.outputs['upstream_ids'].data = json.dumps([hybas_id, ])
+                response.outputs['upstream_ids'].data = json.dumps([gml_id, ])
 
         return response
