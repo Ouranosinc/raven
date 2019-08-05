@@ -12,7 +12,6 @@ matrix:
         homebrew:
           packages:
             - netcdf
-            - pandoc
     - os: linux
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
@@ -24,7 +23,6 @@ matrix:
         apt:
           packages:
             - lib-netcdf-dev
-            - pandoc
     - os: linux
       name: "Linux (Python3.7 + docs)"
       python: "3.7"
@@ -36,7 +34,6 @@ matrix:
         apt:
           packages:
             - lib-netcdf-dev
-            - pandoc
 
 branches:
   only:
