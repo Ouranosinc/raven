@@ -31,5 +31,7 @@ rasterstats
 shapely
 unidecode
 geojson
+pandoc
+ipython # needed for the parsing of Jupyter Notebooks
 # xclim It seems to be installed by pip in src/ and confuse pytest.
 
