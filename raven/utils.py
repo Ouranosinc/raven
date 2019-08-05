@@ -69,9 +69,9 @@ def generic_extract_archive(resources, output_dir=None):
 
     Parameters
     ----------
-    resources: list
+    resources: list(bytes or str or PathLike)
       list of archive files (if netCDF files are in list, they are passed and returned as well in the return).
-    output_dir: str or path
+    output_dir: str or PathLike
       string or Path to a working location (default: temporary folder).
 
     Returns
@@ -287,20 +287,22 @@ def boundary_check(*args, max_y=60, min_y=-60):
     return
 
 
-def multipolygon_check(f):
-    pass
-    # def wrapper(*args, **kwargs):
-    #     """Perform a check to verify a geometry is a MultiPolygon
-    #
-    #        :params *args: shapely.geometry
-    #        """
-    #     if isinstance(type(*args), sgeo.multipolygon.MultiPolygon):
-    #         LOGGER.warning("Shape is a Multipolygon.")
-    #     print('ok!')
-    # return wrapper
+def multipolygon_check(geom):
+    """Perform a check to verify a geometry is a MultiPolygon
+
+       :params *args: shapely.geometry
+       """
+    if not isinstance(type(geom), sgeo.GeometryCollection):
+        try:
+            geom = sgeo.shape(geom)
+        except Exception as e:
+            LOGGER.error('{}: Unable to load vector as shapely.geometry.shape().'.format(e))
+
+    if isinstance(type(geom), sgeo.multipolygon.MultiPolygon):
+        LOGGER.warning("Shape is a Multipolygon.")
+    return
 
 
-# @multipolygon_check
 def geom_transform(geom, source_crs=WGS84, target_crs=None):
     """Change the projection of a geometry.
 
@@ -420,7 +422,7 @@ def dem_prop(dem, geom=None, directory=None):
 # Since it technically is writing the information to the file, this function could use a generic named temporary file
 # to perform the analysis and return the array all in memory I suppose. I've added this as an option here.
 
-# @multipolygon_check
+
 def gdal_slope_analysis(dem, output=None, units='degree'):
     """Return the slope of the terrain from the DEM.
 
