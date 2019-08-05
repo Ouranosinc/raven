@@ -1,5 +1,5 @@
-
 language: generic
+
 matrix:
   fast_finish: true
   include:
@@ -8,12 +8,11 @@ matrix:
       name: "macOS (Python3.5)"
       env:
         - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
-    - os: linux
-      name: "Linux (Python2.7)"
-      dist: xenial
-      python: "2.7"
-      env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+      addons:
+        apt:
+          packages:
+            - netcdf
+            - pandoc
     - os: linux
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
@@ -21,19 +20,30 @@ matrix:
       env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
         - PEP8=true
+      addons:
+        apt:
+          packages:
+            - lib-netcdf-dev
+            - pandoc
     - os: linux
-      name: "Linux (Python3.5 + docs)"
-      python: "3.5"
+      name: "Linux (Python3.7 + docs)"
+      python: "3.7"
       dist: xenial
       env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
         - DOCS=true
+      addons:
+        apt:
+          packages:
+            - lib-netcdf-dev
+            - pandoc
+
 branches:
   only:
     - master
+
 sudo: false
-before_install:
-  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev pandoc; else brew install netcdf pandoc; fi
+
 install:
   - make install
   - make start
@@ -51,6 +61,7 @@ before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
+
 script:
   - make test
   - if [[ $DOCS = true ]]; then make docs; fi
