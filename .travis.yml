@@ -10,6 +10,7 @@ matrix:
         homebrew:
           packages:
           - netcdf
+          update: true
       env:
           - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - os: linux
