@@ -6,34 +6,34 @@ matrix:
     - os: osx
       python: "3.5"
       name: "macOS (Python3.5)"
-      env:
-        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
       addons:
         homebrew:
           packages:
-            - netcdf
+          - netcdf
+      env:
+          - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - os: linux
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
       python: "3.6"
-      env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-        - PEP8=true
       addons:
         apt:
           packages:
-            - lib-netcdf-dev
+          - lib-netcdf-dev
+      env:
+          - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+          - PEP8=true
     - os: linux
       name: "Linux (Python3.7 + docs)"
       python: "3.7"
       dist: xenial
-      env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-        - DOCS=true
       addons:
         apt:
           packages:
-            - lib-netcdf-dev
+          - lib-netcdf-dev
+      env:
+          - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+          - DOCS=true
 
 branches:
   only:
@@ -54,6 +54,7 @@ install:
 #  - conda install pytest flake8
 #  # Install Emu WPS
 #  - python setup.py install
+
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
