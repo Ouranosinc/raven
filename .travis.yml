@@ -9,7 +9,7 @@ matrix:
       env:
         - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
       addons:
-        apt:
+        homebrew:
           packages:
             - netcdf
             - pandoc
