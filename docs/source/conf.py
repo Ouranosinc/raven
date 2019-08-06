@@ -48,6 +48,9 @@ autoapi_dirs = ['../../raven']
 autoapi_file_pattern = '*.py'
 autoapi_options = ['members', 'undoc-members', 'private-members']
 
+# To avoid having to install these and burst memory limit on ReadTheDocs.
+autodoc_mock_imports = ["numpy", "xarray"]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
