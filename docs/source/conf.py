@@ -20,7 +20,10 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('..'))
+
+# Add raven to sys.path to avoid having to full install raven for autodoc.
+# Full install of raven will burst memory limit on ReadTheDocs.
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- General configuration ---------------------------------------------
