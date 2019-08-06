@@ -11,4 +11,4 @@ sphinx:
     configuration: docs/source/conf.py
 
 conda:
-  file: environment.yml
+  file: environment-docs.yml
