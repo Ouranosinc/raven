@@ -1,0 +1,13 @@
+name: raven
+channels:
+- birdhouse
+- conda-forge
+- defaults
+dependencies:
+- pywps>=4.2
+- pandoc
+- nbsphinx
+- sphinx
+- sphinx-autoapi
+- libiconv
+- ipython
