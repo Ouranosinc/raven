@@ -2,6 +2,7 @@
 
 """Top-level package for Raven."""
 
+import os
 from .wsgi import application
 from pathlib import Path
 import warnings
@@ -10,13 +11,14 @@ __author__ = """David Huard"""
 __email__ = 'huard.david@ouranos.ca'
 __version__ = '0.7.0'
 
-raven_exec = Path(__file__).parent.parent / 'bin' / 'raven'
-if not raven_exec.exists():
-    raise IOError("The raven executable is not installed.")
+if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
+    raven_exec = Path(__file__).parent.parent / 'bin' / 'raven'
+    if not raven_exec.exists():
+        raise IOError("The raven executable is not installed.")
 
-ostrich_exec = Path(__file__).parent.parent / 'bin' / 'ostrich'
-if not ostrich_exec.exists():
-    raise IOError("The ostrich executable is not installed.")
+    ostrich_exec = Path(__file__).parent.parent / 'bin' / 'ostrich'
+    if not ostrich_exec.exists():
+        raise IOError("The ostrich executable is not installed.")
 
 raven_simg = Path(__file__).parent.parent / 'bin' / 'hydro-raven-latest.simg'
 if not raven_simg.exists():

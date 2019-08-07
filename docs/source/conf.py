@@ -25,6 +25,10 @@ import sys
 # Full install of raven will burst memory limit on ReadTheDocs.
 sys.path.insert(0, os.path.abspath('../..'))
 
+# Set flag to not fail doc build.
+if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
+    os.environ['DO_NOT_CHECK_EXECUTABLE_EXISTENCE'] = "1"
+
 
 # -- General configuration ---------------------------------------------
 
