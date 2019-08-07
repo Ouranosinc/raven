@@ -5,9 +5,6 @@ channels:
 - defaults
 dependencies:
 - pywps>=4.2
-- pandoc
-- nbsphinx
 - sphinx
-- sphinx-autoapi
-- libiconv
+- nbsphinx
 - ipython
