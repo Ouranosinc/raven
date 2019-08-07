@@ -20,7 +20,14 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('..'))
+
+# Add raven to sys.path to avoid having to full install raven for autodoc.
+# Full install of raven will burst memory limit on ReadTheDocs.
+sys.path.insert(0, os.path.abspath('../..'))
+
+# Set flag to not fail doc build.
+if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
+    os.environ['DO_NOT_CHECK_EXECUTABLE_EXISTENCE'] = "1"
 
 
 # -- General configuration ---------------------------------------------
@@ -44,6 +51,12 @@ autoapi_type = 'python'
 autoapi_dirs = ['../../raven']
 autoapi_file_pattern = '*.py'
 autoapi_options = ['members', 'undoc-members', 'private-members']
+
+# To avoid having to install these and burst memory limit on ReadTheDocs.
+autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
+                        "osgeo", "geopandas", "pandas", "statsmodels",
+                        "affine", "rasterstats", "spotpy", "matplotlib",
+                        "scipy", "unidecode"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
