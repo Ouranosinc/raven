@@ -31,6 +31,7 @@ dependencies:
 - statsmodels
 - matplotlib
 - xclim
+- pandoc
 - pip:
   - spotpy
   - pysheds
