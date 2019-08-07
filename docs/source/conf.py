@@ -49,7 +49,10 @@ autoapi_file_pattern = '*.py'
 autoapi_options = ['members', 'undoc-members', 'private-members']
 
 # To avoid having to install these and burst memory limit on ReadTheDocs.
-autodoc_mock_imports = ["numpy", "xarray"]
+autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
+                        "osgeo", "geopandas", "pandas", "statsmodels",
+                        "affine", "rasterstats", "spotpy", "matplotlib",
+                        "scipy", "xclim", "unidecode"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
