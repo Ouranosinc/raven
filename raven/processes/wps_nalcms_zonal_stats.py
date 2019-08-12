@@ -77,14 +77,14 @@ class NALCMSZonalStatisticsProcess(Process):
                                  'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
                          min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             LiteralInput('simple_categories', 'Use simplified land classification categories for hydrological '
-                                              'modelling purposes. Default: True',
+                                              'modeling purposes.',
                          data_type='boolean', default='false',
                          min_occurs=0, max_occurs=1),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
-                         abstract='Band of raster examined to perform zonal statistics. Default: 1',
+                         abstract='Band of raster examined to perform zonal statistics.',
                          min_occurs=0, max_occurs=1),
-            LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
+            LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape.',
                          data_type='boolean', default='false',
                          min_occurs=0, max_occurs=1),
         ]
@@ -94,7 +94,7 @@ class NALCMSZonalStatisticsProcess(Process):
                           abstract='Category pixel counts using either standard or simplified UNFAO categories',
                           supported_formats=[FORMATS.GEOJSON]),
             ComplexOutput('statistics', 'DEM properties by feature',
-                          abstract='Category pixel counts using either standard or simplified UNFAO categories',
+                          abstract='Land-use type pixel counts using either standard or simplified UNFAO categories.',
                           supported_formats=[FORMATS.JSON])
         ]
 
@@ -103,7 +103,8 @@ class NALCMSZonalStatisticsProcess(Process):
             identifier="nalcms-zonal-stats",
             title="NALCMS Land Use Zonal Statistics",
             version="1.0",
-            abstract="Return zonal statistics for the CEC NALCMS based on the boundaries of a vector file.",
+            abstract="Return zonal statistics and land-use cover for the CEC NALCMS based on the boundaries of a "
+                     "vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -172,9 +173,9 @@ class NALCMSZonalStatisticsProcess(Process):
                 lu = defaultdict(lambda: 0)
                 prop = stat['properties']
 
-                # Rename land-use categories
+                # Rename/aggregate land-use categories
                 for k, v in categories.items():
-                    lu[v] += prop.pop(k, 0)
+                    lu[v] += prop.get(k, 0)
 
                 prop.update(lu)
                 land_use.append(lu)
