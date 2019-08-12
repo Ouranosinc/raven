@@ -11,6 +11,7 @@ from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic
 from raven.utilities import gis
 
 LOGGER = logging.getLogger("PYWPS")
+SUMMARY_ZONAL_STATS = ['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata']
 
 
 class ZonalStatisticsProcess(Process):
@@ -99,10 +100,12 @@ class ZonalStatisticsProcess(Process):
             generic_vector_reproject(vector_file, projected, source_crs=vec_crs, target_crs=ras_crs)
             vector_file = projected
 
+        summary_stats = SUMMARY_ZONAL_STATS
+
         try:
             stats = zonal_stats(
-                vector_file, raster_file, stats=['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata'],
-                band=band, categorical=categorical, all_touched=touches, geojson_out=True, raster_out=False)
+                vector_file, raster_file, stats=summary_stats, band=band, categorical=categorical,
+                all_touched=touches, geojson_out=True, raster_out=False)
 
             feature_collect = {'type': 'FeatureCollection', 'features': stats}
             response.outputs['statistics'].data = json.dumps(feature_collect)
@@ -110,6 +113,6 @@ class ZonalStatisticsProcess(Process):
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
             LOGGER.error(msg)
-            raise Exception(msg)
+            raise Exception(msg) from e
 
         return response
