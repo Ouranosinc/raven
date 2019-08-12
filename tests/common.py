@@ -96,6 +96,20 @@ def client_for(service):
     return WpsTestClient(service, WpsTestResponse)
 
 
+def count_pixels(stats, numeric_categories=False):
+    category_counts = 0
+    for key, val in stats.items():
+        if numeric_categories:
+            try:
+                int(key)
+            except ValueError:
+                continue
+        if key in ['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata']:
+            continue
+        category_counts += val
+    return category_counts
+
+
 def get_output(doc):
     """Read XML process response and return output dictionary."""
     output = {}

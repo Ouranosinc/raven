@@ -15,6 +15,7 @@ from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, 
 LOGGER = logging.getLogger("PYWPS")
 
 TRUE_CATEGORIES = {
+    0: 'Ocean',
     1: 'Temperate or sub-polar needleleaf forest',
     2: 'Sub-polar taiga needleleaf forest',
     3: 'Tropical or sub-tropical broadleaf evergreen forest',
@@ -37,6 +38,7 @@ TRUE_CATEGORIES = {
 }
 
 simplified = {
+    'Ocean': [0],
     'Forest': [1, 2, 3, 4, 5, 6],
     'Shrubs': [7, 8, 11],
     'Grass': [9, 10, 12, 13, 16],
@@ -47,6 +49,8 @@ simplified = {
     'SnowIce': [19]
 }
 SIMPLE_CATEGORIES = {i: cat for (cat, ids) in simplified.items() for i in ids}
+
+SUMMARY_ZONAL_STATS = ['count', 'nodata', 'nan']
 NALCMS_PROJ4 = '+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs=True'
 
 
@@ -73,22 +77,25 @@ class NALCMSZonalStatisticsProcess(Process):
                                  'Cover: Principles and Applications, CRC-Press, pp. 303-324')],
                          min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
             LiteralInput('simple_categories', 'Use simplified land classification categories for hydrological '
-                                              'modelling purposes. Default: True',
+                                              'modeling purposes.',
                          data_type='boolean', default='false',
                          min_occurs=0, max_occurs=1),
             LiteralInput('band', 'Raster band',
                          data_type='integer', default=1,
-                         abstract='Band of raster examined to perform zonal statistics. Default: 1',
+                         abstract='Band of raster examined to perform zonal statistics.',
                          min_occurs=0, max_occurs=1),
-            LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape',
+            LiteralInput('select_all_touching', 'Additionally select boundary pixels that are touched by shape.',
                          data_type='boolean', default='false',
                          min_occurs=0, max_occurs=1),
         ]
 
         outputs = [
-            ComplexOutput('statistics', 'DEM properties within the region defined by the vector provided.',
-                          abstract='Category pixel counts using simplified UNFAO ',
-                          supported_formats=[FORMATS.JSON, FORMATS.GEOJSON]),
+            ComplexOutput('features', 'DEM properties within the region defined by the vector provided.',
+                          abstract='Category pixel counts using either standard or simplified UNFAO categories',
+                          supported_formats=[FORMATS.GEOJSON]),
+            ComplexOutput('statistics', 'DEM properties by feature',
+                          abstract='Land-use type pixel counts using either standard or simplified UNFAO categories.',
+                          supported_formats=[FORMATS.JSON])
         ]
 
         super(NALCMSZonalStatisticsProcess, self).__init__(
@@ -96,7 +103,8 @@ class NALCMSZonalStatisticsProcess(Process):
             identifier="nalcms-zonal-stats",
             title="NALCMS Land Use Zonal Statistics",
             version="1.0",
-            abstract="Return zonal statistics for the CEC NALCMS based on the boundaries of a vector file.",
+            abstract="Return zonal statistics and land-use cover for the CEC NALCMS based on the boundaries of a "
+                     "vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -152,30 +160,34 @@ class NALCMSZonalStatisticsProcess(Process):
             categories = SIMPLE_CATEGORIES
         else:
             categories = TRUE_CATEGORIES
+        summary_stats = SUMMARY_ZONAL_STATS
 
         try:
             stats = zonal_stats(
-                projected, raster_file, stats=['count', 'nodata', 'nan'],
+                projected, raster_file, stats=summary_stats,
                 band=band, categorical=True, all_touched=touches,
                 geojson_out=True, raster_out=False)
 
-            lu = defaultdict(lambda: 0)
+            land_use = list()
             for stat in stats:
+                lu = defaultdict(lambda: 0)
                 prop = stat['properties']
 
-                # Rename land-use categories
+                # Rename/aggregate land-use categories
                 for k, v in categories.items():
-                    lu[v] += prop.pop(k, 0)
+                    lu[v] += prop.get(k, 0)
 
-                prop['land-use'] = lu
+                prop.update(lu)
+                land_use.append(lu)
                 # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
             feature_collect = {'type': 'FeatureCollection', 'features': stats}
-            response.outputs['statistics'].data = json.dumps(feature_collect)
+            response.outputs['features'].data = json.dumps(feature_collect)
+            response.outputs['statistics'].data = json.dumps(land_use)
 
         except Exception as e:
             msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
             LOGGER.error(msg)
-            raise Exception(msg)
+            raise Exception(msg) from e
 
         return response
