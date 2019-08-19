@@ -1,9 +1,9 @@
 Raven : Hydrological modeling and analytics
 ===========================================
 
-.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
-   :target: http://raven.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+.. image:: https://readthedocs.org/projects/pavics-raven/badge/?version=latest
+    :target: https://pavics-raven.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. image:: https://travis-ci.org/Ouranosinc/raven.svg?branch=master
    :target: https://travis-ci.org/Ouranosinc/raven
