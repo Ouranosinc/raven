@@ -208,7 +208,7 @@ def get_hydrobasins_location_wfs(coordinates=None, level=12, lakes=True):
 
     Returns
     -------
-    bytes
+    str
       A GML-encoded vector feature.
 
     """

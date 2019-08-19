@@ -1,0 +1,11 @@
+name: raven
+channels:
+- birdhouse
+- conda-forge
+- defaults
+dependencies:
+- pywps>=4.2
+- sphinx
+- nbsphinx
+- ipython
+- xclim

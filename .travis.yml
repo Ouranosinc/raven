@@ -1,39 +1,47 @@
-
 language: generic
+
 matrix:
   fast_finish: true
   include:
     - os: osx
       python: "3.5"
       name: "macOS (Python3.5)"
+      addons:
+        homebrew:
+          packages:
+          - netcdf
+          update: true
       env:
-        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
-    - os: linux
-      name: "Linux (Python2.7)"
-      dist: xenial
-      python: "2.7"
-      env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+          - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - os: linux
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
       python: "3.6"
+      addons:
+        apt:
+          packages:
+          - libnetcdf-dev
       env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-        - PEP8=true
+          - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+          - PEP8=true
     - os: linux
-      name: "Linux (Python3.5 + docs)"
-      python: "3.5"
+      name: "Linux (Python3.7 + docs)"
+      python: "3.7"
       dist: xenial
+      addons:
+        apt:
+          packages:
+          - libnetcdf-dev
       env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-        - DOCS=true
+          - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+          - DOCS=true
+
 branches:
   only:
     - master
+
 sudo: false
-before_install:
-  - if [[ $TRAVIS_OS_NAME = linux ]]; then sudo apt-get install libnetcdf-dev pandoc; else brew install netcdf pandoc; fi
+
 install:
   - make install
   - make start
@@ -47,10 +55,12 @@ install:
 #  - conda install pytest flake8
 #  # Install Emu WPS
 #  - python setup.py install
+
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
   - sleep 2
+
 script:
   - make test
   - if [[ $DOCS = true ]]; then make docs; fi
