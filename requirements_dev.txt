@@ -6,5 +6,4 @@ bumpversion
 sphinx>=1.7
 sphinx-autoapi
 nbsphinx
-
-
+nbval
