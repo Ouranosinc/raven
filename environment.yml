@@ -1,6 +1,5 @@
 name: raven
 channels:
-#- birdhouse
 - conda-forge
 - defaults
 dependencies:
@@ -14,14 +13,18 @@ dependencies:
 - click
 - psutil
 - xarray
+- xclim
 - dask
 - pandas
-- geopandas
+- matplotlib
 - netcdf4
 - libnetcdf
 - gdal>=2.4
 - fiona
 - pyproj
+- geopandas
+- descartes
+- cartopy
 - affine
 - rasterio
 - rasterstats
@@ -30,8 +33,6 @@ dependencies:
 - bumpversion
 - scipy<1.3
 - statsmodels
-- matplotlib
-- xclim
 - pandoc
 - nbval
 - pip:

@@ -1,6 +1,5 @@
 name: raven
 channels:
-- birdhouse
 - conda-forge
 - defaults
 dependencies:
