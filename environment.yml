@@ -1,12 +1,13 @@
 name: raven
 channels:
-- birdhouse
+#- birdhouse
 - conda-forge
 - defaults
 dependencies:
 - pip
 - pywps>=4.2
 - unidecode
+- birdy
 - owslib>=0.17
 - poppler
 - jinja2
