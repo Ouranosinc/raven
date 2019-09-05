@@ -171,8 +171,7 @@ test:
 .PHONY: test_nb
 test_nb:
 	@echo "Running notebook-based tests"
-	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV)"
-	@bash -c "pytest --nbval $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest --nbval $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: test_pdb
 test_pdb:
