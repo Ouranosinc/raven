@@ -63,5 +63,6 @@ before_script:
 
 script:
   - make test
+  - make test_nb
   - if [[ $DOCS = true ]]; then make docs; fi
   - if [[ $PEP8 = true ]]; then make pep8; fi
