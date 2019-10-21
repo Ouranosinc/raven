@@ -8,6 +8,8 @@ import tempfile
 import zipfile
 from functools import partial
 from re import search
+from typing import Tuple
+from typing import Union
 
 import fiona
 import fiona.crs
@@ -226,14 +228,19 @@ def raster_datatype_sniffer(file):
         raise ValueError(msg)
 
 
-def parse_lonlat(string):
+def parse_lonlat(lonlat: Union[str, Tuple[str, str]]):
     """Return longitude and latitude from a string."""
     try:
-        lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)))
+        if isinstance(lonlat, str):
+            lon, lat = tuple(map(float, re.findall(r'[-+]?[0-9]*\.?[0-9]+', lonlat)))
+        elif isinstance(lonlat, tuple):
+            lon, lat = lonlat
+        else:
+            raise ValueError
         return lon, lat
     except Exception as e:
-        msg = '{}: Failed to parse longitude, latitude coordinates {}'.format(e, string)
-        raise ValueError(msg)
+        msg = 'Failed to parse longitude, latitude coordinates {}'.format(lonlat)
+        raise Exception(msg) from e
 
 
 def single_file_check(file_list):
