@@ -21,6 +21,8 @@ OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
 OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
+RAVEN_WPS_URL = http://localhost:9099
+
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
