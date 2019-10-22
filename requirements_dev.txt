@@ -1,6 +1,7 @@
 -r requirements.txt
 pytest
 pytest-dependency
+pytest-notebook
 flake8
 bumpversion
 sphinx>=1.7
