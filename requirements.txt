@@ -17,6 +17,7 @@ toolz
 spotpy
 statsmodels
 # GIS LIBRARIES
+# pycrs --- Depends on online database requests --> SLOW
 gdal~=2.4
 pysheds
 affine
@@ -34,4 +35,3 @@ pandoc
 ipython
 ipyleaflet
 # xclim It seems to be installed by pip in src/ and confuse pytest.
-

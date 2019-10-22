@@ -1,11 +1,11 @@
 # vim:set ft=dockerfile:
 FROM continuumio/miniconda3
 MAINTAINER https://github.com/huard/raven
-LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.7.0"
+LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.8.1"
 
 # Update Debian system
 RUN apt-get update && apt-get install -y \
- build-essential unzip libnetcdf-dev \
+ build-essential unzip libnetcdf-dev curl \
 && rm -rf /var/lib/apt/lists/*
 
 # Update conda

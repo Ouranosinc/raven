@@ -1,6 +1,16 @@
 Changes
 =======
 
+0.8.x (2019-10-22)
+------------------
+* Added more documentation for users
+* Fixed reprojection errors in GIS utilities
+* Specified HydroBASINS in lieu of HydroSHEDS in processes
+* Optimized memory usage in ReadTheDocs builds when using Sphinx autodoc by employing mock
+* Cleaner GeoJSON outputs for many subsetting processes
+* Employed ipyleaflets for notebook-based web-maps
+
+
 0.7.x (2019-06-25)
 ------------------
 

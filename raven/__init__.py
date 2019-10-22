@@ -9,7 +9,7 @@ import warnings
 
 __author__ = """David Huard"""
 __email__ = 'huard.david@ouranos.ca'
-__version__ = '0.7.0'
+__version__ = '0.8.1'
 
 if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
     raven_exec = Path(__file__).parent.parent / 'bin' / 'raven'
