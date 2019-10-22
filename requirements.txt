@@ -13,7 +13,6 @@ pandas
 requests
 netCDF4
 dask
-pathlib
 toolz
 spotpy
 statsmodels
@@ -33,6 +32,6 @@ shapely
 unidecode
 geojson
 pandoc
-ipython # needed for the parsing of Jupyter Notebooks
+ipython
+ipyleaflet
 # xclim It seems to be installed by pip in src/ and confuse pytest.
-

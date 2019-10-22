@@ -16,7 +16,10 @@ Raven : Hydrological modeling and analytics
 .. image:: https://badges.gitter.im/bird-house/birdhouse.svg
     :target: https://gitter.im/bird-house/birdhouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
     :alt: Join the chat at https://gitter.im/bird-house/birdhouse
-
+    
+.. image:: https://zenodo.org/badge/135511617.svg
+   :target: https://zenodo.org/badge/latestdoi/135511617
+   :alt: DOI
 
 Raven (the bird)
   *Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.*

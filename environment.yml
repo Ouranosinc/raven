@@ -4,6 +4,7 @@ channels:
 - defaults
 dependencies:
 - pip
+- six
 - pywps>=4.2
 - unidecode
 - birdy
@@ -14,17 +15,18 @@ dependencies:
 - psutil
 - numpy
 - scipy<1.3
-- xarray
-- xclim
+- xarray==0.13
+- xclim>=0.11
+- matplotlib
 - dask
 - pandas
-- matplotlib
+- geopandas
+- geojson
 - netcdf4
 - libnetcdf
 - gdal>=2.4
 - fiona
 - pyproj
-- geopandas
 - descartes
 - cartopy
 - affine
@@ -32,12 +34,11 @@ dependencies:
 - rasterstats
 - rtree
 - shapely
-- bumpversion
+- bump2version
 - statsmodels
 - pandoc
 - nbval
+- ipyleaflet
+- pysheds
 - pip:
   - spotpy
-  - pysheds
-  - geojson
-  # - pycrs:
