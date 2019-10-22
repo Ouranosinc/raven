@@ -36,6 +36,7 @@ dependencies:
 - statsmodels
 - pandoc
 - nbval
+- ipyleaflet
 - pip:
   - spotpy
   - pysheds
