@@ -26,6 +26,8 @@ class HydroBasinsSelectionProcess(Process):
             LiteralInput('location', 'Location coordinates (lon, lat)',
                          abstract="Location coordinates (longitude, latitude) for point of interest.",
                          data_type='string',
+                         min_occurs=1,
+                         max_occurs=2
                          ),
             # LiteralInput('level', 'Resolution level of HydroBASINS Shapes',
             #              data_type='integer',
@@ -74,6 +76,11 @@ class HydroBasinsSelectionProcess(Process):
         lakes = True  # request.inputs['lakes'][0].data
         collect_upstream = request.inputs['aggregate_upstream'][0].data
         lonlat = request.inputs['location'][0].data
+        try:
+            lat = request.inputs['location'][1].data
+            lonlat = lonlat, lat
+        except IndexError:
+            pass
 
         # shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
         # table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
@@ -100,49 +107,50 @@ class HydroBasinsSelectionProcess(Process):
 
         shape_crs = crs_sniffer(shp)
 
-        with fiona.Collection(shp, 'r', crs=shape_crs) as src:
+        # Find HYBAS_ID
+        src = fiona.open(shp, 'r', crs=shape_crs)
+        feat = next(iter(src))
+        hybas_id = feat['properties']['HYBAS_ID']
+        gml_id = feat['properties']['gml_id']
 
-            # Find HYBAS_ID
-            feat = next(src)
-            hybas_id = feat['properties']['HYBAS_ID']
-            gml_id = feat['properties']['gml_id']
+        if collect_upstream:
 
-            if collect_upstream:
+            main_bas = feat['properties']['MAIN_BAS']
 
-                main_bas = feat['properties']['MAIN_BAS']
+            if lakes is False or level != 12:
+                raise InvalidParameterValue("Set lakes to True and level to 12.")
 
-                if lakes is False or level != 12:
-                    raise InvalidParameterValue("Set lakes to True and level to 12.")
+            # Collect features from GeoServer
+            response.update_status('Collecting relevant features', status_percentage=70)
 
-                # Collect features from GeoServer
-                response.update_status('Collecting relevant features', status_percentage=70)
+            region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
+                                                 dir=self.workdir).name
+            region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
+                                                            lakes=lakes, level=level)
 
-                region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
-                                                     dir=self.workdir).name
-                region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
-                                                                lakes=lakes, level=level)
+            # Read table of relevant features sharing main basin
+            df = gpd.read_file(region_url)
+            df.to_file(region, driver='GeoJSON')
 
-                # Read table of relevant features sharing main basin
-                df = gpd.read_file(region_url)
-                df.to_file(region, driver='GeoJSON')
+            # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
+            # Identify upstream sub-basins and write to a new file
+            up = gis.hydrobasins_upstream_ids(hybas_id, df)
+            upfile = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
+                                                 dir=self.workdir).name
+            up.to_file(upfile, driver='GeoJSON')
 
-                # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
-                # Identify upstream sub-basins and write to a new file
-                up = gis.hydrobasins_upstream_ids(hybas_id, df)
-                upfile = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
-                                                     dir=self.workdir).name
-                up.to_file(upfile, driver='GeoJSON')
+            # Aggregate upstream features into a single geometry.
+            gdf = gpd.read_file(upfile)
+            agg = gis.hydrobasins_aggregate(gdf)
 
-                # Aggregate upstream features into a single geometry.
-                gdf = gpd.read_file(upfile)
-                agg = gis.hydrobasins_aggregate(gdf)
+            feat = json.loads(agg.to_json())['features'][0]
+            response.outputs['feature'].data = json.dumps(feat)
+            response.outputs['upstream_ids'].data = json.dumps(up['id'].tolist())
 
-                feat = json.loads(agg.to_json())['features'][0]
-                response.outputs['feature'].data = json.dumps(feat)
-                response.outputs['upstream_ids'].data = json.dumps(up['id'].tolist())
+        else:
+            response.outputs['feature'].data = json.dumps(feat)
+            response.outputs['upstream_ids'].data = json.dumps([gml_id, ])
 
-            else:
-                response.outputs['feature'].data = json.dumps(feat)
-                response.outputs['upstream_ids'].data = json.dumps([gml_id, ])
+        src.close()
 
         return response
