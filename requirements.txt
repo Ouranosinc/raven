@@ -18,7 +18,7 @@ spotpy
 statsmodels
 # GIS LIBRARIES
 # pycrs --- Depends on online database requests --> SLOW
-gdal~=2.4
+gdal>=2.4
 pysheds
 affine
 rtree

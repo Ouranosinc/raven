@@ -143,8 +143,10 @@ class HydroBasinsSelectionProcess(Process):
             gdf = gpd.read_file(upfile)
             agg = gis.hydrobasins_aggregate(gdf)
 
-            feat = json.loads(agg.to_json())['features'][0]
-            response.outputs['feature'].data = json.dumps(feat)
+            # The aggregation returns a FeatureCollection with one feature. We select the first feature so that the
+            # output is a Feature whether aggregate is True or False.
+            afeat = json.loads(agg.to_json())['features'][0]
+            response.outputs['feature'].data = json.dumps(afeat)
             response.outputs['upstream_ids'].data = json.dumps(up['id'].tolist())
 
         else:
