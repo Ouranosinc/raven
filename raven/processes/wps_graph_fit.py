@@ -21,16 +21,18 @@ class GraphFitProcess(Process):
                                abstract='Statistical distribution parameters fitted to time series',
                                supported_formats=[FORMATS.NETCDF]),
                   LiteralInput('variable', "Variable name",
-                               abstract="Name of time series variable. If none will default to the first data variable"
+                               abstract="Name of time series variable. If none will default to the first data variable "
                                         "found in file.",
                                data_type='string',
                                min_occurs=0,
-                               default=""),
+                               max_occurs=1
+                               ),
                   LiteralInput('format', "Output graphic format",
                                abstract="Graphic format.",
                                data_type='string',
                                default='png',
                                min_occurs=0,
+                               max_occurs=1,
                                allowed_values=['png', 'jpeg', 'pdf'])
                   ]
 
@@ -60,15 +62,18 @@ class GraphFitProcess(Process):
             store_supported=True)
 
     def _handler(self, request, response):
+        print(request.inputs)
         ts_fn = request.inputs['ts'][0].file
         p_fn = request.inputs['params'][0].file
-        v = request.inputs['variable'][0].data
+        v = request.inputs['variable'][0].data if 'variable' in request.inputs else None
         format = request.inputs['format'][0].data
 
         # Create and save graphics
         ds = xr.open_dataset(ts_fn)
-        if v == '':
+
+        if v is None:
             v = list(ds.data_vars.keys())[0]
+
         ts = ds[v]
 
         p = xr.open_dataset(p_fn)['params']  # Name of variable is hard-coded

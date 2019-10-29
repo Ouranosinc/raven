@@ -1,6 +1,7 @@
 from pywps import Service
 from pywps.tests import assert_response_success
 from .common import client_for, CFG_FILE, get_output
+import json
 
 from raven.processes import HydroBasinsSelectionProcess
 
@@ -70,6 +71,9 @@ class TestShapeSelectionProcess:
 
         assert {'feature', 'upstream_ids'}.issubset([*out_upstream])
         assert {'feature', 'upstream_ids'}.issubset([*out_subbasin])
+
+        assert json.loads(out_subbasin['feature'])['type'] == 'Feature'
+        assert json.loads(out_upstream['feature'])['type'] == 'Feature'
 
     def test_smallwood_reservoir(self):
         client = client_for(Service(processes=[HydroBasinsSelectionProcess(), ], cfgfiles=CFG_FILE))
