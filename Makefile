@@ -22,6 +22,7 @@ OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 RAVEN_WPS_URL = http://localhost:9099
+FLYINGPIGEON_WPS_URL = http://localhost:8093
 
 
 ifeq "$(UNAME_S)" "Linux"
@@ -173,7 +174,7 @@ test:
 .PHONY: test_nb
 test_nb:
 	@echo "Running notebook-based tests"
-	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest --nbval $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);env RAVEN_WPS_URL=$(RAVEN_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: test_pdb
 test_pdb:
