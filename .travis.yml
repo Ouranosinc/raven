@@ -58,7 +58,7 @@ install:
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
-  - raven start
+  - make start
 
 script:
   - make test
