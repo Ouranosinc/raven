@@ -18,7 +18,7 @@ dependencies:
 - geojson
 - netcdf4
 - libnetcdf
-- gdal>=2.4
+- gdal~=2.4
 - fiona
 - pyproj
 - affine
