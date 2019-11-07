@@ -33,5 +33,6 @@ unidecode
 geojson
 pandoc
 ipython # needed for the parsing of Jupyter Notebooks
+psycopg2 # to use postgres to log pywps requests like in Prod
 # xclim It seems to be installed by pip in src/ and confuse pytest.
 

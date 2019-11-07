@@ -34,5 +34,6 @@ dependencies:
 - pandoc
 - ipyleaflet
 - pysheds
+- psycopg2
 - pip:
   - spotpy
