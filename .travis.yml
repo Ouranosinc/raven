@@ -44,7 +44,6 @@ sudo: false
 
 install:
   - make install
-  - make start
 #  - sleep 2
 #  # Prepare env with Python version
 #  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
@@ -59,9 +58,10 @@ install:
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
-  - sleep 2
+  - make start
 
 script:
   - make test
+  - make test_nb
   - if [[ $DOCS = true ]]; then make docs; fi
   - if [[ $PEP8 = true ]]; then make pep8; fi
