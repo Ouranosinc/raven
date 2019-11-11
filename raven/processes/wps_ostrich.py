@@ -15,4 +15,6 @@ class OstrichProcess(RavenProcess):
     version = '0.1'
     model_cls = Ostrich
     inputs = [wio.ts, wio.conf]
-    outputs = [wio.calibration, wio.hydrograph, wio.storage, wio.solution, wio.diagnostics, wio.calibparams]
+    outputs = [wio.calibration, wio.hydrograph, wio.storage,
+               wio.solution, wio.diagnostics, wio.calibparams,
+               wio.rv_config]

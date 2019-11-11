@@ -8,9 +8,8 @@ from pywps.tests import assert_response_success
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenGR4JCemaNeigeProcess
 import xarray as xr
+import zipfile
 
-
-# @pytest.mark.skip
 class TestRavenGR4JCemaNeigeProcess:
 
     def test_simple(self):
@@ -66,6 +65,12 @@ class TestRavenGR4JCemaNeigeProcess:
         diag = np.float(tmp_content[1].split(',')[idx_diag])
 
         np.testing.assert_almost_equal(diag, 36.562, 4, err_msg='RMSE is not matching expected value')
+
+        assert "rv_config" in out
+        rv_config, _ = urlretrieve(out["rv_config"])
+        z = zipfile.ZipFile(rv_config)
+        assert len(z.filelist) == 5
+
 
     def test_parallel(self):
         client = client_for(Service(processes=[RavenGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))

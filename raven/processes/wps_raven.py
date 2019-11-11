@@ -19,7 +19,7 @@ class RavenProcess(Process):
 
     tuple_inputs = {}
     inputs = [wio.ts, wio.conf]
-    outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics]
+    outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics, wio.rv_config]
     model_cls = Raven
 
     def __init__(self):

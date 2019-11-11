@@ -10,6 +10,7 @@ Changes
 * Cleaner GeoJSON outputs for many subsetting processes
 * Employed ipyleaflets for notebook-based web-maps
 * Run py.test on notebooks from local or remote server
+* Return configuration files used to run model in a zip archive
 
 
 0.7.x (2019-06-25)
