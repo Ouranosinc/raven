@@ -3,7 +3,7 @@ pytest
 pytest-dependency
 pytest-notebook
 flake8
-bumpversion
+bump2version
 sphinx>=1.7
 sphinx-autoapi
 nbsphinx
