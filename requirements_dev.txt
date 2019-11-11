@@ -1,10 +1,10 @@
 -r requirements.txt
 pytest
 pytest-dependency
+pytest-notebook
 flake8
 bump2version
 sphinx>=1.7
 sphinx-autoapi
 nbsphinx
-
-
+nbval

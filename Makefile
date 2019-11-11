@@ -21,6 +21,9 @@ OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
 OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
+RAVEN_WPS_URL = http://localhost:9099
+FLYINGPIGEON_WPS_URL = http://localhost:8093
+
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
@@ -50,6 +53,7 @@ help:
 	@echo "  clean       to remove *all* files that are not controlled by 'git'. WARNING: use it *only* if you know what you do!"
 	@echo "\nTesting targets:"
 	@echo "  test        to run tests (but skip long running tests)."
+	@echo "  test_nb     to verify Jupyter Notebook test outputs are valid."
 	@echo "  testall     to run all tests (including long running tests)."
 	@echo "  pep8        to run pep8 code style checks."
 	@echo "\nSphinx targets:"
@@ -166,6 +170,11 @@ distclean: clean
 test:
 	@echo "Running tests (skip slow and online tests) ..."
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);pytest -v -m 'not slow and not online'"
+
+.PHONY: test_nb
+test_nb:
+	@echo "Running notebook-based tests"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);env RAVEN_WPS_URL=$(RAVEN_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: test_pdb
 test_pdb:
