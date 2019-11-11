@@ -9,6 +9,7 @@ Changes
 * Optimized memory usage in ReadTheDocs builds when using Sphinx autodoc by employing mock
 * Cleaner GeoJSON outputs for many subsetting processes
 * Employed ipyleaflets for notebook-based web-maps
+* Run py.test on notebooks from local or remote server
 
 
 0.7.x (2019-06-25)
