@@ -440,7 +440,7 @@ class Raven:
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
 
-        self.outputs['rvconfig'] = self._merge_output(self._createdrvs, 'rv.zip')
+        self.outputs['rv_config'] = self._merge_output(self._createdrvs, 'rv.zip')
 
     def _merge_output(self, files, name):
         """Merge multiple output files into one if possible, otherwise return a list of files.
