@@ -47,6 +47,13 @@ class RavenMultiModel(Raven):
             for m in self._models:
                 m.assign(key, value)
 
+    @property
+    def rvs(self):
+        out = []
+        for m in self._models:
+            out.extend(m.rvs)
+        return out
+
     def run(self, ts, overwrite=False, **kwds):
         """Run model.
 

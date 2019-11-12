@@ -7,7 +7,7 @@ import pytest
 
 from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
 from .common import TESTDATA, _convert_2d
-
+import zipfile
 
 @pytest.fixture
 def input2d(tmpdir):
@@ -139,6 +139,8 @@ class TestGR4JCN:
 
         assert len(model.diagnostics) == 2
         assert model.hydrograph.dims['params'] == 2
+        z = zipfile.ZipFile(model.outputs['rv_config'])
+        assert len(z.filelist) == 10
 
     def test_parallel_basins(self, input2d):
         ts = input2d
@@ -158,7 +160,8 @@ class TestGR4JCN:
         assert len(model.diagnostics) == 2
         assert len(model.hydrograph.nbasins) == 2
         np.testing.assert_array_equal(model.hydrograph.basin_name[:], ['basin1', 'basin2'])
-
+        z = zipfile.ZipFile(model.outputs['rv_config'])
+        assert len(z.filelist) == 10
 
 class TestGR4JCN_OST:
     def test_simple(self):

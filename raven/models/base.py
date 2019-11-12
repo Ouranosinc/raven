@@ -79,7 +79,7 @@ class Raven:
           Directory for the model configuration and outputs. If None, a temporary directory will be created.
         """
         workdir = workdir or tempfile.mkdtemp()
-        self._createdrvs = []
+        self._rvs = []
 
         # Convert rvs into instance attributes, otherwise they'd be instance attributes.
         for rv in self._rvext:
@@ -247,7 +247,7 @@ class Raven:
             if rvf.stem == 'OstRandomNumbers' and isinstance(self.txt, Ost) and self.txt.random_seed == "":
                 continue
             fn = rvf.write(p, **params)
-            self._createdrvs.append(fn)
+            self._rvs.append(fn)
 
     def setup(self, overwrite=False):
         """Create directory structure to store model input files, executable and output results.
@@ -440,7 +440,7 @@ class Raven:
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
 
-        self.outputs['rv_config'] = self._merge_output(self._createdrvs, 'rv.zip')
+        self.outputs['rv_config'] = self._merge_output(self.rvs, 'rv.zip')
 
     def _merge_output(self, files, name):
         """Merge multiple output files into one if possible, otherwise return a list of files.
@@ -467,10 +467,14 @@ class Raven:
         # Let's zip the files that could not be merged.
         outfn = outfn.with_suffix('.zip')
 
+        # Find the lower file parts level at which there are differences among files.
+        i = get_diff_level(files)
+
         # Try to create a zip file
         with zipfile.ZipFile(outfn, 'w') as f:
             for fn in files:
-                f.write(fn, arcname=fn.name)
+                len(fn.parts)
+                f.write(fn, arcname=fn.relative_to(Path(*fn.parts[:i])))
 
         return outfn
 
@@ -577,6 +581,10 @@ class Raven:
         else:
             if rvi.end_date == dt.datetime(1, 1, 1):
                 rvi.end_date = end
+
+    @property
+    def rvs(self):
+        return self._rvs
 
     @property
     def q_sim(self):
@@ -809,6 +817,14 @@ class Ostrich(Raven):
     def optimized_parameters(self):
         """These are the raw parameters returned by Ostrich."""
         return np.loadtxt(self.outputs['params_seq'], skiprows=1)[-1, 2:]
+
+
+def get_diff_level(files):
+    """Return the lowest hierarchical file parts level at which there are differences among file paths."""
+
+    for i, parts in enumerate(zip(*[f.parts for f in files])):
+        if len(set(parts)) > 1:
+            return i
 
 
 def make_executable(fn):
