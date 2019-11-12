@@ -1,6 +1,7 @@
 from . common import TESTDATA
 import raven
 from raven.models import Raven, Ostrich
+from raven.models.base import get_diff_level
 import tempfile
 import numpy as np
 from pathlib import Path
@@ -228,3 +229,24 @@ class TestOstrich:
         #                                err_msg='calibrated NSE is not matching expected value')
 
         assert Path(model.outputs['calibration']).exists()
+
+
+def test_get_diff_level():
+    fn = Path('/') / 'a' / 'b' / 'c.txt'
+    files = [fn,
+             Path('/') / 'a' / 'b' / 'd.txt']
+    assert get_diff_level(files) == 3
+    assert fn.relative_to(Path(*fn.parts[:3])) == Path('c.txt')
+
+    files = [fn,
+             Path('/') / 'a' / 'b1' / 'c.txt']
+    assert get_diff_level(files) == 2
+    assert fn.relative_to(Path(*fn.parts[:2])) == Path('b/c.txt')
+
+    files = [fn,
+             Path('/') / 'a' / 'b1' / 'b2' / 'c.txt']
+    assert get_diff_level(files) == 2
+    assert files[0].relative_to(Path(*fn.parts[:2])) == Path('b/c.txt')
+    assert files[1].relative_to(Path(*files[1].parts[:2])) == Path('b1/b2/c.txt')
+
+
