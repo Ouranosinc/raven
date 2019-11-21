@@ -15,13 +15,21 @@ nam_domain = hydrobasins_data.joinpath("hybas_lake_na_lev01_v1c.zip")
 arc_domain = hydrobasins_data.joinpath("hybas_lake_ar_lev01_v1c.zip")
 
 
-def feature_contains(point: Union[Point, Tuple[Union[int, float, str]]], shp: Union[str, Path, List[str, Path]]):
+def feature_contains(
+    point: Tuple[
+        Union[int, float, str],
+        Union[str, float, int],
+        Union[str, float, int],
+        Union[str, float, int],
+    ],
+    shp: Union[str, Path, List[str, Path]],
+):
     """Return the first feature containing a location.
 
     Parameters
     ----------
-    point : Union[Point, Tuple[Union[int, float, str]]]
-      Geographic coordinates of the bounding box (left, down, right, up)
+    point : Tuple[Union[int, float, str], Union[str, float, int], Union[str, float, int], Union[str, float, int]]
+      Geographic coordinates of the bounding box (left, down, right, up).
     shp : Union[str, Path, List[str, Path]]
       Path to the file storing the geometries.
 
@@ -212,23 +220,37 @@ def get_raster_wcs(
         return data
 
 
-def hydrobasins_domain(coordinates: Tuple[Union[int, float, str]] = None, working_dir=None) -> str:
+def hydrobasins_domain(
+    coordinates: Tuple[
+        Union[int, float, str],
+        Union[str, float, int],
+        Union[str, float, int],
+        Union[str, float, int],
+    ] = None,
+    working_dir: Union[str, Path] = None,
+) -> str:
     """
     Provided a given coordinate or boundary box, return the domain name of the geogrpahic region
      the coordinate is located within.
 
     Parameters
     ----------
-    coordinates : Tuple[Union[str, float, int]]
-      Geographic coordinates of the bounding box (left, down, right, up)
+    coordinates : Tuple[Union[int, float, str], Union[str, float, int], Union[str, float, int], Union[str, float, int]]
+      Geographic coordinates of the bounding box (left, down, right, up).
+    working_dir : Union[str, path]
+      String or Path to a working location.
 
     Returns
     -------
     str
       The domain that the coordinate falls within. Possible results: "AMNO", "ARC".
     """
-    nam_shape = archive_sniffer(nam_domain, extensions=[".shp"], working_dir=working_dir)
-    arc_shape = archive_sniffer(arc_domain, extensions=[".shp"], working_dir=working_dir)
+    nam_shape = archive_sniffer(
+        nam_domain, extensions=[".shp"], working_dir=working_dir
+    )
+    arc_shape = archive_sniffer(
+        arc_domain, extensions=[".shp"], working_dir=working_dir
+    )
 
     if feature_contains(coordinates, nam_shape):
         domain = "AMNO"
@@ -241,7 +263,12 @@ def hydrobasins_domain(coordinates: Tuple[Union[int, float, str]] = None, workin
 
 
 def get_hydrobasins_location_wfs(
-    coordinates: Tuple[Union[int, float, str]] = None,
+    coordinates: Tuple[
+        Union[int, float, str],
+        Union[str, float, int],
+        Union[str, float, int],
+        Union[str, float, int],
+    ] = None,
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
@@ -253,8 +280,8 @@ def get_hydrobasins_location_wfs(
 
     Parameters
     ----------
-    coordinates : Tuple[Union[str, float, int]]
-      Geographic coordinates of the bounding box (left, down, right, up)
+    coordinates : Tuple[Union[str, float, int], Union[str, float, int], Union[str, float, int], Union[str, float, int]]
+      Geographic coordinates of the bounding box (left, down, right, up).
     level : int
       Level of granularity requested for the lakes vector (1:12). Default: 12.
     lakes : bool
@@ -277,7 +304,9 @@ def get_hydrobasins_location_wfs(
     else:
         raise NotImplementedError
 
-    layer = "public:USGS_HydroBASINS_{}{}_lev{}".format("lake_" if lakes else "", region, level)
+    layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
+        "lake_" if lakes else "", region, level
+    )
 
     if coordinates is not None:
         wfs = WebFeatureService(
