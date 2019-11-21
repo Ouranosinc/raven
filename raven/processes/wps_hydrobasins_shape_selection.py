@@ -11,7 +11,6 @@ from pywps.exceptions import InvalidParameterValue
 
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
-
 from raven.utils import crs_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
@@ -62,7 +61,7 @@ class HydroBasinsSelectionProcess(Process):
             self._handler,
             identifier="hydrobasins-select",
             title="Select a HydroBASINS watershed geometry",
-            version="1.0",
+            version="1.1",
             abstract="Return a watershed from the HydroSheds database as a polygon vector file.",
             metadata=[],
             inputs=inputs,
@@ -94,7 +93,9 @@ class HydroBasinsSelectionProcess(Process):
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
 
-        hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level)
+        domain = gis.hydrobasins_domain(bbox, self.workdir)
+
+        hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
 
         with open(shape_url, 'w') as f:
             f.write(hybas_gml)
