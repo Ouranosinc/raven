@@ -93,7 +93,7 @@ class HydroBasinsSelectionProcess(Process):
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
 
-        domain = gis.hydrobasins_domain(bbox, self.workdir)
+        domain = gis.hydrobasins_domain((lon, lat), working_dir=self.workdir)
 
         hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
 
@@ -126,7 +126,7 @@ class HydroBasinsSelectionProcess(Process):
             region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                  dir=self.workdir).name
             region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
-                                                            lakes=lakes, level=level)
+                                                            lakes=lakes, level=level, domain=domain)
 
             # Read table of relevant features sharing main basin
             df = gpd.read_file(region_url)

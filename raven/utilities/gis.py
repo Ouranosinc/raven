@@ -10,7 +10,7 @@ import pandas as pd
 from raven.utils import crs_sniffer, single_file_check, archive_sniffer
 from shapely.geometry import shape, Point
 
-hydrobasins_data = Path().cwd().joinpath("hydrobasins_domains")
+hydrobasins_data = Path(__file__).parent.parent.joinpath("processes", "hydrobasins_domains")
 nam_domain = hydrobasins_data.joinpath("hybas_lake_na_lev01_v1c.zip")
 arc_domain = hydrobasins_data.joinpath("hybas_lake_ar_lev01_v1c.zip")
 
@@ -19,19 +19,20 @@ def feature_contains(
     point: Tuple[
         Union[int, float, str],
         Union[str, float, int],
-        Union[str, float, int],
-        Union[str, float, int],
     ],
-    shp: Union[str, Path, List[str, Path]],
+    shp: Union[str, Path, List[Union[str, Path]]],
+    loud_fail: bool = True
 ):
     """Return the first feature containing a location.
 
     Parameters
     ----------
-    point : Tuple[Union[int, float, str], Union[str, float, int], Union[str, float, int], Union[str, float, int]]
-      Geographic coordinates of the bounding box (left, down, right, up).
+    point : Tuple[Union[int, float, str], Union[str, float, int]]
+      Geographic coordinates of a point (lon, lat).
     shp : Union[str, Path, List[str, Path]]
       Path to the file storing the geometries.
+    loud_fail: bool
+      If enabled, raises an error on failure, else returns False on failed query.
 
     Returns
     -------
@@ -47,6 +48,7 @@ def feature_contains(
         for coord in point:
             if isinstance(coord, (int, float)):
                 pass
+        point = Point(point)
     elif isinstance(point, Point):
         pass
     else:
@@ -58,17 +60,21 @@ def feature_contains(
 
     shape_crs = crs_sniffer(single_file_check(shp))
 
-    for i, layer_name in enumerate(fiona.listlayers(shp)):
+    if isinstance(shp, list):
+        shp = shp[0]
+
+    for i, layer_name in enumerate(fiona.listlayers(str(shp))):
         with fiona.open(shp, "r", crs=shape_crs, layer=i) as src:
             for feat in iter(src):
                 geom = shape(feat["geometry"])
-
                 if geom.contains(point):
                     return feat
-
-    raise LookupError(
-        "Could not find feature containing point {} in {}.".format(point, shp)
-    )
+    if loud_fail:
+        raise LookupError(
+            "Could not find feature containing point {} in {}.".format(point, shp)
+        )
+    else:
+        return False
 
 
 def hydrobasins_upstream_ids(fid: str, df: pd.DataFrame) -> pd.Series:
@@ -224,8 +230,6 @@ def hydrobasins_domain(
     coordinates: Tuple[
         Union[int, float, str],
         Union[str, float, int],
-        Union[str, float, int],
-        Union[str, float, int],
     ] = None,
     working_dir: Union[str, Path] = None,
 ) -> str:
@@ -235,7 +239,7 @@ def hydrobasins_domain(
 
     Parameters
     ----------
-    coordinates : Tuple[Union[int, float, str], Union[str, float, int], Union[str, float, int], Union[str, float, int]]
+    coordinates : Tuple[Union[int, float, str], Union[str, float, int]]
       Geographic coordinates of the bounding box (left, down, right, up).
     working_dir : Union[str, path]
       String or Path to a working location.
@@ -245,18 +249,15 @@ def hydrobasins_domain(
     str
       The domain that the coordinate falls within. Possible results: "AMNO", "ARC".
     """
-    nam_shape = archive_sniffer(
-        nam_domain, extensions=[".shp"], working_dir=working_dir
-    )
-    arc_shape = archive_sniffer(
-        arc_domain, extensions=[".shp"], working_dir=working_dir
-    )
+    extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
+    domain = None
+    for dom, file in dict(AMNO=nam_domain, ARC=arc_domain).items():
+        domain_shape = archive_sniffer(file, extensions=extensions, working_dir=working_dir)
 
-    if feature_contains(coordinates, nam_shape):
-        domain = "AMNO"
-    elif feature_contains(coordinates, arc_shape):
-        domain = "ARC"
-    else:
+        if feature_contains(coordinates, domain_shape, loud_fail=False):
+            domain = dom
+
+    if domain is None:
         raise NotImplementedError
 
     return domain
@@ -297,6 +298,8 @@ def get_hydrobasins_location_wfs(
     """
     from owslib.wfs import WebFeatureService
 
+    url = "http://boreas.ouranos.ca/geoserver/wfs"
+
     if domain.lower() == "amno":
         region = "na"
     elif domain.lower() == "arc":
@@ -310,7 +313,7 @@ def get_hydrobasins_location_wfs(
 
     if coordinates is not None:
         wfs = WebFeatureService(
-            "http://boreas.ouranos.ca/geoserver/wfs", version="1.1.0", timeout=30
+            url, version="1.1.0", timeout=30
         )
         try:
             resp = wfs.getfeature(

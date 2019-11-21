@@ -99,3 +99,28 @@ class TestShapeSelectionProcess:
         out = get_output(resp.xml)
 
         assert {'feature', 'upstream_ids'}.issubset([*out])
+
+    def test_great_slave_lake(self):
+        client = client_for(Service(processes=[HydroBasinsSelectionProcess(), ], cfgfiles=CFG_FILE))
+
+        fields = [
+            'location={location}',
+            # 'level={level}',
+            # 'lakes={lakes}',
+            'aggregate_upstream={aggregate_upstream}',
+        ]
+
+        datainputs = ';'.join(fields).format(
+            location="-114.65, 61.35",
+            level="12",
+            lakes=True,
+            aggregate_upstream=True,
+        )
+
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='hydrobasins-select', datainputs=datainputs)
+
+        assert_response_success(resp)
+        out = get_output(resp.xml)
+
+        assert {'feature', 'upstream_ids'}.issubset([*out])

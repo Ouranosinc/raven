@@ -134,7 +134,7 @@ def archive_sniffer(
     archives: Union[str, Path, List[Union[str, Path]]],
     working_dir: Union[str, Path],
     extensions: List[str],
-):
+) -> List[Union[str, Path]]:
     """Return a list of locally unarchived files that match the desired extensions.
 
     Parameters
