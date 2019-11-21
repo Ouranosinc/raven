@@ -85,7 +85,6 @@ class HydroBasinsSelectionProcess(Process):
         # shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
         # table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
         # shape_url = TESTDATA[shape_description]
-
         # extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
         # shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
 
