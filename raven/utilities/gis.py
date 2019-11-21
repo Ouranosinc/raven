@@ -1,21 +1,28 @@
 import fiona
 import collections
+from pathlib import Path
+from typing import List
+from typing import Sequence
 from typing import Tuple
 from typing import Union
 
 import pandas as pd
-from raven.utils import crs_sniffer, single_file_check
+from raven.utils import crs_sniffer, single_file_check, archive_sniffer
 from shapely.geometry import shape, Point
 
+hydrobasins_data = Path().cwd().joinpath("hydrobasins_domains")
+nam_domain = hydrobasins_data.joinpath("hybas_lake_na_lev01_v1c.zip")
+arc_domain = hydrobasins_data.joinpath("hybas_lake_ar_lev01_v1c.zip")
 
-def feature_contains(point: Union[Point, Tuple[Union[int, float, str]]], shp: str):
+
+def feature_contains(point: Union[Point, Tuple[Union[int, float, str]]], shp: Union[str, Path, List[str, Path]]):
     """Return the first feature containing a location.
 
     Parameters
     ----------
     point : Union[Point, Tuple[Union[int, float, str]]]
-      Location coordinates.
-    shp : str
+      Geographic coordinates of the bounding box (left, down, right, up)
+    shp : Union[str, Path, List[str, Path]]
       Path to the file storing the geometries.
 
     Returns
@@ -147,7 +154,7 @@ def get_bbox(vector: str, all_features: bool = True):
 
 
 def get_raster_wcs(
-    coordinates: Tuple[Union[int, float, str]],
+    coordinates: Sequence[Union[int, float, str]],
     geographic: bool = True,
     layer: str = None,
 ):
@@ -158,7 +165,7 @@ def get_raster_wcs(
 
     Parameters
     ----------
-    coordinates : Tuple[Union[int, float, str]]
+    coordinates : Sequence[Union[int, float, str]]
       Geographic coordinates of the bounding box (left, down, right, up)
     geographic : bool
       If True, uses "Long" and "Lat" in WCS call. Otherwise uses "E" and "N".
@@ -204,8 +211,33 @@ def get_raster_wcs(
         # The response is the DEM array.
         return data
 
-def hydrobasins_domain(coordinates: Tuple[Union[int, float, str]] = None) -> str:
-    pass
+
+def hydrobasins_domain(coordinates: Tuple[Union[int, float, str]] = None, working_dir=None) -> str:
+    """
+    Provided a given coordinate or boundary box, return the domain name of the geogrpahic region
+     the coordinate is located within.
+
+    Parameters
+    ----------
+    coordinates : Tuple[Union[str, float, int]]
+      Geographic coordinates of the bounding box (left, down, right, up)
+
+    Returns
+    -------
+    str
+      The domain that the coordinate falls within. Possible results: "AMNO", "ARC".
+    """
+    nam_shape = archive_sniffer(nam_domain, extensions=[".shp"], working_dir=working_dir)
+    arc_shape = archive_sniffer(arc_domain, extensions=[".shp"], working_dir=working_dir)
+
+    if feature_contains(coordinates, nam_shape):
+        domain = "AMNO"
+    elif feature_contains(coordinates, arc_shape):
+        domain = "ARC"
+    else:
+        raise NotImplementedError
+
+    return domain
 
 
 def get_hydrobasins_location_wfs(
@@ -227,6 +259,8 @@ def get_hydrobasins_location_wfs(
       Level of granularity requested for the lakes vector (1:12). Default: 12.
     lakes : bool
       Whether or not the vector should include the delimitation of lakes.
+    domain : str
+      The domain of teh HydroBASINS data. Possible values:"AMNO", "ARC".
 
     Returns
     -------
@@ -236,12 +270,14 @@ def get_hydrobasins_location_wfs(
     """
     from owslib.wfs import WebFeatureService
 
-    layer = "public:USGS_HydroBASINS_{}na_lev{}".format("lake_" if lakes else "", level)
-
     if domain.lower() == "amno":
         region = "na"
     elif domain.lower() == "arc":
         region = "ar"
+    else:
+        raise NotImplementedError
+
+    layer = "public:USGS_HydroBASINS_{}{}_lev{}".format("lake_" if lakes else "", region, level)
 
     if coordinates is not None:
         wfs = WebFeatureService(
@@ -282,6 +318,8 @@ def get_hydrobasins_attributes_wfs(
       Level of granularity requested for the lakes vector (1:12). Default: 12.
     lakes : bool
       Whether or not the vector should include the delimitation of lakes.
+    domain : str
+      The domain of teh HydroBASINS data. Possible values:"AMNO", "ARC".
 
     Returns
     -------
@@ -299,6 +337,8 @@ def get_hydrobasins_attributes_wfs(
         region = "na"
     elif domain.lower() == "arc":
         region = "ar"
+    else:
+        raise NotImplementedError
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", region, level
