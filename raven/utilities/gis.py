@@ -10,19 +10,18 @@ import pandas as pd
 from raven.utils import crs_sniffer, single_file_check, archive_sniffer
 from shapely.geometry import shape, Point
 
-hydrobasins_data = Path(__file__).parent.parent.joinpath("processes", "hydrobasins_domains")
+hydrobasins_data = Path(__file__).parent.parent.joinpath(
+    "processes", "hydrobasins_domains"
+)
 nam_domain = hydrobasins_data.joinpath("hybas_lake_na_lev01_v1c.zip")
 arc_domain = hydrobasins_data.joinpath("hybas_lake_ar_lev01_v1c.zip")
 
 
 def feature_contains(
-    point: Tuple[
-        Union[int, float, str],
-        Union[str, float, int],
-    ],
+    point: Tuple[Union[int, float, str], Union[str, float, int],],
     shp: Union[str, Path, List[Union[str, Path]]],
-    loud_fail: bool = True
-):
+    loud_fail: bool = True,
+) -> Union[dict, bool]:
     """Return the first feature containing a location.
 
     Parameters
@@ -112,7 +111,7 @@ def hydrobasins_upstream_ids(fid: str, df: pd.DataFrame) -> pd.Series:
     return sub[sub["HYBAS_ID"].isin(up)]
 
 
-def hydrobasins_aggregate(gdf: pd.DataFrame = None):
+def hydrobasins_aggregate(gdf: pd.DataFrame = None) -> pd.Series:
     """Aggregate multiple hydrobasin watersheds into a single geometry.
 
     Parameters
@@ -140,7 +139,7 @@ def hydrobasins_aggregate(gdf: pd.DataFrame = None):
     return gdf.dissolve(by="MAIN_BAS", aggfunc=aggfunc)
 
 
-def get_bbox(vector: str, all_features: bool = True):
+def get_bbox(vector: str, all_features: bool = True) -> list:
     """Return bounding box of all features or the first feature in file.
 
     Parameters
@@ -171,7 +170,7 @@ def get_raster_wcs(
     coordinates: Sequence[Union[int, float, str]],
     geographic: bool = True,
     layer: str = None,
-):
+) -> bytes:
     """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
     For geoggraphic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
@@ -227,10 +226,7 @@ def get_raster_wcs(
 
 
 def hydrobasins_domain(
-    coordinates: Tuple[
-        Union[int, float, str],
-        Union[str, float, int],
-    ] = None,
+    coordinates: Tuple[Union[int, float, str], Union[str, float, int],] = None,
     working_dir: Union[str, Path] = None,
 ) -> str:
     """
@@ -252,7 +248,9 @@ def hydrobasins_domain(
     extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
     domain = None
     for dom, file in dict(AMNO=nam_domain, ARC=arc_domain).items():
-        domain_shape = archive_sniffer(file, extensions=extensions, working_dir=working_dir)
+        domain_shape = archive_sniffer(
+            file, extensions=extensions, working_dir=working_dir
+        )
 
         if feature_contains(coordinates, domain_shape, loud_fail=False):
             domain = dom
@@ -273,7 +271,7 @@ def get_hydrobasins_location_wfs(
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
-):
+) -> str:
     """Return features from the USGS HydroBASINS data set using bounding box coordinates and WFS 1.1.0 protocol.
 
     For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
@@ -312,9 +310,7 @@ def get_hydrobasins_location_wfs(
     )
 
     if coordinates is not None:
-        wfs = WebFeatureService(
-            url, version="1.1.0", timeout=30
-        )
+        wfs = WebFeatureService(url, version="1.1.0", timeout=30)
         try:
             resp = wfs.getfeature(
                 typename=layer, bbox=coordinates, srsname="urn:x-ogc:def:crs:EPSG:4326"
@@ -334,7 +330,7 @@ def get_hydrobasins_attributes_wfs(
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
-):
+) -> str:
     """Return features from the USGS HydroBASINS data set using attribute value selection and WFS 1.1.0 protocol.
 
     For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
