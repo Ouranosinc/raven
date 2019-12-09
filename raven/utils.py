@@ -140,7 +140,7 @@ def generic_extract_archive(
 def archive_sniffer(
     archives: Union[str, Path, List[Union[str, Path]]],
     working_dir: Union[str, Path],
-    extensions: List[str],
+    extensions: Optional[List[str]] = None,
 ) -> List[Union[str, Path]]:
     """Return a list of locally unarchived files that match the desired extensions.
 
@@ -159,6 +159,9 @@ def archive_sniffer(
       List of files with matching accepted extensions
     """
     potential_files = []
+
+    if not extensions:
+        extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
 
     decompressed_files = generic_extract_archive(archives, output_dir=working_dir)
     for file in decompressed_files:
