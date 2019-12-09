@@ -53,8 +53,8 @@ def feature_contains(
         pass
     else:
         raise ValueError(
-            "point should be shapely.Point or tuple of coordinates, got : {}".format(
-                point
+            "point should be shapely.Point or tuple of coordinates, got : {} of type({})".format(
+                point, type(point)
             )
         )
 
@@ -64,11 +64,10 @@ def feature_contains(
         shp = shp[0]
 
     for i, layer_name in enumerate(fiona.listlayers(str(shp))):
-        with fiona.open(shp, "r", crs=shape_crs, layer=i) as src:
-            for feat in iter(src):
-                geom = shape(feat["geometry"])
-                if geom.contains(point):
-                    return feat
+        with fiona.open(shp, "r", crs=shape_crs, layer=i) as vector:
+            for f in vector.filter(bbox=(point.x, point.y, point.x, point.y)):
+                return f
+
     return False
 
 
