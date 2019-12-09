@@ -16,11 +16,14 @@ hydrobasins_data = Path(__file__).parent.parent.joinpath(
 nam_domain = hydrobasins_data.joinpath("hybas_lake_na_lev01_v1c.zip")
 arc_domain = hydrobasins_data.joinpath("hybas_lake_ar_lev01_v1c.zip")
 
+hydrobasins_regions = dict()
+hydrobasins_regions["amno"] = "na"
+hydrobasins_regions["arc"] = "ar"
+
 
 def feature_contains(
     point: Tuple[Union[int, float, str], Union[str, float, int],],
     shp: Union[str, Path, List[Union[str, Path]]],
-    loud_fail: bool = True,
 ) -> Union[dict, bool]:
     """Return the first feature containing a location.
 
@@ -30,8 +33,6 @@ def feature_contains(
       Geographic coordinates of a point (lon, lat).
     shp : Union[str, Path, List[str, Path]]
       Path to the file storing the geometries.
-    loud_fail: bool
-      If enabled, raises an error on failure, else returns False on failed query.
 
     Returns
     -------
@@ -68,12 +69,7 @@ def feature_contains(
                 geom = shape(feat["geometry"])
                 if geom.contains(point):
                     return feat
-    if loud_fail:
-        raise LookupError(
-            "Could not find feature containing point {} in {}.".format(point, shp)
-        )
-    else:
-        return False
+    return False
 
 
 def hydrobasins_upstream_ids(fid: str, df: pd.DataFrame) -> pd.Series:
@@ -230,7 +226,7 @@ def hydrobasins_domain(
     working_dir: Union[str, Path] = None,
 ) -> str:
     """
-    Provided a given coordinate or boundary box, return the domain name of the geogrpahic region
+    Provided a given coordinate or boundary box, return the domain name of the geographic region
      the coordinate is located within.
 
     Parameters
@@ -252,8 +248,12 @@ def hydrobasins_domain(
             file, extensions=extensions, working_dir=working_dir
         )
 
-        if feature_contains(coordinates, domain_shape, loud_fail=False):
+        if feature_contains(coordinates, domain_shape):
             domain = dom
+        else:
+            raise LookupError(
+                    "Could not find feature containing point {}.".format(coordinates)
+                )
 
     if domain is None:
         raise NotImplementedError
@@ -286,7 +286,7 @@ def get_hydrobasins_location_wfs(
     lakes : bool
       Whether or not the vector should include the delimitation of lakes.
     domain : str
-      The domain of teh HydroBASINS data. Possible values:"AMNO", "ARC".
+      The domain of the HydroBASINS data. Possible values:"AMNO", "ARC".
 
     Returns
     -------
@@ -298,12 +298,7 @@ def get_hydrobasins_location_wfs(
 
     url = "http://boreas.ouranos.ca/geoserver/wfs"
 
-    if domain.lower() == "amno":
-        region = "na"
-    elif domain.lower() == "arc":
-        region = "ar"
-    else:
-        raise NotImplementedError
+    region = hydrobasins_regions[domain]
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", region, level
@@ -361,12 +356,7 @@ def get_hydrobasins_attributes_wfs(
 
     url = "http://boreas.ouranos.ca/geoserver/wfs"
 
-    if domain.lower() == "amno":
-        region = "na"
-    elif domain.lower() == "arc":
-        region = "ar"
-    else:
-        raise NotImplementedError
+    region = hydrobasins_regions[domain]
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", region, level
