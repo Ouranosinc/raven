@@ -22,7 +22,7 @@ hydrobasins_regions["arc"] = "ar"
 
 
 def feature_contains(
-    point: Tuple[Union[int, float, str], Union[str, float, int],],
+    point: Tuple[Union[int, float, str], Union[str, float, int]],
     shp: Union[str, Path, List[Union[str, Path]]],
 ) -> Union[dict, bool]:
     """Return the first feature containing a location.
@@ -221,7 +221,7 @@ def get_raster_wcs(
 
 
 def hydrobasins_domain(
-    coordinates: Tuple[Union[int, float, str], Union[str, float, int],] = None,
+    coordinates: Tuple[Union[int, float, str], Union[str, float, int]] = None,
     working_dir: Union[str, Path] = None,
 ) -> str:
     """
