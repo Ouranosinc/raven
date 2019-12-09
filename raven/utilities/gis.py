@@ -250,13 +250,11 @@ def hydrobasins_domain(
 
         if feature_contains(coordinates, domain_shape):
             domain = dom
-        else:
-            raise LookupError(
-                    "Could not find feature containing point {}.".format(coordinates)
-                )
 
     if domain is None:
-        raise NotImplementedError
+        raise LookupError(
+            "Could not find feature containing point {}.".format(coordinates)
+        )
 
     return domain
 
@@ -298,7 +296,7 @@ def get_hydrobasins_location_wfs(
 
     url = "http://boreas.ouranos.ca/geoserver/wfs"
 
-    region = hydrobasins_regions[domain]
+    region = hydrobasins_regions[domain.lower()]
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", region, level
@@ -356,7 +354,7 @@ def get_hydrobasins_attributes_wfs(
 
     url = "http://boreas.ouranos.ca/geoserver/wfs"
 
-    region = hydrobasins_regions[domain]
+    region = hydrobasins_regions[domain.lower()]
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", region, level
