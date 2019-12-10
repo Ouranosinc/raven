@@ -1,6 +1,7 @@
 from .common import TESTDATA
 from raven.models import RavenMultiModel
 import datetime as dt
+import zipfile
 
 
 class TestRavenMultiModel:
@@ -24,3 +25,5 @@ class TestRavenMultiModel:
               )
 
         assert len(model.q_sim) == 2
+        z = zipfile.ZipFile(model.outputs['rv_config'])
+        assert len(z.filelist) == 10
