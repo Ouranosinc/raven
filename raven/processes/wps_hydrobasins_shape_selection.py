@@ -12,6 +12,7 @@ from pywps.exceptions import InvalidParameterValue
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
 from raven.utils import crs_sniffer
+from shapely.geometry import shape, Point
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -74,26 +75,13 @@ class HydroBasinsSelectionProcess(Process):
         level = 12  # request.inputs['level'][0].data
         lakes = True  # request.inputs['lakes'][0].data
         collect_upstream = request.inputs['aggregate_upstream'][0].data
-        lonlat = request.inputs['location'][0].data
-        try:
-            lat = request.inputs['location'][1].data
-            lonlat = lonlat, lat
-        except IndexError:
-            pass
-
-        # shape_description = 'hydrobasins_{}na_lev{}'.format('lake_' if lakes else '', level)
-        # table = DATA / 'hybas_{}na_lev{:02}.csv'.format('lake_' if lakes else '', level)
-        # shape_url = TESTDATA[shape_description]
-        # extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
-        # shp = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions))
-
-        lon, lat = parse_lonlat(lonlat)
+        lon, lat = map(float, request.inputs['location'][0].data.split(','))
         bbox = (lon, lat, lon, lat)
 
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
 
-        domain = gis.hydrobasins_domain((lon, lat), working_dir=self.workdir)
+        domain = gis.select_hybas_domain(bbox)
 
         hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
 
@@ -130,7 +118,7 @@ class HydroBasinsSelectionProcess(Process):
 
             # Read table of relevant features sharing main basin
             df = gpd.read_file(region_url)
-            df.to_file(region, driver='GeoJSON')
+            #df.to_file(region, driver='GeoJSON')
 
             # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
             # Identify upstream sub-basins and write to a new file

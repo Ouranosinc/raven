@@ -10,16 +10,29 @@ import pandas as pd
 from raven.utils import crs_sniffer, single_file_check, archive_sniffer
 from shapely.geometry import shape, Point
 
-hydrobasins_data = Path(__file__).parent.parent.joinpath(
-    "processes", "hydrobasins_domains"
-)
-nam_domain = hydrobasins_data.joinpath("hybas_lake_na_lev01_v1c.zip")
-arc_domain = hydrobasins_data.joinpath("hybas_lake_ar_lev01_v1c.zip")
+GEO_URL = "http://boreas.ouranos.ca/geoserver/wfs"
 
-hydrobasins_regions = dict()
-hydrobasins_regions["amno"] = "na"
-hydrobasins_regions["arc"] = "ar"
+# We store the contour of different hydrobasins domains
+hybas_dir = Path(__file__).parent.parent / "data" / "hydrobasins_domains"
+hybas_pat = "hybas_lake_{}_lev01_v1c.zip"
 
+# This could be inferred from existing files in hybas_dir
+hybas_regions = ["na", "ar"]
+
+hybas_domains = {dom: hybas_dir / hybas_pat.format(dom) for dom in hybas_regions}
+
+
+"""
+Working assumptions for this module
+-----------------------------------
+
+* Point coordinates are passed as shapely.geometry.Point instances.
+* BBox coordinates are passed as (lon1, lat1, lon2, lat2)
+* Shapes (polygons) are passed as ?
+* All functions that require a CRS have a CRS argument with a default set to WSG84 (?)
+*
+
+"""
 
 def feature_contains(
     point: Tuple[Union[int, float, str], Union[str, float, int]],
@@ -220,42 +233,32 @@ def get_raster_wcs(
         return data
 
 
-def hydrobasins_domain(
-    coordinates: Tuple[Union[int, float, str], Union[str, float, int]] = None,
-    working_dir: Union[str, Path] = None,
-) -> str:
+def select_hybas_domain(bbox: Tuple[Union[int, float]]) -> str:
     """
     Provided a given coordinate or boundary box, return the domain name of the geographic region
      the coordinate is located within.
 
     Parameters
     ----------
-    coordinates : Tuple[Union[int, float, str], Union[str, float, int]]
+    bbox : tuple
       Geographic coordinates of the bounding box (left, down, right, up).
-    working_dir : Union[str, path]
-      String or Path to a working location.
 
     Returns
     -------
     str
-      The domain that the coordinate falls within. Possible results: "AMNO", "ARC".
+      The domain that the coordinate falls within. Possible results: "na", "ar".
     """
-    extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
-    domain = None
-    for dom, file in dict(AMNO=nam_domain, ARC=arc_domain).items():
-        domain_shape = archive_sniffer(
-            file, extensions=extensions, working_dir=working_dir
-        )
 
-        if feature_contains(coordinates, domain_shape):
-            domain = dom
+    for dom, fn in hybas_domains.items():
+        with open(fn, 'rb') as f:
+            zf = fiona.io.ZipMemoryFile(f)
+            coll = zf.open(fn.stem + ".shp")
+            for _ in coll.filter(bbox=bbox):
+                return dom
 
-    if domain is None:
-        raise LookupError(
-            "Could not find feature containing point {}.".format(coordinates)
-        )
-
-    return domain
+    raise LookupError(
+        "Could not find feature containing bbox {}.".format(bbox)
+    )
 
 
 def get_hydrobasins_location_wfs(
@@ -283,7 +286,7 @@ def get_hydrobasins_location_wfs(
     lakes : bool
       Whether or not the vector should include the delimitation of lakes.
     domain : str
-      The domain of the HydroBASINS data. Possible values:"AMNO", "ARC".
+      The domain of the HydroBASINS data. Possible values:"na", "ar".
 
     Returns
     -------
@@ -293,16 +296,12 @@ def get_hydrobasins_location_wfs(
     """
     from owslib.wfs import WebFeatureService
 
-    url = "http://boreas.ouranos.ca/geoserver/wfs"
-
-    region = hydrobasins_regions[domain.lower()]
-
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
-        "lake_" if lakes else "", region, level
+        "lake_" if lakes else "", domain, level
     )
 
     if coordinates is not None:
-        wfs = WebFeatureService(url, version="1.1.0", timeout=30)
+        wfs = WebFeatureService(GEO_URL, version="1.1.0", timeout=30)
         try:
             resp = wfs.getfeature(
                 typename=layer, bbox=coordinates, srsname="urn:x-ogc:def:crs:EPSG:4326"
@@ -339,7 +338,7 @@ def get_hydrobasins_attributes_wfs(
     lakes : bool
       Whether or not the vector should include the delimitation of lakes.
     domain : str
-      The domain of teh HydroBASINS data. Possible values:"AMNO", "ARC".
+      The domain of teh HydroBASINS data. Possible values:"na", "ar".
 
     Returns
     -------
@@ -351,12 +350,8 @@ def get_hydrobasins_attributes_wfs(
     from owslib.fes import PropertyIsLike
     from lxml import etree
 
-    url = "http://boreas.ouranos.ca/geoserver/wfs"
-
-    region = hydrobasins_regions[domain.lower()]
-
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
-        "lake_" if lakes else "", region, level
+        "lake_" if lakes else "", domain, level
     )
 
     if attribute is not None and value is not None:
@@ -382,7 +377,7 @@ def get_hydrobasins_attributes_wfs(
                 filter=filterxml,
             )
 
-            q = Request("GET", url, params=params).prepare().url
+            q = Request("GET", GEO_URL, params=params).prepare().url
 
         except Exception as e:
             raise Exception(e)
