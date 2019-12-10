@@ -1,7 +1,6 @@
 import json
 import logging
 import math
-import os
 import re
 import tarfile
 import tempfile
@@ -11,6 +10,7 @@ from pathlib import Path
 from re import search
 from typing import Any
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
 from typing import Union
@@ -23,9 +23,13 @@ import rasterio
 import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
-import shapely.geometry as sgeo
-from osgeo.gdal import DEMProcessing
+from gdal import DEMProcessing
 from rasterio.crs import CRS
+from shapely.geometry import GeometryCollection
+from shapely.geometry import MultiPolygon
+from shapely.geometry import Polygon
+from shapely.geometry import mapping
+from shapely.geometry import shape
 from shapely.ops import transform
 
 LOGGER = logging.getLogger("RAVEN")
@@ -41,7 +45,7 @@ WORLDMOLL = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 ALBERS_NAM = "+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
 
 
-def address_append(address: Union[str, Path]):
+def address_append(address: Union[str, Path]) -> str:
     """
     Formats a URL/URI to be more easily read with libraries such as "rasterstats"
 
@@ -55,8 +59,8 @@ def address_append(address: Union[str, Path]):
     str
       URL/URI prefixed for archive type
     """
-    zipped = search(r"(\.zip)", address)
-    tarred = search(r"(\.tar)", address)
+    zipped = search(r"(\.zip)", str(address))
+    tarred = search(r"(\.tar)", str(address))
 
     try:
         if zipped:
@@ -71,14 +75,17 @@ def address_append(address: Union[str, Path]):
         LOGGER.error(msg)
 
 
-def generic_extract_archive(resources: List[Union[bytes, str, Path]], output_dir=None):
+def generic_extract_archive(
+    resources: Union[str, Path, List[Union[bytes, str, Path]]],
+    output_dir: Optional[Union[str, Path]] = None,
+) -> list:
     """Extract archives (tar/zip) to a working directory.
 
     Parameters
     ----------
-    resources: List[Union[bytes, str, Path]]
+    resources: Union[str, Path, List[Union[bytes, str, Path]]]
       list of archive files (if netCDF files are in list, they are passed and returned as well in the return).
-    output_dir: Union[str, Path]
+    output_dir: Optional[Union[str, Path]]
       string or Path to a working location (default: temporary folder).
 
     Returns
@@ -91,7 +98,7 @@ def generic_extract_archive(resources: List[Union[bytes, str, Path]], output_dir
     output_dir = output_dir or tempfile.gettempdir()
 
     if not isinstance(resources, list):
-        resources = list([resources])
+        resources = [resources]
 
     files = []
 
@@ -99,21 +106,21 @@ def generic_extract_archive(resources: List[Union[bytes, str, Path]], output_dir
         if any(ext in str(arch).lower() for ext in archive_types):
             try:
                 LOGGER.debug("archive=%s", arch)
-                file = os.path.basename(arch)
+                file = Path(arch).name
 
                 if file.endswith(".nc"):
-                    files.append(os.path.join(output_dir, arch))
+                    files.append(Path(output_dir.join(arch)))
                 elif file.endswith(".tar"):
                     with tarfile.open(arch, mode="r") as tar:
                         tar.extractall(path=output_dir)
                         files.extend(
-                            [os.path.join(output_dir, f) for f in tar.getnames()]
+                            [Path(output_dir).joinpath(f) for f in tar.getnames()]
                         )
                 elif file.endswith(".zip"):
                     with zipfile.ZipFile(arch, mode="r") as zf:
                         zf.extractall(path=output_dir)
                         files.extend(
-                            [os.path.join(output_dir, f) for f in zf.namelist()]
+                            [Path(output_dir).joinpath(f) for f in zf.namelist()]
                         )
                 elif file.endswith(".7z"):
                     msg = "7z file extraction is not supported at this time"
@@ -133,8 +140,8 @@ def generic_extract_archive(resources: List[Union[bytes, str, Path]], output_dir
 def archive_sniffer(
     archives: Union[str, Path, List[Union[str, Path]]],
     working_dir: Union[str, Path],
-    extensions: List[str],
-):
+    extensions: Optional[List[str]] = None,
+) -> List[Union[str, Path]]:
     """Return a list of locally unarchived files that match the desired extensions.
 
     Parameters
@@ -148,19 +155,22 @@ def archive_sniffer(
 
     Returns
     -------
-    List[str]
+    List[Union[str, Path]]
       List of files with matching accepted extensions
     """
     potential_files = []
 
+    if not extensions:
+        extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
+
     decompressed_files = generic_extract_archive(archives, output_dir=working_dir)
     for file in decompressed_files:
-        if any(ext in os.path.splitext(file) for ext in extensions):
+        if any(ext in Path(file).suffix for ext in extensions):
             potential_files.append(file)
     return potential_files
 
 
-def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[list, str]:
+def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[str], str]:
     """Return the list of CRS found in files.
 
     Parameters
@@ -170,7 +180,7 @@ def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[list, str]:
 
     Returns
     -------
-    Union[list, str]
+    Union[List[str], str]
       Returns either a list of CRSes or a single CRS definition, depending on the number of instances found.
     """
     crs_list = []
@@ -247,6 +257,10 @@ def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:
     ----------
     lonlat : Union[str, Tuple[str, str]]
       A tuple or a str of lon and lat coordinates.
+
+    Returns
+    -------
+    Tuple[float, float]
     """
     try:
         if isinstance(lonlat, str):
@@ -283,10 +297,10 @@ def single_file_check(file_list: List[Union[str, Path]]) -> Any:
 
 
 def boundary_check(
-    *args: Union[str, Path],
+    *args: Sequence[Union[str, Path]],
     max_y: Union[int, float] = 60,
     min_y: Union[int, float] = -60
-):
+) -> None:
     """Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Raise a warning if so.
 
     Parameters
@@ -328,38 +342,42 @@ def boundary_check(
     return
 
 
-def multipolygon_check(geom: sgeo.GeometryCollection):
+def multipolygon_check(geom: GeometryCollection) -> None:
     """Perform a check to verify a geometry is a MultiPolygon
 
     Parameters
     ----------
-    geom : sgeo.GeometryCollection
+    geom : GeometryCollection
+
+    Returns
+    -------
+    None
     """
-    if not isinstance(type(geom), sgeo.GeometryCollection):
+    if not isinstance(type(geom), GeometryCollection):
         try:
-            geom = sgeo.shape(geom)
+            geom = shape(geom)
         except Exception as e:
             LOGGER.error(
                 "{}: Unable to load vector as shapely.geometry.shape().".format(e)
             )
 
-    if isinstance(type(geom), sgeo.multipolygon.MultiPolygon):
+    if isinstance(type(geom), MultiPolygon):
         LOGGER.warning("Shape is a Multipolygon.")
     return
 
 
 def geom_transform(
-    geom: sgeo.GeometryCollection,
-    source_crs: [str, CRS] = WGS84,
+    geom: GeometryCollection,
+    source_crs: Union[str, CRS] = WGS84,
     target_crs: Union[str, CRS] = None,
-) -> sgeo.GeometryCollection:
+) -> GeometryCollection:
     """Change the projection of a geometry.
 
     Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
 
     Parameters
     ----------
-    geom : sgeo.GeometryCollection
+    geom : GeometryCollection
       Source geometry.
     source_crs : Union[str, CRS]
       Projection identifier (proj4) for the source geometry, e.g. '+proj=longlat +datum=WGS84 +no_defs'.
@@ -368,7 +386,7 @@ def geom_transform(
 
     Returns
     -------
-    sgeo
+    GeometryCollection
       Reprojected geometry.
     """
     try:
@@ -383,12 +401,12 @@ def geom_transform(
         raise Exception(msg)
 
 
-def geom_prop(geom: Union[sgeo.Polygon, sgeo.MultiPolygon]) -> dict:
+def geom_prop(geom: Union[Polygon, MultiPolygon]) -> dict:
     """Return a dictionary of geometry properties.
 
     Parameters
     ----------
-    geom : Union[sgeo.Polygon, sgeo.MultiPolygon]
+    geom : Union[Polygon, MultiPolygon]
       Geometry to analyze.
 
     Returns
@@ -401,7 +419,7 @@ def geom_prop(geom: Union[sgeo.Polygon, sgeo.MultiPolygon]) -> dict:
     Some of the properties should be computed using an equal-area projection.
     """
 
-    geom = sgeo.shape(geom)
+    geom = shape(geom)
     lon, lat = geom.centroid.x, geom.centroid.y
     if (lon > 180) or (lon < -180) or (lat > 90) or (lat < -90):
         LOGGER.warning("Shape centroid is not in decimal degrees.")
@@ -419,9 +437,7 @@ def geom_prop(geom: Union[sgeo.Polygon, sgeo.MultiPolygon]) -> dict:
 
 def dem_prop(
     dem: Union[str, Path],
-    geom: Union[
-        sgeo.Polygon, sgeo.MultiPolygon, List[Union[sgeo.Polygon, sgeo.MultiPolygon]]
-    ] = None,
+    geom: Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]] = None,
     directory: Union[str, Path] = None,
 ) -> dict:
     """Return raster properties for each geometry.
@@ -432,7 +448,7 @@ def dem_prop(
     ----------
     dem : Union[str, Path]
       DEM raster in reprojected coordinates.
-    geom : Union[sgeo.Polygon, sgeo.MultiPolygon, List[Union[sgeo.Polygon, sgeo.MultiPolygon]]]
+    geom : Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]]
       Geometry over which aggregate properties will be computed. If None compute properties over entire raster.
     directory : Union[str, Path]
       Folder to save the GDAL terrain anlaysis outputs
@@ -609,9 +625,7 @@ def circular_mean_aspect(angles: np.ndarray) -> np.ndarray:
 def generic_raster_clip(
     raster: Union[str, Path],
     output: Union[str, Path],
-    geometry: Union[
-        sgeo.Polygon, sgeo.MultiPolygon, List[Union[sgeo.Polygon, sgeo.MultiPolygon]]
-    ],
+    geometry: Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]],
     touches: bool = False,
     fill_with_nodata: bool = True,
     padded: bool = True,
@@ -626,7 +640,7 @@ def generic_raster_clip(
       Path to input raster.
     output : Union[str, Path]
       Path to output raster.
-    geometry : Union[sgeo.Polygon, sgeo.MultiPolygon, List[Union[sgeo.Polygon, sgeo.MultiPolygon]]
+    geometry : Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]
       Geometry defining the region to crop.
     touches : bool
       Whether or not to include cells that intersect the geometry. Default: True.
@@ -637,6 +651,9 @@ def generic_raster_clip(
     raster_compression : str
       Level of data compression. Default: 'lzw'.
 
+    Returns
+    -------
+    None
     """
     if not (type(geometry) in (list, tuple)):
         geometry = [geometry]
@@ -686,6 +703,10 @@ def generic_raster_warp(
       Target projection identifier.
     raster_compression: str
       Level of data compression. Default: 'lzw'.
+
+    Returns
+    -------
+    None
     """
     with rasterio.open(raster, "r") as src:
         # Reproject raster using WarpedVRT class
@@ -744,15 +765,18 @@ def generic_vector_reproject(
 
     output = {"type": "FeatureCollection", "features": []}
 
+    if isinstance(vector, Path):
+        vector = str(vector)
+
     for i, layer_name in enumerate(fiona.listlayers(vector)):
         with fiona.open(vector, "r", layer=i) as src:
             with open(projected, "w") as sink:
                 for feature in src:
                     # Perform vector reprojection using Shapely on each feature
                     try:
-                        geom = sgeo.shape(feature["geometry"])
+                        geom = shape(feature["geometry"])
                         transformed = geom_transform(geom, source_crs, target_crs)
-                        feature["geometry"] = sgeo.mapping(transformed)
+                        feature["geometry"] = mapping(transformed)
                         output["features"].append(feature)
                     except Exception as e:
                         msg = "{}: Unable to reproject feature {}".format(e, feature)

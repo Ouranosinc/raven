@@ -16,14 +16,14 @@ dependencies:
 - numpy
 - scipy<1.3
 - xarray==0.13
-- xclim>=0.11
+- xclim>=0.12.2
 - matplotlib
 - dask
 - pandas
 - geopandas
 - geojson
 - netcdf4
-- libnetcdf
+- libnetcdf #==4.6.2  # Avoid core dump with 4.7.1. Can be unpinned when 4.7.1 is not the latest anymore.
 - gdal~=2.4
 - fiona
 - pyproj
