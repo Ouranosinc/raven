@@ -34,6 +34,7 @@ Working assumptions for this module
 
 """
 
+
 def feature_contains(
     point: Tuple[Union[int, float, str], Union[str, float, int]],
     shp: Union[str, Path, List[Union[str, Path]]],
@@ -315,6 +316,7 @@ def get_hydrobasins_location_wfs(
     return data
 
 
+# TODO: Fix docstring. This does not return features, but a URL which will trigger a remote service returning features.
 def get_hydrobasins_attributes_wfs(
     attribute: str = None,
     value: Union[str, float, int] = None,
