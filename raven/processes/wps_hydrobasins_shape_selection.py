@@ -111,14 +111,11 @@ class HydroBasinsSelectionProcess(Process):
             # Collect features from GeoServer
             response.update_status('Collecting relevant features', status_percentage=70)
 
-            region = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
-                                                 dir=self.workdir).name
             region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
                                                             lakes=lakes, level=level, domain=domain)
 
             # Read table of relevant features sharing main basin
             df = gpd.read_file(region_url)
-            #df.to_file(region, driver='GeoJSON')
 
             # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
             # Identify upstream sub-basins and write to a new file
