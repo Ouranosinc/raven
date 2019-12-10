@@ -9,6 +9,7 @@ from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_
 from .common import TESTDATA, _convert_2d
 import zipfile
 
+
 @pytest.fixture
 def input2d(tmpdir):
     """Convert 1D input to 2D output by copying all the time series along a new region dimension."""
@@ -162,6 +163,7 @@ class TestGR4JCN:
         np.testing.assert_array_equal(model.hydrograph.basin_name[:], ['basin1', 'basin2'])
         z = zipfile.ZipFile(model.outputs['rv_config'])
         assert len(z.filelist) == 10
+
 
 class TestGR4JCN_OST:
     def test_simple(self):

@@ -10,7 +10,7 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import OstrichGR4JCemaNeigeProcess
 import zipfile
 
-# @pytest.mark.skip
+
 class TestOstrichGR4JCemaNeigeProcess:
 
     def test_simple(self):

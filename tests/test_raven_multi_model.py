@@ -27,4 +27,3 @@ class TestRavenMultiModel:
         assert len(model.q_sim) == 2
         z = zipfile.ZipFile(model.outputs['rv_config'])
         assert len(z.filelist) == 10
-
