@@ -149,6 +149,14 @@ nc_index = LiteralInput('nc_index', 'NetCDF input index',
 
 # --- #
 
+rv_config = ComplexOutput('rv_config', 'Raven/Ostrich configuration files',
+                          abstract="Model configuration files, including the primary input file (rvi), the parameter "
+                                   "input file (rvp), the basin definition file (rvh), the time series input file "
+                                   "(rvt), the initial conditions file (rvc). For Ostrich, include the Ostrich "
+                                   "calibration config (txt) and templates (tpl).",
+                          supported_formats=[FORMATS.ZIP],
+                          as_reference=True)
+
 hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                            supported_formats=[FORMATS.NETCDF,
                                               Format('application/zip', extension='.zip', encoding='base64')],

@@ -8,9 +8,9 @@ from pywps.tests import assert_response_success
 
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import OstrichGR4JCemaNeigeProcess
+import zipfile
 
 
-# @pytest.mark.skip
 class TestOstrichGR4JCemaNeigeProcess:
 
     def test_simple(self):
@@ -79,3 +79,8 @@ class TestOstrichGR4JCemaNeigeProcess:
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
         np.testing.assert_almost_equal(diag, 37.1449, 4, err_msg='RMSE is not matching expected value')
+
+        assert "rv_config" in out
+        rv_config, _ = urlretrieve(out["rv_config"])
+        z = zipfile.ZipFile(rv_config)
+        assert len(z.filelist) == 7
