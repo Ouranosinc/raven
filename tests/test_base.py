@@ -248,5 +248,3 @@ def test_get_diff_level():
     assert get_diff_level(files) == 2
     assert files[0].relative_to(Path(*fn.parts[:2])) == Path('b/c.txt')
     assert files[1].relative_to(Path(*files[1].parts[:2])) == Path('b1/b2/c.txt')
-
-

@@ -10,6 +10,7 @@ from raven.processes import RavenGR4JCemaNeigeProcess
 import xarray as xr
 import zipfile
 
+
 class TestRavenGR4JCemaNeigeProcess:
 
     def test_simple(self):
@@ -70,7 +71,6 @@ class TestRavenGR4JCemaNeigeProcess:
         rv_config, _ = urlretrieve(out["rv_config"])
         z = zipfile.ZipFile(rv_config)
         assert len(z.filelist) == 5
-
 
     def test_parallel(self):
         client = client_for(Service(processes=[RavenGR4JCemaNeigeProcess(), ], cfgfiles=CFG_FILE))

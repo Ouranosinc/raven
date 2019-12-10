@@ -208,8 +208,6 @@ calibparams = LiteralOutput('calibparams', 'Calibrated prameters',
                             data_type='string')
 
 
-
-
 # --- OSTRICH --- #
 
 algorithm = LiteralInput('algorithm', 'OSTRICH Algorithm to use to calibrate model parameters',
