@@ -148,8 +148,13 @@ class RV(collections.Mapping):
 
 class RVT(RV):
     def __init__(self, **kwargs):
+        self.nc_time_shift = 0
+
         self._nc_index = None
         self._nc_dimensions = None
+        self._nc_linear_transform = None
+
+
 
         super(RVT, self).__init__(**kwargs)
 
@@ -157,7 +162,6 @@ class RVT(RV):
     def nc_index(self):
         if self._nc_index is not None:
             return str(self._nc_index + 1)
-        return None
 
     @nc_index.setter
     def nc_index(self, value):
@@ -188,6 +192,23 @@ class RVT(RV):
         # If there is no spatial dimension, set the index to 1.
         if self.nc_index is None and len(value) == 1:
             self.nc_index = 1
+
+    @property
+    def linear_transform(self):
+        """A sequence of two values: multiplicative factor and additive offset."""
+        if self._linear_transform is not None:
+            return "{:g} {:g}".format(*self._linear_transform)
+
+    @linear_transform.setter
+    def linear_transform(self, value):
+        """Set the scale factor and offset."""
+        if len(value) == 1:
+            self._linear_transform = (value, 0)
+        elif len(value) == 2:
+            self._linear_transform = value
+        else:
+            raise ValueError("Linear transform takes at most two values: "
+                             "a scaling factor and an offset.")
 
 
 class RVI(RV):
