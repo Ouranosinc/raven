@@ -1,61 +1,75 @@
-#########################################################################                                  
-:FileType          rvt ASCII Raven 2.8.2                                                                              
-:WrittenBy         Juliane Mai & James Craig                                                                             
+#########################################################################
+:FileType          rvt ASCII Raven 2.8.2
+:WrittenBy         Juliane Mai & James Craig
 :CreationDate      Sep 2018
 #
-# Emulation of MOHYSE simulation of Salmon River near Prince George                                                             
-#------------------------------------------------------------------------
+# Emulation of MOHYSE simulation
+#-------------------------------
 
 :Gauge meteorological forcings
-   :Latitude    54.4848
-   :Longitude -123.3659
-   :Elevation  843.0
+   :Latitude    {latitude}
+   :Longitude   {longitude}
+   :Elevation   {elevation}
    :Data RAINFALL mm/d
       :ReadFromNetCDF
-         :FileNameNC     Salmon-River-Near-Prince-George_meteo_daily.nc
-         :VarNameNC      rain
-         :DimNamesNC     time
+         :FileNameNC      {pr}
+         :VarNameNC       {pr_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data SNOWFALL mm/d
       :ReadFromNetCDF
-         :FileNameNC     Salmon-River-Near-Prince-George_meteo_daily.nc
-         :VarNameNC      snow
-         :DimNamesNC     time
+         :FileNameNC      {prsn}
+         :VarNameNC       {prsn_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MIN deg_C
       :ReadFromNetCDF
-         :FileNameNC     Salmon-River-Near-Prince-George_meteo_daily.nc
-         :VarNameNC      tmin
-         :DimNamesNC     time
+         :FileNameNC      {tasmin}
+         :VarNameNC       {tasmin_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MAX deg_C
       :ReadFromNetCDF
-         :FileNameNC     Salmon-River-Near-Prince-George_meteo_daily.nc
-         :VarNameNC      tmax
-         :DimNamesNC     time
+         :FileNameNC      {tasmax}
+         :VarNameNC       {tasmax_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
-   :Data PET deg_C
+   :Data PET mm/d
       :ReadFromNetCDF
-         :FileNameNC     Salmon-River-Near-Prince-George_meteo_daily.nc
-         :VarNameNC      pet
-         :DimNamesNC     time
+         :FileNameNC      {evspsbl}
+         :VarNameNC       {evspsbl_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
 :EndGauge
 
-# # observed streamflow
-
-:ObservationData	HYDROGRAPH	1	m3/s
-    :ReadFromNetCDF 
-         :FileNameNC     Salmon-River-Near-Prince-George_meteo_daily.nc
-         :VarNameNC      qobs
-         :DimNamesNC     time
+# observed streamflow
+:ObservationData HYDROGRAPH 1 m3/s
+    :ReadFromNetCDF
+         :FileNameNC      {water_volume_transport_in_river_channel}
+         :VarNameNC       {water_volume_transport_in_river_channel_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
     :EndReadFromNetCDF
 :EndObservationData
-
-
-
