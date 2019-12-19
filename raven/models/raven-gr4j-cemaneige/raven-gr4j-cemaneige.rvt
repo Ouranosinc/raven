@@ -3,8 +3,8 @@
 :WrittenBy         Juliane Mai & James Craig
 :CreationDate      Sep 2018
 #
-# Emulation of GR4J simulation of Salmon River near Prince George
-#------------------------------------------------------------------------
+# Emulation of GR4J simulation
+#-----------------------------
 
 # meteorological forcings
 :Gauge meteorological forcings
@@ -13,42 +13,52 @@
    :Elevation  843.0
    :Data RAINFALL mm/d
       :ReadFromNetCDF
-         :FileNameNC     {pr}
-         :VarNameNC      {pr_var}
-         :DimNamesNC     {nc_dimensions}
-         :StationIdx     {nc_index}
+         :FileNameNC      {pr}
+         :VarNameNC       {pr_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data SNOWFALL mm/d
       :ReadFromNetCDF
-         :FileNameNC     {prsn}
-         :VarNameNC      {prsn_var}
-         :DimNamesNC     {nc_dimensions}
-         :StationIdx     {nc_index}
+         :FileNameNC      {prsn}
+         :VarNameNC       {prsn_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MIN deg_C
       :ReadFromNetCDF
-         :FileNameNC     {tasmin}
-         :VarNameNC      {tasmin_var}
-         :DimNamesNC     {nc_dimensions}
-         :StationIdx     {nc_index}
+         :FileNameNC      {tasmin}
+         :VarNameNC       {tasmin_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MAX deg_C
       :ReadFromNetCDF
-         :FileNameNC     {tasmax}
-         :VarNameNC      {tasmax_var}
-         :DimNamesNC     {nc_dimensions}
-         :StationIdx     {nc_index}
+         :FileNameNC      {tasmax}
+         :VarNameNC       {tasmax_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data PET mm/d
       :ReadFromNetCDF
-         :FileNameNC     {evspsbl}
-         :VarNameNC      {evspsbl_var}
-         :DimNamesNC     {nc_dimensions}
-         :StationIdx     {nc_index}
+         :FileNameNC      {evspsbl}
+         :VarNameNC       {evspsbl_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
 :EndGauge
@@ -56,9 +66,11 @@
 # observed streamflow
 :ObservationData HYDROGRAPH 1 m3/s
     :ReadFromNetCDF
-         :FileNameNC     {water_volume_transport_in_river_channel}
-         :VarNameNC      {water_volume_transport_in_river_channel_var}
-         :DimNamesNC     {nc_dimensions}
-         :StationIdx     {nc_index}
+         :FileNameNC      {water_volume_transport_in_river_channel}
+         :VarNameNC       {water_volume_transport_in_river_channel_var}
+         :DimNamesNC      {nc_dimensions}
+         :StationIdx      {nc_index}
+         :TimeShift       {time_shift}
+         :LinearTransform {linear_transform}
     :EndReadFromNetCDF
 :EndObservationData
