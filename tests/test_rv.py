@@ -1,6 +1,6 @@
 import pytest
 import raven
-from raven.models.rv import RV, RVI, Ost, RVFile, isinstance_namedtuple
+from raven.models.rv import RV, RVI, RVT, Ost, RVFile, isinstance_namedtuple
 import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
@@ -96,6 +96,12 @@ class TestRV:
 
         m = Mod(params=Mod.params(1, 2, 3))
         assert m.params.x1 == 1
+
+class TestRVT:
+
+    def test_linear_transform(self):
+        rvt = RVT(linear_transform=(24000, 0))
+        assert rvt.linear_transform == "24000 0"
 
 
 class TestOst:
