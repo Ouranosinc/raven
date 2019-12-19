@@ -148,13 +148,11 @@ class RV(collections.Mapping):
 
 class RVT(RV):
     def __init__(self, **kwargs):
-        self.nc_time_shift = 0
+        self.time_shift = 0
 
         self._nc_index = None
         self._nc_dimensions = None
-        self._nc_linear_transform = None
-
-
+        self._linear_transform = None
 
         super(RVT, self).__init__(**kwargs)
 
@@ -196,8 +194,11 @@ class RVT(RV):
     @property
     def linear_transform(self):
         """A sequence of two values: multiplicative factor and additive offset."""
-        if self._linear_transform is not None:
-            return "{:g} {:g}".format(*self._linear_transform)
+        if self._linear_transform is None:
+            return "1 0"
+
+        return "{:g} {:g}".format(*self._linear_transform)
+
 
     @linear_transform.setter
     def linear_transform(self, value):
