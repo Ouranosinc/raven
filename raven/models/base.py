@@ -673,11 +673,12 @@ class Raven:
 
         for key, val in units.items():
             if units2pint(val) != units2pint(self._units[key]):
-                raise UserWarning("Units are not what Raven expects.\n"
-                                  f"Actual: {val}\n"
-                                  f"Expected: {self._units[key]}\n"
-                                  f"Make sure to set {key}_linear_transform to perform conversion."
-                                  )
+                if getattr(self.rvt, f"{key}_linear_transform") is None:
+                    raise UserWarning("Units are not what Raven expects.\n"
+                                      f"Actual: {val}\n"
+                                      f"Expected: {self._units[key]}\n"
+                                      f"Make sure to set {key}_linear_transform to perform conversion."
+                                      )
 
 
 class Ostrich(Raven):
