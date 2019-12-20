@@ -26,7 +26,7 @@ class GR4JCN(Raven):
 class GR4JCN_OST(Ostrich, GR4JCN):
     _p = Path(__file__).parent / 'ostrich-gr4j-cemaneige'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
-
+    rvi = RVI(supress_output=True)
     txt = Ost(algorithm='DSS',
               max_iterations=50,
               lowerBounds=GR4JCN.params(None, None, None, None, None, None),
@@ -59,6 +59,7 @@ class MOHYSE_OST(Ostrich, MOHYSE):
     _p = Path(__file__).parent / 'ostrich-mohyse'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
+    rvi = RVI(supress_output=True)
     txt = Ost(algorithm='DSS',
               max_iterations=50,
               lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
@@ -102,6 +103,7 @@ class HMETS_OST(Ostrich, HMETS):
     _p = Path(__file__).parent / 'ostrich-hmets'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
+    rvi = RVI(supress_output=True)
     txt = Ost(algorithm='DSS',
               max_iterations=50,
               lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
@@ -170,6 +172,7 @@ class HBVEC_OST(Ostrich, HBVEC):
     _p = Path(__file__).parent / 'ostrich-hbv-ec'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
+    rvi = RVI(supress_output=True)
     low = HBVEC.params
     high = HBVEC.params
     txt = Ost(algorithm='DSS',

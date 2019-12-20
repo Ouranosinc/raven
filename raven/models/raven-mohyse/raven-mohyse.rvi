@@ -52,6 +52,7 @@
 #:NoisyMode
 :SilentMode
 :PavicsMode
+{suppress_output}
 
 :NetCDFAttribute title Simulated river discharge
 :NetCDFAttribute history Created on {now} by Raven

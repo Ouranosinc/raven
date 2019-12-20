@@ -558,7 +558,7 @@ class Raven:
         """
         files = list(path.rglob(pattern))
 
-        if len(files) == 0:
+        if len(files) == 0 and not self.rvi.suppress_output:
             raise UserWarning("No output files for {} in {}.".format(pattern, path))
 
         return [f.absolute() for f in files]
