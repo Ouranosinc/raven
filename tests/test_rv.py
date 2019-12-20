@@ -119,6 +119,14 @@ class TestOst:
         assert o.random_seed == 'RandomSeed 0'
 
 
+class TestRVI:
+    def test_supress_output(self):
+        rvi = RVI(suppress_output=True)
+        assert rvi.suppress_output == ":SuppressOutput"
+
+        rvi = RVI(suppress_output=False)
+        assert rvi.suppress_output == ""
+
 def test_isinstance_namedtuple():
     X = namedtuple('params', 'x1, x2, x3')
     x = X(1, 2, 3)

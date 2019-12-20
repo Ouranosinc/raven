@@ -37,7 +37,7 @@ class TestGR4JCN:
         model.rvh.longitude = -123.3659
 
         model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
-
+        assert model.rvi.suppress_output == ""
         model([ts, ])
 
         d = model.diagnostics
@@ -86,7 +86,8 @@ class TestGR4JCN:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+              params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+              suppress_output=True
               )
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
@@ -101,8 +102,10 @@ class TestGR4JCN:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+              params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+              suppress_output=False  # Weird test failure if this is explictly set. Only occurs when tests run in bulk.
               )
+        assert model.rvi.suppress_output == ""
 
         qsim1 = model.q_sim.copy(deep=True)
         m1 = qsim1.mean()
@@ -135,7 +138,8 @@ class TestGR4JCN:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              params=[(0.529, -3.396, 407.29, 1.072, 16.9, 0.947), (0.528, -3.4, 407.3, 1.07, 17, .95)]
+              params=[(0.529, -3.396, 407.29, 1.072, 16.9, 0.947), (0.528, -3.4, 407.3, 1.07, 17, .95)],
+              suppress_output=False,
               )
 
         assert len(model.diagnostics) == 2
@@ -156,6 +160,7 @@ class TestGR4JCN:
               params=[0.529, -3.396, 407.29, 1.072, 16.9, 0.947],
               nc_index=[0, 0],
               name=['basin1', 'basin2'],
+              suppress_output=False
               )
 
         assert len(model.diagnostics) == 2
@@ -243,7 +248,8 @@ class TestHMETS:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              params=params
+              params=params,
+              suppress_output=True
               )
 
         d = model.diagnostics
@@ -355,6 +361,7 @@ class TestMOHYSE:
               longitude=-123.3659,
               params=params,
               hrus=hrus,
+              suppress_output=True
               )
 
         d = model.diagnostics
@@ -449,6 +456,7 @@ class TestHBVEC:
               latitude=54.4848,
               longitude=-123.3659,
               params=params,
+              suppress_output=True
               )
 
         d = model.diagnostics

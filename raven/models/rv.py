@@ -252,6 +252,7 @@ class RVI(RV):
         self._duration = 1
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
+        self._suppress_output = False
 
         super(RVI, self).__init__(**kwargs)
 
@@ -344,6 +345,16 @@ class RVI(RV):
     @property
     def now(self):
         return dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    @property
+    def suppress_output(self):
+        return ":SuppressOutput" if self._suppress_output else ""
+
+    @suppress_output.setter
+    def suppress_output(self, value):
+        if not isinstance(value, bool):
+            raise ValueError
+        self._suppress_output = value
 
 
 class Ost(RV):
