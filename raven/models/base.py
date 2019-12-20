@@ -65,8 +65,18 @@ class Raven:
                        'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
                        'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
                        'evspsbl': ['pet', 'evap', 'evapotranspiration'],
-                       'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
+                       'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow', 'dis']
                        }
+
+    # Expected units (pint-compatible)
+    _units = {'tasmin': "degC",
+              'tasmax': "degC",
+              'pr': "mm/d",
+              'prsn': "mm/d",
+              'evspsbl': "mm/d",
+              'water_volume_transport_in_river_channel': "m**3/s"
+              }
+
     _parallel_parameters = ['params', 'nc_index', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id',
                             'hrus']
 
@@ -288,9 +298,11 @@ class Raven:
           Run index.
         """
         # Match the input files
-        files, var_names, dimensions = self._assign_files(ts)
+        files, var_names, dimensions, units = self._assign_files(ts)
         self.rvt.update(files, force=True)
         self.rvt.update(var_names, force=True)
+        self.check_units(units)
+
         if dimensions:
             self.rvt.update({'nc_dimensions': dimensions}, force=True)
 
@@ -503,6 +515,7 @@ class Raven:
         files = {}
         var_names = {}
         dimensions = {}
+        units = {}
         shape = {}
 
         for fn in fns:
@@ -517,6 +530,7 @@ class Raven:
                                 var_names[var + '_var'] = alt_name
                                 dimensions[var] = ds[alt_name].dims
                                 shape[var] = ds[alt_name].shape
+                                units[var] = ds[alt_name].attrs.get("units")
                                 break
 
         for var in self._variable_names.keys():
@@ -535,7 +549,7 @@ class Raven:
         if len(sh) > 1:
             raise AttributeError("All forcing variables should have the same shape.")
 
-        return files, var_names, dims
+        return files, var_names, dims, units
 
     def _get_output(self, pattern, path):
         """Match actual output files to known expected files.
@@ -656,6 +670,18 @@ class Raven:
             fn = Path(fn)
 
         return fn.stem, fn.suffix[1:]
+
+    def check_units(self, units):
+        """Check that the input file units match expectations."""
+        from xclim.utils import units2pint
+
+        for key, val in units.items():
+            if units2pint(val) != units2pint(self._units[key]):
+                raise UserWarning("Units are not what Raven expects.\n"
+                                  f"Actual: {val}\n"
+                                  f"Expected: {self._units[key]}\n"
+                                  f"Make sure to set {key}_linear_transform to perform conversion."
+                                  )
 
 
 class Ostrich(Raven):
