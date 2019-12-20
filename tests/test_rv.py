@@ -100,8 +100,14 @@ class TestRV:
 class TestRVT:
 
     def test_linear_transform(self):
-        rvt = RVT(linear_transform=(24000, 0))
-        assert rvt.linear_transform == "24000 0"
+        rvt = RVT(pr_linear_transform=(24000, 0))
+        assert rvt.pr_linear_transform == ":LinearTransform 24000 0"
+
+        assert rvt.tasmin_linear_transform is None
+
+        assert rvt.time_shift is None
+
+        assert "tasmax_linear_transform" in list(rvt.keys())
 
 
 class TestOst:

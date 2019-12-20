@@ -30,6 +30,8 @@ Simulation end date and duration are updated automatically when duration, start 
 
 """
 
+default_input_variables = ("pr", "prsn", "tasmin", "tasmax", "evspsbl", "water_volume_transport_in_river_channel")
+
 
 class RVFile:
 
@@ -146,13 +148,45 @@ class RV(collections.Mapping):
                 self[key] = val
 
 
-class RVT(RV):
-    def __init__(self, **kwargs):
-        self.time_shift = 0
+def linear_transform_property(name):
+    def getter(self):
+        """A sequence of two values: multiplicative factor and additive offset."""
+        val = getattr(self, f"_{name}_linear_transform")
+        if val:
+            return ":LinearTransform {:g} {:g}".format(*val)
 
+    def setter(self, value):
+        """Set the scale factor and offset."""
+        if len(value) == 1:
+            value = (value, 0)
+        elif len(value) == 2:
+            pass
+        else:
+            raise ValueError("Linear transform takes at most two values: "
+                             "a scaling factor and an offset.")
+
+        setattr(self, f"_{name}_linear_transform", value)
+
+    return property(getter, setter)
+
+
+class RVT(RV):
+    pr_linear_transform = linear_transform_property("pr")
+    prsn_linear_transform = linear_transform_property("prsn")
+    tasmin_linear_transform = linear_transform_property("tasmin")
+    tasmax_linear_transform = linear_transform_property("tasmax")
+    evspsbl_linear_transform = linear_transform_property("evspsbl")
+    water_volume_transport_in_river_channel_linear_transform = \
+        linear_transform_property("water_volume_transport_in_river_channel")
+
+    def __init__(self, **kwargs):
+        self._time_shift = None
         self._nc_index = None
         self._nc_dimensions = None
-        self._linear_transform = None
+
+        for name in default_input_variables:
+            setattr(self, f"_{name}_linear_transform", None)
+
 
         super(RVT, self).__init__(**kwargs)
 
@@ -192,25 +226,14 @@ class RVT(RV):
             self.nc_index = 1
 
     @property
-    def linear_transform(self):
-        """A sequence of two values: multiplicative factor and additive offset."""
-        if self._linear_transform is None:
-            return "1 0"
+    def time_shift(self):
+        """The fraction describing the time shift, for example to convert UTC to local time."""
+        if self._time_shift is not None:
+            return f":TimeShift {self._time_shift}"
 
-        return "{:g} {:g}".format(*self._linear_transform)
-
-
-    @linear_transform.setter
-    def linear_transform(self, value):
-        """Set the scale factor and offset."""
-        if len(value) == 1:
-            self._linear_transform = (value, 0)
-        elif len(value) == 2:
-            self._linear_transform = value
-        else:
-            raise ValueError("Linear transform takes at most two values: "
-                             "a scaling factor and an offset.")
-
+    @time_shift.setter
+    def time_shift(self, value):
+        self._time_shift = value
 
 class RVI(RV):
     def __init__(self, **kwargs):
@@ -359,3 +382,26 @@ def isinstance_namedtuple(x):
     a = isinstance(x, tuple)
     b = getattr(x, '_fields', None) is not None
     return a and b
+
+
+def guess_linear_transform(actual, expected):
+    """Return RVT compatible dictionary for variable unit transformations.
+
+    Parameters
+    ----------
+    actual : dict
+      The units of each variable.
+    expected : dict
+      The units expected by Raven.
+
+    Returns
+    -------
+    dict
+      Dictionary keyed by <variable_name>_linear_transform, storing "<scale> <offset>"
+      strings used by Raven to transform units.
+
+    """
+    # TODO : For precip we also need the frequency to sum over one day.
+
+
+
