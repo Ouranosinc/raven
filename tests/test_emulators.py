@@ -19,6 +19,16 @@ def input2d(tmpdir):
     return fn_out
 
 
+def test_race():
+    model1 = GR4JCN()
+    model1.rvi.suppress_output = True
+    model2 = GR4JCN()
+    ost = GR4JCN_OST()
+
+    assert model1.rvi.suppress_output == ":SuppressOutput"
+    assert model2.rvi.suppress_output == ""
+    assert ost.rvi.suppress_output == ":SuppressOutput"
+
 class TestGR4JCN:
 
     def test_simple(self):
@@ -87,7 +97,7 @@ class TestGR4JCN:
               latitude=54.4848,
               longitude=-123.3659,
               params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
-              suppress_output=True
+              suppress_output=False
               )
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
@@ -103,7 +113,6 @@ class TestGR4JCN:
               latitude=54.4848,
               longitude=-123.3659,
               params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
-              suppress_output=False  # Weird test failure if this is explictly set. Only occurs when tests run in bulk.
               )
         assert model.rvi.suppress_output == ""
 

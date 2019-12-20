@@ -50,13 +50,6 @@ class Raven:
     # Allowed configuration file extensions
     _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
 
-    rvi = RV()
-    rvp = RV()
-    rvc = RV()
-    rvt = RV()
-    rvh = RV()
-    rvd = RV()  # rvd is for derived parameters
-
     # Dictionary of potential variable names, keyed by CF standard name.
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
     # PET is the potential evapotranspiration, while evspsbl is the actual evap.
@@ -91,9 +84,12 @@ class Raven:
         workdir = workdir or tempfile.mkdtemp()
         self._rvs = []
 
-        # Convert rvs into instance attributes, otherwise they'd be instance attributes.
-        for rv in self._rvext:
-            self.rv = getattr(type(self), rv)
+        self.rvi = RV()
+        self.rvp = RV()
+        self.rvc = RV()
+        self.rvt = RV()
+        self.rvh = RV()
+        self.rvd = RV()  # rvd is for derived parameters
 
         self.workdir = Path(workdir)
         self.ind_outputs = {}  # Individual files for all simulations

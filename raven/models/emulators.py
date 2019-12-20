@@ -12,11 +12,15 @@ class GR4JCN(Raven):
 
     params = namedtuple('GR4JParams', ('GR4J_X1', 'GR4J_X2', 'GR4J_X3', 'GR4J_X4', 'CEMANEIGE_X1', 'CEMANEIGE_X2'))
 
-    rvp = RV(params=params(None, None, None, None, None, None))
-    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
-    rvi = RVI()
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
-    rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+
+        self.rvp = RV(params=GR4JCN.params(None, None, None, None, None, None))
+        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+                   water_volume_transport_in_river_channel=None)
+        self.rvi = RVI()
+        self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+        self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
 
     def derived_parameters(self):
         self.rvd.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
@@ -26,12 +30,16 @@ class GR4JCN(Raven):
 class GR4JCN_OST(Ostrich, GR4JCN):
     _p = Path(__file__).parent / 'ostrich-gr4j-cemaneige'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
-    rvi = RVI(supress_output=True)
-    txt = Ost(algorithm='DSS',
-              max_iterations=50,
-              lowerBounds=GR4JCN.params(None, None, None, None, None, None),
-              upperBounds=GR4JCN.params(None, None, None, None, None, None),
-              )
+
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvi = RVI(suppress_output=True)
+        self.txt = Ost(algorithm='DSS',
+                       max_iterations=50,
+                       lowerBounds=GR4JCN.params(None, None, None, None, None, None),
+                       upperBounds=GR4JCN.params(None, None, None, None, None, None),
+                       )
+
 
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
@@ -45,11 +53,14 @@ class MOHYSE(Raven):
     params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 9)]))
     hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
 
-    rvp = RV(params=params(*((None,) * 8)))
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=hrus(None, None))
-    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
-    rvi = RVI()
-    rvd = RV(par_rezi_x10=None)
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvp = RV(params=MOHYSE.params(*((None,) * 8)))
+        self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=MOHYSE.hrus(None, None))
+        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+                   water_volume_transport_in_river_channel=None)
+        self.rvi = RVI()
+        self.rvd = RV(par_rezi_x10=None)
 
     def derived_parameters(self):
         self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
@@ -59,14 +70,16 @@ class MOHYSE_OST(Ostrich, MOHYSE):
     _p = Path(__file__).parent / 'ostrich-mohyse'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    rvi = RVI(supress_output=True)
-    txt = Ost(algorithm='DSS',
-              max_iterations=50,
-              lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
-              upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
-              hruslowerBounds=MOHYSE.hrus(None, None),
-              hrusupperBounds=MOHYSE.hrus(None, None)
-              )
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvi = RVI(suppress_output=True)
+        self.txt = Ost(algorithm='DSS',
+                       max_iterations=50,
+                       lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
+                       upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
+                       hruslowerBounds=MOHYSE.hrus(None, None),
+                       hrusupperBounds=MOHYSE.hrus(None, None)
+                       )
 
     def derived_parameters(self):
         """  Derived parameters are computed by Ostrich.  """
@@ -84,11 +97,14 @@ class HMETS(GR4JCN):
                                         'HMETS_RUNOFF_COEFF', 'PERC_COEFF', 'BASEFLOW_COEFF_1',
                                         'BASEFLOW_COEFF_2', 'TOPSOIL', 'PHREATIC'))
 
-    rvp = RV(params=params(*((None,) * len(params._fields))))
-    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None, water_volume_transport_in_river_channel=None)
-    rvi = RVI()
-    rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
-             PHREATIC_hlf=None)
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvp = RV(params=HMETS.params(*((None,) * len(HMETS.params._fields))))
+        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+                   water_volume_transport_in_river_channel=None)
+        self.rvi = RVI()
+        self.rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
+                 PHREATIC_hlf=None)
 
     def derived_parameters(self):
         self.rvd['TOPSOIL_hlf'] = self.rvp.params.TOPSOIL * 0.5
@@ -103,14 +119,16 @@ class HMETS_OST(Ostrich, HMETS):
     _p = Path(__file__).parent / 'ostrich-hmets'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    rvi = RVI(supress_output=True)
-    txt = Ost(algorithm='DSS',
-              max_iterations=50,
-              lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
-                                       None, None, None, None, None, None, None, None, None, None),
-              upperBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
-                                       None, None, None, None, None, None, None, None, None, None),
-              )
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvi = RVI(suppress_output=True)
+        self.txt = Ost(algorithm='DSS',
+                       max_iterations=50,
+                       lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
+                                                None, None, None, None, None, None, None, None, None, None),
+                       upperBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
+                                                None, None, None, None, None, None, None, None, None, None),
+                       )
 
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
@@ -147,11 +165,13 @@ class HBVEC(GR4JCN):
     mae = namedtuple('MeanAverageEvap', ('x{:02}'.format(i) for i in range(1, 13)))
     mat = namedtuple('MeanAverageTemp', ('x{:02}'.format(i) for i in range(1, 13)))
 
-    rvp = RV(params=params(*((None,) * len(params._fields))))
-    rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=mae, mat=mat)
-    rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-              water_volume_transport_in_river_channel=None)
-    rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvp = RV(params=HBVEC.params(*((None,) * len(HBVEC.params._fields))))
+        self.rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=HBVEC.mae, mat=HBVEC.mat)
+        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
+                       water_volume_transport_in_river_channel=None)
+        self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
     def derived_parameters(self):
         import xarray as xr
@@ -172,16 +192,18 @@ class HBVEC_OST(Ostrich, HBVEC):
     _p = Path(__file__).parent / 'ostrich-hbv-ec'
     templates = tuple(_p.glob("model/*.rv?")) + tuple(_p.glob('*.t??'))
 
-    rvi = RVI(supress_output=True)
-    low = HBVEC.params
-    high = HBVEC.params
-    txt = Ost(algorithm='DSS',
-              max_iterations=50,
-              lowerBounds=low(None, None, None, None, None, None, None, None, None, None, None,
-                              None, None, None, None, None, None, None, None, None, None),
-              upperBounds=high(None, None, None, None, None, None, None, None, None, None, None,
-                               None, None, None, None, None, None, None, None, None, None),
-              )
+    def __init__(self, *args, **kwds):
+        super().__init__(*args, **kwds)
+        self.rvi = RVI(suppress_output=True)
+        self.low = HBVEC.params
+        self.high = HBVEC.params
+        self.txt = Ost(algorithm='DSS',
+                       max_iterations=50,
+                       lowerBounds=self.low(None, None, None, None, None, None, None, None, None, None, None,
+                                       None, None, None, None, None, None, None, None, None, None),
+                       upperBounds=self.high(None, None, None, None, None, None, None, None, None, None, None,
+                                        None, None, None, None, None, None, None, None, None, None),
+                       )
 
     def derived_parameters(self):
         import xarray as xr
