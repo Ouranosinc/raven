@@ -24,7 +24,7 @@
          :VarNameNC       {pr_var}
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
-         :TimeShift       {time_shift}
+         {time_shift}
          :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
@@ -34,7 +34,7 @@
          :VarNameNC       {prsn_var}
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
-         :TimeShift       {time_shift}
+         {time_shift}
          :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
@@ -44,7 +44,7 @@
          :VarNameNC       {tasmin_var}
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
-         :TimeShift       {time_shift}
+         {time_shift}
          :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
@@ -54,7 +54,7 @@
          :VarNameNC       {tasmax_var}
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
-         :TimeShift       {time_shift}
+         {time_shift}
          :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
@@ -64,7 +64,7 @@
          :VarNameNC       {evspsbl_var}
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
-         :TimeShift       {time_shift}
+         {time_shift}
          :LinearTransform {linear_transform}
       :EndReadFromNetCDF
    :EndData
@@ -77,7 +77,7 @@
          :VarNameNC       {water_volume_transport_in_river_channel_var}
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
-         :TimeShift       {time_shift}
+         {time_shift}
          :LinearTransform {linear_transform}
     :EndReadFromNetCDF
 :EndObservationData
