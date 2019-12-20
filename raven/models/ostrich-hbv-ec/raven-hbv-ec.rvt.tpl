@@ -24,7 +24,7 @@
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
          {time_shift}
-         :LinearTransform {linear_transform}
+         {pr_linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data SNOWFALL mm/d
@@ -34,7 +34,7 @@
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
          {time_shift}
-         :LinearTransform {linear_transform}
+         {prsn_linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MIN deg_C
@@ -44,7 +44,7 @@
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
          {time_shift}
-         :LinearTransform {linear_transform}
+         {tasmin_linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data TEMP_MAX deg_C
@@ -54,7 +54,7 @@
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
          {time_shift}
-         :LinearTransform {linear_transform}
+         {tasmax_linear_transform}
       :EndReadFromNetCDF
    :EndData
    :Data PET mm/d
@@ -64,7 +64,7 @@
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
          {time_shift}
-         :LinearTransform {linear_transform}
+         {evspsbl_linear_transform}
       :EndReadFromNetCDF
    :EndData
 :EndGauge
@@ -77,7 +77,6 @@
          :DimNamesNC      {nc_dimensions}
          :StationIdx      {nc_index}
          {time_shift}
-         :LinearTransform {linear_transform}
+         {water_volume_transport_in_river_channel_linear_transform}
     :EndReadFromNetCDF
 :EndObservationData
-

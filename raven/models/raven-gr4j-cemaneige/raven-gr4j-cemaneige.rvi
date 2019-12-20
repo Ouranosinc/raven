@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------
 #
 
-:RunName               {run_name}
+:RunName               {run_name}-{run_index}
 :StartDate             {start_date}
 :Duration              {duration}
 :TimeStep              {time_step}

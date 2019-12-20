@@ -12,9 +12,9 @@ model
 EndExtraDirs
 
 BeginFilePairs
-  raven-hbv.rvp.tpl;  raven-hbv.rvp
-  raven-hbv.rvh.tpl;  raven-hbv.rvh
-  raven-hbv.rvt.tpl;  raven-hbv.rvt
+  raven-hbv-ec.rvp.tpl;  raven-hbv-ec.rvp
+  raven-hbv-ec.rvh.tpl;  raven-hbv-ec.rvh
+  raven-hbv-ec.rvt.tpl;  raven-hbv-ec.rvt
   #can be multiple (.rvh, .rvi)
 EndFilePairs
 
