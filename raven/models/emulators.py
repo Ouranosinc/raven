@@ -17,7 +17,7 @@ class GR4JCN(Raven):
 
         self.rvp = RV(params=GR4JCN.params(None, None, None, None, None, None))
         self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-                   water_volume_transport_in_river_channel=None)
+                       water_volume_transport_in_river_channel=None)
         self.rvi = RVI()
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
@@ -40,7 +40,6 @@ class GR4JCN_OST(Ostrich, GR4JCN):
                        upperBounds=GR4JCN.params(None, None, None, None, None, None),
                        )
 
-
     def derived_parameters(self):
         """Derived parameters are computed by Ostrich."""
         pass
@@ -58,7 +57,7 @@ class MOHYSE(Raven):
         self.rvp = RV(params=MOHYSE.params(*((None,) * 8)))
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=MOHYSE.hrus(None, None))
         self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-                   water_volume_transport_in_river_channel=None)
+                       water_volume_transport_in_river_channel=None)
         self.rvi = RVI()
         self.rvd = RV(par_rezi_x10=None)
 
@@ -101,10 +100,10 @@ class HMETS(GR4JCN):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HMETS.params(*((None,) * len(HMETS.params._fields))))
         self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-                   water_volume_transport_in_river_channel=None)
+                       water_volume_transport_in_river_channel=None)
         self.rvi = RVI()
         self.rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
-                 PHREATIC_hlf=None)
+                      PHREATIC_hlf=None)
 
     def derived_parameters(self):
         self.rvd['TOPSOIL_hlf'] = self.rvp.params.TOPSOIL * 0.5
@@ -200,9 +199,9 @@ class HBVEC_OST(Ostrich, HBVEC):
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
                        lowerBounds=self.low(None, None, None, None, None, None, None, None, None, None, None,
-                                       None, None, None, None, None, None, None, None, None, None),
+                                            None, None, None, None, None, None, None, None, None, None),
                        upperBounds=self.high(None, None, None, None, None, None, None, None, None, None, None,
-                                        None, None, None, None, None, None, None, None, None, None),
+                                             None, None, None, None, None, None, None, None, None, None),
                        )
 
     def derived_parameters(self):

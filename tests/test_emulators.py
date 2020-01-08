@@ -29,6 +29,7 @@ def test_race():
     assert model2.rvi.suppress_output == ""
     assert ost.rvi.suppress_output == ":SuppressOutput"
 
+
 class TestGR4JCN:
 
     def test_simple(self):

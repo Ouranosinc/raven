@@ -146,7 +146,11 @@ nc_index = LiteralInput('nc_index', 'NetCDF input index',
                         min_occurs=0,
                         max_occurs=config.max_parallel_processes)
 
-
+suppress_output = LiteralInput('suppress_output', "Do not write hydrograph to disk",
+                               abstract="If True (default), hydrographs are not written to disk and thus not"
+                                        "returned.",
+                               data_type="boolean",
+                               default=True)
 # --- #
 
 rv_config = ComplexOutput('rv_config', 'Raven/Ostrich configuration files',
