@@ -38,7 +38,7 @@ class TestOstrichGR4JCemaNeigeProcess:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-                     "random_seed=0" \
+                     "random_seed=0;" \
             .format(ts=TESTDATA['ostrich-gr4j-cemaneige-nc-ts'],
                     algorithm='DDS',
                     max_iterations=10,
@@ -84,3 +84,5 @@ class TestOstrichGR4JCemaNeigeProcess:
         rv_config, _ = urlretrieve(out["rv_config"])
         z = zipfile.ZipFile(rv_config)
         assert len(z.filelist) == 7
+
+        assert "hydrograph" in out

@@ -97,6 +97,7 @@ class TestRV:
         m = Mod(params=Mod.params(1, 2, 3))
         assert m.params.x1 == 1
 
+
 class TestRVT:
 
     def test_linear_transform(self):
@@ -126,6 +127,7 @@ class TestRVI:
 
         rvi = RVI(suppress_output=False)
         assert rvi.suppress_output == ""
+
 
 def test_isinstance_namedtuple():
     X = namedtuple('params', 'x1, x2, x3')

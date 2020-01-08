@@ -187,7 +187,6 @@ class RVT(RV):
         for name in default_input_variables:
             setattr(self, f"_{name}_linear_transform", None)
 
-
         super(RVT, self).__init__(**kwargs)
 
     @property
@@ -234,6 +233,7 @@ class RVT(RV):
     @time_shift.setter
     def time_shift(self, value):
         self._time_shift = value
+
 
 class RVI(RV):
     def __init__(self, **kwargs):
@@ -413,6 +413,3 @@ def guess_linear_transform(actual, expected):
 
     """
     # TODO : For precip we also need the frequency to sum over one day.
-
-
-
