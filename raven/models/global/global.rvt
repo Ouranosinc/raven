@@ -51,6 +51,16 @@
          {tasmax_linear_transform}
       :EndReadFromNetCDF
    :EndData
+   :Data TEMP_AVE deg_C
+      :ReadFromNetCDF
+         :FileNameNC     {tas}
+         :VarNameNC      {tas_var}
+         :DimNamesNC     {nc_dimensions}
+         :StationIdx     {nc_index}
+         {time_shift}
+         {evspsbl_linear_transform}
+      :EndReadFromNetCDF
+   :EndData
    :Data PET mm/d
       :ReadFromNetCDF
          :FileNameNC      {evspsbl}

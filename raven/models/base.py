@@ -55,7 +55,8 @@ class Raven:
     # PET is the potential evapotranspiration, while evspsbl is the actual evap.
     _variable_names = {'tasmin': ['tasmin', 'tmin'],
                        'tasmax': ['tasmax', 'tmax'],
-                       'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
+                       'tas': ['tas', 't2m'],
+                       'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation', 'tp'],
                        'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
                        'evspsbl': ['pet', 'evap', 'evapotranspiration'],
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow', 'dis']
@@ -64,6 +65,7 @@ class Raven:
     # Expected units (pint-compatible)
     _units = {'tasmin': "degC",
               'tasmax': "degC",
+              'tas': "degC",
               'pr': "mm/d",
               'prsn': "mm/d",
               'evspsbl': "mm/d",
@@ -531,7 +533,16 @@ class Raven:
 
         for var in self._variable_names.keys():
             if var in self.rvt.keys() and var not in files.keys():
-                raise ValueError("{} not found in files.".format(var))
+                if var in ['tasmin', 'tasmax'] and 'tas' in files.keys():
+                    pass  # This is OK
+                elif var in ['prsn']:
+                    pass  # Ok, can be guessed from temp ?
+                elif var in ['evspsbl']:
+                    pass  # Ok, can be computed by Oudin ?
+                elif var in ['water_volume_transport_in_river_channel']:
+                    pass  # Ok, not strictly necessary for simulations ?
+                else:
+                    raise ValueError("{} not found in files.".format(var))
 
         sdims = set(dimensions.values())
         if len(sdims) == 0:
