@@ -30,7 +30,8 @@ Simulation end date and duration are updated automatically when duration, start 
 
 """
 
-default_input_variables = ("pr", "prsn", "tasmin", "tasmax", "evspsbl", "water_volume_transport_in_river_channel")
+default_input_variables = ("pr", "prsn", "tasmin", "tasmax", "tas", "evspsbl",
+                           "water_volume_transport_in_river_channel")
 
 
 class RVFile:
@@ -175,6 +176,7 @@ class RVT(RV):
     prsn_linear_transform = linear_transform_property("prsn")
     tasmin_linear_transform = linear_transform_property("tasmin")
     tasmax_linear_transform = linear_transform_property("tasmax")
+    tas_linear_transform = linear_transform_property("tas")
     evspsbl_linear_transform = linear_transform_property("evspsbl")
     water_volume_transport_in_river_channel_linear_transform = \
         linear_transform_property("water_volume_transport_in_river_channel")

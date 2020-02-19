@@ -8,33 +8,37 @@ from pywps.tests import assert_response_success
 
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
+from raven.models import HMETS
 import pdb
+
+
+params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
+         2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
+
+
+class TestRavenERA5:
+    def test_simple(self, era5_hr):
+        model = HMETS()
+        model(ts=era5_hr,
+              params=params,
+              start_date=dt.datetime(2018, 1, 1),
+              end_date=dt.datetime(2018, 8, 10),
+              name='Salmon',
+              run_name='test-hmets-era5',
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              tas_linear_transform=(1, 273.15),
+              pr_linear_transform=(.001, 0))
+
 
 class TestRavenERA5Process:
 
-    def test_simple(self):
+    def test_simple(self, era5_hr):
         client = client_for(Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, ' \
-                 '2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947'
-        
-        tas = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/ecmwf/era5/tas_era5_reanalysis_hourly_2018.nc"
-        precip = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/ecmwf/era5/pr_era5_reanalysis_hourly_2018.nc"
-        tdata=xr.open_dataset(tas)
-        pdata=xr.open_dataset(precip)
 
-        salmon=xr.open_dataset(TESTDATA['raven-hmets-nc-ts'])
-        salmon_lat = salmon.lat.values[0]
-        salmon_lon = salmon.lon.values[0]
-        pdb.set_trace()
-        
-        taslatlon=tdata.sel(longitude=salmon_lon, latitude=salmon_lat, method='nearest')
-        prlatlon=pdata.sel(longitude=salmon_lon, latitude=salmon_lat, method='nearest')
-        g=taslatlon.merge(prlatlon)
-             
-        '''
-        need to write netcdf file here, I did it outside Python. Probably possible to pass a netcdf file directly?
-        '''
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params};" \
                      "start_date={start_date};" \
@@ -46,7 +50,8 @@ class TestRavenERA5Process:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
-            .format(ts="/home/ets/testERA5.nc", # This is a file on disk, need to pass 'g'
+                     "tas_linear_transform={tas_lt}"\
+            .format(ts=era5_hr,
                     params=params,
                     start_date=dt.datetime(2018, 1, 1),
                     end_date=dt.datetime(2018, 8, 10),
@@ -57,6 +62,7 @@ class TestRavenERA5Process:
                     elevation='843.0',
                     latitude=54.4848,
                     longitude=-123.3659,
+                    tas_lt=(1, 273.15)
                     )
 
         resp = client.get(
