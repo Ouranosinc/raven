@@ -2,6 +2,11 @@ import six
 import datetime as dt
 import collections
 from pathlib import Path
+from xclim.utils import units
+from xclim.utils import units2pint
+
+# Can be removed when xclim is pinned above 0.14
+units.define("deg_C = degC")
 
 """
 Raven configuration
@@ -292,14 +297,14 @@ class RavenNcData(RV):
         self._linear_transform = value
 
     def _check_units(self):
-        from xclim.utils import units2pint
+        import warnings
         if units2pint(self.units) != units2pint(self.runits):
             if self._linear_transform is None:
-                raise UserWarning(f"Units are not what Raven expects for {self.var}.\n"
-                                  f"Actual: {self.units}\n"
-                                  f"Expected: {self.runits}\n"
-                                  f"Make sure to set linear_transform to perform conversion."
-                                  )
+                warnings.warn(f"Units are not what Raven expects for {self.var}.\n"
+                              f"Actual: {self.units}\n"
+                              f"Expected: {self.runits}\n"
+                              f"Make sure to set linear_transform to perform conversion."
+                              )
 
     def __str__(self):
         if self.var is None:

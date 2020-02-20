@@ -1,5 +1,5 @@
 six
-pywps>=4.2.3
+pywps==4.2.3
 owslib>=0.18
 lxml
 jinja2

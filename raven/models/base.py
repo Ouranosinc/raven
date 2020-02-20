@@ -564,7 +564,7 @@ class Raven:
           The last datetime of the forcing files.
         """
 
-        ds = xr.open_mfdataset(fns)
+        ds = xr.open_mfdataset(fns, combine="by_coords")
         return ds.indexes['time'][0], ds.indexes['time'][-1]
 
     def handle_date_defaults(self, ts):
