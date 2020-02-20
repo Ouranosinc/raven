@@ -12,6 +12,7 @@
    :Elevation   {elevation}
 
    {pr}
+   {rainfall}
    {prsn}
    {tasmin}
    {tasmax}
