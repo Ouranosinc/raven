@@ -15,7 +15,7 @@
 :Method                ORDERED_SERIES
 
 :PotentialMeltMethod     POTMELT_HMETS
-:RainSnowFraction        RAINSNOW_DATA
+:RainSnowFraction        RAINSNOW_DINGMAN
 :Evaporation             PET_OUDIN
 :CatchmentRoute          ROUTE_DUMP
 :Routing                 ROUTE_NONE

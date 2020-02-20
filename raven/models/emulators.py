@@ -2,7 +2,9 @@ from collections import namedtuple
 from pathlib import Path
 
 from raven.models import Raven, Ostrich
-from .rv import RV, RVT, RVI, Ost
+from .rv import RV, RVT, RVI, Ost, RavenNcData
+
+nc = RavenNcData
 
 
 class GR4JCN(Raven):
@@ -16,8 +18,8 @@ class GR4JCN(Raven):
         super().__init__(*args, **kwds)
 
         self.rvp = RV(params=GR4JCN.params(None, None, None, None, None, None))
-        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, tas=None,
-                       evspsbl=None, water_volume_transport_in_river_channel=None)
+        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
+                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
         self.rvi = RVI()
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
@@ -56,8 +58,8 @@ class MOHYSE(Raven):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=MOHYSE.params(*((None,) * 8)))
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=MOHYSE.hrus(None, None))
-        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-                       water_volume_transport_in_river_channel=None)
+        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
+                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
         self.rvi = RVI()
         self.rvd = RV(par_rezi_x10=None)
 
@@ -99,8 +101,8 @@ class HMETS(GR4JCN):
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HMETS.params(*((None,) * len(HMETS.params._fields))))
-        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, tas=None,
-                       evspsbl=None, water_volume_transport_in_river_channel=None)
+        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
+                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
         self.rvi = RVI()
         self.rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
                       PHREATIC_hlf=None)
@@ -168,8 +170,8 @@ class HBVEC(GR4JCN):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HBVEC.params(*((None,) * len(HBVEC.params._fields))))
         self.rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=HBVEC.mae, mat=HBVEC.mat)
-        self.rvt = RVT(pr=None, prsn=None, tasmin=None, tasmax=None, evspsbl=None,
-                       water_volume_transport_in_river_channel=None)
+        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
+                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
     def derived_parameters(self):
@@ -178,9 +180,9 @@ class HBVEC(GR4JCN):
         self.rvd['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
         self.rvd['par_x11_half'] = self.rvp.params.par_x11 / 2.0
 
-        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
-        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
-        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
+        tasmax = xr.open_dataset(self.rvt.tasmax.path)[self.rvt.tasmax.var_name]
+        tasmin = xr.open_dataset(self.rvt.tasmin.path)[self.rvt.tasmin.var_name]
+        evap = xr.open_dataset(self.rvt.evspsbl.path)[self.rvt.evspsbl.var_name]
 
         tas = (tasmax + tasmin) / 2.
         self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
@@ -207,9 +209,9 @@ class HBVEC_OST(Ostrich, HBVEC):
     def derived_parameters(self):
         import xarray as xr
 
-        tasmax = xr.open_dataset(self.rvt.tasmax)[self.rvt.tasmax_var]
-        tasmin = xr.open_dataset(self.rvt.tasmin)[self.rvt.tasmin_var]
-        evap = xr.open_dataset(self.rvt.evspsbl)[self.rvt.evspsbl_var]
+        tasmax = xr.open_dataset(self.rvt.tasmax.path)[self.rvt.tasmax.var_name]
+        tasmin = xr.open_dataset(self.rvt.tasmin.path)[self.rvt.tasmin.var_name]
+        evap = xr.open_dataset(self.rvt.evspsbl.path)[self.rvt.evspsbl.var_name]
 
         tas = (tasmax + tasmin) / 2.
         self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
