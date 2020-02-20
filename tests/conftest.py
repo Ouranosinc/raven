@@ -39,6 +39,7 @@ def params(ts_stats, tmp_path):
 
 @pytest.fixture
 def era5_hr():
+    import netCDF4 as nc
     """Return a netCDF file with hourly ERA5 data at the Salmon location."""
     path = TD / "ERA5" / "ts.nc"
 
@@ -52,9 +53,10 @@ def era5_hr():
         ds = xr.open_mfdataset([tas, pr], combine="by_coords")
         lon, lat = SALMON_coords
         out = ds.sel(longitude=lon + 360, latitude=lat,  method='nearest')
-        out.time.encoding["units"] = "hours since 1900-01-01 00:00:00"
         out.to_netcdf(path)
 
-
+    D = nc.Dataset(path, "a")
+    D.variables["time"].units = "hours since 1900-01-01 00:00:00"
+    D.close()
     return path
 
