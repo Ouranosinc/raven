@@ -179,14 +179,14 @@ class RavenNcData(RV):
                   }
 
     _var_runits = {'tasmin': 'deg_C',
-              'tasmax': 'deg_C',
-              'tas': 'deg_C',
-              'pr': "mm/d",
-              'rainfall': "mm/d",
-              'prsn': "mm/d",
-              'evspsbl': "mm/d",
-              'water_volume_transport_in_river_channel': "m3/s"
-              }
+                   'tasmax': 'deg_C',
+                   'tas': 'deg_C',
+                   'pr': "mm/d",
+                   'rainfall': "mm/d",
+                   'prsn': "mm/d",
+                   'evspsbl': "mm/d",
+                   'water_volume_transport_in_river_channel': "m3/s"
+                   }
 
     def __init__(self, **kwargs):
         self.var = None
