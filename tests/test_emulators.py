@@ -133,10 +133,10 @@ class TestGR4JCN:
 
     def test_version(self):
         model = Raven()
-        assert model.version == '2.9'
+        assert model.version == '2.9.2'
 
         model = GR4JCN()
-        assert model.version == '2.9'
+        assert model.version == '2.9.2'
 
     def test_parallel_params(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
