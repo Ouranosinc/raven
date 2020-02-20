@@ -57,7 +57,8 @@ class Raven:
     _variable_names = {'tasmin': ['tasmin', 'tmin'],
                        'tasmax': ['tasmax', 'tmax'],
                        'tas': ['tas', 't2m'],
-                       'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation', 'tp'],
+                       'rainfall': ['rainfall', 'rain'],
+                       'pr': ['pr', 'precip', 'prec', 'precipitation', 'tp'],
                        'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
                        'evspsbl': ['pet', 'evap', 'evapotranspiration'],
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow', 'dis']

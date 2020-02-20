@@ -5,6 +5,7 @@ from raven.models import Raven, Ostrich
 from .rv import RV, RVT, RVI, Ost, RavenNcData
 
 nc = RavenNcData
+std_vars = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", "evspsbl", "water_volume_transport_in_river_channel")
 
 
 class GR4JCN(Raven):
@@ -18,8 +19,7 @@ class GR4JCN(Raven):
         super().__init__(*args, **kwds)
 
         self.rvp = RV(params=GR4JCN.params(None, None, None, None, None, None))
-        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
-                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
+        self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI()
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
@@ -58,8 +58,7 @@ class MOHYSE(Raven):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=MOHYSE.params(*((None,) * 8)))
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=MOHYSE.hrus(None, None))
-        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
-                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
+        self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI()
         self.rvd = RV(par_rezi_x10=None)
 
@@ -101,8 +100,7 @@ class HMETS(GR4JCN):
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HMETS.params(*((None,) * len(HMETS.params._fields))))
-        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
-                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
+        self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI()
         self.rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
                       PHREATIC_hlf=None)
@@ -170,8 +168,7 @@ class HBVEC(GR4JCN):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HBVEC.params(*((None,) * len(HBVEC.params._fields))))
         self.rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=HBVEC.mae, mat=HBVEC.mat)
-        self.rvt = RVT(pr=nc(), prsn=nc(), tasmin=nc(), tasmax=nc(), tas=nc(),
-                       evspsbl=nc(), water_volume_transport_in_river_channel=nc())
+        self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
     def derived_parameters(self):
