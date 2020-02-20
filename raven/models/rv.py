@@ -361,6 +361,7 @@ class RVI(RV):
         self._start_date = None
         self._end_date = None
         self._now = None
+        self._rain_snow_fraction = "RAINSNOW_DATA"
         self._duration = 1
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
@@ -467,6 +468,31 @@ class RVI(RV):
         if not isinstance(value, bool):
             raise ValueError
         self._suppress_output = value
+
+    @property
+    def rain_snow_fraction(self):
+        """Rain snow partitioning.
+        """
+        return self._rain_snow_fraction
+
+    @rain_snow_fraction.setter
+    def rain_snow_fraction(self, value):
+        """Can be one of
+
+        - RAINSNOW_DATA
+        - RAINSNOW_DINGMAN
+        - RAINSNOW_UBC
+        - RAINSNOW_HBV
+        - RAINSNOW_HARDER
+        - RAINSNOW_HSPF
+        """
+        v = value.upper()
+        options = ("RAINSNOW_DATA", "RAINSNOW_DINGMAN", "RAINSNOW_UBC", "RAINSNOW_HBV", "RAINSNOW_HARDER",
+                 "RAINSNOW_HSPF")
+        if v in options:
+            self._rain_snow_fraction = v
+        else:
+            raise ValueError(f"Value should be one of {options}.")
 
 
 class Ost(RV):
