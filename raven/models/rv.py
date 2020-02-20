@@ -35,7 +35,7 @@ Simulation end date and duration are updated automatically when duration, start 
 
 """
 
-default_input_variables = ("pr", "prsn", "tasmin", "tasmax", "tas", "evspsbl",
+default_input_variables = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", "evspsbl",
                            "water_volume_transport_in_river_channel")
 
 
@@ -169,18 +169,20 @@ class RavenNcData(RV):
           """
 
     _var_names = {'tasmin': "TEMP_MIN",
-         'tasmax': "TEMP_MAX",
+                  'tasmax': "TEMP_MAX",
                   'tas': "TEMP_AVE",
-         'pr': "RAINFALL",
-         'prsn': "SNOWFALL",
-         'evspsbl': "PET",
-         'water_volume_transport_in_river_channel': "HYDROGRAPH"
-         }
+                  'rainfall': "RAINFALL",
+                  'pr': "PRECIP",
+                  'prsn': "SNOWFALL",
+                  'evspsbl': "PET",
+                  'water_volume_transport_in_river_channel': "HYDROGRAPH"
+                  }
 
     _var_runits = {'tasmin': 'deg_C',
               'tasmax': 'deg_C',
               'tas': 'deg_C',
               'pr': "mm/d",
+              'rainfall': "mm/d",
               'prsn': "mm/d",
               'evspsbl': "mm/d",
               'water_volume_transport_in_river_channel': "m3/s"
