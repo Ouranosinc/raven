@@ -1,6 +1,6 @@
 import pytest
 import raven
-from raven.models.rv import RV, RVI, RVT, Ost, RVFile, isinstance_namedtuple
+from raven.models.rv import RV, RVI, RVT, Ost, RVFile, isinstance_namedtuple, RavenNcData
 import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
@@ -98,17 +98,34 @@ class TestRV:
         assert m.params.x1 == 1
 
 
-class TestRVT:
+def compare(a, b):
+    """
+    Compare two base strings, disregarding whitespace
+    """
+    import re
+    return re.sub("\s*", "", a) == re.sub("\s*", "", b)
+
+
+class TestRavenNcData:
+
+    def test_simple(self):
+        v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time',])
+        tmp = str(v)
+
+        assert compare(tmp, """:Data TEMP_MIN deg_C
+                                  :ReadFromNetCDF
+                                     :FileNameNC      /path/tasmin.nc
+                                     :VarNameNC       tn
+                                     :DimNamesNC      time
+                                     :StationIdx      1
+                                  :EndReadFromNetCDF
+                               :EndData""")
 
     def test_linear_transform(self):
-        rvt = RVT(pr_linear_transform=(24000, 0))
-        assert rvt.pr_linear_transform == ":LinearTransform 24000 0"
+        v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time', ],
+                        linear_transform=(24000, 0))
 
-        assert rvt.tasmin_linear_transform is None
-
-        assert rvt.time_shift is None
-
-        assert "tasmax_linear_transform" in list(rvt.keys())
+        assert ":LinearTransform 24000 0" in str(v)
 
 
 class TestOst:

@@ -149,65 +149,97 @@ class RV(collections.Mapping):
                 self[key] = val
 
 
-def linear_transform_property(name):
-    def getter(self):
-        """A sequence of two values: multiplicative factor and additive offset."""
-        val = getattr(self, f"_{name}_linear_transform")
-        if val:
-            return ":LinearTransform {:g} {:g}".format(*val)
+class RavenNcData(RV):
+    pat = """
+          :{kind} {raven_name} {site} {runits}
+              :ReadFromNetCDF
+                 :FileNameNC      {path}
+                 :VarNameNC       {var_name}
+                 :DimNamesNC      {dimensions}
+                 :StationIdx      {index}
+                 {time_shift}
+                 {linear_transform}
+              :EndReadFromNetCDF
+          :End{kind}
+          """
 
-    def setter(self, value):
-        """Set the scale factor and offset."""
-        if len(value) == 1:
-            value = (value, 0)
-        elif len(value) == 2:
-            pass
-        else:
-            raise ValueError("Linear transform takes at most two values: "
-                             "a scaling factor and an offset.")
+    _var_names = {'tasmin': "TEMP_MIN",
+         'tasmax': "TEMP_MAX",
+                  'tas': "TEMP_AVE",
+         'pr': "RAINFALL",
+         'prsn': "SNOWFALL",
+         'evspsbl': "PET",
+         'water_volume_transport_in_river_channel': "HYDROGRAPH"
+         }
 
-        setattr(self, f"_{name}_linear_transform", value)
-
-    return property(getter, setter)
-
-
-class RVT(RV):
-    pr_linear_transform = linear_transform_property("pr")
-    prsn_linear_transform = linear_transform_property("prsn")
-    tasmin_linear_transform = linear_transform_property("tasmin")
-    tasmax_linear_transform = linear_transform_property("tasmax")
-    tas_linear_transform = linear_transform_property("tas")
-    evspsbl_linear_transform = linear_transform_property("evspsbl")
-    water_volume_transport_in_river_channel_linear_transform = \
-        linear_transform_property("water_volume_transport_in_river_channel")
+    _var_runits = {'tasmin': 'deg_C',
+              'tasmax': 'deg_C',
+              'tas': 'deg_C',
+              'pr': "mm/d",
+              'prsn': "mm/d",
+              'evspsbl': "mm/d",
+              'water_volume_transport_in_river_channel': "m3/s"
+              }
 
     def __init__(self, **kwargs):
+        self.var = None
+        self.path = None
+        self.var_name = None
+        self.units = None
+        self.scale_factor = None
+        self.add_offset = None
+
         self._time_shift = None
-        self._nc_index = None
-        self._nc_dimensions = None
+        self._dimensions = None
+        self._index = None
+        self._linear_transform = None
+        self._site = None
+        self._kind = None
+        self._runits = None
+        self._raven_name = None
+        self._site = None
 
-        for name in default_input_variables:
-            setattr(self, f"_{name}_linear_transform", None)
-
-        super(RVT, self).__init__(**kwargs)
-
-    @property
-    def nc_index(self):
-        if self._nc_index is not None:
-            return str(self._nc_index + 1)
-
-    @nc_index.setter
-    def nc_index(self, value):
-        self._nc_index = value
+        super().__init__(**kwargs)
 
     @property
-    def nc_dimensions(self):
+    def raven_name(self):
+        return self._var_names[self.var]
+
+    @property
+    def runits(self):
+        return self._var_runits[self.var]
+
+    @property
+    def kind(self):
+        if self.var == 'water_volume_transport_in_river_channel':
+            return "ObservationData"
+        else:
+            return "Data"
+
+    @property
+    def site(self):
+        if self.var == 'water_volume_transport_in_river_channel':
+            return 1
+        else:
+            return ""
+
+    @property
+    def index(self):
+        if self._index is not None:
+            return str(self._index + 1)
+
+    @index.setter
+    def index(self, value):
+        self._index = value
+
+    @property
+    def dimensions(self):
         """Return dimensions as Raven expects it:
         - time
         - station time
         - lon lat time
         """
-        dims = list(self._nc_dimensions)
+        dims = list(self._dimensions)
 
         # Move the time dimension at the end
         dims.remove('time')
@@ -215,16 +247,16 @@ class RVT(RV):
 
         return ' '.join(dims)
 
-    @nc_dimensions.setter
-    def nc_dimensions(self, value):
+    @dimensions.setter
+    def dimensions(self, value):
         if 'time' not in value:
             raise ValueError("Raven expects a time dimension.")
 
-        self._nc_dimensions = value
+        self._dimensions = value
 
-        # If there is no spatial dimension, set the index to 1.
-        if self.nc_index is None and len(value) == 1:
-            self.nc_index = 1
+        # If there is no spatial dimension, set the index to 0.
+        if self.index is None and len(value) == 1:
+            self._index = 0
 
     @property
     def time_shift(self):
@@ -235,6 +267,79 @@ class RVT(RV):
     @time_shift.setter
     def time_shift(self, value):
         self._time_shift = value
+
+    @property
+    def linear_transform(self):
+        """A sequence of two values: multiplicative factor and additive offset."""
+        lt = self._linear_transform
+        if lt is not None or self.scale_factor is not None or self.add_offset is not None:
+            slope, intercept = lt
+            sf = 1 if self.scale_factor is None else self.scale_factor
+            offset = 0 if self.add_offset is None else self.add_offset
+            return ":LinearTransform {:g} {:g}".format(slope * sf, offset * slope + intercept)
+
+    @linear_transform.setter
+    def linear_transform(self, value):
+        """Set the scale factor and offset."""
+        if len(value) == 1:
+            value = (value, 0)
+        elif len(value) == 2:
+            pass
+        else:
+            raise ValueError("Linear transform takes at most two values: "
+                             "a scaling factor and an offset.")
+
+        self._linear_transform = value
+
+    def _check_units(self):
+        from xclim.utils import units2pint
+        if units2pint(self.units) != units2pint(self.runits):
+            if self._linear_transform is None:
+                raise UserWarning(f"Units are not what Raven expects for {self.var}.\n"
+                                  f"Actual: {self.units}\n"
+                                  f"Expected: {self.runits}\n"
+                                  f"Make sure to set linear_transform to perform conversion."
+                                  )
+
+    def __str__(self):
+        if self.var is None:
+            return ""
+        else:
+            kwds = {k: v if v is not None else "" for (k, v) in self.items()}
+            return self.pat.format(**kwds)
+
+
+class RVT(RV):
+    def __init__(self, **kwargs):
+        self._nc_index = None
+        super(RVT, self).__init__(**kwargs)
+
+    @property
+    def nc_index(self):
+        return self._nc_index
+
+    @nc_index.setter
+    def nc_index(self, value):
+        for key, val in self.items():
+            if isinstance(val, RavenNcData):
+                setattr(val, 'index', value)
+
+    def update(self, items, force=False):
+        """Update values from dictionary items.
+
+        Parameters
+        ----------
+        items : dict
+          Dictionary of values.
+        force : bool
+          If True, un-initialized keys can be set.
+        """
+        if force:
+            raise ValueError("Cannot add a new variable at run-time.")
+        else:
+            for key, val in items.items():
+                if isinstance(val, dict):
+                    self[key].update(val, force=True)
 
 
 class RVI(RV):
