@@ -57,13 +57,13 @@ class TestRavenHBVECProcess:
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -0.075407, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 0.0186633, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2011 would be RMSE=30.0535 as template in Wiki)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 37.231, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 35.5654, 4, err_msg='RMSE is not matching expected value')
 
     def test_parallel(self):
         client = client_for(Service(processes=[RavenHBVECProcess(), ], cfgfiles=CFG_FILE))
