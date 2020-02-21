@@ -32,8 +32,8 @@ def hydrograph(file_list):
 
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds[0].time.values)
-    first_date = dates.min().strftime('%Y/%m/%d')
-    last_date = dates.max().strftime('%Y/%m/%d')
+    #first_date = dates.min().strftime('%Y/%m/%d')
+    #last_date = dates.max().strftime('%Y/%m/%d')
 
     basin_name = ds[0].basin_name.values[0]  # selected basin name
 
@@ -57,7 +57,7 @@ def hydrograph(file_list):
             linewidth=2,
             label='sim: ' + basin_name)
 
-    plt.xlim([first_date, last_date])
+    #plt.xlim([first_date, last_date])
     plt.ylim(bottom=0, top=None)
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
@@ -246,8 +246,8 @@ def ts_graphs(file, trend=True, alpha=0.05):
 
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds.time.values)
-    first_date = dates.min().strftime('%Y/%m/%d')
-    last_date = dates.max().strftime('%Y/%m/%d')
+    #first_date = dates.min()#.strftime('%Y/%m/%d')
+    #last_date = dates.max()#.strftime('%Y/%m/%d')
     res = None
 
     if trend:
@@ -258,7 +258,7 @@ def ts_graphs(file, trend=True, alpha=0.05):
     fig, ax = plt.subplots()
     ax.plot(dates, values, label='time-series index')
 
-    plt.xlim([first_date, last_date])
+    #plt.xlim([first_date, last_date])
     ax.set_xlabel('Time')
     ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
 
