@@ -41,6 +41,6 @@ dependencies:
 - ipyleaflet
 - pysheds
 - psycopg2
-- urlpath
 - pip:
   - spotpy
+  - urlpath
