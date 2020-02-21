@@ -19,7 +19,7 @@ class RavenProcess(Process):
     version = '0.1'
 
     tuple_inputs = {}
-    inputs = [wio.ts, wio.conf, wio.nc_spec]
+    inputs = [wio.ts, wio.nc_spec, wio.conf]
     outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics, wio.rv_config]
     model_cls = Raven
 
@@ -56,7 +56,7 @@ class RavenProcess(Process):
 
         # Input specs dictionary. Could a all given in the same dict or a list of dicts.
         nc_spec = {}
-        for spec in request.inputs.pop('nc_spec'):
+        for spec in request.inputs.pop('nc_spec', []):
             nc_spec.update(json.loads(spec.data))
 
         for key, val in nc_spec.items():

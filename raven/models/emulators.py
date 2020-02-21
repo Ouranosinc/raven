@@ -171,6 +171,7 @@ class HBVEC(GR4JCN):
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
+    # TODO: Support index specification and unit changes.
     def derived_parameters(self):
         import xarray as xr
 
@@ -203,6 +204,7 @@ class HBVEC_OST(Ostrich, HBVEC):
                                              None, None, None, None, None, None, None, None, None, None),
                        )
 
+    # TODO: Support index specification and unit changes.
     def derived_parameters(self):
         import xarray as xr
 
