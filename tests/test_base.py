@@ -210,7 +210,7 @@ class TestOstrich:
                                                   1.223865E+00, 4.452843E-01, 9.492006E-01, 9.948123E-01,
                                                   1.110682E+00], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 2.842420E-01, 4,
+        np.testing.assert_almost_equal(opt_func, 0.242187, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123                       #
