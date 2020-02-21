@@ -470,7 +470,7 @@ class TestHBVEC:
               )
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.075407, 4)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.0186633, 4)
 
 
 class TestHBVEC_OST():
@@ -502,7 +502,7 @@ class TestHBVEC_OST():
               )
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.67594E-01, 4)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.25991E-01, 4)
 
         opt_para = model.calibrated_params
         opt_func = model.obj_func
@@ -519,7 +519,7 @@ class TestHBVEC_OST():
                                                   1.223865E+00, 4.452843E-01, 9.492006E-01, 9.948123E-01,
                                                   1.110682E+00], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 2.67594E-01, 4,
+        np.testing.assert_almost_equal(opt_func, 2.25991E-01, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123                       #
