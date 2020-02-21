@@ -29,7 +29,7 @@ import six
 import xarray as xr
 
 import raven
-from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost
+from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData
 
 
 class Raven:
@@ -50,23 +50,31 @@ class Raven:
     # Allowed configuration file extensions
     _rvext = ('rvi', 'rvp', 'rvc', 'rvh', 'rvt')
 
-    rvi = RV()
-    rvp = RV()
-    rvc = RV()
-    rvt = RV()
-    rvh = RV()
-    rvd = RV()  # rvd is for derived parameters
-
     # Dictionary of potential variable names, keyed by CF standard name.
     # http://cfconventions.org/Data/cf-standard-names/60/build/cf-standard-name-table.html
     # PET is the potential evapotranspiration, while evspsbl is the actual evap.
+    # TODO: Check we're not mixing precip and rainfall.
     _variable_names = {'tasmin': ['tasmin', 'tmin'],
                        'tasmax': ['tasmax', 'tmax'],
-                       'pr': ['pr', 'precip', 'prec', 'rain', 'rainfall', 'precipitation'],
+                       'tas': ['tas', 't2m'],
+                       'rainfall': ['rainfall', 'rain'],
+                       'pr': ['pr', 'precip', 'prec', 'precipitation', 'tp'],
                        'prsn': ['prsn', 'snow', 'snowfall', 'solid_precip'],
                        'evspsbl': ['pet', 'evap', 'evapotranspiration'],
-                       'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow']
+                       'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow', 'dis']
                        }
+
+    # Expected units (pint-compatible)
+    _units = {'tasmin': "degC",
+              'tasmax': "degC",
+              'tas': "degC",
+              'pr': "mm/d",
+              'rainfall': "mm/d",
+              'prsn': "mm/d",
+              'evspsbl': "mm/d",
+              'water_volume_transport_in_river_channel': "m**3/s"
+              }
+
     _parallel_parameters = ['params', 'nc_index', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id',
                             'hrus']
 
@@ -81,9 +89,12 @@ class Raven:
         workdir = workdir or tempfile.mkdtemp()
         self._rvs = []
 
-        # Convert rvs into instance attributes, otherwise they'd be instance attributes.
-        for rv in self._rvext:
-            self.rv = getattr(type(self), rv)
+        self.rvi = RV()
+        self.rvp = RV()
+        self.rvc = RV()
+        self.rvt = RV()
+        self.rvh = RV()
+        self.rvd = RV()  # rvd is for derived parameters
 
         self.workdir = Path(workdir)
         self.ind_outputs = {}  # Individual files for all simulations
@@ -223,10 +234,13 @@ class Raven:
             if hasattr(obj, key):
                 att = getattr(obj, key)
 
-                # If the object is a namedtuple, we get its class and try to instantiate it with the values passed.
+                # If att is a namedtuple, we get its class and try to instantiate it with the values passed.
                 if isinstance_namedtuple(att) and isinstance(value, (list, tuple, np.ndarray)):
                     p = att.__class__(*value)
                     setattr(obj, key, p)
+                # If att is a RavenNcData, we expect a dict
+                elif isinstance(att, RavenNcData):
+                    att.update(value)
                 else:
                     setattr(obj, key, value)
                 assigned = True
@@ -287,12 +301,11 @@ class Raven:
         index : int
           Run index.
         """
-        # Match the input files
-        files, var_names, dimensions = self._assign_files(ts)
-        self.rvt.update(files, force=True)
-        self.rvt.update(var_names, force=True)
-        if dimensions:
-            self.rvt.update({'nc_dimensions': dimensions}, force=True)
+        # Create configuration information from input files
+        ncvars = self._assign_files(ts)
+        self.rvt.update(ncvars)
+        self.check_units()
+        self.check_inputs()
 
         # Compute derived parameters
         self.derived_parameters()
@@ -431,11 +444,17 @@ class Raven:
         patterns = {'hydrograph': '*Hydrographs.nc',
                     'storage': '*WatershedStorage.nc',
                     'solution': '*solution.rvc',
-                    'diagnostics': '*Diagnostics.csv',
+                    'diagnostics': '*Diagnostics.csv'
                     }
 
         for key, pattern in patterns.items():
-            fns = self._get_output(pattern, path=path)
+            # There are no diagnostics if a streamflow time series is not provided.
+            try:
+                fns = self._get_output(pattern, path=path)
+            except UserWarning as exc:
+                if key != 'diagnostics':
+                    raise exc
+
             fns.sort()
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
@@ -495,47 +514,34 @@ class Raven:
 
         Returns
         -------
-        files : dict
-          A dictionary keyed by variable storing the file storing each variable.
-        variables : dict
-          A dictionary keyed by variable_var storing the variable name within the netCDF file.
+        dict
+          A dictionary keyed by variable storing the `RavenNcData` instance storing each variable's configuration
+          information.
         """
-        files = {}
-        var_names = {}
-        dimensions = {}
-        shape = {}
-
+        ncvars = {}
         for fn in fns:
             if '.nc' in fn.suffix:
                 with xr.open_dataset(fn) as ds:
                     for var, alt_names in self._variable_names.items():
+                        # Check that the emulator is expecting that variable.
                         if var not in self.rvt.keys():
                             continue
+
+                        # Check if any alternate variable name is in the file.
                         for alt_name in alt_names:
                             if alt_name in ds.data_vars:
-                                files[var] = fn
-                                var_names[var + '_var'] = alt_name
-                                dimensions[var] = ds[alt_name].dims
-                                shape[var] = ds[alt_name].shape
+                                enc = ds[alt_name].encoding
+                                ncvars[var] = dict(var=var,
+                                                   path=fn,
+                                                   var_name=alt_name,
+                                                   dimensions=ds[alt_name].dims,
+                                                   units=ds[alt_name].attrs.get("units"),
+                                                   scale_factor=enc.get("scale_factor"),
+                                                   add_offset=enc.get("add_offset")
+                                                   )
+
                                 break
-
-        for var in self._variable_names.keys():
-            if var in self.rvt.keys() and var not in files.keys():
-                raise ValueError("{} not found in files.".format(var))
-
-        sdims = set(dimensions.values())
-        if len(sdims) == 0:
-            dims = None
-        if len(sdims) == 1:
-            dims = sdims.pop()
-        if len(sdims) > 1:
-            raise AttributeError("All forcing variables should have the same dimensions.")
-
-        sh = set(shape.values())
-        if len(sh) > 1:
-            raise AttributeError("All forcing variables should have the same shape.")
-
-        return files, var_names, dims
+        return ncvars
 
     def _get_output(self, pattern, path):
         """Match actual output files to known expected files.
@@ -544,7 +550,7 @@ class Raven:
         """
         files = list(path.rglob(pattern))
 
-        if len(files) == 0:
+        if len(files) == 0 and not self.rvi.suppress_output:
             raise UserWarning("No output files for {} in {}.".format(pattern, path))
 
         return [f.absolute() for f in files]
@@ -566,7 +572,7 @@ class Raven:
           The last datetime of the forcing files.
         """
 
-        ds = xr.open_mfdataset(fns)
+        ds = xr.open_mfdataset(fns, combine="by_coords")
         return ds.indexes['time'][0], ds.indexes['time'][-1]
 
     def handle_date_defaults(self, ts):
@@ -656,6 +662,32 @@ class Raven:
             fn = Path(fn)
 
         return fn.stem, fn.suffix[1:]
+
+    def check_units(self):
+        """Check that the input file units match expectations."""
+        for var, nc in self.rvt.items():
+            if isinstance(nc, RavenNcData) and nc.var is not None:
+                nc._check_units()
+
+    def check_inputs(self):
+        """Check that necessary variables are defined."""
+        has_file = set([key for key, val in self.rvt.items() if val is not None])
+        vars = list(self.rvt.keys())
+
+        for var in vars:
+            if var not in has_file and var != "nc_index":
+                if var in ['tasmin', 'tasmax'] and 'tas' in has_file:
+                    pass  # This is OK
+                if var == 'tas' and has_file.issuperset(['tasmin', 'tasmax']):
+                    pass
+                elif var in ['prsn']:
+                    pass  # Ok, can be guessed from temp ?
+                elif var in ['evspsbl']:
+                    pass  # Ok, can be computed by Oudin ?
+                elif var in ['water_volume_transport_in_river_channel']:
+                    pass  # Ok, not strictly necessary for simulations ?
+                else:
+                    raise ValueError("{} not found in files.".format(var))
 
 
 class Ostrich(Raven):

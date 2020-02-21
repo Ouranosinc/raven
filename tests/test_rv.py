@@ -1,6 +1,6 @@
 import pytest
 import raven
-from raven.models.rv import RV, RVI, Ost, RVFile, isinstance_namedtuple
+from raven.models.rv import RV, RVI, RVT, Ost, RVFile, isinstance_namedtuple, RavenNcData
 import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
@@ -98,6 +98,36 @@ class TestRV:
         assert m.params.x1 == 1
 
 
+def compare(a, b):
+    """
+    Compare two base strings, disregarding whitespace
+    """
+    import re
+    return re.sub(r"\s*", "", a) == re.sub(r"\s*", "", b)
+
+
+class TestRavenNcData:
+
+    def test_simple(self):
+        v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time', ])
+        tmp = str(v)
+
+        assert compare(tmp, """:Data TEMP_MIN deg_C
+                                  :ReadFromNetCDF
+                                     :FileNameNC      /path/tasmin.nc
+                                     :VarNameNC       tn
+                                     :DimNamesNC      time
+                                     :StationIdx      1
+                                  :EndReadFromNetCDF
+                               :EndData""")
+
+    def test_linear_transform(self):
+        v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time', ],
+                        linear_transform=(24000, 0))
+
+        assert ":LinearTransform 24000 0" in str(v)
+
+
 class TestOst:
     def test_random(self):
         o = Ost()
@@ -105,6 +135,15 @@ class TestOst:
 
         o.random_seed = 0
         assert o.random_seed == 'RandomSeed 0'
+
+
+class TestRVI:
+    def test_supress_output(self):
+        rvi = RVI(suppress_output=True)
+        assert rvi.suppress_output == ":SuppressOutput"
+
+        rvi = RVI(suppress_output=False)
+        assert rvi.suppress_output == ""
 
 
 def test_isinstance_namedtuple():

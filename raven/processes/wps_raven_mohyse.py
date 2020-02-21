@@ -39,5 +39,5 @@ class RavenMOHYSEProcess(RavenProcess):
     model_cls = MOHYSE
     tuple_inputs = {'params': MOHYSE.params, 'hrus': MOHYSE.hrus}
 
-    inputs = [wio.ts, params, hrus, wio.start_date, wio.end_date, wio.duration, wio.run_name,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
+    inputs = [wio.ts, wio.nc_spec, params, hrus, wio.start_date, wio.end_date, wio.duration, wio.run_name,
+              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction]
