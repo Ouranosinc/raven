@@ -156,7 +156,8 @@ suppress_output = LiteralInput('suppress_output', "Do not write hydrograph to di
 rain_snow_fraction = LiteralInput('rain_snow_fraction', "Rain snow partitioning",
                                   abstract="Algorithm used to partition rain and snow from the total precipitions",
                                   data_type='string',
-                                  allowed_values=rv.rain_snow_fraction_options)
+                                  allowed_values=rv.rain_snow_fraction_options,
+                                  min_occurs=0)
 
 nc_spec = LiteralInput('nc_spec', "NetCDF input file specifications",
                        abstract="Configuration of individual netCDF input files, such as `linear_transform`"

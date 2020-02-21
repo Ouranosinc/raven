@@ -75,7 +75,6 @@ class TestRavenERA5Process:
             service='WPS', request='Execute', version='1.0.0', identifier='raven-hmets',
             datainputs=datainputs)
 
-        print(resp.response)
         assert_response_success(resp)
         # out = get_output(resp.xml)
 

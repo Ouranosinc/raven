@@ -455,7 +455,6 @@ class Raven:
                 if key != 'diagnostics':
                     raise exc
 
-
             fns.sort()
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])

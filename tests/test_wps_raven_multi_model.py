@@ -62,7 +62,6 @@ def test_graph_ensemble_uncertainty(request):
         datainputs="sims=files@xlink:href=file://{};".format(zipfn))
 
     assert_response_success(resp)
-    # print(get_output(resp.xml))
 
 
 @pytest.mark.skip

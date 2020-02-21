@@ -18,6 +18,7 @@
    :MonthlyAveTemperature, {mat.x01}, {mat.x02}, {mat.x03}, {mat.x04}, {mat.x05}, {mat.x06}, {mat.x07}, {mat.x08}, {mat.x09}, {mat.x10}, {mat.x11}, {mat.x12}
 
    {pr}
+   {rainfall}
    {prsn}
    {tasmin}
    {tasmax}
