@@ -103,13 +103,13 @@ def compare(a, b):
     Compare two base strings, disregarding whitespace
     """
     import re
-    return re.sub("\s*", "", a) == re.sub("\s*", "", b)
+    return re.sub(r"\s*", "", a) == re.sub(r"\s*", "", b)
 
 
 class TestRavenNcData:
 
     def test_simple(self):
-        v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time',])
+        v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time', ])
         tmp = str(v)
 
         assert compare(tmp, """:Data TEMP_MIN deg_C

@@ -441,17 +441,21 @@ class Raven:
         # name.
         path = path or self.exec_path
 
-
         patterns = {'hydrograph': '*Hydrographs.nc',
                     'storage': '*WatershedStorage.nc',
                     'solution': '*solution.rvc',
+                    'diagnostics': '*Diagnostics.csv'
                     }
-        # There are no diagnostics if a streamflow time series is not provided.
-        if self.rvt.water_volume_transport_in_river_channel.path is not None:
-            patterns['diagnostics'] = '*Diagnostics.csv'
 
         for key, pattern in patterns.items():
-            fns = self._get_output(pattern, path=path)
+            # There are no diagnostics if a streamflow time series is not provided.
+            try:
+                fns = self._get_output(pattern, path=path)
+            except UserWarning as exc:
+                if key != 'diagnostics':
+                    raise exc
+
+
             fns.sort()
             self.ind_outputs[key] = fns
             self.outputs[key] = self._merge_output(fns, pattern[1:])
