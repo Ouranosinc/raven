@@ -32,8 +32,8 @@ def hydrograph(file_list):
 
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds[0].time.values)
-    #first_date = dates.min().strftime('%Y/%m/%d')
-    #last_date = dates.max().strftime('%Y/%m/%d')
+    first_date = dates.min().strftime('%Y/%m/%d')
+    last_date = dates.max().strftime('%Y/%m/%d')
 
     basin_name = ds[0].basin_name.values[0]  # selected basin name
 
