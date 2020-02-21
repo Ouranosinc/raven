@@ -198,3 +198,8 @@ docs:
 	@echo "Generating docs with Sphinx ..."
 	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);$(MAKE) -C $@ clean html"
 	@echo "open your browser: firefox docs/build/html/index.html"
+
+.PHONY: notebook
+notebook:
+	@echo "Running notebook server"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);env RAVEN_WPS_URL=$(RAVEN_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook $(CURDIR)/docs/source/notebooks/"

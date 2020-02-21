@@ -18,7 +18,7 @@
 :CatchmentRoute        ROUTE_GAMMA_CONVOLUTION
 :Evaporation           PET_MOHYSE
 :DirectEvaporation
-:RainSnowFraction      RAINSNOW_DATA
+:RainSnowFraction      {rain_snow_fraction}
 
 :HydrologicProcesses
      :SoilEvaporation  SOILEVAP_LINEAR    SOIL[0]            ATMOSPHERE
@@ -52,6 +52,7 @@
 #:NoisyMode
 :SilentMode
 :PavicsMode
+{suppress_output}
 
 :NetCDFAttribute title Simulated river discharge
 :NetCDFAttribute history Created on {now} by Raven

@@ -63,7 +63,6 @@ class TestOstrich:
 
         model = Ostrich()
         model.configure(ost)
-        print(model.exec_path)
         model(ts)
 
         opt_para = model.optimized_parameters
@@ -100,7 +99,6 @@ class TestOstrich:
 
         model = Ostrich()
         model.configure(ost)
-        print(model.exec_path)
         model(ts)
 
         opt_para = model.optimized_parameters
@@ -141,7 +139,6 @@ class TestOstrich:
 
         model = Ostrich()
         model.configure(ost)
-        print(model.exec_path)
         model(ts)
 
         opt_para = model.optimized_parameters
@@ -189,7 +186,6 @@ class TestOstrich:
 
         model = Ostrich()
         model.configure(ost)
-        print(model.exec_path)
         model(ts)
 
         opt_para = model.optimized_parameters

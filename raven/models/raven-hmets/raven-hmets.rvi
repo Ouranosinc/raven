@@ -15,7 +15,7 @@
 :Method                ORDERED_SERIES
 
 :PotentialMeltMethod     POTMELT_HMETS
-:RainSnowFraction        RAINSNOW_DATA
+:RainSnowFraction        {rain_snow_fraction}
 :Evaporation             PET_OUDIN
 :CatchmentRoute          ROUTE_DUMP
 :Routing                 ROUTE_NONE
@@ -49,6 +49,7 @@
 #:NoisyMode
 :SilentMode
 :PavicsMode
+{suppress_output}
 
 :NetCDFAttribute title Simulated river discharge
 :NetCDFAttribute history Created on {now} by Raven

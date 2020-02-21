@@ -32,8 +32,8 @@ def hydrograph(file_list):
 
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds[0].time.values)
-    #first_date = dates.min().strftime('%Y/%m/%d')
-    #last_date = dates.max().strftime('%Y/%m/%d')
+    first_date = dates.min().strftime('%Y/%m/%d')
+    last_date = dates.max().strftime('%Y/%m/%d')
 
     basin_name = ds[0].basin_name.values[0]  # selected basin name
 
@@ -296,7 +296,7 @@ def ts_fit_graph(ts, params):
     from xclim.generic import get_dist
 
     n = ts.nbasins.size
-    dist = params.attrs['long_name'].split(' ')[0]
+    dist = params.attrs['standard_name'].split(' ')[0]
 
     fig, axes = plt.subplots(n, figsize=(10, 6), squeeze=False)
 
