@@ -7,6 +7,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
 from pywps import FORMATS, Format
 from raven import config
+from raven.models import rv
 
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
@@ -151,6 +152,20 @@ suppress_output = LiteralInput('suppress_output', "Do not write hydrograph to di
                                         "returned.",
                                data_type="boolean",
                                default=True)
+
+rain_snow_fraction = LiteralInput('rain_snow_fraction', "Rain snow partitioning",
+                                  abstract="Algorithm used to partition rain and snow from the total precipitions",
+                                  data_type='string',
+                                  allowed_values=rv.rain_snow_fraction_options)
+
+nc_spec = LiteralInput('nc_spec', "NetCDF input file specifications",
+                       abstract="Configuration of individual netCDF input files, such as `linear_transform`"
+                                "and `time_shift`. Should be passed as a dictionary keyed by variable, e.g. `tas` "
+                                "json-serialized.",
+                       data_type='string',
+                       min_occurs=0,
+                       max_occurs=20)
+
 # --- #
 
 rv_config = ComplexOutput('rv_config', 'Raven/Ostrich configuration files',

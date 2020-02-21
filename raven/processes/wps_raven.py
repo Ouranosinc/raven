@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
+import json
 
 from pywps import Process, Format, LiteralOutput
 
@@ -18,7 +19,7 @@ class RavenProcess(Process):
     version = '0.1'
 
     tuple_inputs = {}
-    inputs = [wio.ts, wio.conf]
+    inputs = [wio.ts, wio.conf, wio.nc_spec]
     outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics, wio.rv_config]
     model_cls = Raven
 
@@ -53,6 +54,14 @@ class RavenProcess(Process):
         # Input data files
         ts = [f.file for f in request.inputs.pop('ts')]
 
+        # Input specs dictionary. Could a all given in the same dict or a list of dicts.
+        nc_spec = {}
+        for spec in request.inputs.pop('nc_spec'):
+            nc_spec.update(json.loads(spec.data))
+
+        for key, val in nc_spec.items():
+            model.assign(key, val)
+
         # Parse all other input parameters
         kwds = defaultdict(list)
         for name, objs in request.inputs.items():
@@ -60,7 +69,8 @@ class RavenProcess(Process):
 
                 # Namedtuples
                 if name in self.tuple_inputs:
-                    arr = map(float, obj.data.split(','))
+                    csv = obj.data.replace('(', '').replace(')', '')
+                    arr = map(float, csv.split(','))
                     data = self.tuple_inputs[name](*arr)
 
                 # Other parameters
@@ -77,13 +87,15 @@ class RavenProcess(Process):
 
         # Store output files name. If an output counts multiple files, they'll be zipped.
         for key in response.outputs.keys():
-            val = model.outputs[key]
-            if isinstance(response.outputs[key], LiteralOutput):
-                response.outputs[key].data = str(val)
-            else:
-                response.outputs[key].file = str(val)
-                if val.suffix == '.zip':
-                    response.outputs[key].data_format = Format('application/zip', extension='.zip', encoding='base64')
+            val = model.outputs.get(key)
+            if val is not None:
+                if isinstance(response.outputs[key], LiteralOutput):
+                    response.outputs[key].data = str(val)
+                else:
+                    response.outputs[key].file = str(val)
+                    if val.suffix == '.zip':
+                        response.outputs[key].data_format = \
+                            Format('application/zip', extension='.zip', encoding='base64')
 
         return response
 

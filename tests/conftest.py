@@ -52,11 +52,10 @@ def era5_hr():
 
         ds = xr.open_mfdataset([tas, pr], combine="by_coords")
         lon, lat = SALMON_coords
-        out = ds.sel(longitude=lon + 360, latitude=lat,  method='nearest')
+        out = ds.sel(longitude=lon + 360, latitude=lat, method='nearest')
         out.to_netcdf(path)
 
     D = nc.Dataset(path, "a")
     D.variables["time"].units = "hours since 1900-01-01 00:00:00"
     D.close()
     return path
-

@@ -38,6 +38,9 @@ Simulation end date and duration are updated automatically when duration, start 
 default_input_variables = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", "evspsbl",
                            "water_volume_transport_in_river_channel")
 
+rain_snow_fraction_options = ("RAINSNOW_DATA", "RAINSNOW_DINGMAN", "RAINSNOW_UBC", "RAINSNOW_HBV", "RAINSNOW_HARDER",
+                              "RAINSNOW_HSPF")
+
 
 class RVFile:
 
@@ -280,7 +283,7 @@ class RavenNcData(RV):
         """A sequence of two values: multiplicative factor and additive offset."""
         lt = self._linear_transform
         if lt is not None or self.scale_factor is not None or self.add_offset is not None:
-            slope, intercept = lt
+            slope, intercept = lt or (1, 0)
             sf = 1 if self.scale_factor is None else self.scale_factor
             offset = 0 if self.add_offset is None else self.add_offset
             return ":LinearTransform {:g} {:g}".format(slope * sf, offset * slope + intercept)
@@ -489,12 +492,11 @@ class RVI(RV):
         - RAINSNOW_HSPF
         """
         v = value.upper()
-        options = ("RAINSNOW_DATA", "RAINSNOW_DINGMAN", "RAINSNOW_UBC", "RAINSNOW_HBV", "RAINSNOW_HARDER",
-                 "RAINSNOW_HSPF")
-        if v in options:
+
+        if v in rain_snow_fraction_options:
             self._rain_snow_fraction = v
         else:
-            raise ValueError(f"Value should be one of {options}.")
+            raise ValueError(f"Value should be one of {rain_snow_fraction_options}.")
 
 
 class Ost(RV):
