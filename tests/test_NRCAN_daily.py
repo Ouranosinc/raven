@@ -2,8 +2,8 @@ import pytest
 import datetime as dt
 import numpy as np
 import xarray as xr
+import json
 import netCDF4 as nc
-
 from pywps import Service
 from pywps.tests import assert_response_success
 
@@ -41,21 +41,19 @@ class TestRavenERA5Process:
             tmaxYear=xr.concat([tmaxYear,xr.open_dataset(tasmax + str(i) + '.nc').sel(lon=salmon_lon, lat=salmon_lat, method='nearest')],dim='time')
             tminYear=xr.concat([tminYear,xr.open_dataset(tasmin + str(i) + '.nc').sel(lon=salmon_lon, lat=salmon_lat, method='nearest')],dim='time')
             prYear=xr.concat([prYear,xr.open_dataset(precip + str(i) + '.nc').sel(lon=salmon_lon, lat=salmon_lat, method='nearest')],dim='time')
-            
+        
             # Now we need to stack years one after the other
         
         
         main=tmaxYear.merge(tminYear,compat='override')
         main=main.merge(prYear,compat='override')
         main.to_netcdf('/home/ets/TEST_NRCAN.nc')
-        pdb.set_trace()
         D = nc.Dataset('/home/ets/TEST_NRCAN.nc', "a")
         D.variables["time"].units = "days since " + str(startYear) + "-01-01 00:00:00"
         D.close()     
         D = nc.Dataset('/home/ets/TEST_NRCAN.nc', "r+")
         D.variables["time"] = list(range(0,D.variables["tasmax"].shape[0]))
-        D.close()     
-        
+        D.close()          
         '''
         need to write netcdf file here, I did it outside Python. Probably possible to pass a netcdf file directly?
         '''
@@ -70,10 +68,14 @@ class TestRavenERA5Process:
                      "latitude={latitude};" \
                      "longitude={longitude};" \
                      "elevation={elevation};" \
+                     "rain_snow_fraction={rain_snow_fraction};"\
+                     "nc_spec={tasmax};"\
+                     "nc_spec={tasmin};"\
+                     "nc_spec={pr}"\
             .format(ts='/home/ets/TEST_NRCAN.nc', # This is a file on disk, need to pass 'g'
                     params=params,
-                    start_date=dt.datetime(2008, 1, 1),
-                    end_date=dt.datetime(2008, 8, 10),
+                    start_date=dt.datetime(2007, 1, 1),
+                    end_date=dt.datetime(2007, 8, 10),
                     init='155,455',
                     name='Salmon',
                     run_name='test-hmets-NRCAN',
@@ -81,18 +83,23 @@ class TestRavenERA5Process:
                     elevation='843.0',
                     latitude=salmon_lat,
                     longitude=salmon_lon,
+                    rain_snow_fraction="RAINSNOW_DINGMAN",
+                    tasmax=json.dumps({'tasmax': {'linear_transform': (1.0, -273.15)}}),
+                    tasmin=json.dumps({'tasmin': {'linear_transform': (1.0, -273.15)}}),
+                    pr=json.dumps({'pr': {'linear_transform': (86400.0, 0.0)}}),
                     )
-        
+            
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven-hmets',
             datainputs=datainputs)
-        pdb.set_trace()
+
         assert_response_success(resp)
         out = get_output(resp.xml)
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
-
+        
+        pdb.set_trace()
         # checking correctness of NSE (full period 1954-2011 would be NSE=0.636015 as template in Wiki)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
