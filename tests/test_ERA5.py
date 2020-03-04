@@ -10,14 +10,13 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
 from raven.models import HMETS
 import json
-import pdb
 
 
 params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
           2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
 
 
-@pytest.mark.skip(reason="Hanging test")
+@pytest.mark.skip(reason="Hanging test due to ncML. Should be removed in a future PR")
 class TestRavenERA5:
     def test_simple(self, era5_hr):
         model = HMETS()
@@ -37,7 +36,7 @@ class TestRavenERA5:
               )
 
 
-@pytest.mark.skip(reason="Hanging test")
+@pytest.mark.skip(reason="Hanging test due to ncML. Should be removed in a future PR")
 class TestRavenERA5Process:
 
     def test_simple(self, era5_hr):
