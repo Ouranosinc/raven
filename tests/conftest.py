@@ -3,9 +3,12 @@ import xarray as xr
 from urlpath import URL
 from xclim.streamflow import stats, fit
 
+from pathlib import Path
+from raven.models import Raven
 from .common import TESTDATA, TD
 
 SALMON_coords = (-123.3659, 54.4848)  # (lon, lat)
+RAVEN = Raven
 
 
 @pytest.fixture
@@ -39,7 +42,7 @@ def params(ts_stats, tmp_path):
 def era5_hr():
     import netCDF4 as nc
     """Return a netCDF file with hourly ERA5 data at the Salmon location."""
-    path = TD / "ERA5" / "ts.nc"
+    path = Path(TD) / "ERA5" / "ts.nc"
 
     if not path.exists():
         # Fetch the data and save to disk if the file has not been created yet.
