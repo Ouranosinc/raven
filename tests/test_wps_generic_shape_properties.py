@@ -165,7 +165,7 @@ class TestGenericShapePropertiesProcess:
         # np.testing.assert_approx_equal(props[0]['perimeter'], 18.405642329)
         # np.testing.assert_approx_equal(props[0]['gravelius'], 3.02970880)
 
-    def test_multifeature_shape(self):
+    def test_multifeature_geojson(self):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(Service(processes=[ShapePropertiesProcess(), ], cfgfiles=CFG_FILE))
@@ -173,6 +173,42 @@ class TestGenericShapePropertiesProcess:
         fields = ['shape=file@xlink:href=file://{file}', 'crs={crs}', 'projected_crs={projected_crs}']
         datainputs = ';'.join(fields).format(
             file=TESTDATA['mrc_subset'],
+            crs=4326,
+            projected_crs=32198
+        )
+
+        resp = client.get(
+            service='WPS', request='Execute', version='1.0.0', identifier='shape-properties', datainputs=datainputs)
+
+        assert_response_success(resp)
+
+        out = get_output(resp.xml)
+        assert {'properties'}.issubset([*out])
+
+        props = json.loads(out['properties'])
+        for i in range(len(props)):
+            assert {'centroid', 'area', 'perimeter', 'gravelius'}.issubset(props[i].keys())
+
+        np.testing.assert_approx_equal(props[0]['area'], 111417901.6141605)
+        np.testing.assert_approx_equal(props[0]['centroid'][0], -71.8223648)
+        np.testing.assert_approx_equal(props[0]['centroid'][1], 48.8974365)
+        np.testing.assert_approx_equal(props[0]['perimeter'], 46351.1628725)
+        np.testing.assert_approx_equal(props[0]['gravelius'], 1.2387344)
+
+        np.testing.assert_approx_equal(props[-1]['area'], 334136220.2845515)
+        np.testing.assert_approx_equal(props[-1]['centroid'][0], -72.6117018)
+        np.testing.assert_approx_equal(props[-1]['centroid'][1], 46.3632907)
+        np.testing.assert_approx_equal(props[-1]['perimeter'], 92477.3057504)
+        np.testing.assert_approx_equal(props[-1]['gravelius'], 1.4271461)
+
+    def test_multifeature_zipped_shapefile(self):
+        """Calculate shape properties for multiple features in a shape"""
+
+        client = client_for(Service(processes=[ShapePropertiesProcess(), ], cfgfiles=CFG_FILE))
+
+        fields = ['shape=file@xlink:href=file://{file}', 'crs={crs}', 'projected_crs={projected_crs}']
+        datainputs = ';'.join(fields).format(
+            file=TESTDATA['mrc_subset_zipped'],
             crs=4326,
             projected_crs=32198
         )

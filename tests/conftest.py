@@ -1,11 +1,9 @@
 import pytest
-from .common import TESTDATA, TD
-from raven.models import Raven
-from xclim.streamflow import stats, fit
 import xarray as xr
-from pathlib import Path
 from urlpath import URL
+from xclim.streamflow import stats, fit
 
+from .common import TESTDATA, TD
 
 SALMON_coords = (-123.3659, 54.4848)  # (lon, lat)
 
