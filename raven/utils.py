@@ -78,7 +78,7 @@ def address_append(address: Union[str, Path]) -> str:
 def generic_extract_archive(
     resources: Union[str, Path, List[Union[bytes, str, Path]]],
     output_dir: Optional[Union[str, Path]] = None,
-) -> list:
+) -> List[str]:
     """Extract archives (tar/zip) to a working directory.
 
     Parameters
@@ -114,13 +114,13 @@ def generic_extract_archive(
                     with tarfile.open(arch, mode="r") as tar:
                         tar.extractall(path=output_dir)
                         files.extend(
-                            [Path(output_dir).joinpath(f) for f in tar.getnames()]
+                            [str(Path(output_dir).joinpath(f)) for f in tar.getnames()]
                         )
                 elif file.endswith(".zip"):
                     with zipfile.ZipFile(arch, mode="r") as zf:
                         zf.extractall(path=output_dir)
                         files.extend(
-                            [Path(output_dir).joinpath(f) for f in zf.namelist()]
+                            [str(Path(output_dir).joinpath(f)) for f in zf.namelist()]
                         )
                 elif file.endswith(".7z"):
                     msg = "7z file extraction is not supported at this time"
@@ -401,12 +401,12 @@ def geom_transform(
         raise Exception(msg)
 
 
-def geom_prop(geom: Union[Polygon, MultiPolygon]) -> dict:
+def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
     """Return a dictionary of geometry properties.
 
     Parameters
     ----------
-    geom : Union[Polygon, MultiPolygon]
+    geom : Union[Polygon, MultiPolygon, GeometryCollection]
       Geometry to analyze.
 
     Returns
