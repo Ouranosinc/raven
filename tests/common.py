@@ -19,12 +19,11 @@ VERSION = "1.0.0"
 WPS, OWS = get_ElementMakerForVersion(VERSION)
 xpath_ns = get_xpath_ns(VERSION)
 
-# TODO: pathlib is python3 only and this seems to be the only call from it.
 TESTS_HOME = Path(__file__).parent
 TD = TESTS_HOME / 'testdata'
 CFG_FILE = [str(TESTS_HOME / 'test.cfg'), ]
 
-TESTDATA = {}
+TESTDATA = dict()
 TESTDATA['gr4j-cemaneige'] = \
     {'pr': TD / 'gr4j_cemaneige' / 'pr.nc',
      'tas': TD / 'gr4j_cemaneige' / 'tas.nc',
@@ -71,6 +70,7 @@ TESTDATA['ostrich-hbv-ec-nc-ts'] = TESTDATA['raven-hbv-ec-nc-ts']
 TESTDATA['donnees_quebec_mrc_poly'] = TD / 'donneesqc_mrc_poly' / 'donnees_quebec_mrc_polygones.gml'
 TESTDATA['watershed_vector'] = TD / 'watershed_vector' / 'LSJ_LL.zip'
 TESTDATA['mrc_subset'] = TD / 'donneesqc_mrc_poly' / 'mrc_subset.gml'
+TESTDATA['mrc_subset_zipped'] = TD / 'donneesqc_mrc_poly' / 'mrc_subset.zip'
 TESTDATA['melcc_water'] = TD / 'melcc_water_management' / 'zone_gestion_leau_saintlaurent.gpkg'
 
 # TODO: Replace the following files with subsets and set originals as production data
