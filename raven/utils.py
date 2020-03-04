@@ -401,12 +401,12 @@ def geom_transform(
         raise Exception(msg)
 
 
-def geom_prop(geom: Union[Polygon, MultiPolygon]) -> dict:
+def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
     """Return a dictionary of geometry properties.
 
     Parameters
     ----------
-    geom : Union[Polygon, MultiPolygon]
+    geom : Union[Polygon, MultiPolygon, GeometryCollection]
       Geometry to analyze.
 
     Returns
