@@ -1,13 +1,14 @@
-import fiona
 import json
 import logging
 
+import fiona
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check
-from raven.utils import geom_transform, geom_prop, multipolygon_check
 from rasterio.crs import CRS
 from shapely.geometry import shape
+
+from raven.utils import archive_sniffer, crs_sniffer, single_file_check
+from raven.utils import geom_transform, geom_prop, multipolygon_check
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -20,7 +21,7 @@ class ShapePropertiesProcess(Process):
             ComplexInput('shape', 'Vector Shape',
                          abstract='An ESRI Shapefile, GML, GeoPackage, JSON or GeoJSON file.'
                                   ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
-                         supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON],
+                         supported_formats=[FORMATS.GML, FORMATS.GEOJSON, FORMATS.SHP, FORMATS.JSON, FORMATS.ZIP],
                          min_occurs=1, max_occurs=1),
             LiteralInput('projected_crs',
                          'Coordinate Reference System for area calculation (Default: EPSG:6622,'
