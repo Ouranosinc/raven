@@ -75,7 +75,8 @@ class HydroBasinsSelectionProcess(Process):
         level = 12  # request.inputs['level'][0].data
         lakes = True  # request.inputs['lakes'][0].data
         collect_upstream = request.inputs['aggregate_upstream'][0].data
-        lon, lat = parse_lonlat(request.inputs['location'][0].data) 
+        lon, lat = parse_lonlat(request.inputs['location'][0].data)
+
         bbox = (lon, lat, lon, lat)
 
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
