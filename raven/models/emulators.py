@@ -165,7 +165,8 @@ class HBVEC(GR4JCN):
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HBVEC.params(*((None,) * len(HBVEC.params._fields))))
-        self.rvd = RV(one_plus_par_x15=None, par_x11_half=None)
+        self.rvd = RV(one_plus_par_x15=None, par_x11_half=None, monthly_ave_evaporation=MonthlyAverage(),
+                      monthly_ave_temperature=MonthlyAverage())
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvi = RVI(evaporation="PET_FROMMONTHLY", ow_evaporation="PET_FROMMONTHLY",
