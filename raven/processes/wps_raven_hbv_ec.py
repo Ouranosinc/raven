@@ -45,4 +45,5 @@ class RavenHBVECProcess(RavenProcess):
     tuple_inputs = {'params': HBVEC.params}
 
     inputs = [wio.ts, wio.nc_spec, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation]
+              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction, wio.evaporation,
+              wio.ow_evaporation]

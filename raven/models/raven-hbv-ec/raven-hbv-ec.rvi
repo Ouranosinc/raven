@@ -22,13 +22,13 @@
 :Routing             	    ROUTE_NONE
 :CatchmentRoute      	    TRIANGULAR_UH
 
-:Evaporation         	    PET_FROMMONTHLY
-:OW_Evaporation      	    PET_FROMMONTHLY
+:Evaporation         	    {evaporation}  # PET_FROM_MONTHLY
+:OW_Evaporation      	    {ow_evaporation}  # PET_FROM_MONTHLY
 :SWRadiationMethod   	    SW_RAD_DEFAULT
 :SWCloudCorrect      	    SW_CLOUD_CORR_NONE
 :SWCanopyCorrect     	    SW_CANOPY_CORR_NONE
 :LWRadiationMethod   	    LW_RAD_DEFAULT
-:RainSnowFraction    	    RAINSNOW_HBV
+:RainSnowFraction    	    {rain_snow_fraction}  # RAINSNOW_HBV
 :PotentialMeltMethod 	    POTMELT_HBV
 :OroTempCorrect      	    OROCORR_HBV
 :OroPrecipCorrect    	    OROCORR_HBV

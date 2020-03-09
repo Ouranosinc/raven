@@ -159,6 +159,19 @@ rain_snow_fraction = LiteralInput('rain_snow_fraction', "Rain snow partitioning"
                                   allowed_values=rv.rain_snow_fraction_options,
                                   min_occurs=0)
 
+evaporation = LiteralInput('evaporation', "Evaporation scheme",
+                                  abstract="Algorithm used to compute potential evapotranspiration (PET).",
+                                  data_type='string',
+                                  allowed_values=rv.evaporation_options,
+                                  min_occurs=0)
+
+ow_evaporation = LiteralInput('ow_evaporation', "Open-water evaporation scheme",
+                                  abstract="Algorithm used to compute potential evapotranspiration (PET) over open "
+                                           "water",
+                                  data_type='string',
+                                  allowed_values=rv.evaporation_options,
+                                  min_occurs=0)
+
 nc_spec = LiteralInput('nc_spec', "NetCDF input file specifications",
                        abstract="Configuration of individual netCDF input files, such as `linear_transform`"
                                 "and `time_shift`. Should be passed as a dictionary keyed by variable, e.g. `tas` "
