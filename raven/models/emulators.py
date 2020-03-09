@@ -35,7 +35,7 @@ class GR4JCN_OST(Ostrich, GR4JCN):
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvi.suppress_output=True
+        self.rvi.suppress_output = True
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
                        lowerBounds=GR4JCN.params(None, None, None, None, None, None),
@@ -120,7 +120,7 @@ class HMETS_OST(Ostrich, HMETS):
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvi.suppress_output=True
+        self.rvi.suppress_output = True
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
                        lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
