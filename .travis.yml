@@ -35,6 +35,21 @@ matrix:
       env:
           - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
           - DOCS=true
+    -   os: linux
+        name: "Linux (Python3.7 + notebooks)"
+        python: "3.7"
+        dist: xenial
+        addons:
+            apt:
+                packages:
+                    - libnetcdf-dev
+        env:
+            - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+            - NOTEBOOKS=true
+  allow_failures:
+    - env:
+      - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+      - NOTEBOOKS=true
 
 branches:
   only:
@@ -62,6 +77,6 @@ before_script:
 
 script:
   - make test
-  - make test_nb
+  - if [[ $NOTEBOOKS = true ]]; then make test_nb; fi
   - if [[ $DOCS = true ]]; then make docs; fi
   - if [[ $PEP8 = true ]]; then make pep8; fi
