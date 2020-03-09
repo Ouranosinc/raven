@@ -14,7 +14,7 @@ PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev240.zip
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev245.zip
 RAVEN_SRC    = $(CURDIR)/src/RAVEN
 OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
 OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
@@ -97,9 +97,9 @@ raven_dev:
 	@echo "Unzipping RAVEN ..."
 	@test -d $(RAVEN_SRC) || unzip -j $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
 	@echo "Compiling RAVEN ..."
-	@test -f $(RAVEN_SRC)/raven_rev.exe || $(MAKE) -C $(RAVEN_SRC) -j4
+	@test -f $(RAVEN_SRC)/Raven.exe || $(MAKE) -C $(RAVEN_SRC) -j4
 	@test -d bin || mkdir bin
-	@-bash -c "cp $(RAVEN_SRC)/raven_rev.exe ./bin/raven"
+	@-bash -c "cp $(RAVEN_SRC)/Raven.exe ./bin/raven"
 
 .PHONY: ostrich_dev
 ostrich_dev:

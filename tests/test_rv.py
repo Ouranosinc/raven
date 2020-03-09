@@ -1,6 +1,6 @@
 import pytest
 import raven
-from raven.models.rv import RV, RVI, RVT, Ost, RVFile, isinstance_namedtuple, RavenNcData
+from raven.models.rv import RV, RVI, RVT, Ost, RVFile, isinstance_namedtuple, RavenNcData, MonthlyAverage
 import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
@@ -126,6 +126,12 @@ class TestRavenNcData:
                         linear_transform=(24000, 0))
 
         assert ":LinearTransform 24000 0" in str(v)
+
+
+class TestMonthlyAve:
+    def test_simple(self):
+        ave = str(MonthlyAverage('Evaporation', range(12)))
+        assert ave.startswith(':MonthlyAveEvaporation, 0, 1, 2')
 
 
 class TestOst:
