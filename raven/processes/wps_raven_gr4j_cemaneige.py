@@ -50,4 +50,5 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
     tuple_inputs = {'params': GR4JCN.params}
 
     inputs = [wio.ts, wio.nc_spec, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.nc_index]
+              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.nc_index, wio.evaporation,
+              wio.rain_snow_fraction]
