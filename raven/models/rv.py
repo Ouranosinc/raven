@@ -326,7 +326,7 @@ class RavenNcData(RV):
 class MonthlyAverage(RV):
     pat = ":MonthlyAve{var}, {data}"
 
-    def __init__(self, var, data):
+    def __init__(self, var=None, data=None):
         self.var = var
         self.data = data
 
