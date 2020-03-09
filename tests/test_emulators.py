@@ -472,6 +472,26 @@ class TestHBVEC:
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.0186633, 4)
 
+    def test_evap(self):
+        ts = TESTDATA['raven-hbv-ec-nc-ts']
+        model = HBVEC()
+        params = (0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.506052, 3.438486, 38.32455, 0.4606565,
+                  0.06303738, 2.277781, 4.873686, 0.5718813, 0.04505643, 0.877607, 18.94145, 2.036937, 0.4452843,
+                  0.6771759, 1.141608, 1.024278)
+
+        model(ts,
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2002, 1, 1),
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=params,
+              suppress_output=True,
+              evaporation="PET_OUDIN",
+              ow_evaporation="PET_OUDIN",
+              )
+
 
 class TestHBVEC_OST():
     def test_simple(self):
