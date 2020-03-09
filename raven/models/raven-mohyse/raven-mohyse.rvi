@@ -16,7 +16,7 @@
 :PotentialMeltMethod   POTMELT_DEGREE_DAY
 :Routing               ROUTE_NONE
 :CatchmentRoute        ROUTE_GAMMA_CONVOLUTION
-:Evaporation           PET_MOHYSE
+:Evaporation           {evaporation}  # PET_MOHYSE
 :DirectEvaporation
 :RainSnowFraction      {rain_snow_fraction}
 
