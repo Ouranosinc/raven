@@ -16,8 +16,8 @@
 :SoilModel             SOIL_MULTILAYER  4
 :Routing               ROUTE_NONE
 :CatchmentRoute        ROUTE_DUMP
-:Evaporation           PET_OUDIN
-:RainSnowFraction      RAINSNOW_DINGMAN
+:Evaporation           {evaporation}  # PET_OUDIN
+:RainSnowFraction      {rain_snow_fraction}  # RAINSNOW_DINGMAN
 :PotentialMeltMethod   POTMELT_DEGREE_DAY
 :OroTempCorrect        OROCORR_SIMPLELAPSE
 :OroPrecipCorrect      OROCORR_SIMPLELAPSE

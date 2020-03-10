@@ -2,7 +2,7 @@ from collections import namedtuple
 from pathlib import Path
 
 from raven.models import Raven, Ostrich
-from .rv import RV, RVT, RVI, Ost, RavenNcData
+from .rv import RV, RVT, RVI, Ost, RavenNcData, MonthlyAverage
 
 nc = RavenNcData
 std_vars = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", "evspsbl", "water_volume_transport_in_river_channel")
@@ -20,7 +20,7 @@ class GR4JCN(Raven):
 
         self.rvp = RV(params=GR4JCN.params(None, None, None, None, None, None))
         self.rvt = RVT(**{k: nc() for k in std_vars})
-        self.rvi = RVI()
+        self.rvi = RVI(rain_snow_fraction="RAINSNOW_DINGMAN", evaporation="PET_OUDIN")
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
 
@@ -35,7 +35,7 @@ class GR4JCN_OST(Ostrich, GR4JCN):
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvi = RVI(suppress_output=True)
+        self.rvi.suppress_output = True
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
                        lowerBounds=GR4JCN.params(None, None, None, None, None, None),
@@ -59,7 +59,7 @@ class MOHYSE(Raven):
         self.rvp = RV(params=MOHYSE.params(*((None,) * 8)))
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=MOHYSE.hrus(None, None))
         self.rvt = RVT(**{k: nc() for k in std_vars})
-        self.rvi = RVI()
+        self.rvi = RVI(evaporation="PET_MOHYSE", rain_snow_fraction="RAINSNOW_DATA")
         self.rvd = RV(par_rezi_x10=None)
 
     def derived_parameters(self):
@@ -72,7 +72,7 @@ class MOHYSE_OST(Ostrich, MOHYSE):
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvi = RVI(suppress_output=True)
+        self.rvi.suppress_output = True
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
                        lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
@@ -101,7 +101,7 @@ class HMETS(GR4JCN):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HMETS.params(*((None,) * len(HMETS.params._fields))))
         self.rvt = RVT(**{k: nc() for k in std_vars})
-        self.rvi = RVI()
+        self.rvi = RVI(evaporation="PET_OUDIN", rain_snow_fraction="RAINSNOW_DATA")
         self.rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
                       PHREATIC_hlf=None)
 
@@ -120,7 +120,7 @@ class HMETS_OST(Ostrich, HMETS):
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvi = RVI(suppress_output=True)
+        self.rvi.suppress_output = True
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
                        lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
@@ -161,30 +161,43 @@ class HBVEC(GR4JCN):
     templates = tuple((Path(__file__).parent / 'raven-hbv-ec').glob("*.rv?"))
 
     params = namedtuple('HBVECParams', ('par_x{:02}'.format(i) for i in range(1, 22)))
-    mae = namedtuple('MeanAverageEvap', ('x{:02}'.format(i) for i in range(1, 13)))
-    mat = namedtuple('MeanAverageTemp', ('x{:02}'.format(i) for i in range(1, 13)))
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvp = RV(params=HBVEC.params(*((None,) * len(HBVEC.params._fields))))
-        self.rvd = RV(one_plus_par_x15=None, par_x11_half=None, mae=HBVEC.mae, mat=HBVEC.mat)
+        self.rvd = RV(one_plus_par_x15=None, par_x11_half=None, monthly_ave_evaporation=MonthlyAverage(),
+                      monthly_ave_temperature=MonthlyAverage())
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+        self.rvi = RVI(evaporation="PET_FROMMONTHLY", ow_evaporation="PET_FROMMONTHLY",
+                       rain_snow_fraction="RAINSNOW_HBV")
 
-    # TODO: Support index specification and unit changes.
     def derived_parameters(self):
-        import xarray as xr
-
         self.rvd['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
         self.rvd['par_x11_half'] = self.rvp.params.par_x11 / 2.0
+        self._monthly_average()
 
-        tasmax = xr.open_dataset(self.rvt.tasmax.path)[self.rvt.tasmax.var_name]
-        tasmin = xr.open_dataset(self.rvt.tasmin.path)[self.rvt.tasmin.var_name]
-        evap = xr.open_dataset(self.rvt.evspsbl.path)[self.rvt.evspsbl.var_name]
+    # TODO: Support index specification and unit changes.
+    def _monthly_average(self):
+        import xarray as xr
+        if self.rvi.evaporation == "PET_FROMMONTHLY" or self.rvi.ow_evaporation == "PET_FROMMONTHLY":
+            # If this fails, it's likely the input data is missing some necessary variables (e.g. evap).
+            if self.rvt.tas.path is not None:
+                tas = xr.open_dataset(self.rvt.tas.path)
+            else:
+                tasmax = xr.open_dataset(self.rvt.tasmax.path)[self.rvt.tasmax.var_name]
+                tasmin = xr.open_dataset(self.rvt.tasmin.path)[self.rvt.tasmin.var_name]
+                tas = (tasmax + tasmin) / 2.
 
-        tas = (tasmax + tasmin) / 2.
-        self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
-        self.rvd.mae = self.mae(*evap.groupby('time.month').mean().values)
+            if self.rvt.evspsbl.path is not None:
+                evap = xr.open_dataset(self.rvt.evspsbl.path)[self.rvt.evspsbl.var_name]
+
+            mat = tas.groupby('time.month').mean().values
+            mae = evap.groupby('time.month').mean().values
+
+            self.rvd.update({"monthly_ave_temperature": MonthlyAverage("Temperature", mat),
+                             "monthly_ave_evaporation": MonthlyAverage("Evaporation", mae)},
+                            force=True)
 
 
 class HBVEC_OST(Ostrich, HBVEC):
@@ -193,7 +206,7 @@ class HBVEC_OST(Ostrich, HBVEC):
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvi = RVI(suppress_output=True)
+        self.rvi.suppress_output = True
         self.low = HBVEC.params
         self.high = HBVEC.params
         self.txt = Ost(algorithm='DSS',
@@ -206,15 +219,7 @@ class HBVEC_OST(Ostrich, HBVEC):
 
     # TODO: Support index specification and unit changes.
     def derived_parameters(self):
-        import xarray as xr
-
-        tasmax = xr.open_dataset(self.rvt.tasmax.path)[self.rvt.tasmax.var_name]
-        tasmin = xr.open_dataset(self.rvt.tasmin.path)[self.rvt.tasmin.var_name]
-        evap = xr.open_dataset(self.rvt.evspsbl.path)[self.rvt.evspsbl.var_name]
-
-        tas = (tasmax + tasmin) / 2.
-        self.rvd.mat = self.mat(*tas.groupby('time.month').mean().values)
-        self.rvd.mae = self.mae(*evap.groupby('time.month').mean().values)
+        self._monthly_average()
 
 
 def get_model(name):
