@@ -112,6 +112,6 @@ class OstrichHBVECProcess(OstrichProcess):
                     'upperBounds': HBVEC_OST.params}
     inputs = [wio.ts, wio.nc_spec, lowerBounds, upperBounds, wio.algorithm, wio.max_iterations, wio.start_date,
               wio.end_date, wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation,
-              wio.random_seed, wio.suppress_output]
+              wio.random_seed, wio.suppress_output, wio.rain_snow_fraction, wio.evaporation, wio.ow_evaporation]
 
     keywords = ["Ostrich", "Calibration", "DDS"]

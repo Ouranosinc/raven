@@ -41,6 +41,10 @@ default_input_variables = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", 
 rain_snow_fraction_options = ("RAINSNOW_DATA", "RAINSNOW_DINGMAN", "RAINSNOW_UBC", "RAINSNOW_HBV", "RAINSNOW_HARDER",
                               "RAINSNOW_HSPF")
 
+evaporation_options = ("PET_CONSTANT", "PET_PENMAN_MONTEITH", "PET_PENMAN_COMBINATION", "PET_PRIESTLEY_TAYLOR",
+                       "PET_HARGREAVES", "PET_HARGREAVES_1985", "PET_FROMMONTHLY", "PET_DATA", "PET_HAMON_1961",
+                       "PET_TURC_1961", "PET_MAKKINK_1957", "PET_MONTHLY_FACTOR", "PET_MOHYSE", "PET_OUDIN")
+
 
 class RVFile:
 
@@ -319,6 +323,20 @@ class RavenNcData(RV):
             return self.pat.format(**kwds)
 
 
+class MonthlyAverage(RV):
+    pat = ":MonthlyAve{var}, {data}"
+
+    def __init__(self, var=None, data=None):
+        self.var = var
+        self.data = data
+
+    def __str__(self):
+        if self.var is None:
+            return ""
+        out = self.pat.format(var=self.var, data=', '.join([str(d) for d in self.data]))
+        return out
+
+
 class RVT(RV):
     def __init__(self, **kwargs):
         self._nc_index = None
@@ -367,6 +385,8 @@ class RVI(RV):
         self._end_date = None
         self._now = None
         self._rain_snow_fraction = "RAINSNOW_DATA"
+        self._evaporation = None
+        self._ow_evaporation = None
         self._duration = 1
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
@@ -497,6 +517,32 @@ class RVI(RV):
             self._rain_snow_fraction = v
         else:
             raise ValueError(f"Value should be one of {rain_snow_fraction_options}.")
+
+    @property
+    def evaporation(self):
+        """Evaporation scheme"""
+        return self._evaporation
+
+    @evaporation.setter
+    def evaporation(self, value):
+        v = value.upper()
+        if v in evaporation_options:
+            self._evaporation = v
+        else:
+            raise ValueError(f"Value {v} should be one of {evaporation_options}.")
+
+    @property
+    def ow_evaporation(self):
+        """Open-water evaporation scheme"""
+        return self._ow_evaporation
+
+    @ow_evaporation.setter
+    def ow_evaporation(self, value):
+        v = value.upper()
+        if v in evaporation_options:
+            self._ow_evaporation = v
+        else:
+            raise ValueError(f"Value {v} should be one of {evaporation_options}.")
 
 
 class Ost(RV):
