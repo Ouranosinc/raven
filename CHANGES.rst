@@ -2,6 +2,16 @@ Changes
 =======
 
 
+0.10.x (2020-03-09) Oxford
+--------------------------
+* Added support for ERA5 (hourly), NRCan and CANOPEX datasets
+* Support linear transforms (unit changes)
+* Calibration now uses :SuppressOutput by default
+* Added options for rain_snow_fraction, evaporation and ow_evaporation
+* Updated Raven version to 295
+* Support passing shapes as zip files
+
+
 0.9.x (2019-11-11)
 ------------------
 * Return configuration files used to run model in a zip archive
