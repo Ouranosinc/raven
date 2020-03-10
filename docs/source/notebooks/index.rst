@@ -15,12 +15,15 @@ Note that some of these notebooks need the bleeding edge version of OWSLib_ (>=0
    running_mohyse
    running_hbv_ec
    getting_variables_other_than_flow
+   canopex
+   watershed_subset
+   gridded_data_subset
    multi_model_simulation
    Raven_run_parallel_basins
    Run_Raven_with_Parallel_parameters
    computing_objective_functions
    Delineation_workflow
-   Time series analysis
+   time_series_analysis
    Perform_Regionalization
    running_OSTRICH_hmets
    running_OSTRICH_gr4jcn
