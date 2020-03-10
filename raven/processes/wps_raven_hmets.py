@@ -44,6 +44,5 @@ class RavenHMETSProcess(RavenProcess):
     model_cls = HMETS
     tuple_inputs = {'params': HMETS.params}
 
-    inputs = [wio.ts, wio.nc_spec, params, wio.start_date, wio.end_date, wio.duration, wio.run_name,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction, wio.evaporation,
-              ]
+    inputs = [wio.ts, wio.nc_spec, params, wio.start_date, wio.end_date, wio.nc_index, wio.duration, wio.run_name,
+              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction, wio.evaporation]
