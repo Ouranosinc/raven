@@ -4,6 +4,7 @@ Changes
 
 0.10.x (2020-03-09) Oxford
 --------------------------
+* `suppress_ouput` also triggers `:DontWriteWatershedStorage`
 * Added support for ERA5 (hourly), NRCan and CANOPEX datasets
 * Support linear transforms (unit changes)
 * Calibration now uses :SuppressOutput by default
