@@ -490,10 +490,11 @@ class Raven:
         i = get_diff_level(files)
 
         # Try to create a zip file
-        with zipfile.ZipFile(outfn, 'w') as f:
-            for fn in files:
-                len(fn.parts)
-                f.write(fn, arcname=fn.relative_to(Path(*fn.parts[:i])))
+        if files:
+            with zipfile.ZipFile(outfn, 'w') as f:
+                for fn in files:
+                    len(fn.parts)
+                    f.write(fn, arcname=fn.relative_to(Path(*fn.parts[:i])))
 
         return outfn
 
