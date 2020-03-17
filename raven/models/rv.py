@@ -486,7 +486,8 @@ class RVI(RV):
 
     @property
     def suppress_output(self):
-        return ":SuppressOutput" if self._suppress_output else ""
+        tag = ":SuppressOutput\n:DontWriteWatershedStorage"
+        return tag if self._suppress_output else ""
 
     @suppress_output.setter
     def suppress_output(self, value):
