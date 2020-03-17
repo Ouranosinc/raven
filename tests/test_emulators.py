@@ -25,9 +25,9 @@ def test_race():
     model2 = GR4JCN()
     ost = GR4JCN_OST()
 
-    assert model1.rvi.suppress_output == ":SuppressOutput"
+    assert model1.rvi.suppress_output.startswith(":SuppressOutput")
     assert model2.rvi.suppress_output == ""
-    assert ost.rvi.suppress_output == ":SuppressOutput"
+    assert ost.rvi.suppress_output.startswith(":SuppressOutput")
 
 
 class TestGR4JCN:
