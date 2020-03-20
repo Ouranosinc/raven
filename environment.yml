@@ -24,7 +24,7 @@ dependencies:
 - geojson
 - netcdf4
 - libnetcdf #==4.6.2  # Avoid core dump with 4.7.1. Can be unpinned when 4.7.1 is not the latest anymore.
-- gdal>=2.4
+- gdal<3.0
 - fiona
 - pyproj
 - descartes
