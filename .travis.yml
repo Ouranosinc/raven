@@ -4,8 +4,8 @@ matrix:
   fast_finish: true
   include:
     - os: osx
-      python: "3.5"
-      name: "macOS (Python3.5)"
+      python: "3.6"
+      name: "macOS (Python3.6)"
       addons:
         homebrew:
           packages:
@@ -36,7 +36,7 @@ matrix:
           - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
           - DOCS=true
     -   os: linux
-        name: "Linux (Python3.7 + notebooks)"
+        name: "Linux (Python3.8 + notebooks)"
         python: "3.7"
         dist: xenial
         addons:
