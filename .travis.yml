@@ -1,11 +1,13 @@
 language: generic
 
-matrix:
+dist: xenial
+
+jobs:
   fast_finish: true
   include:
     - os: osx
-      python: "3.6"
-      name: "macOS (Python3.6)"
+      python: "3.5"
+      name: "macOS (Python3.5)"
       addons:
         homebrew:
           packages:
@@ -54,8 +56,6 @@ matrix:
 branches:
   only:
     - master
-
-sudo: false
 
 install:
   - make install
