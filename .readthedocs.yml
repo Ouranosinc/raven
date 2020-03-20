@@ -22,3 +22,6 @@ python:
 
 conda:
   environment: environment-docs.yml
+
+build:
+  image: stable
