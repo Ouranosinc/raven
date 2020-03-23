@@ -85,7 +85,12 @@ class HydroBasinsSelectionProcess(Process):
         domain = gis.select_hybas_domain(bbox)
         hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
 
-        with open(shape_url, 'w') as f:
+        if isinstance(shape_url, bytes):
+            write_flags = "wb"
+        else:
+            write_flags = "w"
+
+        with open(shape_url, write_flags) as f:
             f.write(hybas_gml)
 
         response.update_status('Found downstream watershed', status_percentage=10)
