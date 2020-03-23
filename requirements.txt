@@ -8,7 +8,7 @@ psutil
 numpy
 scipy
 matplotlib
-xarray==0.12.2
+xarray==0.13
 pandas
 requests
 netCDF4
