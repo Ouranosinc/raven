@@ -1,6 +1,8 @@
 language: generic
 
-matrix:
+dist: xenial
+
+jobs:
   fast_finish: true
   include:
     - os: osx
@@ -36,7 +38,7 @@ matrix:
           - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
           - DOCS=true
     -   os: linux
-        name: "Linux (Python3.7 + notebooks)"
+        name: "Linux (Python3.8 + notebooks)"
         python: "3.7"
         dist: xenial
         addons:
@@ -54,8 +56,6 @@ matrix:
 branches:
   only:
     - master
-
-sudo: false
 
 install:
   - make install
