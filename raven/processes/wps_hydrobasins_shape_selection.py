@@ -85,10 +85,10 @@ class HydroBasinsSelectionProcess(Process):
         domain = gis.select_hybas_domain(bbox)
         hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
 
-        if isinstance(shape_url, bytes):
-            write_flags = "wb"
-        else:
+        if isinstance(shape_url, str):
             write_flags = "w"
+        else:
+            write_flags = "wb"
 
         with open(shape_url, write_flags) as f:
             f.write(hybas_gml)
