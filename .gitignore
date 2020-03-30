@@ -4,7 +4,7 @@
 # Docker
 #Dockerfile
 
-# PyWPS 
+# PyWPS
 custom.cfg
 .custom.cfg
 *.pid
@@ -70,6 +70,7 @@ docs/make.bat
 docs/doctrees/
 docs/html/
 docs/build/
+docs/source/output_sanitize.cfg
 
 # External Sources
 #src/external
