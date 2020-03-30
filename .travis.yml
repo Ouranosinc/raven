@@ -1,43 +1,45 @@
 language: generic
 
-matrix:
+dist: xenial
+
+jobs:
   fast_finish: true
   include:
     - os: osx
       python: "3.5"
       name: "macOS (Python3.5)"
       addons:
-        homebrew:
-          packages:
-          - netcdf
-          update: true
+            homebrew:
+                packages:
+                    - netcdf
+                update: true
       env:
-          - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
+            - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - os: linux
       name: "Linux (Python3.6 + pep8)"
       dist: xenial
       python: "3.6"
       addons:
-        apt:
-          packages:
-          - libnetcdf-dev
+            apt:
+                packages:
+                    - libnetcdf-dev
       env:
-          - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-          - PEP8=true
+            - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+            - PEP8=true
     - os: linux
       name: "Linux (Python3.7 + docs)"
       python: "3.7"
       dist: xenial
       addons:
-        apt:
-          packages:
-          - libnetcdf-dev
+            apt:
+                packages:
+                    - libnetcdf-dev
       env:
-          - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-          - DOCS=true
+            - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+            - DOCS=true
     -   os: linux
-        name: "Linux (Python3.7 + notebooks)"
-        python: "3.7"
+        name: "Linux (Python3.8 + notebooks)"
+        python: "3.8"
         dist: xenial
         addons:
             apt:
@@ -48,14 +50,12 @@ matrix:
             - NOTEBOOKS=true
   allow_failures:
     - env:
-      - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-      - NOTEBOOKS=true
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - NOTEBOOKS=true
 
 branches:
   only:
     - master
-
-sudo: false
 
 install:
   - make install

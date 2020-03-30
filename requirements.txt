@@ -7,8 +7,8 @@ click
 psutil
 numpy
 scipy
-matplotlib==3.1.3
-xarray
+matplotlib
+xarray==0.13
 pandas
 requests
 netCDF4
@@ -18,7 +18,7 @@ spotpy
 statsmodels
 # GIS LIBRARIES
 # pycrs --- Depends on online database requests --> SLOW
-gdal>=2.4
+gdal~=2.4
 pysheds
 affine
 rtree
