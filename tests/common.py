@@ -132,6 +132,7 @@ def get_output(doc):
 
 
 def synthetic_gr4j_inputs(path):
+
     time = pd.date_range(start='2000-07-01', end='2002-07-01', freq='D')
 
     pr = 3 * np.ones(len(time))

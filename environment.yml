@@ -44,3 +44,4 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
+  - salem
