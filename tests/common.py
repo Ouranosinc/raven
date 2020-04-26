@@ -82,6 +82,9 @@ TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
 TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
 
 
+TESTDATA['climatologyESP'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
+
+
 class WpsTestClient(WpsClient):
 
     def get(self, *args, **kwargs):

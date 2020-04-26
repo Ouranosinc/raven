@@ -23,6 +23,7 @@ from .wps_q_stats import TSStatsProcess, FreqAnalysisProcess, FitProcess, BaseFl
 from .wps_indicator_analysis import GraphIndicatorAnalysis
 from .wps_graph_objective_function_fit import GraphObjectiveFunctionFitProcess
 from .wps_graph_fit import GraphFitProcess
+from .wps_climatology_esp import ClimatologyEspProcess
 
 processes = [
     RavenProcess(),
@@ -53,4 +54,5 @@ processes = [
     RegionalisationProcess(),
     GraphObjectiveFunctionFitProcess(),
     GraphFitProcess(),
+    ClimatologyEspProcess(),
 ]
