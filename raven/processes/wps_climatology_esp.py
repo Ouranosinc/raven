@@ -7,14 +7,13 @@ from pywps import Format
 from pywps import Process
 from . import wpsio as wio
 
-from raven.models import Raven
 import pandas as pd
 import xarray as xr
 import numpy as np
 from raven.models import get_model
 import datetime as dt
 import tempfile
-import pdb
+
 
 class ClimatologyEspProcess(Process):
     def __init__(self):
@@ -42,7 +41,7 @@ class ClimatologyEspProcess(Process):
         inputs = [fdate, leadtime, params, wio.ts, wio.latitude, wio.longitude, wio.name,
               wio.model_name, wio.area, wio.elevation]
 
-        outputs = [wio.ensemble]
+        outputs = [wio.forecast]
     
         super(ClimatologyEspProcess, self).__init__(
             self._handler,
@@ -64,30 +63,34 @@ class ClimatologyEspProcess(Process):
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
         
+        # Get timeseries data that will be used to do the climatological ESP.
         ts=request.inputs['ts'][0].file
         tsnc=xr.open_dataset(ts)
         
+        # Get info from kwds but remove the ones that are not understood by RAVEN.
+        # Have to delete these because or else I get an error: no config key named model_name
         forecast_date = kwds['forecast_date']
         del kwds['forecast_date']
         lead_time = kwds['lead_time']
         del kwds['lead_time']
         model_name = kwds['model_name']
-        del kwds['model_name'] # Have to delete these because or else I get an error: no config key named model_name 
-        
+        del kwds['model_name']  
+
+        # Get the model parameters, transform them to a list of floats and write them back to the kwds config.
         params=kwds['params']
         csv = params.replace('(', '').replace(')', '')
         params= list(map(float, csv.split(',')))
-        
+        kwds['params']=params  
+          
         # Prepare model instance
         m = get_model(model_name)()
-        kwds['params']=params      
         
-        # Now find the periods of time for warm-up and forecast
+        # Now find the periods of time for warm-up and forecast and add to the model keywords as the defaults are failing (nanoseconds datetimes do not like the year 0001...)
         start_date=pd.to_datetime(tsnc['time'][0].values)
         start_date=start_date.to_pydatetime()
         kwds['start_date']=start_date
        
-        # Check to make sure forecast date is not in the first year
+        # Check to make sure forecast date is not in the first year as we need model warm-up.
         dateLimit = start_date.replace(year=start_date.year + 1)
         if (forecast_date.month==2 and forecast_date.day==29):
             forecast_date.replace(day=28)
@@ -97,7 +100,8 @@ class ClimatologyEspProcess(Process):
         # Now prepare the met data for the run. It will have the data from day 0 to forecast date at first,
         # Then we replace the leadTime values with a cutout from a previous year, run model and repeat.
         
-        # Base meteo block from begining to end of forecast date
+        # Base meteo block from begining of time series to end of forecast date. With a refactor using initial conditions to initiate forecast, this will have to be reduced
+        # to the beginning of the time series to the day before the forecsat begins and save the initial conditions.
         baseMet=tsnc.sel(time=slice(start_date,forecast_date-dt.timedelta(days=1)+dt.timedelta(days=lead_time)))     
         tmp_path=tempfile.mkdtemp() # Eventualy we'll write the ts file here.
         qsims = []
@@ -107,6 +111,8 @@ class ClimatologyEspProcess(Process):
         
         # Remove the year that we are forecasting. Or else it's cheating!
         avail_years.remove(forecast_date.year)
+        
+        # Get the list of variables in the netcdf dataset
         keylist=list(tsnc.keys())
        
         # We wil iterate this for all forecast years
@@ -114,14 +120,17 @@ class ClimatologyEspProcess(Process):
 
             # Use try statement here as it is possible the final year will fail
             try:
+                # For each available variable in the dataset
                 for k in keylist:
+                    
+                    # Ensure it's a timeseries!
                     if 'time' in tsnc[k].coords:
                         
                         # Going to eventually need to refactor to include the use of initial conditions
-                        # 1- Run the model from day 1 to forecast-1
+                        # 1- Run the model from day 1 to forecast-minus-1
                         # 2- save initial conditions
                         # 3- run individual forecasts from initial conditions
-                        # 
+                        
                         block=tsnc[k].sel(time=slice(forecast_date.replace(year=years),forecast_date.replace(year=years) + dt.timedelta(days=lead_time-1))).data   
                         baseMet[k].loc[dict(time=slice(forecast_date,forecast_date-dt.timedelta(days=1)+dt.timedelta(days=lead_time)))]=block
                         
@@ -131,26 +140,25 @@ class ClimatologyEspProcess(Process):
                 
                 # Forcing start and end dates here because the default 0001 year is not working with the datetime64 with nanoseconds, only yeras 1642-2256 or whatever are possible.
                 kwds['end_date']=pd.to_datetime(baseMet['time'][-1].values).to_pydatetime()
-                
 
-                # This works in Raven build 251...     
+                # This works in Raven build 251+. Run the model and get the simulated hydrograph associated to the forecast block   
                 m(overwrite=True, **kwds)
                 
+                # Add member to the ensemble.
                 qsims.append(m.q_sim.copy(deep=True))
-            
-                
-           
-                
+
             except:
                 
+                # depending on the forecast length, this might happen! Also if the netcdf file has vars such as qobs that don't cover the whole period, this will stop it.
                 print('Last available year not used as dataset does not cover the lead time OR bad variable')
                 
-        pdb.set_trace()
-        
+        # COncatenate the members through a new dimension for the members and remove unused dims.
         qsims = xr.concat(qsims, dim='member') 
-
+        qsims=qsims.squeeze()
+        
+        # Prepare the forecast netcdf result file and send the path to the results output.
         forecastfile=(tmp_path + '/forecast.nc')
         qsims.to_netcdf(forecastfile)
-        response.outputs['ensemble'].file = forecastfile
+        response.outputs['forecast'].file = forecastfile
         
         return response
