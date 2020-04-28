@@ -74,17 +74,19 @@ class ClimatologyEspProcess(Process):
         model_name = kwds['model_name']
         del kwds['model_name'] # Have to delete these because or else I get an error: no config key named model_name 
         
+        params=kwds['params']
+        csv = params.replace('(', '').replace(')', '')
+        params= list(map(float, csv.split(',')))
+        
         # Prepare model instance
         m = get_model(model_name)()
-
-        '''
-        TODO: HERE, UPDATE m.params WITH OUR LIST OF PARAMS DEPENDING ON MODEL CHOSEN, need help!
-        '''
+        kwds['params']=params      
         
         # Now find the periods of time for warm-up and forecast
         start_date=pd.to_datetime(tsnc['time'][0].values)
         start_date=start_date.to_pydatetime()
-                
+        kwds['start_date']=start_date
+       
         # Check to make sure forecast date is not in the first year
         dateLimit = start_date.replace(year=start_date.year + 1)
         if (forecast_date.month==2 and forecast_date.day==29):
@@ -106,7 +108,7 @@ class ClimatologyEspProcess(Process):
         # Remove the year that we are forecasting. Or else it's cheating!
         avail_years.remove(forecast_date.year)
         keylist=list(tsnc.keys())
-        
+        pdb.set_trace()
         # We wil iterate this for all forecast years
         for years in avail_years:
 
@@ -120,8 +122,19 @@ class ClimatologyEspProcess(Process):
                 # Now we have finished updating "baseMet" so we can use that as the timeseries to RAVEN.
                 baseMet.to_netcdf(tmp_path + '/climatologyESP.nc')
                 kwds['ts'] = tmp_path + '/climatologyESP.nc'
-                #pdb.set_trace()
+                
+                # Forcing start and end dates here because the default 0001 year is not working with the datetime64 with nanoseconds, only yeras 1642-2256 or whatever are possible.
+                kwds['end_date']=pd.to_datetime(baseMet['time'][-1].values).to_pydatetime()
+                
+                # TODO: NEXT LINE FAILS WITH A WEIRD MESSAGE:
+                #terminate called after throwing an instance of 'std::out_of_range'
+                #what():  basic_string::substr: __pos (which is 24) > this->size() (which is 22)
+
+                #**************************************************************
+                #Path : /tmp/tmp_6mqoh0a/exec/model/p00
+                #**************************************************************       
                 m(overwrite=True, **kwds)
+                
                 qsims.append(m.q_sim.copy(deep=True))
            #    qsims = xr.concat(qsims, dim=cr) # Is this required!?
                 
