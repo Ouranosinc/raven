@@ -41,6 +41,7 @@ dependencies:
 - ipyleaflet
 - pysheds
 - psycopg2
+- xskillscore
 - pip:
   - spotpy
   - urlpath

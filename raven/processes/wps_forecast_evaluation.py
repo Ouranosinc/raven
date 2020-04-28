@@ -11,18 +11,40 @@ from scipy.stats import norm
 import xskillscore as xs
 import xarray as xr
 
-class ForecastEvaluationProcess(Process):
+# Name of all available metrics
+all_metrics = xs.core.deterministic.__all__ + xs.core.probabilistic.__all__
+
+# Remove unsupported metrics
+all_metrics.remove('crps_quadrature')
+all_metrics.remove("crps_gaussian")
+all_metrics.remove("brier_score")
+
+
+# TODO: Report multidimensional bug for pearson_r to xskillscore.
+class HindcastEvaluationProcess(Process):
     def __init__(self):
         inputs = [ComplexInput('obs', 'Stream flow observation',
-                               abstract='Steam flow observation time series',
+                               abstract='Stream flow observation time series.',
                                supported_formats=(FORMATS.NETCDF,)),
-                  ComplexInput('fcst', 'Stream flow forecast',
-                               abstract='Stream flow forecast time series, deterministic or ensemble',
+                  LiteralInput("obs_var", "Observation variable name",
+                               abstract="Name of the variable in the observation dataset.",
+                               data_type="string",
+                               default="q_obs",
+                               min_occurs=0,
+                               max_occurs=1),
+                  ComplexInput('hcst', 'Stream flow hindcast',
+                               abstract='Stream flow hindcast time series, deterministic or ensemble.',
                                supported_formats=(FORMATS.NETCDF,)),
+                  LiteralInput("hcst_var", "Hindcast variable name",
+                               abstract="Name of the variable in the hindcast dataset.",
+                               data_type="string",
+                               default="q_sim",
+                               min_occurs=0,
+                               max_occurs=1),
                   LiteralInput('skip_nans', 'Skip NaNs in metric evaluation',
-                               abstract='Skip NaNs in forecast evaluation computations',
+                               abstract='Skip NaNs in hindcast evaluation computations',
                                data_type='boolean',
-                               default = True,
+                               default=True,
                                min_occurs=0,
                                max_occurs=1),
                   LiteralInput('BSS_threshold', 'Threshold for Brier Skill Score exceeding given threshold',
@@ -30,125 +52,83 @@ class ForecastEvaluationProcess(Process):
                                data_type='float',
                                default = 0.7,
                                min_occurs=0,
-                               max_occurs=1),                         
-                  LiteralInput('name', 'Forecast evaluation metric name',
-                               abstract="One or multiple Forecast evaluation metric names. If None, defaults to all.",
+                               max_occurs=1),
+                  LiteralInput('metric', 'Forecast evaluation metric name',
+                               abstract="One or multiple hindcast evaluation metric names. If None, defaults to all.",
                                data_type='string',
-                               #allowed_values=tuple(funcs.keys()),
+                               allowed_values=all_metrics,
                                default=None,
                                min_occurs=0,
-                               max_occurs=17) ### CHANGE THIS TO THE CORRECT NUMBER
+                               max_occurs=len(all_metrics))
                   ]
 
-        outputs = [ComplexOutput('metrics', 'Forecast evaluation metrics values',
-                                 abstract="Returns up to ###CHANGE HERE### objective function values, depending on the user's "
-                                          "requests. By default all ###CHANGE HERE### are returned. JSON dictionary format.",
+        outputs = [ComplexOutput('metrics', 'Hindcast evaluation metrics values',
+                                 abstract="JSON dictionary of evaluation metrics averaged over the full period and "
+                                          "all members.",
                                  supported_formats=(FORMATS.JSON, )),
                    ]
 
-        super(ForecastEvaluationProcess, self).__init__(
+        super(HindcastEvaluationProcess, self).__init__(
             self._handler,
-            identifier="forecast-evaluation",
-            title="Forecast evaluation based on the XSkillScore package for deterministic and ensemble forecasts.",
+            identifier="hindcast-evaluation",
+            title="Hindcast evaluation based on the XSkillScore package for deterministic and ensemble hindcasts.",
             version="1.0",
-            abstract="This process takes two NETCDF files (one containing the observed and the other the forecast data) "
-                     "and computes forecast evaluation metrics between them. Metrics are calculated according to if there are multiple members in the dataset (Probabilistic) or not (Deterministic)",
+            abstract="This process takes two NETCDF files (one containing the observed and the other the hindcast "
+                     "data) "
+                     "and computes hindcast evaluation metrics between them. Metrics are calculated according to if "
+                     "there are multiple members in the dataset (probabilistic) or not (deterministic)",
             metadata=[Metadata("XSkillScore Documentation", "https://pypi.org/project/xskillscore/")],
             inputs=inputs,
             outputs=outputs,
             #keywords=["forecast evaluation", "ensemble", "deterministic"] + list(funcs.keys()),
-            keywords=["forecast evaluation", "ensemble", "deterministic"],
+            keywords=["hindcast evaluation", "ensemble", "deterministic"],
             status_supported=True,
             store_supported=True)
 
     def _handler(self, request, response):
 
-        
+        # Read inputs from request
         obs_fn = request.inputs['obs'][0].file
-        fcst_fn = request.inputs['fcst'][0].file
-        
-        skipna=request.inputs['skip_nans'][0].data
-        BSS_threshold=request.inputs['BSS_threshold'][0].data
-  
-        obs = xr.open_dataset(obs_fn)
-        fcst = xr.open_dataset(fcst_fn)
+        obs_var = request.inputs['obs_var'][0].data
 
+        hcst_fn = request.inputs['hcst'][0].file
+        hcst_var = request.inputs['hcst_var'][0].data
+
+        skipna = request.inputs['skip_nans'][0].data
+        bss_threshold = request.inputs['BSS_threshold'][0].data
+
+        if 'metric' in request.inputs:
+            metrics = [m.data for m in request.inputs['metric']]
+        else:
+            metrics = all_metrics
+
+        # Open netCDF files
+        obs_ds = xr.open_dataset(obs_fn)
+        hcst_ds = xr.open_dataset(hcst_fn)
+
+        # Get variable names
+        obs = obs_ds[obs_var]
+        hcst = hcst_ds[hcst_var]
+
+        # ---- Calculations ---- #
         # NaNs are handled by default in XSkillScore
         out = {}
-        if not 'member' in fcst:
-            obs=obs.to_array()[0]
-            fcst=fcst.to_array()[0]
+        for metric in metrics:
+            func = getattr(xs, metric)
 
-            ### Deterministic metrics
-            # Pearson's correlation coefficient
-            out['r'] = np.array([xs.pearson_r(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # 2-tailed p-value of Pearson's correlation coefficient
-            out['r_p_value'] = np.array([xs.pearson_r_p_value(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # R^2 (coefficient of determination) score
-            out['r2'] = np.array([xs.r2(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Spearman's correlation coefficient
-            out['rs'] = np.array([xs.spearman_r(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # 2-tailed p-value associated with Spearman's correlation coefficient
-            out['rs_p_value'] = np.array([xs.spearman_r_p_value(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Root Mean Squared Error
-            out['rmse'] = np.array([xs.rmse(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Mean Squared Error
-            out['mse'] = np.array([xs.mse(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Mean Absolute Error
-            out['mae'] = np.array([xs.mae(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Median Absolute Error
-            out['median_absolute_error'] = np.array([xs.median_absolute_error(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Mean Absolute Percentage Error
-            out['mape'] = np.array([xs.mape(obs, fcst, "time", skipna=skipna).data])[0]
-            
-            # Symmetric Mean Absolute Percentage Error
-            out['smape'] = np.array([xs.smape(obs, fcst, "time", skipna=skipna).data])[0]
-        
-        
-        ### Probabilistic
-        if 'member' in fcst:
-            
-            obs=obs.to_array()[0]
-            fcst=fcst.to_array()[0]
-            # Continuous Ranked Probability Score with the ensemble distribution
-            tmp=np.empty(len(obs['time']),dtype=object)
-            for i in range(0,len(obs['time'])):
-                tmp[i] = xs.crps_ensemble(obs.isel(time=i), fcst.isel(time=i)).data
-            out['crps_ensemble']=np.mean(tmp)
-     
-            # Continuous Ranked Probability Score with a Gaussian distribution
-            tmp=np.empty(len(obs['time']),dtype=object)
-            for i in range(0,len(obs['time'])):
-                tmp[i] = xs.crps_gaussian(obs.isel(time=i), fcst.isel(time=i).mean("member"), fcst.isel(time=i).std("member")).data
-            out['crps_gaussian'] = np.mean(tmp)
-            
-            # Continuous Ranked Probability Score with numerical integration
-            # of the normal distribution
-            tmp=np.empty(len(obs['time']),dtype=object)
-            for i in range(0,len(obs['time'])):
-                tmp[i] = xs.crps_quadrature(obs.isel(time=i), norm).data
-            out['crps_quadrature'] = np.mean(tmp)
-            
-            # Brier scores of an ensemble for exceeding given thresholds
-            tmp=np.empty(len(obs['time']),dtype=object)
-            for i in range(0,len(obs['time'])):
-                tmp[i] = xs.threshold_brier_score(obs.isel(time=i), fcst.isel(time=i), BSS_threshold)
-            out['threshold_brier_score'] = np.mean(tmp)
-            
-            # Brier score
-            tmp=np.empty(len(obs['time']),dtype=object)
-            for i in range(0,len(obs['time'])):
-                tmp[i] = xs.brier_score(obs.isel(time=i) > 0.5, (fcst.isel(time=i) > 0.5).mean("member"))
-            out['brier_score'] = np.mean(tmp)
-           
+            if metric in xs.core.deterministic.__all__:
+                m = func(obs, hcst, dim="time", skipna=skipna)
+
+            elif "member" in hcst.dims:
+
+                if metric == "threshold_brier_score":
+                    m = func(obs, hcst, threshold=bss_threshold).mean("time")
+
+                else:
+                    m = func(obs, hcst, dim="member").mean("time")
+
+
+            out[metric] = m.values.tolist()
+
         response.outputs['metrics'].data = json.dumps(out)
         return response
