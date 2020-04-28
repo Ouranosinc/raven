@@ -108,7 +108,7 @@ class ClimatologyEspProcess(Process):
         # Remove the year that we are forecasting. Or else it's cheating!
         avail_years.remove(forecast_date.year)
         keylist=list(tsnc.keys())
-        pdb.set_trace()
+       
         # We wil iterate this for all forecast years
         for years in avail_years:
 
@@ -116,6 +116,12 @@ class ClimatologyEspProcess(Process):
             try:
                 for k in keylist:
                     if 'time' in tsnc[k].coords:
+                        
+                        # Going to eventually need to refactor to include the use of initial conditions
+                        # 1- Run the model from day 1 to forecast-1
+                        # 2- save initial conditions
+                        # 3- run individual forecasts from initial conditions
+                        # 
                         block=tsnc[k].sel(time=slice(forecast_date.replace(year=years),forecast_date.replace(year=years) + dt.timedelta(days=lead_time-1))).data   
                         baseMet[k].loc[dict(time=slice(forecast_date,forecast_date-dt.timedelta(days=1)+dt.timedelta(days=lead_time)))]=block
                         
@@ -126,17 +132,12 @@ class ClimatologyEspProcess(Process):
                 # Forcing start and end dates here because the default 0001 year is not working with the datetime64 with nanoseconds, only yeras 1642-2256 or whatever are possible.
                 kwds['end_date']=pd.to_datetime(baseMet['time'][-1].values).to_pydatetime()
                 
-                # TODO: NEXT LINE FAILS WITH A WEIRD MESSAGE:
-                #terminate called after throwing an instance of 'std::out_of_range'
-                #what():  basic_string::substr: __pos (which is 24) > this->size() (which is 22)
 
-                #**************************************************************
-                #Path : /tmp/tmp_6mqoh0a/exec/model/p00
-                #**************************************************************       
+                # This works in Raven build 251...     
                 m(overwrite=True, **kwds)
                 
                 qsims.append(m.q_sim.copy(deep=True))
-           #    qsims = xr.concat(qsims, dim=cr) # Is this required!?
+            
                 
            
                 
@@ -145,6 +146,11 @@ class ClimatologyEspProcess(Process):
                 print('Last available year not used as dataset does not cover the lead time OR bad variable')
                 
         pdb.set_trace()
-        response.outputs['ensemble'].data = qsims
+        
+        qsims = xr.concat(qsims, dim='member') 
 
+        forecastfile=(tmp_path + '/forecast.nc')
+        qsims.to_netcdf(forecastfile)
+        response.outputs['ensemble'].file = forecastfile
+        
         return response
