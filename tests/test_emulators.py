@@ -53,8 +53,8 @@ class TestGR4JCN:
 
         d = model.diagnostics
         # yields NSE=0.???? for full period 1954-2010
-
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
+        
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.117301, 2)
 
         hds = model.q_sim
         assert hds.attrs['long_name'] == 'Simulated outflows'
@@ -101,7 +101,8 @@ class TestGR4JCN:
               suppress_output=False
               )
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
+        
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.117301, 2)
 
     def test_overwrite(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
@@ -129,7 +130,8 @@ class TestGR4JCN:
         np.testing.assert_almost_equal(m1, m2, 1)
 
         d = model.diagnostics
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0269642, 2)
+
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.117315, 2)
 
     def test_version(self):
         model = Raven()
@@ -204,8 +206,8 @@ class TestGR4JCN_OST:
               )
 
         d = model.diagnostics
-
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.486033, 4)
+       
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.50717, 4)
 
         # Random number seed: 123
         # Budget:             10
@@ -215,9 +217,9 @@ class TestGR4JCN_OST:
         opt_para = model.calibrated_params
         opt_func = model.obj_func
 
-        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
+        np.testing.assert_almost_equal(opt_para, [2.424726, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, -0.486033, 4,
+        np.testing.assert_almost_equal(opt_func, -0.50717, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123
@@ -264,7 +266,7 @@ class TestHMETS:
 
         d = model.diagnostics
 
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -7.03141, 4)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -3.01541, 4)
 
 
 class TestHMETS_OST:
@@ -295,8 +297,8 @@ class TestHMETS_OST:
               )
 
         d = model.diagnostics
-
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -2.2878, 4)
+       
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -1.43474, 4)
 
         opt_para = model.optimized_parameters
         opt_func = model.obj_func
@@ -316,14 +318,16 @@ class TestHMETS_OST:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [1.806003e+01, 3.510955e+00, 1.195340e+01, 1.413509e+00,
-                                                  1.662893e+01, 1.794244e+01, -2.226484e-01, 1.391220e-01,
-                                                  5.429963e-02, 2.361525e-01, 2.706042e-02, -4.562373e+00,
-                                                  6.481391e-01, 5.493992e-01, 2.509283e+00, 4.213560e-01,
-                                                  1.784870e-02, 7.768531e-02, 4.568809e-03, 1.147092e-01,
-                                                  4.028124e-01], 4,
+           
+        expected_value = [ 1.777842e+01,  3.317211e+00,  5.727342e+00,  1.419491e+00,
+                          1.382141e+01,  1.637954e+01,  7.166296e-01,  1.389346e-01,
+                          2.620464e-02,  2.245525e-01,  2.839426e-02, -2.003810e+00,
+                          9.479623e-01,  4.803857e-01,  2.524914e+00,  4.117232e-01,
+                          1.950058e-02,  4.494123e-02,  1.405815e-03,  2.815803e-02,
+                          1.007823e+00]
+        np.testing.assert_almost_equal(opt_para,expected_value, 4,
                                        err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 2.2878, 4,
+        np.testing.assert_almost_equal(opt_func, 1.43474, 4,
                                        err_msg='calibrated NSE is not matching expected value')
 
         # # Random number seed: 123                       #
@@ -351,6 +355,7 @@ class TestHMETS_OST:
               longitude=-123.3659,
               params=model.calibrated_params,
               )
+    
         np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
 
 
