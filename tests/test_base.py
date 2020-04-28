@@ -76,7 +76,7 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
+        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 3,
                                        err_msg='calibrated parameter set is not matching expected value')
         np.testing.assert_almost_equal(opt_func, -0.486033, 4,
                                        err_msg='calibrated NSE is not matching expected value')
