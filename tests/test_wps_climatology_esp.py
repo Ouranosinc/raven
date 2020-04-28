@@ -22,7 +22,7 @@ class TestClimatologyESP:
                  '2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947'         
 
         #Date of the forecast that will be used to determine the members of the climatology-based ESP (same day of year of all other years)
-        forecast_date=dt.datetime(1980,7,1)
+        forecast_date=dt.datetime(1956,7,1)
         lead_time=60 # Number of days for lead time
         model = 'HMETS'
         
