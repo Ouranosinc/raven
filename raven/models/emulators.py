@@ -63,8 +63,6 @@ class MOHYSE(Raven):
         self.rvd = RV(par_rezi_x10=None)
 
     def derived_parameters(self):
-        print('self.rvh: ',self.rvh)
-        print('self.rvh.hrus: ',self.rvh.hrus)
         self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
 
 
