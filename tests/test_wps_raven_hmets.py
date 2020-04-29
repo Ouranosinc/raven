@@ -62,7 +62,7 @@ class TestRavenHMETSProcess:
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 71.9421, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 71.9223, 4, err_msg='RMSE is not matching expected value')
 
     def test_parallel(self):
         client = client_for(Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE))
