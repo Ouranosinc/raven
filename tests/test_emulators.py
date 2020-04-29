@@ -53,7 +53,7 @@ class TestGR4JCN:
 
         d = model.diagnostics
         # yields NSE=0.???? for full period 1954-2010
-        
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.117301, 2)
 
         hds = model.q_sim
@@ -101,7 +101,7 @@ class TestGR4JCN:
               suppress_output=False
               )
         d = model.diagnostics
-        
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.117301, 2)
 
     def test_overwrite(self):
@@ -206,7 +206,7 @@ class TestGR4JCN_OST:
               )
 
         d = model.diagnostics
-       
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], 0.50717, 4)
 
         # Random number seed: 123
@@ -296,7 +296,7 @@ class TestHMETS_OST:
               )
 
         d = model.diagnostics
-       
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -1.43474, 4)
 
         opt_para = model.optimized_parameters
@@ -317,7 +317,7 @@ class TestHMETS_OST:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-           
+
         expected_value = [ 1.777842e+01,  3.317211e+00,  5.727342e+00,  1.419491e+00,
                           1.382141e+01,  1.637954e+01,  7.166296e-01,  1.389346e-01,
                           2.620464e-02,  2.245525e-01,  2.839426e-02, -2.003810e+00,
@@ -354,7 +354,7 @@ class TestHMETS_OST:
               longitude=-123.3659,
               params=model.calibrated_params
               )
-    
+
         np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
 
 
@@ -363,8 +363,7 @@ class TestMOHYSE:
     def test_simple(self):
         ts = TESTDATA['raven-mohyse-nc-ts']
         model = MOHYSE()
-        params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453)
-        hrus = (0.9039, 5.6167)
+        params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6167)
 
         model(ts,
               start_date=dt.datetime(2000, 1, 1),
@@ -374,7 +373,6 @@ class TestMOHYSE:
               latitude=54.4848,
               longitude=-123.3659,
               params=params,
-              hrus=hrus,
               suppress_output=True
               )
 
@@ -386,13 +384,10 @@ class TestMOHYSE_OST():
     def test_simple(self):
         ts = TESTDATA['ostrich-mohyse-nc-ts']
         model = MOHYSE_OST()
-        params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453)
-        hrus = (0.9039, 5.6167)
+        params = (1.0, 0.0468, 4.2952, 2.658, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6167)
 
-        low_p = (0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01)
-        high_p = (20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0)
-        low_h = (0.01, 0.01)
-        high_h = (15.0, 15.0)
+        low_p = (0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01)
+        high_p = (20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0, 15.0, 15.0)
 
         model(ts,
               start_date=dt.datetime(1954, 1, 1),
@@ -402,11 +397,8 @@ class TestMOHYSE_OST():
               latitude=54.4848,
               longitude=-123.3659,
               params=params,
-              hrus=hrus,
               lowerBounds=low_p,
               upperBounds=high_p,
-              hruslowerBounds=low_h,
-              hrusupperBounds=high_h,
               algorithm='DDS',
               random_seed=0,
               max_iterations=10,
@@ -461,7 +453,7 @@ class TestMOHYSE_OST():
               longitude=-123.3659,
               params=model.calibrated_params
               )
-    
+
         np.testing.assert_almost_equal(mohyse.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
 
 class TestHBVEC:
@@ -581,5 +573,5 @@ class TestHBVEC_OST():
               longitude=-123.3659,
               params=model.calibrated_params
               )
-    
+
         np.testing.assert_almost_equal(hbvec.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
