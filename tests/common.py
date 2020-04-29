@@ -82,6 +82,7 @@ TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
 TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
 
+TESTDATA['regionalizationDB'] = TD / 'regionalisation_data' / 'gauged_catchment_properties.csv'
 
 class WpsTestClient(WpsClient):
 
