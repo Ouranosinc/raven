@@ -231,7 +231,6 @@ class TestGR4JCN_OST:
         #                                 err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal( opt_func, -0.5779910, 4,
         #                                 err_msg='calibrated NSE is not matching expected value')
-
         gr4j = GR4JCN()
         gr4j(ts,
              start_date=dt.datetime(1954, 1, 1),
@@ -240,7 +239,7 @@ class TestGR4JCN_OST:
              elevation=843.0,
              latitude=54.4848,
              longitude=-123.3659,
-             params=opt_para,
+             params=model.calibrated_params,
              )
         np.testing.assert_almost_equal(gr4j.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'])
 
@@ -266,7 +265,7 @@ class TestHMETS:
 
         d = model.diagnostics
 
-        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -3.01541, 4)
+        np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -3.0132, 4)
 
 
 class TestHMETS_OST:
@@ -353,7 +352,7 @@ class TestHMETS_OST:
               elevation=843.0,
               latitude=54.4848,
               longitude=-123.3659,
-              params=model.calibrated_params,
+              params=model.calibrated_params
               )
     
         np.testing.assert_almost_equal(hmets.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
@@ -452,7 +451,18 @@ class TestMOHYSE_OST():
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -0.3857010, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
-
+        mohyse = MOHYSE()
+        mohyse(ts,
+              start_date=dt.datetime(1954, 1, 1),
+              duration=208,
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=model.calibrated_params
+              )
+    
+        np.testing.assert_almost_equal(mohyse.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
 
 class TestHBVEC:
 
@@ -560,4 +570,16 @@ class TestHBVEC_OST():
         #                                           1.024278E+00], 4,
         #                                err_msg='calibrated parameter set is not matching expected value')
         # np.testing.assert_almost_equal(opt_func, -6.034670E-01, 4,
-#                                err_msg='calibrated NSE is not matching expected value')
+        #                                err_msg='calibrated NSE is not matching expected value')
+        hbvec = HBVEC()
+        hbvec(ts,
+              start_date=dt.datetime(1954, 1, 1),
+              duration=208,
+              area=4250.6,
+              elevation=843.0,
+              latitude=54.4848,
+              longitude=-123.3659,
+              params=model.calibrated_params
+              )
+    
+        np.testing.assert_almost_equal(hbvec.diagnostics['DIAG_NASH_SUTCLIFFE'], d['DIAG_NASH_SUTCLIFFE'], 4)
