@@ -16,19 +16,14 @@ class TestOstrichMOHYSEProcess:
     def test_simple(self):
         client = client_for(Service(processes=[OstrichMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
-        low_p = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01'
-        high_p = '20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0'
-
-        low_h = '0.01, 0.01'
-        high_h = '15.0, 15.0'
+        low_p = '0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01'
+        high_p = '20.0, 1.0, 20.0, 5.0, 0.5, 1.0, 1.0, 1.0, 15.0, 15.0'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "algorithm={algorithm};" \
                      "max_iterations={max_iterations};" \
                      "lowerBounds={low_p};" \
                      "upperBounds={high_p};" \
-                     "hruslowerBounds={low_h};" \
-                     "hrusupperBounds={high_h};" \
                      "start_date={start_date};" \
                      "duration={duration};" \
                      "name={name};" \
@@ -43,8 +38,6 @@ class TestOstrichMOHYSEProcess:
                     max_iterations=10,
                     low_p=low_p,
                     high_p=high_p,
-                    low_h=low_h,
-                    high_h=high_h,
                     start_date=dt.datetime(1954, 1, 1),
                     duration=208,
                     name='Salmon',
