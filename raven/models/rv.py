@@ -602,3 +602,42 @@ def guess_linear_transform(actual, expected):
 
     """
     # TODO : For precip we also need the frequency to sum over one day.
+
+
+def parse_solution(rvc):
+    """Parse solution file and return dictionary of parameters that can then be used to reinitialize the model."""
+    # Create a generator that will consume lines one by one.
+    lines = iter(rvc.splitlines())
+    return _parser(lines)
+
+
+def _parser(lines, indent=""):
+    import re
+    import itertools
+    header_pat = re.compile(r"(\s*):(\w+),?\s*(.*)")
+
+    out = {}
+    old_key = None
+    for line in lines:
+        header = header_pat.match(line)
+        if header:
+            new_indent, key, value = header.groups()
+            if new_indent > indent:
+                out[old_key] = _parser(itertools.chain([line,], lines), new_indent)
+            elif new_indent < indent:
+                return out
+            else:
+                if key == 'BasinIndex':
+                    i, name = value.split(',')
+                    out[key] = {i: _parser(lines, new_indent + '  '),
+                                'name': name}
+                else:
+                    out[key] = value.split(',') if ',' in value else value
+
+            old_key = key
+        else:
+            data = line.split(',')
+            i = int(data.pop(0))
+            out[i] = list(map(float, data))
+
+    return out

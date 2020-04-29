@@ -54,6 +54,9 @@ class TestGR4JCN:
         d = model.diagnostics
         # yields NSE=0.???? for full period 1954-2010
 
+        # Check parser
+        assert 1 in model.solution['HRUStateVariableTable']
+
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0371048, 2)
 
         hds = model.q_sim
