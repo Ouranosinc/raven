@@ -29,7 +29,7 @@ import six
 import xarray as xr
 
 import raven
-from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData
+from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData, parse_solution
 
 
 class Raven:
@@ -620,12 +620,17 @@ class Raven:
 
     @property
     def storage(self):
-        if self.outputs['storage'].endswith('.nc'):
+        if self.outputs['storage'].suffix == '.nc':
             return xr.open_dataset(self.outputs['storage'])
-        elif self.outputs['storage'].endswith('.zip'):
+        elif self.outputs['storage'].suffix == '.zip':
             return [xr.open_dataset(fn) for fn in self.ind_outputs['storage']]
         else:
             raise ValueError
+
+    @property
+    def solution(self):
+        if self.outputs['solution'].suffix == ".rvc":
+            return parse_solution(self.outputs['solution'].read_text())
 
     @property
     def diagnostics(self):
