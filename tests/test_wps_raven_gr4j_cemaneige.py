@@ -58,14 +58,13 @@ class TestRavenGR4JCemaNeigeProcess:
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -0.0371048, 4, err_msg='NSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, -0.117301, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2010 would be RMSE=32.8827)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-
-        np.testing.assert_almost_equal(diag, 36.562, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 37.9493, 4, err_msg='RMSE is not matching expected value')
 
         assert "rv_config" in out
         rv_config, _ = urlretrieve(out["rv_config"])

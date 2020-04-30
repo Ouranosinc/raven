@@ -82,6 +82,7 @@ src/
 testdata.json
 tests/*/*/processor_0
 tests/*/*/OstOutput*
+tests/*/*/*.nc
 
 # IPython
 .ipynb_checkpoints
