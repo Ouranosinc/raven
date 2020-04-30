@@ -10,7 +10,7 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
 from raven.models import HMETS
 import json
-import pdb
+
 import matplotlib.pyplot as plt
 
 params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
@@ -37,7 +37,7 @@ class TestRavenERA5:
               )
 
 
-#@pytest.mark.skip(reason="Hanging test due to ncML. Should be removed in a future PR")
+@pytest.mark.skip(reason="Hanging test due to ncML. Should be removed in a future PR")
 class TestRavenERA5Process:
 
     def test_simple(self, era5_hr):
@@ -78,8 +78,8 @@ class TestRavenERA5Process:
             datainputs=datainputs)
                 
         assert_response_success(resp)
-        out = get_output(resp.xml)
-        tmp,_= urlretrieve(out['hydrograph'])
-        q=xr.open_dataset(tmp)
-        plt.plot(q['q_sim'])
-        plt.show()
+#        out = get_output(resp.xml)
+#        tmp,_= urlretrieve(out['hydrograph'])
+#        q=xr.open_dataset(tmp)
+#        plt.plot(q['q_sim'])
+#        plt.show()
