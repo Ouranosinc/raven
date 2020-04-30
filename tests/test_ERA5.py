@@ -33,7 +33,7 @@ class TestRavenERA5:
               longitude=-123.3659,
               rain_snow_fraction="RAINSNOW_DINGMAN",
               tas={'linear_transform': (1.0, -273.15), 'time_shift': -.25},
-              pr={'linear_transform': (1000, 0.0), 'time_shift': -.25}
+              pr={'linear_transform': (24000.0, 0.0), 'time_shift': -.25}
               )
 
 
@@ -69,8 +69,8 @@ class TestRavenERA5Process:
                     latitude=54.4848,
                     longitude=-123.3659,
                     rain_snow_fraction="RAINSNOW_DINGMAN",
+                    pr=json.dumps({'pr': {'linear_transform': (24000.0,0.0), 'time_shift': -.25}}),
                     tas=json.dumps({'tas': {'linear_transform': (1.0, -273.15), 'time_shift': -.25}}),
-                    pr=json.dumps({'pr': {'linear_transform': (3131, 0.0), 'time_shift': -.25}}),
                     )
 
         resp = client.get(

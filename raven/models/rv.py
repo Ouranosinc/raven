@@ -290,7 +290,7 @@ class RavenNcData(RV):
             slope, intercept = lt or (1, 0)
             sf = 1 if self.scale_factor is None else self.scale_factor
             offset = 0 if self.add_offset is None else self.add_offset
-            return ":LinearTransform {:g} {:g}".format(slope * sf, offset * slope + intercept)
+            return ":LinearTransform {:.15f} {:.15f}".format(slope * sf, offset * slope + intercept)
 
     @linear_transform.setter
     def linear_transform(self, value):
@@ -378,7 +378,7 @@ class RVI(RV):
         self.latitude = None
         self.longitude = None
         self.run_index = 0
-        self.raven_version = '2.9 rev#177'
+        self.raven_version = '2.9 rev#254'
 
         self._run_name = 'run'
         self._start_date = None
