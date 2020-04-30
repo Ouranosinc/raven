@@ -3,6 +3,7 @@ import os
 import tempfile
 
 import numpy as np
+import xarray as xr
 import pytest
 
 from raven.models import Raven, GR4JCN, HMETS, MOHYSE, HBVEC, GR4JCN_OST, HMETS_OST, MOHYSE_OST, HBVEC_OST
@@ -133,6 +134,44 @@ class TestGR4JCN:
 
         d = model.diagnostics
         np.testing.assert_almost_equal(d['DIAG_NASH_SUTCLIFFE'], -0.0269642, 2)
+
+    def test_resume(self):
+        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        model0 = GR4JCN()
+        kwargs = dict(area=4250.6,
+                      elevation=843.0,
+                      latitude=54.4848,
+                      longitude=-123.3659,
+                      params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),)
+        # Reference run
+        model0(ts,
+              run_name="run_0",
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2001, 1, 1),
+                **kwargs
+              )
+
+        model1 = GR4JCN()
+        model1(ts,
+              run_name="run_1",
+              start_date=dt.datetime(2000, 1, 1),
+              end_date=dt.datetime(2000, 7, 1),
+              **kwargs
+              )
+
+        # Resume with final state
+        model1.resume()
+        assert model1.rvfiles['rvc'].content.startswith(':')
+
+        model1(ts,
+              run_name="run_2",
+              start_date=dt.datetime(2000, 7, 1),
+              end_date=dt.datetime(2001, 1, 1),
+              **kwargs
+              )
+
+        for key in ['Soil Water[0]', 'Soil Water[1]']:
+            np.testing.assert_array_almost_equal(model1.storage[1][key] - model0.storage[key], 0, 5)
 
     def test_version(self):
         model = Raven()
