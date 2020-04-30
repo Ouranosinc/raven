@@ -49,34 +49,33 @@ evaporation_options = ("PET_CONSTANT", "PET_PENMAN_MONTEITH", "PET_PENMAN_COMBIN
 class RVFile:
 
     def __init__(self, fn):
-        self.fn = Path(fn)
+        """Read the content."""
+        fn = Path(fn)
+
+        self.stem = fn.with_suffix('').with_suffix('').stem
+        self.suffixes = ''.join(fn.suffixes)
 
         self.ext = ""
-        self._store_ext()
+        self._store_ext(fn)
+
+        # Whether extension indicates an Ostrich template file.
+        self.is_tpl = fn.suffix in ['.tpl', '.txt']
 
         self.content = ""
-        self._store_content()
+        self.content = fn.read_text()
 
-    def _store_content(self):
-        self.content = self.fn.read_text()
-
-    def _store_ext(self):
+    def _store_ext(self, fn):
         try:
-            self.ext = self.fn.suffixes[0][1:]
+            self.ext = fn.suffixes[0][1:]
         except IndexError as e:
-            msg = "\nFile {} does not look like a valid Raven/Ostrich config file.".format(self.fn)
+            msg = "\nFile {} does not look like a valid Raven/Ostrich config file.".format(fn)
             raise ValueError(msg) from e
 
-    @property
-    def is_tpl(self):
-        return self.fn.suffix in ['.tpl', '.txt']
-
-    @property
-    def stem(self):
-        return Path(self.fn.stem).stem
+    def rename(self, name):
+        self.stem = name
 
     def write(self, path, **kwds):
-        fn = path / self.fn.name
+        fn = (path / self.stem).with_suffix(self.suffixes)
 
         content = self.content
         if kwds:
