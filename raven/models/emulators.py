@@ -51,19 +51,18 @@ class MOHYSE(Raven):
     identifier = 'mohyse'
     templates = tuple((Path(__file__).parent / 'raven-mohyse').glob("*.rv?"))
 
-    params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 9)]))
-    hrus = namedtuple('MOHYSEHRU', ('par_x09', 'par_x10'))
+    params = namedtuple('MOHYSEParams', ', '.join(['par_x{:02}'.format(i) for i in range(1, 11)]))
 
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
-        self.rvp = RV(params=MOHYSE.params(*((None,) * 8)))
-        self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None, hrus=MOHYSE.hrus(None, None))
+        self.rvp = RV(params=MOHYSE.params(*((None,) * 10)))
+        self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI(evaporation="PET_MOHYSE", rain_snow_fraction="RAINSNOW_DATA")
         self.rvd = RV(par_rezi_x10=None)
 
     def derived_parameters(self):
-        self.rvd['par_rezi_x10'] = 1.0 / self.rvh.hrus.par_x10
+        self.rvd['par_rezi_x10'] = 1.0 / self.rvp.params.par_x10
 
 
 class MOHYSE_OST(Ostrich, MOHYSE):
@@ -75,10 +74,8 @@ class MOHYSE_OST(Ostrich, MOHYSE):
         self.rvi.suppress_output = True
         self.txt = Ost(algorithm='DSS',
                        max_iterations=50,
-                       lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
-                       upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None),
-                       hruslowerBounds=MOHYSE.hrus(None, None),
-                       hrusupperBounds=MOHYSE.hrus(None, None)
+                       lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None, None, None),
+                       upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None, None, None),
                        )
 
     def derived_parameters(self):
@@ -110,8 +107,8 @@ class HMETS(GR4JCN):
         self.rvd['PHREATIC_hlf'] = self.rvp.params.PHREATIC * 0.5
         self.rvd['TOPSOIL_m'] = self.rvp.params.TOPSOIL / 1000.
         self.rvd['PHREATIC_m'] = self.rvp.params.PHREATIC / 1000.
-        self.rvd['SUM_MELT_FACTOR'] = self.rvp.params.MIN_MELT_FACTOR + self.rvp.params.MAX_MELT_FACTOR
-        self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MIN + self.rvp.params.SNOW_SWI_MAX
+        self.rvd['SUM_MELT_FACTOR'] = self.rvp.params.MAX_MELT_FACTOR   # self.rvp.params.MIN_MELT_FACTOR +
+        self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MAX         # self.rvp.params.SNOW_SWI_MIN +
 
 
 class HMETS_OST(Ostrich, HMETS):
