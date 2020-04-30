@@ -123,9 +123,9 @@ class TestRavenNcData:
 
     def test_linear_transform(self):
         v = RavenNcData(var='tasmin', path='/path/tasmin.nc', var_name='tn', unit='deg_C', dimensions=['time', ],
-                        linear_transform=(24000, 0))
+                        linear_transform=(24000.0, 0.0))
 
-        assert ":LinearTransform 24000 0" in str(v)
+        assert ":LinearTransform 24000.000000000000000 0.000000000000000" in str(v)
 
 
 class TestMonthlyAve:
