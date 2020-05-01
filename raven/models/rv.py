@@ -545,6 +545,161 @@ class RVI(RV):
             raise ValueError(f"Value {v} should be one of {evaporation_options}.")
 
 
+class RVC(RV):
+    def __init__(self):
+
+        # HRU State Variables
+        self.surface_water = 0
+        self.atmosphere = 0
+        self.atmos_precip = 0
+        self.ponded_water = 0
+        self.soil0 = 0
+        self.soil1 = 0
+        self.soil2 = 0
+        self.soil3 = 0
+        self.snow_temp = 0
+        self.snow = 0
+        self.snow_cover = 0
+        self.aet = 0
+        self.convolution0 = 0
+        self.convolution1 = 0
+        self.conv_stor0 = 0
+        self.conv_stor1 = 0
+        self.conv_stor2 = 0
+        self.conv_stor3 = 0
+        self.conv_stor4 = 0
+        self.conv_stor5 = 0
+        self.conv_stor6 = 0
+        self.conv_stor7 = 0
+        self.conv_stor8 = 0
+        self.conv_stor9 = 0
+        self.conv_stor10 = 0
+        self.conv_stor11 = 0
+        self.conv_stor12 = 0
+        self.conv_stor13 = 0
+        self.conv_stor14 = 0
+        self.conv_stor15 = 0
+        self.conv_stor16 = 0
+        self.conv_stor17 = 0
+        self.conv_stor18 = 0
+        self.conv_stor19 = 0
+        self.conv_stor20 = 0
+        self.conv_stor21 = 0
+        self.conv_stor22 = 0
+        self.conv_stor23 = 0
+        self.conv_stor24 = 0
+        self.conv_stor25 = 0
+        self.conv_stor26 = 0
+        self.conv_stor27 = 0
+        self.conv_stor28 = 0
+        self.conv_stor29 = 0
+        self.conv_stor30 = 0
+        self.conv_stor31 = 0
+        self.conv_stor32 = 0
+        self.conv_stor33 = 0
+        self.conv_stor34 = 0
+        self.conv_stor35 = 0
+        self.conv_stor36 = 0
+        self.conv_stor37 = 0
+        self.conv_stor38 = 0
+        self.conv_stor39 = 0
+        self.conv_stor40 = 0
+        self.conv_stor41 = 0
+        self.conv_stor42 = 0
+        self.conv_stor43 = 0
+        self.conv_stor44 = 0
+        self.conv_stor45 = 0
+        self.conv_stor46 = 0
+        self.conv_stor47 = 0
+        self.conv_stor48 = 0
+        self.conv_stor49 = 0
+        self.conv_stor50 = 0
+        self.conv_stor51 = 0
+        self.conv_stor52 = 0
+        self.conv_stor53 = 0
+        self.conv_stor54 = 0
+        self.conv_stor55 = 0
+        self.conv_stor56 = 0
+        self.conv_stor57 = 0
+        self.conv_stor58 = 0
+        self.conv_stor59 = 0
+        self.conv_stor60 = 0
+        self.conv_stor61 = 0
+        self.conv_stor62 = 0
+        self.conv_stor63 = 0
+        self.conv_stor64 = 0
+        self.conv_stor65 = 0
+        self.conv_stor66 = 0
+        self.conv_stor67 = 0
+        self.conv_stor68 = 0
+        self.conv_stor69 = 0
+        self.conv_stor70 = 0
+        self.conv_stor71 = 0
+        self.conv_stor72 = 0
+        self.conv_stor73 = 0
+        self.conv_stor74 = 0
+        self.conv_stor75 = 0
+        self.conv_stor76 = 0
+        self.conv_stor77 = 0
+        self.conv_stor78 = 0
+        self.conv_stor79 = 0
+        self.conv_stor80 = 0
+        self.conv_stor81 = 0
+        self.conv_stor82 = 0
+        self.conv_stor83 = 0
+        self.conv_stor84 = 0
+        self.conv_stor85 = 0
+        self.conv_stor86 = 0
+        self.conv_stor87 = 0
+        self.conv_stor88 = 0
+        self.conv_stor89 = 0
+        self.conv_stor90 = 0
+        self.conv_stor91 = 0
+        self.conv_stor92 = 0
+        self.conv_stor93 = 0
+        self.conv_stor94 = 0
+        self.conv_stor95 = 0
+        self.conv_stor96 = 0
+        self.conv_stor97 = 0
+        self.conv_stor98 = 0
+        self.conv_stor99 = 0
+
+        # Basin state variables
+        self.channelstorage = 0
+        self.rivuletstorage = 0
+        self.qout = [0, 0]
+        self.qlat = [0, 0, 0, 0]
+        self.qin = 21 * [0, ]
+
+    def initialize(self, path):
+        """Set initial conditions based on *solution* output file.
+
+        Parameters
+        ----------
+        path : str, Path
+          Path to `solution.rvc` file.
+        """
+        with open(path) as f:
+            rvc = parse_solution(f.read())
+
+        rvc['HRUStateVariableTable']
+
+    @property
+    def hru_state(self):
+
+    @property
+    def basin_state(self):
+        """Return basin state variables."""
+        pat = """
+              :BasinIndex 1,None
+                :ChannelStorage, {self.channelstorage}
+                :RivuletStorage, {self.rivuletstorage}
+                :Qout,1,{self.qout}
+                :Qlat,3,{self.qlat}
+                :Qin ,{self.qin}
+            """
+        return
+
 class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
@@ -604,8 +759,15 @@ def guess_linear_transform(actual, expected):
 
 
 def parse_solution(rvc):
-    """Parse solution file and return dictionary of parameters that can then be used to reinitialize the model."""
+    """Parse solution file and return dictionary of parameters that can then be used to reinitialize the model.
+
+    Parameters
+    ----------
+    rvc : str
+      Content of a solution.rvc file.
+    """
     # Create a generator that will consume lines one by one.
+    # tags = ['{i.' + a.lower().replace('[', '').replace(']', '') + '}' for a in atts]
     lines = iter(rvc.splitlines())
     return _parser(lines)
 
