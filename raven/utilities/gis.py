@@ -234,7 +234,11 @@ def get_raster_wcs(
         return data
 
 
-def select_hybas_domain(bbox: Tuple[Union[int, float]]) -> str:
+def select_hybas_domain(
+    bbox: Tuple[
+        Union[int, float], Union[int, float], Union[int, float], Union[int, float]
+    ]
+) -> str:
     """
     Provided a given coordinate or boundary box, return the domain name of the geographic region
      the coordinate is located within.
@@ -251,15 +255,13 @@ def select_hybas_domain(bbox: Tuple[Union[int, float]]) -> str:
     """
 
     for dom, fn in hybas_domains.items():
-        with open(fn, 'rb') as f:
+        with open(fn, "rb") as f:
             zf = fiona.io.ZipMemoryFile(f)
             coll = zf.open(fn.stem + ".shp")
             for _ in coll.filter(bbox=bbox):
                 return dom
 
-    raise LookupError(
-        "Could not find feature containing bbox {}.".format(bbox)
-    )
+    raise LookupError("Could not find feature containing bbox {}.".format(bbox))
 
 
 def get_hydrobasins_location_wfs(

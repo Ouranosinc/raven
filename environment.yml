@@ -14,7 +14,7 @@ dependencies:
 - click
 - psutil
 - numpy
-- scipy<1.3
+- scipy
 - xarray==0.13
 - xclim==0.12.2
 - matplotlib
@@ -44,3 +44,4 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
+  - salem

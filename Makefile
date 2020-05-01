@@ -14,7 +14,7 @@ PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.continuum.io/miniconda
-RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev245.zip
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev254.zip
 RAVEN_SRC    = $(CURDIR)/src/RAVEN
 OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
 OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
@@ -174,7 +174,15 @@ test:
 .PHONY: test_nb
 test_nb:
 	@echo "Running notebook-based tests"
-	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV);env RAVEN_WPS_URL=$(RAVEN_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV)"
+	@bash -c "curl -L https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg --output $(CURDIR)/docs/source/output_sanitize.cfg --silent"
+	@bash -c "env RAVEN_WPS_URL=$(RAVEN_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+
+# .PHONY: test-notebooks
+# test-notebooks:
+# 	@echo "Running notebook-based tests"
+# 	@bash -c "curl -L https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg --output $(CURDIR)/docs/source/output_sanitize.cfg --silent"
+# 	@bash -c "env FINCH_WPS_URL=$(FINCH_WPS_URL) pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output_sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: test_pdb
 test_pdb:
