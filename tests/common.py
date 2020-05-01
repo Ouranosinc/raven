@@ -132,19 +132,20 @@ def get_output(doc):
 
 
 def synthetic_gr4j_inputs(path):
+
     time = pd.date_range(start='2000-07-01', end='2002-07-01', freq='D')
 
     pr = 3 * np.ones(len(time))
     pr = xr.DataArray(pr, coords={'time': time}, dims='time', name='pr')
-    pr.to_netcdf(os.path.join(path, 'pr.nc'))
+    pr.to_netcdf(Path(path).joinpath('pr.nc'))
 
     tas = 280 + 20 * np.cos(np.arange(len(time)) * 2 * np.pi / 365.)
     tas = xr.DataArray(tas, coords={'time': time}, dims='time', name='tas')
-    tas.to_netcdf(os.path.join(path, 'tas.nc'))
+    tas.to_netcdf(Path(path).joinpath('tas.nc'))
 
     evap = 3 + 3 * np.cos(-30 + np.arange(len(time)) * 2 * np.pi / 365.)
     evap = xr.DataArray(evap, coords={'time': time}, dims='time', name='evap')
-    evap.to_netcdf(os.path.join(path, 'evap.nc'))
+    evap.to_netcdf(Path(path).joinpath('evap.nc'))
 
 
 def make_bnds(params, delta):
