@@ -10,14 +10,12 @@ from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
 from raven.models import HMETS
 import json
-
 import matplotlib.pyplot as plt
 
 params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
           2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
 
 
-@pytest.mark.skip(reason="Hanging test due to ncML. Should be removed in a future PR")
 class TestRavenERA5:
     def test_simple(self, era5_hr):
         model = HMETS()
@@ -37,7 +35,6 @@ class TestRavenERA5:
               )
 
 
-@pytest.mark.skip(reason="Hanging test due to ncML. Should be removed in a future PR")
 class TestRavenERA5Process:
 
     def test_simple(self, era5_hr):
@@ -69,14 +66,13 @@ class TestRavenERA5Process:
                     latitude=54.4848,
                     longitude=-123.3659,
                     rain_snow_fraction="RAINSNOW_DINGMAN",
-                    pr=json.dumps({'pr': {'linear_transform': (24000.0,0.0), 'time_shift': -.25}}),
+                    pr=json.dumps({'pr': {'linear_transform': (24000.0, 0.0), 'time_shift': -.25}}),
                     tas=json.dumps({'tas': {'linear_transform': (1.0, -273.15), 'time_shift': -.25}}),
                     )
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='raven-hmets',
             datainputs=datainputs)
-                
         assert_response_success(resp)
 #        out = get_output(resp.xml)
 #        tmp,_= urlretrieve(out['hydrograph'])
