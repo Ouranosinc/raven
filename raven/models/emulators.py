@@ -247,3 +247,11 @@ def get_model(name):
         raise ValueError("Model {} is not recognized.".format(name))
 
     return model_cls
+
+
+def used_storage_variables(fn):
+    """Identify variables that are used by the model."""
+    import xarray as xr
+    ds = xr.open_dataset(fn)
+    return [(key, da.isel(time=-1).values.tolist(), da.units) for key, da in ds.data_vars.items() if any(ds[key] != 0)]
+

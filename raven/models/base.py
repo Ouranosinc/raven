@@ -5,13 +5,7 @@ Classes
 -------
 
 Raven : A generic class that knows how to launch the model from completed rv files.
-
-
-
-
-
-GR4JCemaneige: The Raven emulator for GR4J-Cemaneige. Uses template configuration files whose value can be
-automatically filled in.
+Ostrich:
 
 """
 import csv
