@@ -81,6 +81,8 @@ TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
 TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
 
+TESTDATA['floodrisk_ens'] = TD / 'flood_risk' / 'XSS_fcst_ens.nc'
+TESTDATA['floodrisk_det'] = TD / 'flood_risk' / 'XSS_fcst_det.nc'
 
 class WpsTestClient(WpsClient):
 
