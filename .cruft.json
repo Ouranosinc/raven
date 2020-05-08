@@ -1,6 +1,11 @@
 {
     "template": "https://github.com/bird-house/cookiecutter-birdhouse",
     "commit": "fd0a26690e295e5287b5a24bd87e0c8fcd726d11",
+    "skip": [
+        "raven/processes/wps_say_hello.py",
+        "tests/test_wps_hello.py",
+        "docs/source/notebooks/example.ipynb"
+    ],
     "context": {
         "cookiecutter": {
             "full_name": "David Huard",

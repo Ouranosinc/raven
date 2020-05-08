@@ -92,3 +92,6 @@ tests/*/*/*.nc
 *.a
 *.mod
 *.out
+
+# Merge conflict
+*.orig
