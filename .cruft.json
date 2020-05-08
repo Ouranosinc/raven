@@ -1,0 +1,22 @@
+{
+    "template": "https://github.com/bird-house/cookiecutter-birdhouse",
+    "commit": "fd0a26690e295e5287b5a24bd87e0c8fcd726d11",
+    "context": {
+        "cookiecutter": {
+            "full_name": "David Huard",
+            "email": "huard.david@ouranos.ca",
+            "github_username": "Ouranosinc",
+            "project_name": "Raven",
+            "project_slug": "raven",
+            "project_repo_name": "raven",
+            "project_short_description": "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
+            "version": "0.1.0",
+            "open_source_license": "MIT license",
+            "http_port": "9099",
+            "_copy_without_render": [
+                "{{cookiecutter.project_slug}}/templates/*.cfg"
+            ],
+            "_template": "https://github.com/bird-house/cookiecutter-birdhouse"
+        }
+    }
+}
