@@ -15,7 +15,7 @@
             "project_slug": "raven",
             "project_repo_name": "raven",
             "project_short_description": "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
-            "version": "0.1.0",
+            "version": "0.10.0",
             "open_source_license": "MIT license",
             "http_port": "9099",
             "_copy_without_render": [
