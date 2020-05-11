@@ -686,6 +686,8 @@ class RVC(RV):
 
     @property
     def hru_state(self):
+        pass
+    # To be completed
 
     @property
     def basin_state(self):
