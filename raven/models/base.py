@@ -417,12 +417,22 @@ class Raven:
             print(msg)
             raise e
 
-    def resume(self):
+    def resume(self, solution=None):
         """Set the initial state to the state at the end of the last run.
+
+        Parameters
+        ----------
+        solution : str, Path
+          Path to solution file. If None, will use solution from last model run if any.
 
         Note that the starting date of the next run should be identical to the end date of the previous run.
         """
-        rvc = RVFile(self.outputs['solution'])
+        if solution is None:
+            fn = self.outputs['solution']
+        else:
+            fn = solution
+
+        rvc = RVFile(fn)
         rvc.rename(self.name)
         self.rvfiles['rvc'] = rvc
 
