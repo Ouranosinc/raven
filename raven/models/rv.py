@@ -4,6 +4,7 @@ import collections
 from pathlib import Path
 from xclim.utils import units
 from xclim.utils import units2pint
+from . state import HRUStateVariables, BasinStateVariables
 
 # Can be removed when xclim is pinned above 0.14
 units.define("deg_C = degC")
@@ -44,6 +45,8 @@ rain_snow_fraction_options = ("RAINSNOW_DATA", "RAINSNOW_DINGMAN", "RAINSNOW_UBC
 evaporation_options = ("PET_CONSTANT", "PET_PENMAN_MONTEITH", "PET_PENMAN_COMBINATION", "PET_PRIESTLEY_TAYLOR",
                        "PET_HARGREAVES", "PET_HARGREAVES_1985", "PET_FROMMONTHLY", "PET_DATA", "PET_HAMON_1961",
                        "PET_TURC_1961", "PET_MAKKINK_1957", "PET_MONTHLY_FACTOR", "PET_MOHYSE", "PET_OUDIN")
+
+state_variables = ()
 
 
 class RVFile:
@@ -547,160 +550,56 @@ class RVI(RV):
 
 class RVC(RV):
     def __init__(self):
+        self._hru_state = {}
+        self._basin_state = {}
 
-        # HRU State Variables
-        self.surface_water = 0
-        self.atmosphere = 0
-        self.atmos_precip = 0
-        self.ponded_water = 0
-        self.soil0 = 0
-        self.soil1 = 0
-        self.soil2 = 0
-        self.soil3 = 0
-        self.snow_temp = 0
-        self.snow = 0
-        self.snow_cover = 0
-        self.aet = 0
-        self.convolution0 = 0
-        self.convolution1 = 0
-        self.conv_stor0 = 0
-        self.conv_stor1 = 0
-        self.conv_stor2 = 0
-        self.conv_stor3 = 0
-        self.conv_stor4 = 0
-        self.conv_stor5 = 0
-        self.conv_stor6 = 0
-        self.conv_stor7 = 0
-        self.conv_stor8 = 0
-        self.conv_stor9 = 0
-        self.conv_stor10 = 0
-        self.conv_stor11 = 0
-        self.conv_stor12 = 0
-        self.conv_stor13 = 0
-        self.conv_stor14 = 0
-        self.conv_stor15 = 0
-        self.conv_stor16 = 0
-        self.conv_stor17 = 0
-        self.conv_stor18 = 0
-        self.conv_stor19 = 0
-        self.conv_stor20 = 0
-        self.conv_stor21 = 0
-        self.conv_stor22 = 0
-        self.conv_stor23 = 0
-        self.conv_stor24 = 0
-        self.conv_stor25 = 0
-        self.conv_stor26 = 0
-        self.conv_stor27 = 0
-        self.conv_stor28 = 0
-        self.conv_stor29 = 0
-        self.conv_stor30 = 0
-        self.conv_stor31 = 0
-        self.conv_stor32 = 0
-        self.conv_stor33 = 0
-        self.conv_stor34 = 0
-        self.conv_stor35 = 0
-        self.conv_stor36 = 0
-        self.conv_stor37 = 0
-        self.conv_stor38 = 0
-        self.conv_stor39 = 0
-        self.conv_stor40 = 0
-        self.conv_stor41 = 0
-        self.conv_stor42 = 0
-        self.conv_stor43 = 0
-        self.conv_stor44 = 0
-        self.conv_stor45 = 0
-        self.conv_stor46 = 0
-        self.conv_stor47 = 0
-        self.conv_stor48 = 0
-        self.conv_stor49 = 0
-        self.conv_stor50 = 0
-        self.conv_stor51 = 0
-        self.conv_stor52 = 0
-        self.conv_stor53 = 0
-        self.conv_stor54 = 0
-        self.conv_stor55 = 0
-        self.conv_stor56 = 0
-        self.conv_stor57 = 0
-        self.conv_stor58 = 0
-        self.conv_stor59 = 0
-        self.conv_stor60 = 0
-        self.conv_stor61 = 0
-        self.conv_stor62 = 0
-        self.conv_stor63 = 0
-        self.conv_stor64 = 0
-        self.conv_stor65 = 0
-        self.conv_stor66 = 0
-        self.conv_stor67 = 0
-        self.conv_stor68 = 0
-        self.conv_stor69 = 0
-        self.conv_stor70 = 0
-        self.conv_stor71 = 0
-        self.conv_stor72 = 0
-        self.conv_stor73 = 0
-        self.conv_stor74 = 0
-        self.conv_stor75 = 0
-        self.conv_stor76 = 0
-        self.conv_stor77 = 0
-        self.conv_stor78 = 0
-        self.conv_stor79 = 0
-        self.conv_stor80 = 0
-        self.conv_stor81 = 0
-        self.conv_stor82 = 0
-        self.conv_stor83 = 0
-        self.conv_stor84 = 0
-        self.conv_stor85 = 0
-        self.conv_stor86 = 0
-        self.conv_stor87 = 0
-        self.conv_stor88 = 0
-        self.conv_stor89 = 0
-        self.conv_stor90 = 0
-        self.conv_stor91 = 0
-        self.conv_stor92 = 0
-        self.conv_stor93 = 0
-        self.conv_stor94 = 0
-        self.conv_stor95 = 0
-        self.conv_stor96 = 0
-        self.conv_stor97 = 0
-        self.conv_stor98 = 0
-        self.conv_stor99 = 0
-
-        # Basin state variables
-        self.channelstorage = 0
-        self.rivuletstorage = 0
-        self.qout = [0, 0]
-        self.qlat = [0, 0, 0, 0]
-        self.qin = 21 * [0, ]
-
-    def initialize(self, path):
+    def parse(self, rvc):
         """Set initial conditions based on *solution* output file.
 
         Parameters
         ----------
-        path : str, Path
-          Path to `solution.rvc` file.
+        path : file-like object
+          `solution.rvc` file.
         """
-        with open(path) as f:
-            rvc = parse_solution(f.read())
 
-        rvc['HRUStateVariableTable']
+        rvc = parse_solution(rvc.read())
+        for index, data in rvc['HRUStateVariableTable']['data'].items():
+            self._hru_state[index] = HRUStateVariables(*data)
+
+        for index, raw in rvc["BasinStateVariables"]["BasinIndex"].items():
+            data = {k.lower(): v for (k, v) in raw.items()}
+            self._basin_state[index] = BasinStateVariables(**data)
+
+        return
 
     @property
     def hru_state(self):
-        pass
-    # To be completed
+        """Return HRU state values."""
+        txt = []
+        for index, data in self._hru_state.items():
+            txt.append(f"{index}," + ",".join(map(repr, data)))
+
+        return "\n".join(txt)
 
     @property
     def basin_state(self):
         """Return basin state variables."""
         pat = """
-              :BasinIndex 1,None
-                :ChannelStorage, {self.channelstorage}
-                :RivuletStorage, {self.rivuletstorage}
-                :Qout,1,{self.qout}
-                :Qlat,3,{self.qlat}
-                :Qin ,{self.qin}
+              :BasinIndex {index},{name}
+                :ChannelStorage, {channelstorage}
+                :RivuletStorage, {rivuletstorage}
+                :Qout,{qout_n},{qout}
+                :Qlat,{qlat_n},{qlat}
+                :Qin ,{qin_n}, {qin}
             """
-        return
+        txt = []
+        for index, data in self._basin_state.items():
+            txt.append(pat.format(**data._asdict(), qout_n=len(data.qout) - 1,
+                                  qlat_n=len(data.qlat) - 1,
+                                  qin_n=len(data.qin))
+                       )
+        return "\n".join(txt).replace('[', '').replace(']', '')
+
 
 class Ost(RV):
     def __init__(self, **kwargs):
@@ -774,12 +673,12 @@ def parse_solution(rvc):
     return _parser(lines)
 
 
-def _parser(lines, indent=""):
+def _parser(lines, indent="", fmt=str):
     import re
     import itertools
-    header_pat = re.compile(r"(\s*):(\w+),?\s*(.*)")
+    header_pat = re.compile(r"(\s*):(\w+)\s?,?\s*(.*)")
 
-    out = {}
+    out = collections.defaultdict(dict)
     old_key = None
     for line in lines:
         header = header_pat.match(line)
@@ -792,15 +691,18 @@ def _parser(lines, indent=""):
             else:
                 if key == 'BasinIndex':
                     i, name = value.split(',')
-                    out[key] = {i: _parser(lines, new_indent + '  '),
-                                'name': name}
+                    i = int(i)
+                    out[key][i] = dict(index=i, name=name, **_parser(lines, new_indent + '  ', float))
+                elif key in ["Qlat", "Qout", "Qin"]:
+                    n, *values = value.split(',')
+                    out[key] = list(map(float, values))
                 else:
-                    out[key] = value.split(',') if ',' in value else value
+                    out[key] = list(map(fmt, value.split(','))) if ',' in value else fmt(value)
 
             old_key = key
         else:
             data = line.split(',')
             i = int(data.pop(0))
-            out[i] = list(map(float, data))
+            out['data'][i] = list(map(float, data))
 
     return out
