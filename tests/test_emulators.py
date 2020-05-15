@@ -137,33 +137,36 @@ class TestGR4JCN:
 
     def test_resume(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-        model0 = GR4JCN()
+        model_ab = GR4JCN()
         kwargs = dict(area=4250.6,
                       elevation=843.0,
                       latitude=54.4848,
                       longitude=-123.3659,
                       params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),)
         # Reference run
-        model0(ts,
-              run_name="run_0",
+        model_ab(ts,
+              run_name="run_ab",
               start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2001, 1, 1),
                 **kwargs
               )
 
-        model1 = GR4JCN()
-        model1(ts,
-              run_name="run_1",
+        model_a = GR4JCN()
+        model_a(ts,
+              run_name="run_a",
               start_date=dt.datetime(2000, 1, 1),
               end_date=dt.datetime(2000, 7, 1),
               **kwargs
               )
 
-        # Resume with final state
-        model1.resume()
-        assert model1.rvfiles['rvc'].content.startswith(':')
+        # Path to solution file from run A
+        rvc = model_a.outputs['solution']  # <------- Richard, this is where the solution is.
 
-        model1(ts,
+        # Resume with final state from live model
+        model_a.resume()
+        assert model_a.rvfiles['rvc'].content.startswith(':')
+
+        model_a(ts,
               run_name="run_2",
               start_date=dt.datetime(2000, 7, 1),
               end_date=dt.datetime(2001, 1, 1),
@@ -171,7 +174,26 @@ class TestGR4JCN:
               )
 
         for key in ['Soil Water[0]', 'Soil Water[1]']:
-            np.testing.assert_array_almost_equal(model1.storage[1][key] - model0.storage[key], 0, 5)
+            np.testing.assert_array_almost_equal(model_a.storage[1][key] - model_ab.storage[key], 0, 5)
+
+        # Resume with final state from saved solution file
+        model_b = GR4JCN()
+        model_b.resume(rvc)  # <--------- And this is how you feed it to a brand new model.
+        model_b(ts,
+                run_name="run_2",
+                start_date=dt.datetime(2000, 7, 1),
+                end_date=dt.datetime(2001, 1, 1),
+                **kwargs
+                )
+
+        for key in ['Soil Water[0]', 'Soil Water[1]']:
+            np.testing.assert_array_almost_equal(model_b.storage[key] - model_ab.storage[key], 0, 5)
+
+        # model.solution loads the solution in a dictionary. I expected the variables to be identical,
+        # but some atmosphere related attributes are way off. Is it possible that `ATMOSPHERE` and `ATMOS_PRECIP` are
+        # cumulative sums of precipitation over the run ?
+        # assert model_b.solution == model_ab.solution # This does not work. Atmosphere attributes are off.
+
 
     def test_version(self):
         model = Raven()

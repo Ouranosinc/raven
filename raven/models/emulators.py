@@ -2,7 +2,7 @@ from collections import namedtuple
 from pathlib import Path
 
 from raven.models import Raven, Ostrich
-from .rv import RV, RVT, RVI, Ost, RavenNcData, MonthlyAverage
+from .rv import RV, RVT, RVI, RVC, Ost, RavenNcData, MonthlyAverage
 
 nc = RavenNcData
 std_vars = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", "evspsbl", "water_volume_transport_in_river_channel")
@@ -22,6 +22,7 @@ class GR4JCN(Raven):
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI(rain_snow_fraction="RAINSNOW_DINGMAN", evaporation="PET_OUDIN")
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
+        self.rvc = RVC()
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
 
     def derived_parameters(self):
