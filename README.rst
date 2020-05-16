@@ -34,17 +34,11 @@ Raven can be compiled and installed, or simply deployed using docker. A hosted v
 Documentation
 -------------
 
-Get started with notebook tutorials in the official documentation at https://pavics-raven.readthedocs.io
-
-<<<<<<<
-Submit bug reports, questions and feature requests at https://github.com/Ouranosinc/raven/issues
-
-=======
-Documentation
--------------
-
 Learn more about Raven in its official documentation at
-https://raven.readthedocs.io.
+https://pavics-raven.readthedocs.io.
+
+Submit bug reports, questions and feature requests at
+https://github.com/Ouranosinc/raven/issues
 
 Contributing
 ------------
@@ -57,7 +51,6 @@ License
 -------
 
 Free software: MIT license
->>>>>>>
 
 Credits
 -------
@@ -68,22 +61,12 @@ Hydrological models are based on the `Raven`_ modeling framework.
 
 This package was created with Cookiecutter_ and the `bird-house/cookiecutter-birdhouse`_ project template.
 
-
-License
--------
-
-Raven is released under the MIT License.
-
-
 .. _`birdy`: https://birdy.readthedocs.io
 .. _`xarray`: http://xarray.pydata.org
 .. _`xclim`: https://xclim.readthedocs.io
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
-<<<<<<<
 .. _`Raven`: http://raven.uwaterloo.ca
 .. _`CANARIE`: https://www.canarie.ca
-=======
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
 .. _`Developer Guide`: https://raven.readthedocs.io/en/latest/dev_guide.html
 .. _bumpversion: https://raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
->>>>>>>
