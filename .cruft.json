@@ -1,6 +1,6 @@
 {
-    "template": "https://github.com/bird-house/cookiecutter-birdhouse",
-    "commit": "fd0a26690e295e5287b5a24bd87e0c8fcd726d11",
+    "template": "https://github.com/tlvu/cookiecutter-birdhouse",
+    "commit": "dd5be4a9420c29fe9a16dcdfbe9b0b7ffa0a63c9",
     "skip": [
         "raven/processes/wps_say_hello.py",
         "tests/test_wps_hello.py",
@@ -27,7 +27,7 @@
             "_copy_without_render": [
                 "{{cookiecutter.project_slug}}/templates/*.cfg"
             ],
-            "_template": "https://github.com/bird-house/cookiecutter-birdhouse"
+            "_template": "https://github.com/tlvu/cookiecutter-birdhouse"
         }
     }
 }

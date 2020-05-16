@@ -10,6 +10,14 @@ def test_wps_caps():
     names = resp.xpath_text('/wps:Capabilities'
                             '/wps:ProcessOfferings'
                             '/wps:Process'
+<<<<<<<
+=======
+                            '/wps:Process'
+                            '/ows:Identifier')
+    assert sorted(names.split()) == [
+        'hello',
+    ]
+>>>>>>>
                             '/ows:Identifier')
     sn = set(names.split())
 

@@ -36,8 +36,28 @@ Documentation
 
 Get started with notebook tutorials in the official documentation at https://pavics-raven.readthedocs.io
 
+<<<<<<<
 Submit bug reports, questions and feature requests at https://github.com/Ouranosinc/raven/issues
 
+=======
+Documentation
+-------------
+
+Learn more about Raven in its official documentation at
+https://raven.readthedocs.io.
+
+Contributing
+------------
+
+You can find information about contributing in our `Developer Guide`_.
+
+Please use bumpversion_ to release a new version.
+
+License
+-------
+
+Free software: MIT license
+>>>>>>>
 
 Credits
 -------
@@ -60,5 +80,10 @@ Raven is released under the MIT License.
 .. _`xclim`: https://xclim.readthedocs.io
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
+<<<<<<<
 .. _`Raven`: http://raven.uwaterloo.ca
 .. _`CANARIE`: https://www.canarie.ca
+=======
+.. _`Developer Guide`: https://raven.readthedocs.io/en/latest/dev_guide.html
+.. _bumpversion: https://raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
+>>>>>>>
