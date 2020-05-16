@@ -10,7 +10,8 @@
         "requirements.txt",
         "docs/source/notebooks/index.rst",
         "docs/source/processes.rst",
-        "raven/processes/__init__.py"
+        "raven/processes/__init__.py",
+        "tests/test_wps_caps.py"
     ],
     "context": {
         "cookiecutter": {
