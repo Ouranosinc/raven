@@ -68,5 +68,5 @@ This package was created with Cookiecutter_ and the `bird-house/cookiecutter-bir
 .. _`CANARIE`: https://www.canarie.ca
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
-.. _`Developer Guide`: https://raven.readthedocs.io/en/latest/dev_guide.html
-.. _bumpversion: https://raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
+.. _`Developer Guide`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html
+.. _bumpversion: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
