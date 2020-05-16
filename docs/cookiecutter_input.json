@@ -2,7 +2,7 @@
     "_copy_without_render": [
         "{{cookiecutter.project_slug}}/templates/*.cfg"
     ],
-    "_template": "https://github.com/tlvu/cookiecutter-birdhouse",
+    "_template": "https://github.com/bird-house/cookiecutter-birdhouse",
     "email": "huard.david@ouranos.ca",
     "full_name": "David Huard",
     "github_username": "Ouranosinc",
