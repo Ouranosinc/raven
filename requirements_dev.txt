@@ -1,11 +1,24 @@
--r requirements.txt
 pytest
 pytest-dependency
 pytest-notebook
 flake8
+<<<<<<<
 bump2version
+=======
+pytest-flake8
+ipython
+pytest-notebook
+nbsphinx
+nbval
+nbconvert
+>>>>>>>
 sphinx>=1.7
+<<<<<<<
 sphinx-autoapi
+=======
+bump2version
+twine
+>>>>>>>
 nbsphinx
 nbval
 urlpath

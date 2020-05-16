@@ -14,8 +14,15 @@ User documentation
 .. toctree::
    :maxdepth: 1
 
+<<<<<<<
    getting_started
    notebooks/index
+=======
+   installation
+   configuration
+   notebooks/index
+   dev_guide
+>>>>>>>
    processes
    changes
    developer
