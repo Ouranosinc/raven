@@ -20,19 +20,11 @@
 #
 import os
 import sys
-<<<<<<<
-=======
 
 # Add raven to sys.path to avoid having to full
 # install raven for autodoc.
 # Full install of raven will burst memory limit on ReadTheDocs.
 sys.path.insert(0, os.path.abspath("../../"))
-
->>>>>>>
-
-# Add raven to sys.path to avoid having to full install raven for autodoc.
-# Full install of raven will burst memory limit on ReadTheDocs.
-sys.path.insert(0, os.path.abspath('../..'))
 
 # Set flag to not fail doc build.
 if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
@@ -47,7 +39,6 @@ if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-<<<<<<<
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'sphinx.ext.napoleon',
@@ -61,19 +52,6 @@ autoapi_type = 'python'
 autoapi_dirs = ['../../raven']
 autoapi_file_pattern = '*.py'
 autoapi_options = ['members', 'undoc-members', 'private-members']
-=======
-extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.napoleon",
-    "sphinx.ext.todo",
-    "pywps.ext_autodoc",
-    "sphinx.ext.autosectionlabel",
-    "nbsphinx",
-    "IPython.sphinxext.ipython_console_highlighting",
-]
->>>>>>>
 
 # To avoid having to install these and burst memory limit on ReadTheDocs.
 autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
@@ -94,15 +72,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-<<<<<<<
-project = u'Raven'
-copyright = u"2018, David Huard"
-author = u"David Huard"
-=======
 project = "Raven"
-copyright = "2020, David Huard"
+copyright = "2018-2020, David Huard"
 author = "David Huard"
->>>>>>>
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -123,11 +95,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-<<<<<<<
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
-=======
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
->>>>>>>
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
