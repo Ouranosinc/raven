@@ -4,7 +4,13 @@
     "skip": [
         "raven/processes/wps_say_hello.py",
         "tests/test_wps_hello.py",
-        "docs/source/notebooks/example.ipynb"
+        "docs/source/notebooks/example.ipynb",
+        ".travis.yml",
+        "environment.yml",
+        "requirements.txt",
+        "docs/source/notebooks/index.rst",
+        "docs/source/processes.rst",
+        "raven/processes/__init__.py"
     ],
     "context": {
         "cookiecutter": {
