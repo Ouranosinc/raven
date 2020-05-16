@@ -1,6 +1,6 @@
 {
     "template": "https://github.com/bird-house/cookiecutter-birdhouse",
-    "commit": "7d843b439d983ae86cdf90356c4799f74ed645f5",
+    "commit": "ea0264b6273de22f0f103b5545fe92b1b10e18b6",
     "skip": [
         "raven/processes/wps_say_hello.py",
         "tests/test_wps_hello.py",
@@ -20,6 +20,7 @@
             "project_name": "Raven",
             "project_slug": "raven",
             "project_repo_name": "raven",
+            "project_readthedocs_name": "pavics-raven",
             "project_short_description": "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
             "version": "0.10.0",
             "open_source_license": "MIT license",

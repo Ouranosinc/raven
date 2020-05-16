@@ -195,7 +195,7 @@ texinfo_documents = [
         "Raven Documentation",
         author,
         "raven",
-        "One line description of project.",
+        "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
         "Miscellaneous",
     ),
 ]
