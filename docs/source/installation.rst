@@ -3,8 +3,6 @@
 Installation
 ============
 
-<<<<<<<
-=======
 .. contents::
     :local:
     :depth: 1
@@ -15,7 +13,6 @@ Install from Conda
 .. warning::
 
    TODO: Prepare Conda package.
->>>>>>>
 
 Install from GitHub
 -------------------
@@ -70,20 +67,13 @@ The deployed WPS service is by default available on:
 
 http://localhost:9099/wps?service=WPS&version=1.0.0&request=GetCapabilities.
 
-<<<<<<<
-.. NOTE:: Remember the process ID (PID) so you can stop the service with ``kill PID``.
-=======
 You can find which process uses a given port using the following command (here for port 5000):
 
 .. code-block:: console
->>>>>>>
 
-<<<<<<<
-=======
    $ netstat -nlp | grep :5000
 
 
->>>>>>>
 Check the log files for errors:
 
 .. code-block:: console
@@ -108,14 +98,11 @@ You can also use the ``Makefile`` to start and stop the service:
 
     You can also run Raven as a Docker container, see the :ref:`Tutorial <tutorial>`.
 
-<<<<<<<
-=======
 You can also run Raven as a Docker container.
 
 .. warning::
 
   TODO: Describe Docker container support.
->>>>>>>
 
 Use Ansible to deploy Raven on your System
 ------------------------------------------
