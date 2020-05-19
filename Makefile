@@ -18,7 +18,7 @@ CONDA_ENV ?= $(APP_NAME)
 PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
-ANACONDA_URL = https://repo.continuum.io/miniconda
+ANACONDA_URL = https://repo.anaconda.com/miniconda
 RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/raven-rev254.zip
 RAVEN_SRC    = $(CURDIR)/src/RAVEN
 OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
