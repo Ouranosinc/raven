@@ -61,8 +61,7 @@ install:
   - make bootstrap
   # Useful for debugging any issues with conda
   - /home/travis/miniconda3/bin/conda info -a
-  - /home/travis/miniconda3/bin/conda activate raven
-  - make install
+  - /home/travis/miniconda3/bin/conda run -n raven make install
 #  - sleep 2
 #  # Prepare env with Python version
 #  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
@@ -77,10 +76,10 @@ install:
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
 #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
-  - make start
+  - /home/travis/miniconda3/bin/conda run -n raven make start
 
 script:
-  - make test
-  - if [[ $NOTEBOOKS = true ]]; then make test-notebooks; fi
-  - if [[ $DOCS = true ]]; then make docs; fi
-  - if [[ $PEP8 = true ]]; then make pep8; fi
+  - /home/travis/miniconda3/bin/conda run -n raven make test
+  - if [[ $NOTEBOOKS = true ]]; then /home/travis/miniconda3/bin/conda run -n raven make test-notebooks; fi
+  - if [[ $DOCS = true ]]; then /home/travis/miniconda3/bin/conda run -n raven make docs; fi
+  - if [[ $PEP8 = true ]]; then /home/travis/miniconda3/bin/conda run -n raven make pep8; fi
