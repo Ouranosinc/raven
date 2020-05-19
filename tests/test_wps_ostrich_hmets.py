@@ -9,7 +9,6 @@ from pywps.tests import assert_response_success
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import OstrichHMETSProcess
 
-
 class TestOstrichHMETSProcess:
 
     def test_simple(self):
@@ -64,20 +63,20 @@ class TestOstrichHMETSProcess:
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
 
-        # TODO Julie :: values not adjusted yet!!! WPS needs to work first ...
 
         # checking correctness of NSE (full period 1954-2010 with budget 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_NASH_SUTCLIFFE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, -2.2878, 4, err_msg='NSE is not matching expected value')
+
+        np.testing.assert_almost_equal(diag, -1.43474, 4, err_msg='NSE is not matching expected value')
 
         # checking correctness of RMSE (full period 1954-2010 with budget 50 would be RMSE=????)
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
 
-        np.testing.assert_almost_equal(diag, 93.9472, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 80.8459, 4, err_msg='RMSE is not matching expected value')
 
     def test_no_test(self):
         client = client_for(Service(processes=[OstrichHMETSProcess(), ], cfgfiles=CFG_FILE))
