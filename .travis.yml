@@ -58,6 +58,10 @@ branches:
     - master
 
 install:
+  - make bootstrap
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - source activate raven
   - make install
 #  - sleep 2
 #  # Prepare env with Python version
@@ -77,6 +81,6 @@ before_script:
 
 script:
   - make test
-  - if [[ $NOTEBOOKS = true ]]; then make test_nb; fi
+  - if [[ $NOTEBOOKS = true ]]; then make test-notebooks; fi
   - if [[ $DOCS = true ]]; then make docs; fi
   - if [[ $PEP8 = true ]]; then make pep8; fi
