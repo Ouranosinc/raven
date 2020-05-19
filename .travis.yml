@@ -60,8 +60,8 @@ branches:
 install:
   - make bootstrap
   # Useful for debugging any issues with conda
-  - conda info -a
-  - source activate raven
+  - /home/travis/miniconda3/bin/conda info -a
+  - /home/travis/miniconda3/bin/conda activate raven
   - make install
 #  - sleep 2
 #  # Prepare env with Python version
