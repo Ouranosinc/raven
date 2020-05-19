@@ -46,7 +46,7 @@ def era5_hr():
     if not path.exists():
         # Fetch the data and save to disk if the file has not been created yet.
         path.parent.mkdir(exist_ok=True)
-        thredds = URL("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/ecmwf/era5")
+        thredds = URL("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/reanalyses/era5.ncml")
         tas = str(thredds / "tas_era5_reanalysis_hourly_2018.nc")
         pr = str(thredds / "pr_era5_reanalysis_hourly_2018.nc")
 
