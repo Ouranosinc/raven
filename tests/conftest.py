@@ -46,8 +46,6 @@ def era5_hr():
         # Fetch the data and save to disk if the file has not been created yet.
         path.parent.mkdir(exist_ok=True)
         url = "http://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/reanalyses/era5.ncml"
-        #tas = str(thredds / "tas_era5_reanalysis_hourly_2018.nc")
-        #pr = str(thredds / "pr_era5_reanalysis_hourly_2018.nc")
 
         ds = xr.open_dataset(url)
         lon, lat = SALMON_coords

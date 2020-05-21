@@ -9,6 +9,7 @@ from pywps.tests import assert_response_success
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import OstrichHMETSProcess
 
+
 class TestOstrichHMETSProcess:
 
     def test_simple(self):
@@ -62,7 +63,6 @@ class TestOstrichHMETSProcess:
         assert 'diagnostics' in out
         tmp_file, _ = urlretrieve(out['diagnostics'])
         tmp_content = open(tmp_file).readlines()
-
 
         # checking correctness of NSE (full period 1954-2010 with budget 50 would be NSE=0.5779910)
         assert 'DIAG_NASH_SUTCLIFFE' in tmp_content[0]
