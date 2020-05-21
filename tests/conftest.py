@@ -38,18 +38,17 @@ def params(ts_stats, tmp_path):
 
 
 @pytest.fixture
-def era5_hr():
+def era5_hr(tmp_path_factory):
     """Return a netCDF file with hourly ERA5 data at the Salmon location."""
-    path = TD / "ERA5" / "ts.nc"
+    path = tmp_path_factory.mktemp("ERA5") / "ERA5.nc"
 
-    if not path.exists():
-        # Fetch the data and save to disk if the file has not been created yet.
-        path.parent.mkdir(exist_ok=True)
-        url = "http://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/reanalyses/era5.ncml"
+    # Fetch the data and save to disk if the file has not been created yet.
+    path.parent.mkdir(exist_ok=True)
+    url = "http://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/reanalyses/era5.ncml"
 
-        ds = xr.open_dataset(url)
-        lon, lat = SALMON_coords
-        out = ds.sel(longitude=lon + 360, latitude=lat, method='nearest').sel(time=slice("2018-01-01", "2018-12-31"))
-        out.to_netcdf(path)
+    ds = xr.open_dataset(url)
+    lon, lat = SALMON_coords
+    out = ds.sel(longitude=lon + 360, latitude=lat, method='nearest').sel(time=slice("2018-01-01", "2018-12-31"))
+    out.to_netcdf(path)
 
     return path
