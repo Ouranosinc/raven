@@ -53,6 +53,9 @@ autoapi_dirs = ['../../raven']
 autoapi_file_pattern = '*.py'
 autoapi_options = ['members', 'undoc-members', 'private-members']
 
+# We are using mock imports in readthedocs, so probably safer to not run the notebooks
+nbsphinx_execute = 'never'
+
 # To avoid having to install these and burst memory limit on ReadTheDocs.
 autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
                         "osgeo", "geopandas", "pandas", "statsmodels",
