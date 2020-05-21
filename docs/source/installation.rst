@@ -3,39 +3,56 @@
 Installation
 ============
 
+.. contents::
+    :local:
+    :depth: 1
+
+Install from Conda
+------------------
+
+.. warning::
+
+   TODO: Prepare Conda package.
 
 Install from GitHub
 -------------------
 
 Check out code from the Raven GitHub repo and start the installation:
 
-.. code-block:: sh
+.. code-block:: console
 
    $ git clone https://github.com/Ouranosinc/raven.git
    $ cd raven
+
+Create Conda environment named `raven`:
+
+.. code-block:: console
+
    $ conda env create -f environment.yml
    $ source activate raven
-   $ python setup.py develop
 
-... or do it the lazy way
-+++++++++++++++++++++++++
+Install Raven app:
 
-The previous installation instructions assume you have Anaconda installed.
-We provide also a ``Makefile`` to run this installation without additional steps:
+.. code-block:: console
 
-.. code-block:: sh
+  $ pip install -e .
+  OR
+  make install
 
-   $ git clone https://github.com/Ouranosinc/raven.git
-   $ cd raven
-   $ make clean    # cleans up a previous Conda environment
-   $ make install  # installs Conda if necessary and runs the above installation steps
+For development you can use this command:
+
+.. code-block:: console
+
+  $ pip install -e .[dev]
+  OR
+  $ make develop
 
 Start Raven PyWPS service
 -------------------------
 
 After successful installation you can start the service using the ``raven`` command-line.
 
-.. code-block:: sh
+.. code-block:: console
 
    $ raven --help # show help
    $ raven start  # start service with default configuration
@@ -50,11 +67,16 @@ The deployed WPS service is by default available on:
 
 http://localhost:9099/wps?service=WPS&version=1.0.0&request=GetCapabilities.
 
-.. NOTE:: Remember the process ID (PID) so you can stop the service with ``kill PID``.
+You can find which process uses a given port using the following command (here for port 5000):
+
+.. code-block:: console
+
+   $ netstat -nlp | grep :5000
+
 
 Check the log files for errors:
 
-.. code-block:: sh
+.. code-block:: console
 
    $ tail -f  pywps.log
 
@@ -63,7 +85,7 @@ Check the log files for errors:
 
 You can also use the ``Makefile`` to start and stop the service:
 
-.. code-block:: sh
+.. code-block:: console
 
   $ make start
   $ make status
@@ -76,21 +98,16 @@ You can also use the ``Makefile`` to start and stop the service:
 
     You can also run Raven as a Docker container, see the :ref:`Tutorial <tutorial>`.
 
+You can also run Raven as a Docker container.
+
+.. warning::
+
+  TODO: Describe Docker container support.
 
 Use Ansible to deploy Raven on your System
 ------------------------------------------
 
 Use the `Ansible playbook`_ for PyWPS to deploy Raven on your system.
-Follow the `example`_ for Raven given in the playbook.
-
-Building the docs
------------------
-
-First install dependencies for the documentation::
-
-  $ make bootstrap_dev
-  $ make docs
 
 
 .. _Ansible playbook: http://ansible-wps-playbook.readthedocs.io/en/latest/index.html
-.. _example: http://ansible-wps-playbook.readthedocs.io/en/latest/tutorial.html
