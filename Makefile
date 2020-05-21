@@ -2,7 +2,7 @@
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven
 
-WPS_URL = https://localhost:9099/
+WPS_URL = http://localhost:9099/
 OUTPUT_URL = $(WPS_URL)/wpsoutputs
 
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
