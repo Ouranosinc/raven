@@ -1,6 +1,4 @@
 pytest
-pytest-dependency
-pytest-notebook
 flake8
 pytest-flake8
 ipython
@@ -9,7 +7,11 @@ nbsphinx
 nbval
 nbconvert
 sphinx>=1.7
-sphinx-autoapi
 bump2version
 twine
+cruft
+# add extra not in cookiecutter below to prevent merge conflict when refreshing cookiecutter
+pytest-dependency
+pytest-notebook
+sphinx-autoapi
 urlpath
