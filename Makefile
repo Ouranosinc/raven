@@ -252,8 +252,7 @@ pep8:
 docs:
 	@echo "Generating docs with Sphinx ..."
 	@-bash -c '$(MAKE) -C $@ clean html'
-	@echo "Opening browser to: file:/$(APP_ROOT)/docs/build/html/index.html"
-	@-bash -c 'xdg-open $(APP_ROOT)/docs/build/html/index.html'
+	@echo "Open browser to: file:/$(APP_ROOT)/docs/build/html/index.html"
 
 ## Deployment targets
 
