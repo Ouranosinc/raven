@@ -59,6 +59,9 @@ autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
                         "affine", "rasterstats", "spotpy", "matplotlib",
                         "scipy", "unidecode"]
 
+# We are using mock imports in readthedocs, so probably safer to not run the notebooks
+nbsphinx_execute = 'never'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 

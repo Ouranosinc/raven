@@ -141,10 +141,9 @@ model_name = LiteralInput('model_name', 'Hydrological model identifier',
                           min_occurs=1,
                           max_occurs=config.max_parallel_processes)
 
-nc_index = LiteralInput('nc_index', 'NetCDF input index, i.e. station idx for a multi-basin netcdf',
-                        abstract="this is the station_idx which is set. This  is ONLY necessary if the NetCDF variable is 2-dimensional." 
-                                 "Using this flag means that the netcdf file contains, besides time, another dimension which is usually "
-                                 "the number of basins. The station_idx then needs to be set to indicate which station should be read in.",
+nc_index = LiteralInput('nc_index', 'NetCDF site coordinate index',
+                        abstract="The site index for a multi-basin netCDF file. This is ONLY necessary if the "
+                                 "NetCDF variable is 2-dimensional (time, site).",
                         data_type='integer',
                         min_occurs=0,
                         max_occurs=config.max_parallel_processes)
