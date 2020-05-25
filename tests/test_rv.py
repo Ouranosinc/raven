@@ -170,14 +170,20 @@ rvc = \
 """
 
 class TestRVC:
-    def test_parse(self):
+    @classmethod
+    def setup_class(self):
         from io import StringIO
-        solution = StringIO(rvc)
-        r = RVC()
-        r.parse(solution)
+        self.rvc = StringIO(rvc)
+        self.r = RVC()
 
-        assert r._hru_state[1].atmosphere == 821.98274
-        assert r._basin_state[1].qout == [13.21660, 13.29232]
+    def test_parse(self):
+        self.r.parse(self.rvc)
+        assert self.r._hru_state[1].atmosphere == 821.98274
+        assert self.r._basin_state[1].qout == [13.21660, 13.29232]
+
+    def test_write(self):
+        assert self.r.hru_state.startswith("1,")
+        assert self.r.basin_state.strip().startswith(":BasinIndex 1,watershed")
 
 
 def test_isinstance_namedtuple():

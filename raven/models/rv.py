@@ -117,6 +117,7 @@ class RV(collections.Mapping):
     will create a new `c` attribute and assign it the value 1.
 
     """
+    _namedtuples = ()
 
     def __init__(self, **kwargs):
         # Set initial default values
@@ -549,9 +550,15 @@ class RVI(RV):
 
 
 class RVC(RV):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._hru_state = {}
         self._basin_state = {}
+
+        # This is a hack to make sure the txt_hru_state and txt_basin_state are picked up to fill the rv templates.
+        self._txt_hru_state = ""
+        self._txt_basin_state = ""
+
+        super().__init__(**kwargs)
 
     def parse(self, rvc):
         """Set initial conditions based on *solution* output file.
@@ -574,6 +581,22 @@ class RVC(RV):
 
     @property
     def hru_state(self):
+        return self._hru_state[1]
+
+    @hru_state.setter
+    def hru_state(self, value):
+        self._hru_state[1] = value
+
+    @property
+    def basin_state(self):
+        return self._basin_state[1]
+
+    @basin_state.setter
+    def basin_state(self, value):
+        self._basin_state[1] = value
+
+    @property
+    def txt_hru_state(self):
         """Return HRU state values."""
         txt = []
         for index, data in self._hru_state.items():
@@ -582,7 +605,7 @@ class RVC(RV):
         return "\n".join(txt)
 
     @property
-    def basin_state(self):
+    def txt_basin_state(self):
         """Return basin state variables."""
         pat = """
               :BasinIndex {index},{name}

@@ -17,6 +17,7 @@ from raven.models import (
     MOHYSE_OST,
     HBVEC_OST,
 )
+from raven.models.state import HRUStateVariables
 from .common import TESTDATA, _convert_2d
 import zipfile
 
@@ -149,6 +150,10 @@ class TestGR4JCN:
         d = model.diagnostics
 
         np.testing.assert_almost_equal(d["DIAG_NASH_SUTCLIFFE"], -0.117315, 2)
+
+        # Set initial conditions explicitly
+        model(ts, end_date=dt.datetime(2001, 2, 1), hru_state=HRUStateVariables(soil0=100), overwrite=True)
+        assert model.q_sim.isel(time=1) > qsim2.isel(time=1)
 
     def test_resume(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
