@@ -3,13 +3,25 @@ from pathlib import Path
 
 from raven.models import Raven, Ostrich
 from .rv import RV, RVT, RVI, RVC, Ost, RavenNcData, MonthlyAverage
+from .state import HRUStateVariables, BasinStateVariables
 
 nc = RavenNcData
 std_vars = ("pr", "rainfall", "prsn", "tasmin", "tasmax", "tas", "evspsbl", "water_volume_transport_in_river_channel")
 
 
 class GR4JCN(Raven):
-    """GR4J + Cemaneige"""
+    """GR4J + Cemaneige global hydrological model
+
+    References
+    ----------
+    Perrin, C., C. Michel and V. Andréassian (2003). Improvement of a parsimonious model for streamflow simulation.
+    Journal of Hydrology, 279(1-4), 275-289. doi: 10.1016/S0022-1694(03)00225-7.
+
+    Valéry, Audrey, Vazken Andréassian, and Charles Perrin. 2014. “’As Simple as Possible but Not Simpler’: What Is
+    Useful in a Temperature-Based Snow-Accounting Routine? Part 2 - Sensitivity Analysis of the Cemaneige Snow
+    Accounting Routine on 380 Catchments.” Journal of Hydrology, no. 517(0): 1176–87,
+    doi: 10.1016/j.jhydrol.2014.04.058.
+    """
     identifier = 'gr4jcn'
     templates = tuple((Path(__file__).parent / 'raven-gr4j-cemaneige').glob("*.rv?"))
 
@@ -22,11 +34,14 @@ class GR4JCN(Raven):
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI(rain_snow_fraction="RAINSNOW_DINGMAN", evaporation="PET_OUDIN")
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
-        self.rvc = RVC()
+
+        # Initialize the stores to one half full.
+        self.rvc = RVC(hru_state=HRUStateVariables(soil1=15.0), basin_state=BasinStateVariables())
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
 
     def derived_parameters(self):
         self.rvd.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
+        self.rvc.hru_state = self.rvc.hru_state._replace(soil0=self.rvd.GR4J_X1_hlf)
         self.rvd.one_minus_CEMANEIGE_X2 = 1.0 - self.rvp.params.CEMANEIGE_X2
 
 
