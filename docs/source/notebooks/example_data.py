@@ -99,3 +99,5 @@ TESTDATA["simfile_single"] = (
     TD / "hydro_simulations" / "raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
 )
 TESTDATA["input2d"] = TD / "input2d" / "input2d.nc"
+
+TESTDATA["canopex_attributes"] = TD / "regionalisation_data" / "gauged_catchment_properties.csv"

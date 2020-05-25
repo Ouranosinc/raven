@@ -141,8 +141,9 @@ model_name = LiteralInput('model_name', 'Hydrological model identifier',
                           min_occurs=1,
                           max_occurs=config.max_parallel_processes)
 
-nc_index = LiteralInput('nc_index', 'NetCDF input index',
-                        abstract="TODO",
+nc_index = LiteralInput('nc_index', 'NetCDF site coordinate index',
+                        abstract="The site index for a multi-basin netCDF file. This is ONLY necessary if the "
+                                 "NetCDF variable is 2-dimensional (time, site).",
                         data_type='integer',
                         min_occurs=0,
                         max_occurs=config.max_parallel_processes)

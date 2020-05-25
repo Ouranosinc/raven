@@ -28,8 +28,8 @@ BeginParams
   par_x06         random   {lowerBounds.par_x06}  {upperBounds.par_x06}  none   none     none
   par_x07         random   {lowerBounds.par_x07}  {upperBounds.par_x07}  none   none     none
   par_x08         random   {lowerBounds.par_x08}  {upperBounds.par_x08}  none   none     none
-  par_x09         random   {hruslowerBounds.par_x09}  {hrusupperBounds.par_x09}  none   none     none
-  par_x10         random   {hruslowerBounds.par_x10}  {hrusupperBounds.par_x10}  none   none     none
+  par_x09         random   {lowerBounds.par_x09}  {upperBounds.par_x09}  none   none     none
+  par_x10         random   {lowerBounds.par_x10}  {upperBounds.par_x10}  none   none     none
 EndParams
 
 BeginTiedParams
