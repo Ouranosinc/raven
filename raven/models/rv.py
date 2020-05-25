@@ -117,7 +117,6 @@ class RV(collections.Mapping):
     will create a new `c` attribute and assign it the value 1.
 
     """
-    _namedtuples = ()
 
     def __init__(self, **kwargs):
         # Set initial default values
@@ -581,7 +580,7 @@ class RVC(RV):
 
     @property
     def hru_state(self):
-        return self._hru_state[1]
+        return self._hru_state.get(1)
 
     @hru_state.setter
     def hru_state(self, value):
@@ -589,7 +588,7 @@ class RVC(RV):
 
     @property
     def basin_state(self):
-        return self._basin_state[1]
+        return self._basin_state.get(1)
 
     @basin_state.setter
     def basin_state(self, value):
@@ -611,15 +610,18 @@ class RVC(RV):
               :BasinIndex {index},{name}
                 :ChannelStorage, {channelstorage}
                 :RivuletStorage, {rivuletstorage}
-                :Qout,{qout_n},{qout}
-                :Qlat,{qlat_n},{qlat}
-                :Qin ,{qin_n}, {qin}
+                :Qout,{nsegs},{qout},{aQoutLast}
+                :Qlat,{nQlatHist},{qlat},{QlatLast}
+                :Qin ,{nQinHist}, {qin}
             """
         txt = []
         for index, data in self._basin_state.items():
-            txt.append(pat.format(**data._asdict(), qout_n=len(data.qout) - 1,
-                                  qlat_n=len(data.qlat) - 1,
-                                  qin_n=len(data.qin))
+            txt.append(pat.format(**data._asdict(),
+                                  nsegs=len(data.qout),
+                                  aQoutLast=data.qout[-1],
+                                  nQlatHist=len(data.qlat),
+                                  QlatLast=data.qlat[-1],
+                                  nQinHist=len(data.qin))
                        )
         return "\n".join(txt).replace('[', '').replace(']', '')
 
@@ -716,7 +718,10 @@ def _parser(lines, indent="", fmt=str):
                     i, name = value.split(',')
                     i = int(i)
                     out[key][i] = dict(index=i, name=name, **_parser(lines, new_indent + '  ', float))
-                elif key in ["Qlat", "Qout", "Qin"]:
+                elif key in ["Qlat", "Qout"]:
+                    n, *values, last = value.split(',')
+                    out[key] = list(map(float, values))
+                elif key == "Qin":
                     n, *values = value.split(',')
                     out[key] = list(map(float, values))
                 else:

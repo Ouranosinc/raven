@@ -35,14 +35,20 @@ class GR4JCN(Raven):
         self.rvi = RVI(rain_snow_fraction="RAINSNOW_DINGMAN", evaporation="PET_OUDIN")
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
 
-        # Initialize the stores to one half full.
-        self.rvc = RVC(hru_state=HRUStateVariables(soil1=15.0), basin_state=BasinStateVariables())
+        # Initialize the stores to 1/2 full. Declare the parameters that can be user-modified
+        self.rvc = RVC(soil0=None, soil1=15, basin_state=BasinStateVariables())
         self.rvd = RV(one_minus_CEMANEIGE_X2=None, GR4J_X1_hlf=None)
 
     def derived_parameters(self):
         self.rvd.GR4J_X1_hlf = self.rvp.params.GR4J_X1 * 1000. / 2.
-        self.rvc.hru_state = self.rvc.hru_state._replace(soil0=self.rvd.GR4J_X1_hlf)
         self.rvd.one_minus_CEMANEIGE_X2 = 1.0 - self.rvp.params.CEMANEIGE_X2
+
+        # Default initial conditions if none are given
+        if self.rvc.hru_state is None:
+            soil0 = self.rvd.GR4J_X1_hlf if self.rvc.soil0 is None else self.rvc.soil0
+            soil1 = self.rvc.soil1
+
+            self.rvc.hru_state = HRUStateVariables(soil0=soil0, soil1=soil1)
 
 
 class GR4JCN_OST(Ostrich, GR4JCN):
@@ -75,6 +81,7 @@ class MOHYSE(Raven):
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI(evaporation="PET_MOHYSE", rain_snow_fraction="RAINSNOW_DATA")
+        self.rvc = RVC(hru_state=HRUStateVariables(), basin_state=BasinStateVariables())
         self.rvd = RV(par_rezi_x10=None)
 
     def derived_parameters(self):
@@ -115,6 +122,7 @@ class HMETS(GR4JCN):
         self.rvp = RV(params=HMETS.params(*((None,) * len(HMETS.params._fields))))
         self.rvt = RVT(**{k: nc() for k in std_vars})
         self.rvi = RVI(evaporation="PET_OUDIN", rain_snow_fraction="RAINSNOW_DATA")
+        self.rvc = RVC(soil0=None, soil1=None, basin_state=BasinStateVariables())
         self.rvd = RV(TOPSOIL_m=None, PHREATIC_m=None, SUM_MELT_FACTOR=None, SUM_SNOW_SWI=None, TOPSOIL_hlf=None,
                       PHREATIC_hlf=None)
 
@@ -125,6 +133,12 @@ class HMETS(GR4JCN):
         self.rvd['PHREATIC_m'] = self.rvp.params.PHREATIC / 1000.
         self.rvd['SUM_MELT_FACTOR'] = self.rvp.params.MAX_MELT_FACTOR   # self.rvp.params.MIN_MELT_FACTOR +
         self.rvd['SUM_SNOW_SWI'] = self.rvp.params.SNOW_SWI_MAX         # self.rvp.params.SNOW_SWI_MIN +
+
+        # Default initial conditions if none are given
+        if self.rvc.hru_state is None:
+            soil0 = self.rvd['TOPSOIL_hlf'] if self.rvc.soil0 is None else self.rvc.soil0
+            soil1 = self.rvd['PHREATIC_hlf'] if self.rvc.soil1 is None else self.rvc.soil1
+            self.rvc.hru_state = HRUStateVariables(soil0=soil0, soil1=soil1)
 
 
 class HMETS_OST(Ostrich, HMETS):
@@ -184,11 +198,19 @@ class HBVEC(GR4JCN):
         self.rvh = RV(name=None, area=None, elevation=None, latitude=None, longitude=None)
         self.rvi = RVI(evaporation="PET_FROMMONTHLY", ow_evaporation="PET_FROMMONTHLY",
                        rain_snow_fraction="RAINSNOW_HBV")
+        self.rvc = RVC(soil2=0.50657, qout=1)
 
     def derived_parameters(self):
         self.rvd['one_plus_par_x15'] = self.rvp.params.par_x15 + 1.0
         self.rvd['par_x11_half'] = self.rvp.params.par_x11 / 2.0
         self._monthly_average()
+
+        # Default initial conditions if none are given
+        if self.rvc.hru_state is None:
+            self.rvc.hru_state = HRUStateVariables(soil2=self.rvc.soil2)
+        if self.rvc.basin_state is None:
+            self.rvc.basin_state = BasinStateVariables(qout=(self.rvc.qout,))
+
 
     # TODO: Support index specification and unit changes.
     def _monthly_average(self):

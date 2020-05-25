@@ -69,8 +69,8 @@ class Raven:
               'water_volume_transport_in_river_channel': "m**3/s"
               }
 
-    _parallel_parameters = ['params', 'nc_index', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id',
-                            'hrus']
+    _parallel_parameters = ['params', 'hru_state', 'basin_state', 'nc_index', 'name', 'area', 'elevation', 'latitude',
+                            'longitude', 'region_id', 'hrus']
 
     def __init__(self, workdir=None):
         """Initialize the RAVEN model.
@@ -344,7 +344,7 @@ class Raven:
         for p in self._parallel_parameters:
             a = kwds.pop(p, None)
 
-            if p in ['params', 'hrus'] and a is not None:
+            if p in ['params', 'hrus', 'basin_state', 'hru_state'] and a is not None:
                 pdict[p] = np.atleast_2d(a)
             else:
                 pdict[p] = np.atleast_1d(a)
