@@ -152,8 +152,8 @@ class TestGR4JCN:
         np.testing.assert_almost_equal(d["DIAG_NASH_SUTCLIFFE"], -0.117315, 2)
 
         # Set initial conditions explicitly
-        model(ts, end_date=dt.datetime(2001, 2, 1), hru_state=HRUStateVariables(soil0=100), overwrite=True)
-        assert model.q_sim.isel(time=1) > qsim2.isel(time=1)
+        model(ts, end_date=dt.datetime(2001, 2, 1), hru_state=HRUStateVariables(soil0=0), overwrite=True)
+        assert model.q_sim.isel(time=1).values[0] < qsim2.isel(time=1).values[0]
 
     def test_resume(self):
         ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
