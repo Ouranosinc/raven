@@ -708,7 +708,7 @@ def _parser(lines, indent="", fmt=str):
         if header:
             new_indent, key, value = header.groups()
             if new_indent > indent:
-                out[old_key] = _parser(itertools.chain([line,], lines), new_indent)
+                out[old_key] = _parser(itertools.chain([line, ], lines), new_indent)
             elif new_indent < indent:
                 return out
             else:

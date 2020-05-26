@@ -43,7 +43,8 @@ classifiers = [
 
 setup(name='raven',
       version=about['__version__'],
-      description="Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
+      description="Raven offers processes related to hydrological modeling, and in particular, the Raven  "
+                  "hydrological modeling framework.",
       long_description=README + '\n\n' + CHANGES,
       long_description_content_type="text/x-rst",
       author=about['__author__'],
