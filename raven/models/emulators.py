@@ -1,5 +1,6 @@
 from collections import namedtuple
 from pathlib import Path
+import xarray as xr
 
 from raven.models import Raven, Ostrich
 from .rv import RV, RVT, RVI, RVC, Ost, RavenNcData, MonthlyAverage
@@ -211,10 +212,9 @@ class HBVEC(GR4JCN):
         if self.rvc.basin_state is None:
             self.rvc.basin_state = BasinStateVariables(qout=(self.rvc.qout,))
 
-
     # TODO: Support index specification and unit changes.
     def _monthly_average(self):
-        import xarray as xr
+
         if self.rvi.evaporation == "PET_FROMMONTHLY" or self.rvi.ow_evaporation == "PET_FROMMONTHLY":
             # If this fails, it's likely the input data is missing some necessary variables (e.g. evap).
             if self.rvt.tas.path is not None:
@@ -289,4 +289,3 @@ def used_storage_variables(fn):
     import xarray as xr
     ds = xr.open_dataset(fn)
     return [(key, da.isel(time=-1).values.tolist(), da.units) for key, da in ds.data_vars.items() if any(ds[key] != 0)]
-
