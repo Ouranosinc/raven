@@ -610,17 +610,15 @@ class RVC(RV):
               :BasinIndex {index},{name}
                 :ChannelStorage, {channelstorage}
                 :RivuletStorage, {rivuletstorage}
-                :Qout,{nsegs},{qout},{aQoutLast}
-                :Qlat,{nQlatHist},{qlat},{QlatLast}
+                :Qout,{nsegs},{qout},{qoutlast}
+                :Qlat,{nQlatHist},{qlat},{qlatlast}
                 :Qin ,{nQinHist}, {qin}
             """
         txt = []
         for index, data in self._basin_state.items():
             txt.append(pat.format(**data._asdict(),
                                   nsegs=len(data.qout),
-                                  aQoutLast=data.qout[-1],
                                   nQlatHist=len(data.qlat),
-                                  QlatLast=data.qlat[-1],
                                   nQinHist=len(data.qin))
                        )
         return "\n".join(txt).replace('[', '').replace(']', '')
@@ -721,6 +719,7 @@ def _parser(lines, indent="", fmt=str):
                 elif key in ["Qlat", "Qout"]:
                     n, *values, last = value.split(',')
                     out[key] = list(map(float, values))
+                    out[key + "Last"] = float(last)
                 elif key == "Qin":
                     n, *values = value.split(',')
                     out[key] = list(map(float, values))
