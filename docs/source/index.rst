@@ -22,6 +22,7 @@ User documentation
    processes
    changes
    developer
+   pyraven
 
 Credits
 -------
