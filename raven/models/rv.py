@@ -4,6 +4,7 @@ import collections
 from pathlib import Path
 from xclim.utils import units
 from xclim.utils import units2pint
+from . state import HRUStateVariables, BasinStateVariables
 
 # Can be removed when xclim is pinned above 0.14
 units.define("deg_C = degC")
@@ -45,38 +46,39 @@ evaporation_options = ("PET_CONSTANT", "PET_PENMAN_MONTEITH", "PET_PENMAN_COMBIN
                        "PET_HARGREAVES", "PET_HARGREAVES_1985", "PET_FROMMONTHLY", "PET_DATA", "PET_HAMON_1961",
                        "PET_TURC_1961", "PET_MAKKINK_1957", "PET_MONTHLY_FACTOR", "PET_MOHYSE", "PET_OUDIN")
 
+state_variables = ()
+
 
 class RVFile:
 
     def __init__(self, fn):
-        self.fn = Path(fn)
+        """Read the content."""
+        fn = Path(fn)
+
+        self.stem = fn.with_suffix('').with_suffix('').stem
+        self.suffixes = ''.join(fn.suffixes)
 
         self.ext = ""
-        self._store_ext()
+        self._store_ext(fn)
+
+        # Whether extension indicates an Ostrich template file.
+        self.is_tpl = fn.suffix in ['.tpl', '.txt']
 
         self.content = ""
-        self._store_content()
+        self.content = fn.read_text()
 
-    def _store_content(self):
-        self.content = self.fn.read_text()
-
-    def _store_ext(self):
+    def _store_ext(self, fn):
         try:
-            self.ext = self.fn.suffixes[0][1:]
+            self.ext = fn.suffixes[0][1:]
         except IndexError as e:
-            msg = "\nFile {} does not look like a valid Raven/Ostrich config file.".format(self.fn)
+            msg = "\nFile {} does not look like a valid Raven/Ostrich config file.".format(fn)
             raise ValueError(msg) from e
 
-    @property
-    def is_tpl(self):
-        return self.fn.suffix in ['.tpl', '.txt']
-
-    @property
-    def stem(self):
-        return Path(self.fn.stem).stem
+    def rename(self, name):
+        self.stem = name
 
     def write(self, path, **kwds):
-        fn = path / self.fn.name
+        fn = (path / self.stem).with_suffix(self.suffixes)
 
         content = self.content
         if kwds:
@@ -546,6 +548,82 @@ class RVI(RV):
             raise ValueError(f"Value {v} should be one of {evaporation_options}.")
 
 
+class RVC(RV):
+    def __init__(self, **kwargs):
+        self._hru_state = {}
+        self._basin_state = {}
+
+        # This is a hack to make sure the txt_hru_state and txt_basin_state are picked up to fill the rv templates.
+        self._txt_hru_state = ""
+        self._txt_basin_state = ""
+
+        super().__init__(**kwargs)
+
+    def parse(self, rvc):
+        """Set initial conditions based on *solution* output file.
+
+        Parameters
+        ----------
+        path : string
+          `solution.rvc` content.
+        """
+
+        data = parse_solution(rvc)
+        for index, params in data['HRUStateVariableTable']['data'].items():
+            self._hru_state[index] = HRUStateVariables(*params)
+
+        for index, raw in data["BasinStateVariables"]["BasinIndex"].items():
+            params = {k.lower(): v for (k, v) in raw.items()}
+            self._basin_state[index] = BasinStateVariables(**params)
+
+        return
+
+    @property
+    def hru_state(self):
+        return self._hru_state.get(1)
+
+    @hru_state.setter
+    def hru_state(self, value):
+        self._hru_state[1] = value
+
+    @property
+    def basin_state(self):
+        return self._basin_state.get(1)
+
+    @basin_state.setter
+    def basin_state(self, value):
+        self._basin_state[1] = value
+
+    @property
+    def txt_hru_state(self):
+        """Return HRU state values."""
+        txt = []
+        for index, data in self._hru_state.items():
+            txt.append(f"{index}," + ",".join(map(repr, data)))
+
+        return "\n".join(txt)
+
+    @property
+    def txt_basin_state(self):
+        """Return basin state variables."""
+        pat = """
+              :BasinIndex {index},{name}
+                :ChannelStorage, {channelstorage}
+                :RivuletStorage, {rivuletstorage}
+                :Qout,{nsegs},{qout},{qoutlast}
+                :Qlat,{nQlatHist},{qlat},{qlatlast}
+                :Qin ,{nQinHist}, {qin}
+            """
+        txt = []
+        for index, data in self._basin_state.items():
+            txt.append(pat.format(**data._asdict(),
+                                  nsegs=len(data.qout),
+                                  nQlatHist=len(data.qlat),
+                                  nQinHist=len(data.qin))
+                       )
+        return "\n".join(txt).replace('[', '').replace(']', '')
+
+
 class Ost(RV):
     def __init__(self, **kwargs):
         self._max_iterations = None
@@ -602,3 +680,56 @@ def guess_linear_transform(actual, expected):
 
     """
     # TODO : For precip we also need the frequency to sum over one day.
+
+
+def parse_solution(rvc):
+    """Parse solution file and return dictionary of parameters that can then be used to reinitialize the model.
+
+    Parameters
+    ----------
+    rvc : str
+      Content of a solution.rvc file.
+    """
+    # Create a generator that will consume lines one by one.
+    # tags = ['{i.' + a.lower().replace('[', '').replace(']', '') + '}' for a in atts]
+    lines = iter(rvc.splitlines())
+    return _parser(lines)
+
+
+def _parser(lines, indent="", fmt=str):
+    import re
+    import itertools
+    header_pat = re.compile(r"(\s*):(\w+)\s?,?\s*(.*)")
+
+    out = collections.defaultdict(dict)
+    old_key = None
+    for line in lines:
+        header = header_pat.match(line)
+        if header:
+            new_indent, key, value = header.groups()
+            if new_indent > indent:
+                out[old_key] = _parser(itertools.chain([line, ], lines), new_indent)
+            elif new_indent < indent:
+                return out
+            else:
+                if key == 'BasinIndex':
+                    i, name = value.split(',')
+                    i = int(i)
+                    out[key][i] = dict(index=i, name=name, **_parser(lines, new_indent + '  ', float))
+                elif key in ["Qlat", "Qout"]:
+                    n, *values, last = value.split(',')
+                    out[key] = list(map(float, values))
+                    out[key + "Last"] = float(last)
+                elif key == "Qin":
+                    n, *values = value.split(',')
+                    out[key] = list(map(float, values))
+                else:
+                    out[key] = list(map(fmt, value.split(','))) if ',' in value else fmt(value)
+
+            old_key = key
+        else:
+            data = line.split(',')
+            i = int(data.pop(0))
+            out['data'][i] = list(map(float, data))
+
+    return out
