@@ -564,17 +564,17 @@ class RVC(RV):
 
         Parameters
         ----------
-        path : file-like object
-          `solution.rvc` file.
+        path : string
+          `solution.rvc` content.
         """
 
-        rvc = parse_solution(rvc.read())
-        for index, data in rvc['HRUStateVariableTable']['data'].items():
-            self._hru_state[index] = HRUStateVariables(*data)
+        data = parse_solution(rvc)
+        for index, params in data['HRUStateVariableTable']['data'].items():
+            self._hru_state[index] = HRUStateVariables(*params)
 
-        for index, raw in rvc["BasinStateVariables"]["BasinIndex"].items():
-            data = {k.lower(): v for (k, v) in raw.items()}
-            self._basin_state[index] = BasinStateVariables(**data)
+        for index, raw in data["BasinStateVariables"]["BasinIndex"].items():
+            params = {k.lower(): v for (k, v) in raw.items()}
+            self._basin_state[index] = BasinStateVariables(**params)
 
         return
 
