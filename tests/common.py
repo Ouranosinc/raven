@@ -28,6 +28,7 @@ TESTDATA['gr4j-cemaneige'] = \
      'tas': TD / 'gr4j_cemaneige' / 'tas.nc',
      'evap': TD / 'gr4j_cemaneige' / 'evap.nc'}
 
+TESTDATA["solution.rvc"] = TD / "solution.rvc"
 TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
 

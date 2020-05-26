@@ -5,13 +5,7 @@ Classes
 -------
 
 Raven : A generic class that knows how to launch the model from completed rv files.
-
-
-
-
-
-GR4JCemaneige: The Raven emulator for GR4J-Cemaneige. Uses template configuration files whose value can be
-automatically filled in.
+Ostrich:
 
 """
 import csv
@@ -29,7 +23,7 @@ import six
 import xarray as xr
 
 import raven
-from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData
+from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData, parse_solution
 
 
 class Raven:
@@ -75,8 +69,8 @@ class Raven:
               'water_volume_transport_in_river_channel': "m**3/s"
               }
 
-    _parallel_parameters = ['params', 'nc_index', 'name', 'area', 'elevation', 'latitude', 'longitude', 'region_id',
-                            'hrus']
+    _parallel_parameters = ['params', 'hru_state', 'basin_state', 'nc_index', 'name', 'area', 'elevation', 'latitude',
+                            'longitude', 'region_id', 'hrus']
 
     def __init__(self, workdir=None):
         """Initialize the RAVEN model.
@@ -105,7 +99,7 @@ class Raven:
         self.ostrich_exec = raven.ostrich_exec
         self._name = None
         self._defaults = {}
-        self.rvfiles = []
+        self.rvfiles = {}
 
         # Configuration file extensions + rvd for derived parameters.
         self._rvext = self._rvext + ('rvd',)
@@ -188,15 +182,7 @@ class Raven:
 
     @name.setter
     def name(self, x):
-        if self._name is None:
-            self._name = x
-        elif x != self._name:
-            raise UserWarning("Model configuration name changed.")
-        try:
-            if self.rvi.run_name is None:
-                self.rvi.run_name = x
-        except AttributeError:
-            pass
+        self._name = x
 
     @property
     def configuration(self):
@@ -223,9 +209,13 @@ class Raven:
             if rvf.ext not in self._rvext + ('txt',):
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(rvf.ext))
             else:
-                if rvf.ext != 'txt':
+                if rvf.ext.startswith('rv'):
                     setattr(self, 'name', rvf.stem)
-                self.rvfiles.append(rvf)
+                    self.rvfiles[rvf.ext] = rvf
+                elif rvf.ext == 'txt':
+                    self.rvfiles[rvf.stem] = rvf
+                else:
+                    raise ValueError
 
     def assign(self, key, value):
         """Assign parameter to rv object that has a key with the same name."""
@@ -256,7 +246,7 @@ class Raven:
         """Write configuration files to disk."""
         params = self.parameters
 
-        for rvf in self.rvfiles:
+        for rvf in self.rvfiles.values():
             p = self.exec_path if rvf.is_tpl else self.model_path
             if rvf.stem == 'OstRandomNumbers' and isinstance(self.txt, Ost) and self.txt.random_seed == "":
                 continue
@@ -273,23 +263,17 @@ class Raven:
            output/
 
         """
-        if self.exec_path.exists():
-            if overwrite:
+        if overwrite:
+            if self.model_path.exists():
                 shutil.rmtree(str(self.exec_path))
-            else:
-                raise IOError(
-                    "Directory already exists. Either set overwrite to `True` or create a new model instance.")
-
-        if self.final_path.exists():
-            if overwrite:
+            if self.final_path.exists():
                 shutil.rmtree(str(self.final_path))
-            else:
-                raise IOError(
-                    "Directory already exists. Either set overwrite to `True` or create a new model instance.")
 
         # Create general subdirectories
-        os.makedirs(str(self.exec_path))  # workdir/exec
-        os.makedirs(str(self.final_path))  # workdir/final
+        if not self.exec_path.exists():
+            os.makedirs(str(self.exec_path))  # workdir/exec
+        if not self.final_path.exists():
+            os.makedirs(str(self.final_path))  # workdir/final
 
     def setup_model_run(self, ts):
         """Create directory structure to store model input files, executable and output results.
@@ -318,10 +302,12 @@ class Raven:
 
         # Create symbolic link to input files
         for fn in ts:
-            os.symlink(str(fn), str(self.model_path / Path(fn).name))
+            if not (self.model_path / Path(fn).name).exists():
+                os.symlink(str(fn), str(self.model_path / Path(fn).name))
 
         # Create symbolic link to Raven executable
-        os.symlink(self.raven_exec, str(self.raven_cmd))
+        if not self.raven_cmd.exists():
+            os.symlink(self.raven_exec, str(self.raven_cmd))
 
         # Shell command to run the model
         if self.singularity:
@@ -362,7 +348,7 @@ class Raven:
         for p in self._parallel_parameters:
             a = kwds.pop(p, None)
 
-            if p in ['params', 'hrus'] and a is not None:
+            if p in ['params', 'hrus', 'basin_state', 'hru_state'] and a is not None:
                 pdict[p] = np.atleast_2d(a)
             else:
                 pdict[p] = np.atleast_1d(a)
@@ -434,6 +420,25 @@ class Raven:
         """.format(dir=self.cmd_path, err=err)
             print(msg)
             raise e
+
+    def resume(self, solution=None):
+        """Set the initial state to the state at the end of the last run.
+
+        Parameters
+        ----------
+        solution : str, Path
+          Path to solution file. If None, will use solution from last model run if any.
+
+        Note that the starting date of the next run should be identical to the end date of the previous run.
+        """
+        if solution is None:
+            fn = self.outputs['solution']
+        else:
+            fn = solution
+
+        rvc = RVFile(fn)
+        rvc.rename(self.name)
+        self.rvfiles['rvc'] = rvc
 
     def parse_results(self, path=None):
         """Store output files in the self.outputs dictionary."""
@@ -620,12 +625,17 @@ class Raven:
 
     @property
     def storage(self):
-        if self.outputs['storage'].endswith('.nc'):
+        if self.outputs['storage'].suffix == '.nc':
             return xr.open_dataset(self.outputs['storage'])
-        elif self.outputs['storage'].endswith('.zip'):
+        elif self.outputs['storage'].suffix == '.zip':
             return [xr.open_dataset(fn) for fn in self.ind_outputs['storage']]
         else:
             raise ValueError
+
+    @property
+    def solution(self):
+        if self.outputs['solution'].suffix == ".rvc":
+            return parse_solution(self.outputs['solution'].read_text())
 
     @property
     def diagnostics(self):
@@ -650,7 +660,7 @@ class Raven:
     def tags(self):
         """Return a list of tags within the templates."""
         out = []
-        for rvf in self.rvfiles:
+        for rvf in self.rvfiles.values():
             out.extend(rvf.tags)
 
         return out
