@@ -209,9 +209,13 @@ class Raven:
             if rvf.ext not in self._rvext + ('txt',):
                 raise ValueError('rv contains unrecognized configuration file keys : {}.'.format(rvf.ext))
             else:
-                if rvf.ext != 'txt':
+                if rvf.ext.startswith('rv'):
                     setattr(self, 'name', rvf.stem)
-                self.rvfiles[rvf.ext] = rvf
+                    self.rvfiles[rvf.ext] = rvf
+                elif rvf.ext == 'txt':
+                    self.rvfiles[rvf.stem] = rvf
+                else:
+                    raise ValueError
 
     def assign(self, key, value):
         """Assign parameter to rv object that has a key with the same name."""

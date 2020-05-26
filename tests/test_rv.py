@@ -5,6 +5,7 @@ import datetime as dt
 from collections import namedtuple
 from .common import TESTDATA
 from pathlib import Path
+from io import StringIO
 
 
 class TestRVFile:
@@ -175,16 +176,21 @@ class TestRVC:
         from io import StringIO
         self.rvc = StringIO(rvc)
         self.r = RVC()
+        self.r.parse(self.rvc)
 
     def test_parse(self):
-        self.r.parse(self.rvc)
-        assert self.r._hru_state[1].atmosphere == 821.98274
-        assert self.r._basin_state[1].qout == [13.21660, 13.29232]
+        assert self.r.hru_state.atmosphere == 821.98274
+        assert self.r.basin_state.qout == [13.21660, ]
+        assert self.r.basin_state.qoutlast == 13.29232
 
     def test_write(self):
-        assert self.r.hru_state.startswith("1,")
-        assert self.r.basin_state.strip().startswith(":BasinIndex 1,watershed")
+        assert self.r.txt_hru_state.startswith("1,")
+        assert self.r.txt_basin_state.strip().startswith(":BasinIndex 1,watershed")
 
+    def test_format(self):
+        rvc_template = Path(raven.models.__file__).parent / 'global' / 'global.rvc'
+        params = dict(self.r.items())
+        rvc_template.read_text().format(**params)
 
 def test_isinstance_namedtuple():
     X = namedtuple('params', 'x1, x2, x3')

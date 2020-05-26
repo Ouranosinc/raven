@@ -142,6 +142,8 @@ class BasinStateVariables(NamedTuple):
     channelstorage: float = 0
     rivuletstorage: float = 0
     qout: tuple = (0, )
+    qoutlast: float = 0
     qlat: tuple = (0, 0, 0)
+    qlatlast: float = 0
     qin: tuple = 20 * (0, )
 
