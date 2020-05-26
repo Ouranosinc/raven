@@ -181,15 +181,12 @@ class TestRVI:
         assert rvi.suppress_output == ""
 
 
-rvc = TESTDATA["solution.rvc"].read_text()
-
-
 class TestRVC:
     @classmethod
     def setup_class(self):
-        self.rvc = StringIO(rvc)
+        rvc = TESTDATA["solution.rvc"].read_text()
         self.r = RVC()
-        self.r.parse(self.rvc)
+        self.r.parse(rvc)
 
     def test_parse(self):
         assert self.r.hru_state.atmosphere == 821.98274
