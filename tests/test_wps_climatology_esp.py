@@ -25,7 +25,7 @@ class TestClimatologyESP:
         params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.947'
          
         #Date of the forecast that will be used to determine the members of the climatology-based ESP (same day of year of all other years)
-        forecast_date=dt.datetime(1955,7,1)
+        forecast_date=dt.datetime(1964,3,1)
         lead_time=365 # Number of days for lead time
         
         
@@ -66,8 +66,11 @@ class TestClimatologyESP:
         
         
         # Display forecast to show it works
-#        forecast, _ = urlretrieve(out['forecast'])
-#        tmp = xr.open_dataset(forecast)
-#        qfcst=tmp['q_sim'][:].data.transpose()
-#        plt.plot(qfcst)
-#        plt.show()
+
+        forecast, _ = urlretrieve(out['forecast'])
+        tmp = xr.open_dataset(forecast)
+        qfcst=tmp['q_sim'][:].data.transpose()
+        plt.plot(qfcst)
+        plt.show()
+
+

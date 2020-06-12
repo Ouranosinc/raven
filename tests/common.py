@@ -81,6 +81,8 @@ TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
 TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
 
+TESTDATA['climatologyESP'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
+
 
 TESTDATA['climatologyESP'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 
