@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 from scipy import stats
 
 from raven.utilities.mk_test import mk_test_calc
-from xclim.utils import units2pint
+from xclim.core.units import units2pint
 
 
 def hydrograph(file_list):

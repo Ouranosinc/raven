@@ -1,7 +1,7 @@
 import pytest
 import xarray as xr
 from urlpath import URL
-from xclim.streamflow import stats, fit
+from xclim.indicators.land._streamflow import stats, fit
 
 from raven.models import Raven
 from .common import TESTDATA, TD
