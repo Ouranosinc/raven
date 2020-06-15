@@ -72,8 +72,9 @@ install:
 
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
-#  - raven start --daemon --bind-host 0.0.0.0 --port 5000
-  - bash -c "source $HOME/miniconda3/bin/activate raven && make start"
+    #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
+    - bash -c "source $HOME/miniconda3/bin/activate raven && pip install git+https://github.com/pydata/xarray.git@master"
+    - bash -c "source $HOME/miniconda3/bin/activate raven && make start"
 
 script:
   - bash -c "source $HOME/miniconda3/bin/activate raven && make test"
