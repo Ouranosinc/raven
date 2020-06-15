@@ -1,15 +1,15 @@
-from xclim.land import base_flow_index, fit
-from xclim.land._streamflow import Stats, FA
-from xclim import generic
+from xclim.indicators.land._streamflow import base_flow_index, fit, stats
+from xclim.indices.generic import fa
+from xclim.indices import generic
 from .base_xclim import make_xclim_indicator_process
 
 
-stats = Stats(identifier='ts_stats',
+stats = stats(identifier='ts_stats',
               long_name='{freq} {op} of {indexer} daily flow ',
               description="{freq} {op} of {indexer} daily flow",
               compute=generic.select_resample_op)
 
-freq = FA(identifier='freq_analysis',
+freq = fa(identifier='freq_analysis',
           long_name='N-year return period {mode} {indexer} {window}-day flow',
           description="Streamflow frequency analysis for the {mode} {indexer} {window}-day flow "
                       "estimated using the {dist} distribution.",
