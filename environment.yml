@@ -15,8 +15,8 @@ dependencies:
 - psutil
 - numpy
 - scipy
-- xarray==0.13
-- xclim==0.12.2
+- xarray>=0.14.1
+- xclim>=0.15
 - rioxarray
 - matplotlib
 - dask
