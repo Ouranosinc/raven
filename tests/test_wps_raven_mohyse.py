@@ -15,12 +15,10 @@ class TestRavenMOHYSEProcess:
     def test_simple(self):
         client = client_for(Service(processes=[RavenMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
-        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453'
-        hrus = '0.9039, 5.6179775'
+        params = '1.0000, 0.0468, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6179775'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params};" \
-                     "hrus={hrus};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
@@ -31,7 +29,6 @@ class TestRavenMOHYSEProcess:
                      "elevation={elevation};" \
             .format(ts=TESTDATA['raven-mohyse-nc-ts'],
                     params=params,
-                    hrus=hrus,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',
@@ -68,23 +65,18 @@ class TestRavenMOHYSEProcess:
     def test_parallel(self):
         client = client_for(Service(processes=[RavenMOHYSEProcess(), ], cfgfiles=CFG_FILE))
 
-        params1 = '1.03, 0.046, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453'
-        hrus1 = '0.9039, 5.6179775'
-        params2 = '1.05, 0.0468, 4.29, 2.65, 0.45, 0.062, 0.027, 0.043'
-        hrus2 = '0.903, 5.65'
-        params3 = '0.98, 0.04, 4.2, 2.6, 0.40, 0.05, 0.03, 0.03'
-        hrus3 = '0.90, 5.5'
+        params1 = '1.03, 0.046, 4.2952, 2.6580, 0.4038, 0.0621, 0.0273, 0.0453, 0.9039, 5.6179775'
+        params2 = '1.05, 0.0468, 4.29, 2.65, 0.45, 0.062, 0.027, 0.043, 0.903, 5.65'
+        params3 = '0.98, 0.04, 4.2, 2.6, 0.40, 0.05, 0.03, 0.03, 0.90, 5.5'
 
         datainputs = "ts=files@xlink:href=file://{ts};" \
                      "params={params1};" \
                      "params={params2};" \
                      "params={params3};" \
-                     "hrus={hrus1};" \
-                     "hrus={hrus2};" \
-                     "hrus={hrus3};" \
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
+                     "run_name={run_name};" \
                      "area={area};" \
                      "latitude={latitude};" \
                      "longitude={longitude};" \
@@ -93,9 +85,6 @@ class TestRavenMOHYSEProcess:
                     params1=params1,
                     params2=params2,
                     params3=params3,
-                    hrus1=hrus1,
-                    hrus2=hrus2,
-                    hrus3=hrus3,
                     start_date=dt.datetime(2000, 1, 1),
                     end_date=dt.datetime(2002, 1, 1),
                     name='Salmon',

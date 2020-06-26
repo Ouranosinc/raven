@@ -1,6 +1,6 @@
 version: '3'
 services:
-  raven:
+  wps:
     build: .
     image: local_raven
     ports:
