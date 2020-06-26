@@ -26,7 +26,7 @@ class ClimatologyEspProcess(Process):
                                min_occurs=1,
                                max_occurs=1)
         leadtime=LiteralInput('lead_time', 'Forecast lead-time',
-                               abstract='duration of the forecast in days',
+                               abstract='Duration of the forecast in days',
                                data_type='integer',
                                default=30,
                                min_occurs=0,
@@ -71,12 +71,9 @@ class ClimatologyEspProcess(Process):
         
         # Get info from kwds but remove the ones that are not understood by RAVEN.
         # Have to delete these because or else I get an error: no config key named model_name
-        forecast_date = kwds['forecast_date']
-        del kwds['forecast_date']
-        lead_time = kwds['lead_time']
-        del kwds['lead_time']
-        model_name = kwds['model_name']
-        del kwds['model_name']  
+        forecast_date = kwds.pop('forecast_date')
+        lead_time = kwds.pop('lead_time')
+        model_name = kwds.pop('model_name')
      
         # Get the model parameters, transform them to a list of floats and write them back to the kwds config.
         params=kwds['params']
