@@ -1,4 +1,4 @@
-from . common import TESTDATA
+from .common import TESTDATA
 import raven
 from raven.models import Raven, Ostrich
 from raven.models.base import get_diff_level
@@ -7,38 +7,38 @@ import numpy as np
 from pathlib import Path
 import pytest
 
+
 has_singularity = raven.raven_simg.exists()
 
 
 class TestRaven:
-
     def test_gr4j(self):
-        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
-        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        rvs = TESTDATA["raven-gr4j-cemaneige-nc-rv"]
+        ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
 
         model = Raven()
         model.configure(rvs)
         model(ts)
 
     def test_mohyse(self):
-        rvs = TESTDATA['raven-mohyse-rv']
-        ts = list(TESTDATA['raven-mohyse-ts'])
+        rvs = TESTDATA["raven-mohyse-rv"]
+        ts = list(TESTDATA["raven-mohyse-ts"])
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
         model(ts)
 
     def test_hmets(self):
-        rvs = TESTDATA['raven-hmets-rv']
-        ts = TESTDATA['raven-hmets-ts']
+        rvs = TESTDATA["raven-hmets-rv"]
+        ts = TESTDATA["raven-hmets-ts"]
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
         model(ts)
 
     def test_hbvec(self):
-        rvs = TESTDATA['raven-hbv-ec-rv']
-        ts = TESTDATA['raven-hbv-ec-ts']
+        rvs = TESTDATA["raven-hbv-ec-rv"]
+        ts = TESTDATA["raven-hbv-ec-ts"]
 
         model = Raven(tempfile.mkdtemp())
         model.configure(rvs)
@@ -46,8 +46,8 @@ class TestRaven:
 
     @pytest.mark.skipif(not has_singularity, reason="Singularity is not available.")
     def test_singularity(self):
-        rvs = TESTDATA['raven-gr4j-cemaneige-nc-rv']
-        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
+        rvs = TESTDATA["raven-gr4j-cemaneige-nc-rv"]
+        ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
 
         model = Raven()
         model.singularity = True
@@ -56,10 +56,9 @@ class TestRaven:
 
 
 class TestOstrich:
-
     def test_gr4j_with_no_tags(self):
-        ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-        ost = TESTDATA['ostrich-gr4j-cemaneige-rv']
+        ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
+        ost = TESTDATA["ostrich-gr4j-cemaneige-rv"]
 
         model = Ostrich()
         model.configure(ost)
@@ -76,10 +75,18 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [2.423961, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098], 4,
-                                       err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, -0.486033, 4,
-                                       err_msg='calibrated NSE is not matching expected value')
+        np.testing.assert_almost_equal(
+            opt_para,
+            [2.424726, 3.758972, 204.3856, 5.866946, 16.60408, 0.3728098],
+            3,
+            err_msg="calibrated parameter set is not matching expected value",
+        )
+        np.testing.assert_almost_equal(
+            opt_func,
+            -0.50717,
+            4,
+            err_msg="calibrated NSE is not matching expected value",
+        )
 
         # # Random number seed: 123                       #
         # # Budget:             50                        #      This is the setup in the Wiki:
@@ -91,11 +98,11 @@ class TestOstrich:
         # np.testing.assert_almost_equal(opt_func, -0.5779910, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
 
-        assert Path(model.outputs['calibration']).exists()
+        assert Path(model.outputs["calibration"]).exists()
 
     def test_mohyse_with_no_tags(self):
-        ts = TESTDATA['raven-mohyse-nc-ts']
-        ost = TESTDATA['ostrich-mohyse-rv']
+        ts = TESTDATA["raven-mohyse-nc-ts"]
+        ost = TESTDATA["ostrich-mohyse-rv"]
 
         model = Ostrich()
         model.configure(ost)
@@ -112,12 +119,29 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [7.721801E+00, 8.551484E-01, 1.774571E+01, 1.627677E+00,
-                                                  7.702450E-02, 9.409600E-01, 6.941596E-01, 8.207870E-01,
-                                                  8.154455E+00, 1.018226E+01], 4,
-                                       err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, -0.3826810, 4,
-                                       err_msg='calibrated NSE is not matching expected value')
+        np.testing.assert_almost_equal(
+            opt_para,
+            [
+                7.721801e00,
+                8.551484e-01,
+                1.774571e01,
+                1.627677e00,
+                7.702450e-02,
+                9.409600e-01,
+                6.941596e-01,
+                8.207870e-01,
+                8.154455e00,
+                1.018226e01,
+            ],
+            4,
+            err_msg="calibrated parameter set is not matching expected value",
+        )
+        np.testing.assert_almost_equal(
+            opt_func,
+            -0.3826810,
+            4,
+            err_msg="calibrated NSE is not matching expected value",
+        )
 
         # # Random number seed: 123                       #
         # # Budget:             50                        #      This is the setup in the Wiki:
@@ -131,11 +155,11 @@ class TestOstrich:
         # np.testing.assert_almost_equal(opt_func, -0.3857010, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
 
-        assert Path(model.outputs['calibration']).exists()
+        assert Path(model.outputs["calibration"]).exists()
 
     def test_hmets_with_no_tags(self):
-        ts = TESTDATA['raven-hmets-nc-ts']
-        ost = TESTDATA['ostrich-hmets-rv']
+        ts = TESTDATA["raven-hmets-nc-ts"]
+        ost = TESTDATA["ostrich-hmets-rv"]
 
         model = Ostrich()
         model.configure(ost)
@@ -152,15 +176,42 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [1.806003e+01, 3.510955e+00, 1.195340e+01, 1.413509e+00,
-                                                  1.662893e+01, 1.794244e+01, -2.226484e-01, 1.391220e-01,
-                                                  5.429963e-02, 2.361525e-01, 2.706042e-02, -4.562373e+00,
-                                                  6.481391e-01, 5.493992e-01, 2.509283e+00, 4.213560e-01,
-                                                  1.784870e-02, 7.768531e-02, 4.568809e-03, 1.147092e-01,
-                                                  4.028124e-01], 4,
-                                       err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 2.2878, 4,
-                                       err_msg='calibrated NSE is not matching expected value')
+
+        expected_value = [
+            1.777842e01,
+            3.317211e00,
+            5.727342e00,
+            1.419491e00,
+            1.382141e01,
+            1.637954e01,
+            7.166296e-01,
+            1.389346e-01,
+            2.620464e-02,
+            2.245525e-01,
+            2.839426e-02,
+            -2.003810e00,
+            9.479623e-01,
+            4.803857e-01,
+            2.524914e00,
+            4.117232e-01,
+            1.950058e-02,
+            4.494123e-02,
+            1.405815e-03,
+            2.815803e-02,
+            1.007823e00,
+        ]
+        np.testing.assert_almost_equal(
+            opt_para,
+            expected_value,
+            4,
+            err_msg="calibrated parameter set is not matching expected value",
+        )
+        np.testing.assert_almost_equal(
+            opt_func,
+            1.43474,
+            4,
+            err_msg="calibrated NSE is not matching expected value",
+        )
 
         # # Random number seed: 123                       #
         # # Budget:             50                        #      This is the setup in the Wiki:
@@ -178,11 +229,11 @@ class TestOstrich:
         # np.testing.assert_almost_equal(opt_func, -6.350490E-01, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
 
-        assert Path(model.outputs['calibration']).exists()
+        assert Path(model.outputs["calibration"]).exists()
 
     def test_hbvec_with_no_tags(self):
-        ts = TESTDATA['raven-hbv-ec-nc-ts']
-        ost = TESTDATA['ostrich-hbv-ec-rv']
+        ts = TESTDATA["raven-hbv-ec-nc-ts"]
+        ost = TESTDATA["ostrich-hbv-ec-rv"]
 
         model = Ostrich()
         model.configure(ost)
@@ -199,15 +250,40 @@ class TestOstrich:
         # Algorithm:          DDS                         #         shorter sim-period and lower budget
         # :StartDate          1954-01-01 00:00:00         #      First tested that example below matches
         # :Duration           208                         #
-        np.testing.assert_almost_equal(opt_para, [-8.317931E-01, 4.072232E+00, 2.001574E+00, 5.736299E-03,
-                                                  9.985144E-02, 4.422529E-01, 3.438486E+00, 8.055843E+01,
-                                                  4.440133E-01, 8.451082E-02, 2.814201E+00, 7.327970E-01,
-                                                  1.119773E+00, 1.161223E-03, 4.597179E-01, 1.545857E+01,
-                                                  1.223865E+00, 4.452843E-01, 9.492006E-01, 9.948123E-01,
-                                                  1.110682E+00], 4,
-                                       err_msg='calibrated parameter set is not matching expected value')
-        np.testing.assert_almost_equal(opt_func, 0.242187, 4,
-                                       err_msg='calibrated NSE is not matching expected value')
+        np.testing.assert_almost_equal(
+            opt_para,
+            [
+                -8.317931e-01,
+                4.072232e00,
+                2.001574e00,
+                5.736299e-03,
+                9.985144e-02,
+                4.422529e-01,
+                3.438486e00,
+                8.055843e01,
+                4.440133e-01,
+                8.451082e-02,
+                2.814201e00,
+                7.327970e-01,
+                1.119773e00,
+                1.161223e-03,
+                4.597179e-01,
+                1.545857e01,
+                1.223865e00,
+                4.452843e-01,
+                9.492006e-01,
+                9.948123e-01,
+                1.110682e00,
+            ],
+            4,
+            err_msg="calibrated parameter set is not matching expected value",
+        )
+        np.testing.assert_almost_equal(
+            opt_func,
+            0.242187,
+            4,
+            err_msg="calibrated NSE is not matching expected value",
+        )
 
         # # Random number seed: 123                       #
         # # Budget:             50                        #      This is the setup in the Wiki:
@@ -224,23 +300,20 @@ class TestOstrich:
         # np.testing.assert_almost_equal(opt_func, -6.034670E-01, 4,
         #                                err_msg='calibrated NSE is not matching expected value')
 
-        assert Path(model.outputs['calibration']).exists()
+        assert Path(model.outputs["calibration"]).exists()
 
 
 def test_get_diff_level():
-    fn = Path('/') / 'a' / 'b' / 'c.txt'
-    files = [fn,
-             Path('/') / 'a' / 'b' / 'd.txt']
+    fn = Path("/") / "a" / "b" / "c.txt"
+    files = [fn, Path("/") / "a" / "b" / "d.txt"]
     assert get_diff_level(files) == 3
-    assert fn.relative_to(Path(*fn.parts[:3])) == Path('c.txt')
+    assert fn.relative_to(Path(*fn.parts[:3])) == Path("c.txt")
 
-    files = [fn,
-             Path('/') / 'a' / 'b1' / 'c.txt']
+    files = [fn, Path("/") / "a" / "b1" / "c.txt"]
     assert get_diff_level(files) == 2
-    assert fn.relative_to(Path(*fn.parts[:2])) == Path('b/c.txt')
+    assert fn.relative_to(Path(*fn.parts[:2])) == Path("b/c.txt")
 
-    files = [fn,
-             Path('/') / 'a' / 'b1' / 'b2' / 'c.txt']
+    files = [fn, Path("/") / "a" / "b1" / "b2" / "c.txt"]
     assert get_diff_level(files) == 2
-    assert files[0].relative_to(Path(*fn.parts[:2])) == Path('b/c.txt')
-    assert files[1].relative_to(Path(*files[1].parts[:2])) == Path('b1/b2/c.txt')
+    assert files[0].relative_to(Path(*fn.parts[:2])) == Path("b/c.txt")
+    assert files[1].relative_to(Path(*files[1].parts[:2])) == Path("b1/b2/c.txt")
