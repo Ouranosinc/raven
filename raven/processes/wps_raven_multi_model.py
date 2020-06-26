@@ -13,7 +13,6 @@ gr4jcn = LiteralInput('gr4jcn', 'Comma separated list of GR4JCN parameters',
                       data_type='string',
                       min_occurs=0)
 
-# This won't work until we merge the hrus with the parameters
 mohyse = LiteralInput('mohyse', 'Comma separated list of MOHYSE parameters',
                       abstract='Parameters: ' + ', '.join(MOHYSE.params._fields),
                       data_type='string',

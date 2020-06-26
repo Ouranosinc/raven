@@ -17,6 +17,7 @@ dependencies:
 - scipy
 - xarray==0.13
 - xclim==0.12.2
+- rioxarray
 - matplotlib
 - dask
 - pandas
@@ -45,4 +46,3 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
-  - salem
