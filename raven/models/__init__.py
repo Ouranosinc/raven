@@ -1,4 +1,3 @@
-from .gr4j_cemaneige import simulation as gr4j
 import os
 from .base import Raven, Ostrich
 from .emulators import GR4JCN, MOHYSE, HMETS, HBVEC, get_model

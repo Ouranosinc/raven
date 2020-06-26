@@ -63,7 +63,7 @@ class TestRavenHBVECProcess:
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        np.testing.assert_almost_equal(diag, 35.5654, 4, err_msg='RMSE is not matching expected value')
+        np.testing.assert_almost_equal(diag, 35.5654, 3, err_msg='RMSE is not matching expected value')
 
     def test_parallel(self):
         client = client_for(Service(processes=[RavenHBVECProcess(), ], cfgfiles=CFG_FILE))
@@ -87,6 +87,7 @@ class TestRavenHBVECProcess:
                      "start_date={start_date};" \
                      "end_date={end_date};" \
                      "name={name};" \
+                     "run_name={run_name};" \
                      "area={area};" \
                      "latitude={latitude};" \
                      "longitude={longitude};" \

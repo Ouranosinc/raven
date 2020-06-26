@@ -28,6 +28,7 @@ TESTDATA['gr4j-cemaneige'] = \
      'tas': TD / 'gr4j_cemaneige' / 'tas.nc',
      'evap': TD / 'gr4j_cemaneige' / 'evap.nc'}
 
+TESTDATA["solution.rvc"] = TD / "solution.rvc"
 TESTDATA['raven-gr4j-cemaneige-nc-ts'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 TESTDATA['raven-gr4j-cemaneige-nc-rv'] = tuple((TD / 'raven-gr4j-cemaneige').glob('raven-gr4j-salmon.rv?'))
 
@@ -96,10 +97,6 @@ class WpsTestClient(WpsClient):
         return super(WpsTestClient, self).get(query)
 
 
-def client_for(service):
-    return WpsTestClient(service, WpsTestResponse)
-
-
 def count_pixels(stats, numeric_categories=False):
     category_counts = 0
     for key, val in stats.items():
@@ -112,28 +109,6 @@ def count_pixels(stats, numeric_categories=False):
             continue
         category_counts += val
     return category_counts
-
-
-def get_output(doc):
-    """Read XML process response and return output dictionary."""
-    output = {}
-    for output_el in xpath_ns(doc, '/wps:ExecuteResponse'
-                                   '/wps:ProcessOutputs/wps:Output'):
-        [identifier_el] = xpath_ns(output_el, './ows:Identifier')
-
-        lit_el = xpath_ns(output_el, './wps:Data/wps:LiteralData')
-        if lit_el:
-            output[identifier_el.text] = lit_el[0].text
-
-        ref_el = xpath_ns(output_el, './wps:Reference')
-        if ref_el:
-            output[identifier_el.text] = ref_el[0].attrib['href']
-
-        data_el = xpath_ns(output_el, './wps:Data/wps:ComplexData')
-        if data_el:
-            output[identifier_el.text] = data_el[0].text
-
-    return output
 
 
 def synthetic_gr4j_inputs(path):
@@ -227,3 +202,30 @@ def _convert_3d(fn):
             out[v] = xr.DataArray(data=data, dims=('time', 'lon', 'lat'), attrs=ds.data_vars[v].attrs)
 
     return out
+
+
+def client_for(service):
+    return WpsTestClient(service, WpsTestResponse)
+
+
+def get_output(doc):
+    """Copied from pywps/tests/test_execute.py.
+    TODO: make this helper method public in pywps."""
+    output = {}
+    for output_el in xpath_ns(doc, '/wps:ExecuteResponse'
+                                   '/wps:ProcessOutputs/wps:Output'):
+        [identifier_el] = xpath_ns(output_el, './ows:Identifier')
+
+        lit_el = xpath_ns(output_el, './wps:Data/wps:LiteralData')
+        if lit_el != []:
+            output[identifier_el.text] = lit_el[0].text
+
+        ref_el = xpath_ns(output_el, './wps:Reference')
+        if ref_el != []:
+            output[identifier_el.text] = ref_el[0].attrib['href']
+
+        data_el = xpath_ns(output_el, './wps:Data/wps:ComplexData')
+        if data_el != []:
+            output[identifier_el.text] = data_el[0].text
+
+    return output
