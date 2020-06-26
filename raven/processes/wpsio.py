@@ -217,10 +217,6 @@ forecast = ComplexOutput('forecast', 'Multiple forecasted hydrograph time series
                                   'on which the forecasting method has been applied. The number of members '
                                   '(hydrographs) is equal to the number of input weather forecast members passed to the method. ',
                          as_reference=True)
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
                         abstract='A netCDF file describing the total storage of water (in mm) in all water '
