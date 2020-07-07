@@ -5,9 +5,9 @@ channels:
 dependencies:
 - pip
 - six
-- pywps==4.2.3
+- pywps==4.2.6
 - unidecode
-- birdy
+- birdy==0.6.9
 - owslib==0.18
 - poppler
 - jinja2
