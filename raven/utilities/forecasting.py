@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import tempfile
-import pdb
+
 LOGGER = logging.getLogger("PYWPS")
 
 # This function gets model states after running the model (i.e. states at the end of the run).
@@ -129,7 +129,7 @@ def perform_climatology_esp(model_name,ts,forecast_date, lead_time, **kwds):
     # Forcing start and end dates here because the default 0001 year is not working with the datetime64 with nanoseconds, only yeras 1642-2256 or whatever are possible.
     kwds['start_date']=pd.to_datetime(block_ini['time'][0].values).to_pydatetime()
     kwds['end_date']=pd.to_datetime(block_ini['time'][-1].values).to_pydatetime()
-    pdb.set_trace()
+
     # We will iterate this for all forecast years
     for years in avail_years:
 
