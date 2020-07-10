@@ -7,7 +7,7 @@ from typing import Tuple
 from typing import Union
 
 import pandas as pd
-from raven.utils import crs_sniffer, single_file_check, archive_sniffer
+from raven.utils import crs_sniffer, single_file_check
 from shapely.geometry import shape, Point
 
 GEO_URL = "http://boreas.ouranos.ca/geoserver/wfs"

@@ -22,6 +22,6 @@
 #                  1.0 / MOHYSE_PARA_10,   MOHYSE_PARA_9
    :Parameters,             GAMMA_SCALE,     GAMMA_SHAPE,
    :Units,                          1/d,               -
-              1,         {par_rezi_x10},       {hrus.par_x09}
+              1,         {par_rezi_x10},       {params.par_x09}
 :EndSubBasinProperties
 
