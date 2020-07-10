@@ -146,8 +146,8 @@ class HPCConnection(object):
             self.client.join(output)
             self.logger.debug(output)
             line = ""
-            for l in output[self.hostname].stdout:
-                line += l
+            for char in output[self.hostname].stdout:
+                line += char
             # print(line)
             tar_size = int(re.match("[0-9]*", line).group(0))
 
