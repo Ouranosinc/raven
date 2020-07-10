@@ -10,12 +10,11 @@ import pandas as pd
 import datetime as dt
 import tempfile
 import pdb
-
 LOGGER = logging.getLogger("PYWPS")
 
 # This function gets model states after running the model (i.e. states at the end of the run).
-def getRavenStates(model, **kwds):
-    """Perform regionalization for catchment whose outlet is defined by coordinates.
+def get_raven_states(model, **kwds):
+    """Get the RAVEN states file (.rvc file) after a model run.
 
     Parameters
     ----------
@@ -38,11 +37,12 @@ def getRavenStates(model, **kwds):
     return rvc
 
 
-'''
-Function that might be useful eventually to do a forecast from a model setup.
-'''
+
 # Do the actual forecasting step
-def performForecastingStep(rvc,model,**kwds):
+def perform_forecasting_step(rvc,model,**kwds):
+    '''
+    Function that might be useful eventually to do a forecast from a model setup.
+    '''
     # kwds includes 'ts', the forecast timeseries data
     # Setup the model
     m = get_model(model)()
@@ -59,13 +59,30 @@ def performForecastingStep(rvc,model,**kwds):
     
     
     
-''' 
-This function takes the model setup and name as well as forecast data and lead time and returns
-an ESP forecast netcdf. The data comes from the climatology data and thus there is a mechanism
-to get the correct data from the time series and exclude the current year.
-'''
-def performClimatologyESP(model_name,ts,forecast_date, lead_time, **kwds):
+
+def perform_climatology_esp(model_name,ts,forecast_date, lead_time, **kwds):
+    ''' 
+    This function takes the model setup and name as well as forecast data and lead time and returns
+    an ESP forecast netcdf. The data comes from the climatology data and thus there is a mechanism
+    to get the correct data from the time series and exclude the current year.
     
+    Parameters:
+    -----------
+    model_name : {'HMETS', 'MOHYSE', 'GR4J', 'HBVEC'}
+        model name to instatiate Raven model
+    ts : string
+        path to the netcdf timeseries to run the model, which should be a historical timeseries.
+    forecast_date : datetime datetime object
+        date of the forecast issue.
+    lead_time : integer
+        number of days of forecast, forward looking. 
+    kwds : Raven model configuration parameters.
+    
+    Returns:
+    --------
+    qsims: Arraty of streamflow values from the ESP method.
+    
+    '''
     # Get the timeseries
     tsnc=xr.open_dataset(ts)
     
@@ -104,7 +121,7 @@ def performClimatologyESP(model_name,ts,forecast_date, lead_time, **kwds):
     # Run model to get rvc file after warm-up using base meteo.
     baseMet.to_netcdf(tmp_path + '/climatologyESP.nc')
     kwds['ts']=tmp_path + '/climatologyESP.nc'
-    rvc = getRavenStates(model_name, **kwds)
+    rvc = get_raven_states(model_name, **kwds)
     
     # Preassign the variables in the "block" dataset. Cheap way to build a dataset object.
     block_ini=tsnc.sel(time=slice(forecast_date,forecast_date-dt.timedelta(days=1)+dt.timedelta(days=lead_time)))
@@ -112,7 +129,7 @@ def performClimatologyESP(model_name,ts,forecast_date, lead_time, **kwds):
     # Forcing start and end dates here because the default 0001 year is not working with the datetime64 with nanoseconds, only yeras 1642-2256 or whatever are possible.
     kwds['start_date']=pd.to_datetime(block_ini['time'][0].values).to_pydatetime()
     kwds['end_date']=pd.to_datetime(block_ini['time'][-1].values).to_pydatetime()
-    
+    pdb.set_trace()
     # We will iterate this for all forecast years
     for years in avail_years:
 

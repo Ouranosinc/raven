@@ -1,18 +1,11 @@
-from pathlib import Path
 import logging
 
-from pywps import ComplexInput, ComplexOutput, LiteralInput
-from pywps import FORMATS
-from pywps import Format
+from pywps import LiteralInput
 from pywps import Process
 from . import wpsio as wio
 
-import pandas as pd
-import xarray as xr
-import numpy as np
-from raven.models import get_model
 from raven.utilities import forecasting
-import datetime as dt
+
 import tempfile
 
 
@@ -81,7 +74,7 @@ class ClimatologyEspProcess(Process):
         params= list(map(float, csv.split(',')))
         kwds['params']=params  
           
-        qsims=forecasting.performClimatologyESP(model_name,ts,forecast_date,lead_time,**kwds)
+        qsims=forecasting.perform_climatology_esp(model_name,ts,forecast_date,lead_time,**kwds)
         
         # Prepare the forecast netcdf result file and send the path to the results output.
         
