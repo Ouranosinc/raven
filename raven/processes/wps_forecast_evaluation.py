@@ -6,8 +6,6 @@ from pywps import LiteralInput
 from pywps import Process
 from pywps.app.Common import Metadata
 
-import numpy as np
-from scipy.stats import norm
 import xskillscore as xs
 import xarray as xr
 
@@ -50,7 +48,7 @@ class HindcastEvaluationProcess(Process):
                   LiteralInput('BSS_threshold', 'Threshold for Brier Skill Score exceeding given threshold',
                                abstract='Threshold for Brier Skill Score exceeding given threshold',
                                data_type='float',
-                               default = 0.7,
+                               default=0.7,
                                min_occurs=0,
                                max_occurs=1),
                   LiteralInput('metric', 'Forecast evaluation metric name',
@@ -80,8 +78,7 @@ class HindcastEvaluationProcess(Process):
             metadata=[Metadata("XSkillScore Documentation", "https://pypi.org/project/xskillscore/")],
             inputs=inputs,
             outputs=outputs,
-            #keywords=["forecast evaluation", "ensemble", "deterministic"] + list(funcs.keys()),
-            keywords=["hindcast evaluation", "ensemble", "deterministic"],
+            keywords=["forecast evaluation", "ensemble", "deterministic"] + list(all_metrics),
             status_supported=True,
             store_supported=True)
 
@@ -126,7 +123,6 @@ class HindcastEvaluationProcess(Process):
 
                 else:
                     m = func(obs, hcst, dim="member").mean("time")
-
 
             out[metric] = m.values.tolist()
 
