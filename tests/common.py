@@ -82,6 +82,11 @@ TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
 TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
 
+# XSkillScore test data
+TESTDATA['XSS_obs'] = TD / 'XSS_forecast_data' / 'XSS_obs.nc'
+TESTDATA['XSS_fcst_det'] = TD / 'XSS_forecast_data' / 'XSS_fcst_det.nc'
+TESTDATA['XSS_fcst_ensemble'] = TD / 'XSS_forecast_data' / 'XSS_fcst_ens.nc'
+
 
 class WpsTestClient(WpsClient):
 
