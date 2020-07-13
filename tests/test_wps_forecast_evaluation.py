@@ -17,11 +17,11 @@ class TestForecastEvaluationProcess:
         client = client_for(Service(processes=[HindcastEvaluationProcess(), ], cfgfiles=CFG_FILE))
 
         datainputs = "obs=files@xlink:href=file://{obs};" \
-                    "hcst=files@xlink:href=file://{hcst};" \
-                    "obs_var=obs;" \
-                     "hcst_var=fcst".format(obs=TESTDATA['XSS_obs'], hcst=TESTDATA[
-            'XSS_fcst_det'])
-
+                     "hcst=files@xlink:href=file://{hcst};" \
+                     "obs_var=obs;" \
+                     "hcst_var=fcst".format(obs=TESTDATA['XSS_obs'],
+                                            hcst=TESTDATA['XSS_fcst_det']
+                                            )
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='hindcast-evaluation',
             datainputs=datainputs)
@@ -34,11 +34,11 @@ class TestForecastEvaluationProcess:
         client = client_for(Service(processes=[HindcastEvaluationProcess(), ], cfgfiles=CFG_FILE))
 
         datainputs = "obs=files@xlink:href=file://{obs};" \
-                    "hcst=files@xlink:href=file://{hcst};" \
+                     "hcst=files@xlink:href=file://{hcst};" \
                      "obs_var=obs;" \
                      "hcst_var=fcst;" \
-                     "metric=crps_ensemble".format(obs=TESTDATA['XSS_obs'], hcst=TESTDATA[
-            'XSS_fcst_ensemble'])
+                     "metric=crps_ensemble".format(obs=TESTDATA['XSS_obs'],
+                                                   hcst=TESTDATA['XSS_fcst_ensemble'])
 
         resp = client.get(
             service='WPS', request='Execute', version='1.0.0', identifier='hindcast-evaluation',
