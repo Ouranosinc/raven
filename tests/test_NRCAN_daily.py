@@ -1,26 +1,14 @@
-import pytest
-import datetime as dt
-import numpy as np
-import xarray as xr
 import json
-
-import netCDF4 as nc
-from pywps import Service
-from pywps.tests import assert_response_success
-import os
-
-from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
-
-import matplotlib.pyplot as plt
-from pywps import Service
-from pywps.tests import assert_response_success
-
+import datetime as dt
 import tempfile
-from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
-
+import xarray as xr
+from pywps import Service
+from pywps.tests import assert_response_success
 from raven.processes import RavenHMETSProcess
 from raven.models import HMETS
+from .common import client_for, TESTDATA, CFG_FILE
 
+# Get path to ncml file for NRCan data.
 NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/1-Datasets/gridded_obs/nrcan_v2.ncml"
 
 # Temporary path
@@ -48,7 +36,6 @@ ds = (
     .mean(dim={"lat", "lon"}, keep_attrs=True)
 )
 ds.to_netcdf(filepath)
-
 
 
 class TestRavenNRCAN:

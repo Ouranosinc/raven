@@ -1,18 +1,11 @@
-from pathlib import Path
 import logging
 
-from pywps import ComplexInput, ComplexOutput, LiteralInput
-from pywps import FORMATS
-from pywps import Format
+from pywps import LiteralInput
 from pywps import Process
 from . import wpsio as wio
 
-import pandas as pd
-import xarray as xr
-import numpy as np
-from raven.models import get_model
 from raven.utilities import forecasting
-import datetime as dt
+
 import tempfile
 
 
@@ -66,7 +59,7 @@ class ClimatologyEspProcess(Process):
 
         # Get timeseries data that will be used to do the climatological ESP.
 
-        ts=request.inputs['ts'][0].file
+        ts = request.inputs['ts'][0].file
         del kwds['ts']
 
         # Get info from kwds but remove the ones that are not understood by RAVEN.
@@ -76,16 +69,15 @@ class ClimatologyEspProcess(Process):
         model_name = kwds.pop('model_name')
 
         # Get the model parameters, transform them to a list of floats and write them back to the kwds config.
-        params=kwds['params']
+        params = kwds['params']
         csv = params.replace('(', '').replace(')', '')
-        params= list(map(float, csv.split(',')))
-        kwds['params']=params
+        params = list(map(float, csv.split(',')))
+        kwds['params'] = params
 
-        qsims=forecasting.performClimatologyESP(model_name,ts,forecast_date,lead_time,**kwds)
+        qsims = forecasting.perform_climatology_esp(model_name, ts, forecast_date, lead_time, **kwds)
 
         # Prepare the forecast netcdf result file and send the path to the results output.
-
-        forecastfile=(self.workdir + '/forecast.nc')
+        forecastfile = (self.workdir + '/forecast.nc')
         qsims.to_netcdf(forecastfile)
         response.outputs['forecast'].file = forecastfile
 
