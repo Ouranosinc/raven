@@ -87,7 +87,7 @@ class TestRavenNRCAN:
 class TestRavenNRCANProcess:
     def test_simple(self):
         client = client_for(
-            Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE)
+            Service(processes=[RavenHMETSProcess(),], cfgfiles=CFG_FILE)
         )
 
         params = (
