@@ -61,21 +61,23 @@ def perform_climatology_esp(model_name, ts, forecast_date, lead_time, **kwds):
     an ESP forecast netcdf. The data comes from the climatology data and thus there is a mechanism
     to get the correct data from the time series and exclude the current year.
 
-    Parameters:
-    -----------
-    model_name : {'HMETS', 'MOHYSE', 'GR4J', 'HBVEC'}
-        model name to instatiate Raven model
+    Parameters
+    ----------
+    model_name : {'HMETS', 'MOHYSE', 'GR4JCN', 'HBVEC'}
+      Model name to instantiate Raven model.
     ts : string
-        path to the netcdf timeseries to run the model, which should be a historical timeseries.
-    forecast_date : datetime datetime object
-        date of the forecast issue.
-    lead_time : integer
-        number of days of forecast, forward looking.
-    kwds : Raven model configuration parameters.
+      Path to the netcdf timeseries to drive the model. This should be a historical time series.
+    forecast_date : datetime.datetime
+      Date of the forecast issue.
+    lead_time : int
+      Number of days of forecast, forward looking.
+    kwds : dict
+      Raven model configuration parameters.
 
-    Returns:
-    --------
-    qsims: Arraty of streamflow values from the ESP method.
+    Returns
+    -------
+    array
+      Array of streamflow values from the ESP method.
 
     """
     # Get the timeseries
