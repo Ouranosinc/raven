@@ -296,7 +296,7 @@ def ts_fit_graph(ts, params):
     from xclim.indices.generic import get_dist
 
     n = ts.nbasins.size
-    dist = params.attrs['standard_name'].split(' ')[0]
+    dist = params.attrs['scipy_dist']
 
     fig, axes = plt.subplots(n, figsize=(10, 6), squeeze=False)
 
