@@ -541,8 +541,6 @@ class Raven:
                                                    var_name=alt_name,
                                                    dimensions=ds[alt_name].dims,
                                                    units=ds[alt_name].attrs.get("units"),
-                                                   scale_factor=enc.get("scale_factor"),
-                                                   add_offset=enc.get("add_offset")
                                                    )
 
                                 break
