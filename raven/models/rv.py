@@ -2,8 +2,8 @@ import six
 import datetime as dt
 import collections
 from pathlib import Path
-from xclim.utils import units
-from xclim.utils import units2pint
+from xclim.core.units import units
+from xclim.core.units import units2pint
 from . state import HRUStateVariables, BasinStateVariables
 
 # Can be removed when xclim is pinned above 0.14
