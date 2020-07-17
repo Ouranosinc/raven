@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 from scipy import stats
 
 from raven.utilities.mk_test import mk_test_calc
-from xclim.utils import units2pint
+from xclim.core.units import units2pint
 
 
 def hydrograph(file_list):
@@ -293,10 +293,10 @@ def ts_fit_graph(ts, params):
     -------
     fig
     """
-    from xclim.generic import get_dist
+    from xclim.indices.generic import get_dist
 
     n = ts.nbasins.size
-    dist = params.attrs['standard_name'].split(' ')[0]
+    dist = params.attrs['scipy_dist']
 
     fig, axes = plt.subplots(n, figsize=(10, 6), squeeze=False)
 
