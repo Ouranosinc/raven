@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 17 09:11:58 2020
-
-@author: ets
-"""
-
 """
 Tools for hydrological forecasting
 """
@@ -112,6 +104,8 @@ def perform_climatology_esp(model_name, ts, forecast_date, lead_time, **kwds):
     # Then we replace the leadTime values with a cutout from a previous year, run model and repeat.
 
     # Base meteo block from begining of time series to beginning of forecast date, to run the model and save the initial conditions.
+    baseMet = tsnc.sel(time=slice(start_date, forecast_date - dt.timedelta(days=1)))
+    tmp_path = tempfile.mkdtemp()  # Eventualy we'll write the ts file here.
     qsims = []
 
     # list of unique years in the dataset:
@@ -119,32 +113,64 @@ def perform_climatology_esp(model_name, ts, forecast_date, lead_time, **kwds):
 
     # Remove the year that we are forecasting. Or else it's cheating!
     avail_years.remove(forecast_date.year)
-    kwds["end_date"]=forecast_date-dt.timedelta(days=1)
-    
+
+    # Get the list of variables in the netcdf dataset
+    keylist = list(tsnc.keys())
+
     # Run model to get rvc file after warm-up using base meteo.
-    kwds["ts"]=ts
+    baseMet.to_netcdf(tmp_path + "/climatologyESP.nc")
+    kwds["ts"] = tmp_path + "/climatologyESP.nc"
     rvc = get_raven_states(model_name, **kwds)
 
     # Preassign the variables in the "block" dataset. Cheap way to build a dataset object.
-    #block_ini = tsnc.sel(
-    #    time=slice(
-    #        forecast_date,
-    #        forecast_date - dt.timedelta(days=1) + dt.timedelta(days=lead_time),
-    #    )
-    #)
+    block_ini = tsnc.sel(
+        time=slice(
+            forecast_date,
+            forecast_date - dt.timedelta(days=1) + dt.timedelta(days=lead_time),
+        )
+    )
 
     # Forcing start and end dates here because the default 0001 year is not working with the datetime64 with nanoseconds, only yeras 1642-2256 or whatever are possible.
-    
+    kwds["start_date"] = pd.to_datetime(block_ini["time"][0].values).to_pydatetime()
+    kwds["end_date"] = pd.to_datetime(block_ini["time"][-1].values).to_pydatetime()
 
     # We will iterate this for all forecast years
     for years in avail_years:
-        forecast_date.replace(year=years)
-        kwds["start_date"] = forecast_date
-        kwds["end_date"] = forecast_date-dt.timedelta(days=1)+dt.timedelta(days=lead_time)
+
         # Use try statement here as it is possible the final year will fail or some variables are not used.
         try:
             # For each available variable in the dataset
-            
+            for k in keylist:
+
+                # Ensure it's a timeseries!
+                if "time" in tsnc[k].coords:
+
+                    # Here we extract the data from the timeseries file for the desired date and place it directly following the forecast date so the timeseries are coherent.
+                    block = (
+                        tsnc[k]
+                        .sel(
+                            time=slice(
+                                forecast_date.replace(year=years),
+                                forecast_date.replace(year=years)
+                                + dt.timedelta(days=lead_time - 1),
+                            )
+                        )
+                        .data
+                    )
+                    block_ini[k].loc[
+                        dict(
+                            time=slice(
+                                forecast_date,
+                                forecast_date
+                                - dt.timedelta(days=1)
+                                + dt.timedelta(days=lead_time),
+                            )
+                        )
+                    ] = block
+
+            # Now we have finished updating "block_ini" so we can use that as the timeseries to RAVEN.
+            block_ini.to_netcdf(tmp_path + "/forecastMember.nc")
+            kwds["ts"] = tmp_path + "/forecastMember.nc"
 
             # This works in Raven build 251+. Run the model and get the simulated hydrograph associated to the forecast block
             m.resume(rvc)
@@ -157,7 +183,7 @@ def perform_climatology_esp(model_name, ts, forecast_date, lead_time, **kwds):
 
             # depending on the forecast length, this might happen! Also if the netcdf file has vars such as qobs that don't cover the whole period, this will stop it.
             print(
-                "Last available year not used as dataset does not cover the lead time"
+                "Last available year not used as dataset does not cover the lead time OR bad variable"
             )
 
     # Concatenate the members through a new dimension for the members and remove unused dims.
