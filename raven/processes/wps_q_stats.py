@@ -1,6 +1,6 @@
-from xclim.land import base_flow_index, fit
-from xclim.land._streamflow import Stats, FA
-from xclim import generic
+from xclim.indicators.land import base_flow_index, fit
+from xclim.indicators.land._streamflow import Stats, FA
+from xclim.indices import generic
 from .base_xclim import make_xclim_indicator_process
 
 
