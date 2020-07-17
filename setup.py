@@ -22,7 +22,6 @@ docs_reqs = [
     'sphinx>=1.7',
     'sphinx-autoapi',
     'nbsphinx',
-    'sphinx-autodoc-pywps @ git+ssh://git@github.com/huard/sphinx-autodoc-pywps.git#egg=sphinx_autodoc_pywps'
 ]
 
 classifiers = [
