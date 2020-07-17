@@ -16,7 +16,7 @@ class TestBiasCorrect:
         # CAREFUL! ERA5 IS NOT ThE SAME LONGITUDE
         # Also, latitude goes from high to low, so I need to have it go from lat+1 to lat-1 in the slice.
         # For the NRCan dataset, I cannot have more than about 10 years as I get a "NetCDF: DAP failure" which I think is related to a timeout.
-        ds = (xr.open_dataset(hist_data).sel(lat=slice(lat + 1, lat - 1),lon=slice(lon - 1, lon + 1), time=slice(dt.datetime(2001,1,1), dt.datetime(2010,12,31))).mean(dim={"lat", "lon"}, keep_attrs=True))
+        ds = (xr.open_dataset(hist_data).sel(lat=slice(lat + 1, lat - 1),lon=slice(lon - 1, lon + 1), time=slice(dt.datetime(1991,1,1), dt.datetime(2010,12,31))).mean(dim={"lat", "lon"}, keep_attrs=True))
 
         # For lon in 0-360 format, need to add an auto-checker.
         lon = 260
