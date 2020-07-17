@@ -8,7 +8,8 @@ psutil
 numpy
 scipy
 matplotlib
-xarray==0.13
+xarray==0.16
+xclim==0.18
 pandas
 requests
 netCDF4
@@ -25,7 +26,7 @@ rtree
 fiona
 descartes
 geopandas
-pyproj
+pyproj~=2.5.0
 rasterio
 rasterstats
 shapely
@@ -38,3 +39,4 @@ ipython # needed for the parsing of Jupyter Notebooks
 salem # needed for figures in some notebooks
 psycopg2 # to use postgres to log pywps requests like in Prod
 # xclim It seems to be installed by pip in src/ and confuse pytest.
+xskillscore
