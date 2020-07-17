@@ -535,7 +535,6 @@ class Raven:
                         # Check if any alternate variable name is in the file.
                         for alt_name in alt_names:
                             if alt_name in ds.data_vars:
-                                enc = ds[alt_name].encoding
                                 ncvars[var] = dict(var=var,
                                                    path=fn,
                                                    var_name=alt_name,
