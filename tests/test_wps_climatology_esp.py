@@ -1,6 +1,5 @@
 import pytest
 import datetime as dt
-import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 
@@ -25,8 +24,8 @@ class TestClimatologyESP:
         params = '0.529, -3.396, 407.29, 1.072, 16.9, 0.947'
          
         #Date of the forecast that will be used to determine the members of the climatology-based ESP (same day of year of all other years)
-        forecast_date=dt.datetime(1964,3,1)
-        lead_time=365 # Number of days for lead time
+        forecast_date=dt.datetime(1954,12,30)
+        forecast_duration=365 # Number of days for forecast duration
         
         
         
@@ -40,7 +39,7 @@ class TestClimatologyESP:
                      "longitude={longitude};" \
                      "elevation={elevation};" \
                      "forecast_date={forecast_date};" \
-                     "lead_time={lead_time};" \
+                     "forecast_duration={forecast_duration};" \
                      "model_name={model_name};" \
             .format(ts=TESTDATA['climatologyESP'],
                     params=params,
@@ -52,7 +51,7 @@ class TestClimatologyESP:
                     latitude=54.4848,
                     longitude=-123.3659,
                     forecast_date=forecast_date,
-                    lead_time=lead_time,
+                    forecast_duration=forecast_duration,
                     model_name=model,
                     )
         
