@@ -6,8 +6,6 @@ from . import wpsio as wio
 
 from raven.utilities import forecasting
 
-import tempfile
-
 
 class ClimatologyEspProcess(Process):
     def __init__(self):
@@ -20,9 +18,9 @@ class ClimatologyEspProcess(Process):
             min_occurs=1,
             max_occurs=1,
         )
-        leadtime = LiteralInput(
-            "lead_time",
-            "Forecast lead-time",
+        duration = LiteralInput(
+            "forecast_duration",
+            "Forecast duration",
             abstract="Duration of the forecast in days",
             data_type="integer",
             default=30,
@@ -42,7 +40,7 @@ class ClimatologyEspProcess(Process):
 
         inputs = [
             fdate,
-            leadtime,
+            duration,
             params,
             wio.ts,
             wio.latitude,
@@ -52,8 +50,10 @@ class ClimatologyEspProcess(Process):
             wio.area,
             wio.elevation,
         ]
-
-        outputs = [wio.forecast]
+        
+        outputs = [
+                wio.forecast,
+        ]
 
         super(ClimatologyEspProcess, self).__init__(
             self._handler,
@@ -76,15 +76,12 @@ class ClimatologyEspProcess(Process):
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 
-        # Get timeseries data that will be used to do the climatological ESP.
-
-        ts = request.inputs["ts"][0].file
-        del kwds["ts"]
-
+        kwds["ts"] = request.inputs["ts"][0].file
+        
         # Get info from kwds but remove the ones that are not understood by RAVEN.
         # Have to delete these because or else I get an error: no config key named model_name
         forecast_date = kwds.pop("forecast_date")
-        lead_time = kwds.pop("lead_time")
+        forecast_duration = kwds.pop("forecast_duration")
         model_name = kwds.pop("model_name")
 
         # Get the model parameters, transform them to a list of floats and write them back to the kwds config.
@@ -94,9 +91,9 @@ class ClimatologyEspProcess(Process):
         kwds["params"] = params
 
         qsims = forecasting.perform_climatology_esp(
-            model_name, ts, forecast_date, lead_time, **kwds
+            model_name, forecast_date, forecast_duration, **kwds
         )
-
+        
         # Prepare the forecast netcdf result file and send the path to the results output.
         forecastfile = self.workdir + "/forecast.nc"
         qsims.to_netcdf(forecastfile)
