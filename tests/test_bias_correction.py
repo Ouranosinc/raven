@@ -8,7 +8,7 @@ class TestBiasCorrect:
     
         ref_data='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/day_MPI-ESM-LR_historical.ncml'
         fut_data='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/day_MPI-ESM-LR_historical+rcp85.ncml'
-        hist_data="https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/1-Datasets/gridded_obs/nrcan_v2.ncml"
+        hist_data="https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
                   
         lat=54.484
         lon=-123.36   
