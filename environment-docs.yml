@@ -9,4 +9,4 @@ dependencies:
 - sphinx
 - nbsphinx
 - ipython
-- xclim==0.12.2
+- xclim==0.18
