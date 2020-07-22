@@ -15,8 +15,8 @@ dependencies:
 - psutil
 - numpy
 - scipy
-- xarray>=0.14.1
-- xclim>=0.15
+- xarray==0.16
+- xclim==0.18
 - rioxarray
 - matplotlib
 - dask
@@ -42,6 +42,7 @@ dependencies:
 - ipyleaflet
 - pysheds
 - psycopg2
+- xskillscore
 - pip:
   - spotpy
   - urlpath

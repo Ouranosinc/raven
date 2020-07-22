@@ -535,14 +535,11 @@ class Raven:
                         # Check if any alternate variable name is in the file.
                         for alt_name in alt_names:
                             if alt_name in ds.data_vars:
-                                enc = ds[alt_name].encoding
                                 ncvars[var] = dict(var=var,
                                                    path=fn,
                                                    var_name=alt_name,
                                                    dimensions=ds[alt_name].dims,
                                                    units=ds[alt_name].attrs.get("units"),
-                                                   scale_factor=enc.get("scale_factor"),
-                                                   add_offset=enc.get("add_offset")
                                                    )
 
                                 break
@@ -555,6 +552,7 @@ class Raven:
         """
         files = list(path.rglob(pattern))
 
+        # TODO: Fix this. Raven won't have rvi.suppress_output is initialized with existing configuration files.
         if len(files) == 0 and not self.rvi.suppress_output:
             raise UserWarning("No output files for {} in {}.".format(pattern, path))
 
