@@ -6,8 +6,10 @@ import xclim.sdba as sdba
 class TestBiasCorrect:
     def test_bias_correction(self):
 
-        ref_data = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/day_MPI-ESM-LR_historical.ncml"
-        fut_data = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/day_MPI-ESM-LR_historical+rcp85.ncml"
+        ref_data = ("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/"
+                    "day_MPI-ESM-LR_historical.ncml")
+        fut_data = ("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/"
+                    "day_MPI-ESM-LR_historical+rcp85.ncml")
         hist_data = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
 
         lat = 54.484
@@ -15,7 +17,8 @@ class TestBiasCorrect:
 
         # CAREFUL! ERA5 IS NOT ThE SAME LONGITUDE
         # Also, latitude goes from high to low, so I need to have it go from lat+1 to lat-1 in the slice.
-        # For the NRCan dataset, I cannot have more than about 10 years as I get a "NetCDF: DAP failure" which I think is related to a timeout.
+        # For the NRCan dataset, I cannot have more than about 10 years as I get a "NetCDF: DAP failure" which I think
+        # is related to a timeout.
         ds = (
             xr.open_dataset(hist_data)
             .sel(
@@ -54,7 +57,7 @@ class TestBiasCorrect:
             nquantiles=50, kind="+", group=group_month_nowindow
         )
         Adj.train(ds["pr"], ds2["pr"])
-        Scen = Adj.adjust(ds3["pr"], interp="linear")
+        Adj.adjust(ds3["pr"], interp="linear")
         Adj.ds.af  # adjustment factors.
 
         print(Adj.ds.af)
