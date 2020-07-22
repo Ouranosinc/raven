@@ -9,4 +9,5 @@ dependencies:
 - sphinx
 - nbsphinx
 - ipython
+- xskillscore
 - xclim==0.18
