@@ -1,5 +1,5 @@
 language: generic
-
+os: linux
 dist: xenial
 
 jobs:
@@ -15,8 +15,7 @@ jobs:
                 update: true
       env:
             - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
-    - os: linux
-      name: "Linux (Python3.6 + pep8)"
+    - name: "Linux (Python3.6 + pep8)"
       dist: xenial
       python: "3.6"
       addons:
@@ -29,7 +28,6 @@ jobs:
     - os: linux
       name: "Linux (Python3.7 + docs)"
       python: "3.7"
-      dist: xenial
       addons:
             apt:
                 packages:
@@ -37,10 +35,8 @@ jobs:
       env:
             - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
             - DOCS=true
-    -   os: linux
-        name: "Linux (Python3.8 + notebooks)"
+    -   name: "Linux (Python3.8 + notebooks)"
         python: "3.8"
-        dist: xenial
         addons:
             apt:
                 packages:
@@ -71,8 +67,8 @@ install:
 
 before_script:
 #  # Start WPS service on port 5000 on 0.0.0.0
-#  - raven start --daemon --bind-host 0.0.0.0 --port 5000
-  - bash -c "source $HOME/miniconda3/bin/activate raven && make start"
+    #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
+    - bash -c "source $HOME/miniconda3/bin/activate raven && make start"
 
 script:
   - bash -c "source $HOME/miniconda3/bin/activate raven && make test"
