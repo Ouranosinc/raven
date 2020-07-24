@@ -52,7 +52,6 @@ jobs:
 branches:
   only:
     - master
-    - bias_correction
 
 install:
   - make bootstrap
