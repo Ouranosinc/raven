@@ -49,10 +49,6 @@ jobs:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
         - NOTEBOOKS=true
 
-branches:
-  only:
-    - master
-
 install:
   - make bootstrap
   # Useful for debugging any issues with conda
@@ -77,5 +73,5 @@ before_script:
 script:
   - bash -c "source $HOME/miniconda3/bin/activate raven && make test"
   - if [[ $NOTEBOOKS = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make FLYINGPIGEON_WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/flyingpigeon/wps test-notebooks"; fi
-  - if [[ $DOCS = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make docs"; fi
+  - if [[ $DOCS = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make docs && make SPHINXOPTS='-b epub' docs && make SPHINXOPTS='-b latex' docs"; fi
   - if [[ $PEP8 = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make pep8"; fi

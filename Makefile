@@ -2,8 +2,12 @@
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven
 
-WPS_URL = http://localhost:9099/
-OUTPUT_URL = $(WPS_URL)/wpsoutputs
+WPS_URL = http://localhost:9099
+
+# Used in target refresh-notebooks to make it looks like the notebooks have
+# been refreshed from the production server below instead of from the local dev
+# instance so the notebooks can also be used as tutorial notebooks.
+OUTPUT_URL = https://pavics.ouranos.ca/wpsoutputs
 
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
 
@@ -251,7 +255,7 @@ pep8:
 .PHONY: docs
 docs:
 	@echo "Generating docs with Sphinx ..."
-	@-bash -c '$(MAKE) -C $@ clean html'
+	@bash -c '$(MAKE) -C $@ clean html'
 	@echo "Open your browser to: file:/$(APP_ROOT)/docs/build/html/index.html"
 	## do not execute xdg-open automatically since it hangs travis and job does not complete
 	@echo "xdg-open $(APP_ROOT)/docs/build/html/index.html"
