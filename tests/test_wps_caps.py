@@ -41,5 +41,6 @@ def test_wps_caps():
                   'hindcast-evaluation',
                   'graph_objective_function_fit',
                   'fit',
-                  'graph_fit'
+                  'graph_fit',
+                  "climatology_esp",
                   }
