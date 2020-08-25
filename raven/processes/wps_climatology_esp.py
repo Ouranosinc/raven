@@ -50,9 +50,9 @@ class ClimatologyEspProcess(Process):
             wio.area,
             wio.elevation,
         ]
-        
+
         outputs = [
-                wio.forecast,
+            wio.forecast,
         ]
 
         super(ClimatologyEspProcess, self).__init__(
@@ -77,7 +77,7 @@ class ClimatologyEspProcess(Process):
             kwds[key] = request.inputs[key][0].data
 
         kwds["ts"] = request.inputs["ts"][0].file
-        
+
         # Get info from kwds but remove the ones that are not understood by RAVEN.
         # Have to delete these because or else I get an error: no config key named model_name
         forecast_date = kwds.pop("forecast_date")
@@ -93,7 +93,7 @@ class ClimatologyEspProcess(Process):
         qsims = forecasting.perform_climatology_esp(
             model_name, forecast_date, forecast_duration, **kwds
         )
-        
+
         # Prepare the forecast netcdf result file and send the path to the results output.
         forecastfile = self.workdir + "/forecast.nc"
         qsims.to_netcdf(forecastfile)

@@ -216,7 +216,8 @@ forecast = ComplexOutput('forecast', 'Multiple forecasted hydrograph time series
                          supported_formats=[FORMATS.NETCDF],
                          abstract='A netCDF file containing the outflow hydrographs (in m3/s) for the basin '
                                   'on which the forecasting method has been applied. The number of members '
-                                  '(hydrographs) is equal to the number of input weather forecast members passed to the method. ',
+                                  '(hydrographs) is equal to the number of input weather forecast members '
+                                  'passed to the method. ',
                          as_reference=True)
 
 storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
