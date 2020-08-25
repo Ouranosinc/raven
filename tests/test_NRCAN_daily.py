@@ -8,8 +8,9 @@ from raven.processes import RavenHMETSProcess
 from raven.models import HMETS
 from .common import client_for, TESTDATA, CFG_FILE
 
+
 # Get path to ncml file for NRCan data.
-NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/1-Datasets/gridded_obs/nrcan_v2.ncml"
+NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
 
 # Temporary path
 filepath = tempfile.mkdtemp() + "/NRCAN_ts.nc"
