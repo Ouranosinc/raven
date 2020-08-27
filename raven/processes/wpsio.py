@@ -191,7 +191,7 @@ rv_config = ComplexOutput('rv_config', 'Raven/Ostrich configuration files',
                           supported_formats=[FORMATS.ZIP],
                           as_reference=True)
 
-hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
+hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (m3/s)',
                            supported_formats=[FORMATS.NETCDF,
                                               Format('application/zip', extension='.zip', encoding='base64')],
                            abstract='A netCDF file containing the outflow hydrographs (in m3/s) for all subbasins '
@@ -203,7 +203,7 @@ hydrograph = ComplexOutput('hydrograph', 'Hydrograph time series (mm)',
                                     'hydrograph. ',
                            as_reference=True)
 
-ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (mm)',
+ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (m3/s)',
                          supported_formats=[FORMATS.NETCDF],
                          abstract='A netCDF file containing the outflow hydrographs (in m3/s) for the basin '
                                   'on which the regionalization method has been applied. The number of outflow '
@@ -212,6 +212,13 @@ ensemble = ComplexOutput('ensemble', 'Multiple hydrograph time series (mm)',
                                   'is the hydrograph generated in "hydrograph".',
                          as_reference=True)
 
+forecast = ComplexOutput('forecast', 'Multiple forecasted hydrograph time series (m3/s)',
+                         supported_formats=[FORMATS.NETCDF],
+                         abstract='A netCDF file containing the outflow hydrographs (in m3/s) for the basin '
+                                  'on which the forecasting method has been applied. The number of members '
+                                  '(hydrographs) is equal to the number of input weather forecast members '
+                                  'passed to the method. ',
+                         as_reference=True)
 
 storage = ComplexOutput('storage', 'Watershed storage time series (mm)',
                         abstract='A netCDF file describing the total storage of water (in mm) in all water '
