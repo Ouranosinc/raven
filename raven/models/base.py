@@ -584,11 +584,11 @@ class Raven:
         start, end = self.start_end_date(ts)
 
         rvi = self.rvi
-        if rvi.start_date == dt.datetime(1, 1, 1):
+        if rvi.start_date in [None, dt.datetime(1, 1, 1)]:
             rvi.start_date = start
 
         else:
-            if rvi.end_date == dt.datetime(1, 1, 1):
+            if rvi.end_date in [None, dt.datetime(1, 1, 1)]:
                 rvi.end_date = end
 
     @property
