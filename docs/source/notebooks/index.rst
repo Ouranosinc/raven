@@ -10,10 +10,8 @@ Note that some of these notebooks need the bleeding edge version of OWSLib_ (>=0
 
 .. toctree::
 
-   running_hmets
-   running_gr4jcn
-   running_mohyse
-   running_hbv_ec
+   Running_hydrological_models_on_a_remote_server
+
    getting_variables_other_than_flow
    canopex
    watershed_subset
