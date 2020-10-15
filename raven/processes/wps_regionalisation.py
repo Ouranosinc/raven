@@ -122,7 +122,7 @@ class RegionalisationProcess(RavenProcess):
                               max_occurs=1,
                               supported_formats=[FORMATS.JSON, ])
 
-    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude, wio.name,
+    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude, wio.name, wio.rain_snow_fraction, wio.nc_spec,
               wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
 
     outputs = [wio.hydrograph, wio.ensemble]
