@@ -6,17 +6,22 @@
 import os
 from setuptools import setup, find_packages
 
-version = __import__('raven').__version__
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
+REQUIRES_PYTHON = ">=3.5.0"
+
+about = {}
+with open(os.path.join(here, 'raven', '__version__.py'), 'r') as f:
+    exec(f.read(), about)
 
 reqs = [line.strip() for line in open('requirements.txt')]
+dev_reqs = [line.strip() for line in open('requirements_dev.txt')]
+
 docs_reqs = [
     'sphinx>=1.7',
     'sphinx-autoapi',
     'nbsphinx',
-    'sphinx-autodoc-pywps @ git+ssh://git@github.com/huard/sphinx-autodoc-pywps.git#egg=sphinx_autodoc_pywps'
 ]
 
 classifiers = [
@@ -28,7 +33,6 @@ classifiers = [
     'Programming Language :: Python',
     'Natural Language :: English',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
@@ -37,20 +41,26 @@ classifiers = [
 ]
 
 setup(name='raven',
-      version=version,
-      description="A Web Processing Service for Climate Data Analysis.",
+      version=about['__version__'],
+      description="Raven offers processes related to hydrological modeling, and in particular, the Raven  "
+                  "hydrological modeling framework.",
       long_description=README + '\n\n' + CHANGES,
-      author="David Huard",
-      author_email='huard.david@ouranos.ca',
-      url='https://github.com/huard/raven',
+      long_description_content_type="text/x-rst",
+      author=about['__author__'],
+      author_email=about['__email__'],
+      url='https://github.com/Ouranosinc/raven',
+      python_requires=REQUIRES_PYTHON,
       classifiers=classifiers,
       license="MIT license",
       keywords='wps pywps birdhouse raven hydrology gis',
       packages=find_packages(),
       include_package_data=True,
       install_requires=reqs,
-      extras_require={'docs': docs_reqs},
+      extras_require={
+          "dev": dev_reqs,              # pip install ".[dev]"
+          "docs": docs_reqs,
+      },
       entry_points={
           'console_scripts': [
               'raven=raven.cli:cli',
-          ]}, )
+          ]},)
