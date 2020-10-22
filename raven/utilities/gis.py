@@ -1,14 +1,14 @@
-import fiona
 import collections
 from pathlib import Path
-from typing import List
-from typing import Sequence
-from typing import Tuple
-from typing import Union
+from typing import List, Sequence, Tuple, Union
 
+import fiona
 import pandas as pd
+from owslib import __version__ as ows_version
+from packaging.version import parse
+from shapely.geometry import Point, shape
+
 from raven.utils import crs_sniffer, single_file_check
-from shapely.geometry import shape, Point
 
 GEO_URL = "http://boreas.ouranos.ca/geoserver/wfs"
 
@@ -200,8 +200,8 @@ def get_raster_wcs(
       A GeoTIFF array.
 
     """
-    from owslib.wcs import WebCoverageService
     from lxml import etree
+    from owslib.wcs import WebCoverageService
 
     (left, down, right, up) = coordinates
 
@@ -266,7 +266,7 @@ def select_hybas_domain(
 
 def get_hydrobasins_location_wfs(
     coordinates: Tuple[
-        Union[int, float, str],
+        Union[str, float, int],
         Union[str, float, int],
         Union[str, float, int],
         Union[str, float, int],
@@ -274,6 +274,7 @@ def get_hydrobasins_location_wfs(
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
+    method: str = "GET",
 ) -> str:
     """Return features from the USGS HydroBASINS data set using bounding box coordinates and WFS 1.1.0 protocol.
 
@@ -290,6 +291,8 @@ def get_hydrobasins_location_wfs(
       Whether or not the vector should include the delimitation of lakes.
     domain : str
       The domain of the HydroBASINS data. Possible values:"na", "ar".
+    method : {"GET", "POST"}
+      The method by which to pass data for the WFS request. Supported methods are those provided via OWSlib.
 
     Returns
     -------
@@ -305,14 +308,27 @@ def get_hydrobasins_location_wfs(
 
     if coordinates is not None:
         wfs = WebFeatureService(GEO_URL, version="1.1.0", timeout=30)
-        try:
-            resp = wfs.getfeature(
-                typename=layer, bbox=coordinates, srsname="urn:x-ogc:def:crs:EPSG:4326"
+        if method.upper() == "GET":
+            kwargs = dict(
+                typename=layer,
+                bbox=coordinates,
+                srsname="urn:x-ogc:def:crs:EPSG:4326",
+                method=method,
             )
+        elif method.upper() == "POST":
+            if parse(ows_version) < parse("0.20.0"):
+                raise NotImplementedError("POST requires OWSlib >= 0.20.0")
+            kwargs = dict(typename=layer, bbox=coordinates, method=method)
+        else:
+            raise NotImplementedError("Method %s not implemented" % method)
+
+        try:
+            resp = wfs.getfeature(**kwargs)
         except Exception as e:
             raise Exception(e)
+
     else:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     data = resp.read()
     return data
@@ -325,6 +341,7 @@ def get_hydrobasins_attributes_wfs(
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
+    method: str = "GET"
 ) -> str:
     """Return features from the USGS HydroBASINS data set using attribute value selection and WFS 1.1.0 protocol.
 
@@ -343,6 +360,8 @@ def get_hydrobasins_attributes_wfs(
       Whether or not the vector should include the delimitation of lakes.
     domain : str
       The domain of teh HydroBASINS data. Possible values:"na", "ar".
+    method : {"GET", "POST"}
+      The method by which to pass data for the WFS request. Supported methods are those provided via OWSlib.
 
     Returns
     -------
@@ -350,9 +369,9 @@ def get_hydrobasins_attributes_wfs(
       URL to the GeoJSON-encoded WFS response.
 
     """
-    from requests import Request
-    from owslib.fes import PropertyIsLike
     from lxml import etree
+    from owslib.fes import PropertyIsLike
+    from requests import Request
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", domain, level
@@ -380,13 +399,14 @@ def get_hydrobasins_attributes_wfs(
                 outputFormat="json",
                 filter=filterxml,
             )
-
-            q = Request("GET", GEO_URL, params=params).prepare().url
+            if (parse(ows_version) < parse("0.20.0")) & (method == "POST"):
+                raise NotImplementedError("POST requires OWSlib >= 0.20.0")
+            q = Request(method=method, url=GEO_URL, params=params).prepare().url
 
         except Exception as e:
             raise Exception(e)
 
     else:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     return q
