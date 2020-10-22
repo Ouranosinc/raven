@@ -46,3 +46,4 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
+  - "--editable=git+https://github.com/f-PLT/OWSLib.git@wfs-getfeature-post#egg=owslib"
