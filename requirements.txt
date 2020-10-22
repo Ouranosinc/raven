@@ -1,6 +1,7 @@
 six
 pywps==4.2.3
 # owslib==0.18
+-e git+https://github.com/f-PLT/OWSLib.git@wfs-getfeature-post#egg=owslib
 lxml
 jinja2
 click
