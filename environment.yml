@@ -8,14 +8,14 @@ dependencies:
 - pywps==4.2.3
 - unidecode
 - birdy
-- owslib==0.18
+#- owslib==0.18
 - poppler
 - jinja2
 - click
 - psutil
 - numpy
 - scipy
-- xarray==0.16
+- xarray==0.16.1
 - xclim==0.18
 - rioxarray
 - matplotlib
