@@ -8,6 +8,7 @@
 #
 #
 
+:Calendar              {calendar}
 :RunName               {run_name}-{run_index}
 :StartDate             {start_date}
 :Duration              {duration}
