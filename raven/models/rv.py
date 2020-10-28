@@ -48,6 +48,8 @@ evaporation_options = ("PET_CONSTANT", "PET_PENMAN_MONTEITH", "PET_PENMAN_COMBIN
 
 state_variables = ()
 
+calendar_options = ("PROLEPTIC_GREGORIAN", "JULIAN", "GREGORIAN", "STANDARD", "NOLEAP", "365_DAY", "ALL_LEAP",
+                    "366_DAY")
 
 class RVFile:
 
@@ -391,6 +393,7 @@ class RVI(RV):
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
         self._suppress_output = False
+        self._calendar = None
 
         super(RVI, self).__init__(**kwargs)
 
@@ -544,6 +547,18 @@ class RVI(RV):
             self._ow_evaporation = v
         else:
             raise ValueError(f"Value {v} should be one of {evaporation_options}.")
+
+    @property
+    def calendar(self):
+        """Calendar"""
+        return self._calendar.upper()
+
+    @calendar.setter
+    def calendar(self, value):
+        if value.upper() in calendar_options:
+            self._calendar = value
+        else:
+            raise ValueError(f"Value should be one of {calendar_options}.")
 
 
 class RVC(RV):
