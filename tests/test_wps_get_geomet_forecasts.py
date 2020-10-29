@@ -1,11 +1,8 @@
-import json
-
 from pywps import Service
 from pywps.tests import assert_response_success
-from shapely.geometry import shape, MultiPolygon
 
 from raven.processes import GetGeometDataProcess
-from .common import client_for, TESTDATA, CFG_FILE, get_output, count_pixels
+from .common import client_for, TESTDATA, CFG_FILE, get_output
 import datetime as dt
 
 class TestGenericZonalStatsProcess:
@@ -25,8 +22,8 @@ class TestGenericZonalStatsProcess:
 
         datainputs = ';'.join(fields).format(
             shape=TESTDATA['basin_test'],
-            use_rdps=True,
-            use_reps=True,
+            use_rdps=False,
+            use_reps=False,
             use_gdps=True,
             use_geps=True,
             combine_reg_glob=True,

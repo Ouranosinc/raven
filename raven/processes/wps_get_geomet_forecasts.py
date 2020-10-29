@@ -6,8 +6,9 @@ from pywps import LiteralInput, ComplexInput
 from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
+import urllib.request
 
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic_vector_reproject
+from raven.utils import archive_sniffer, single_file_check 
 from raven.utilities import gis
 import pdb
 
@@ -116,8 +117,11 @@ class GetGeometDataProcess(Process):
         for MODEL in models:
             for VARIABLE in GeoMetVariables:
                 # Careful: Time is finicky, need to make sure the date is ok: Ex: on 2020-04-26, 21:20, the first available forecast was for 2020-04-27 T18:00:00Z. We can find the latest forecast run using a WMS GetCapabilities request, to do later.
-                query='https://geo.weather.gc.ca/geomet?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=' + MODEL + '.' + VARIABLE + '&SUBSETTINGCRS=EPSG:4326&SUBSET=x(' + str(bbox[0]-0.5) + ',' + str(bbox[2]+0.5) + ')&SUBSET=y(' + str(bbox[1]-0.5) + ',' + str(bbox[3]+0.5) + ')&FORMAT=image/netcdf&TIME=' + forecast_date.strftime("%Y-%m-%d") + 'T06:00:00Z'
-        
+                query='https://geo.weather.gc.ca/geomet?SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=' + MODEL + '.' + VARIABLE + '&SUBSETTINGCRS=EPSG:4326&SUBSET=x(' + str(bbox[0]-0.5) + ',' + str(bbox[2]+0.5) + ')&SUBSET=y(' + str(bbox[1]-0.5) + ',' + str(bbox[3]+0.5) + ')&FORMAT=image/netcdf&TIME=' + forecast_date.strftime("%Y-%m-%d") + 'T18:00:00Z'
+                response = urllib.request.urlopen(query)
+                webContent = response.read()
+                filename = 'search-result'
+                f = open(filename + ".html", 'wb')
             
         response.outputs['rdps'].data = 1
 
