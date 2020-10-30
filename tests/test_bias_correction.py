@@ -1,63 +1,50 @@
-import datetime as dt
+
 import xarray as xr
 import xclim.sdba as sdba
+from xclim import subset
 
 
 class TestBiasCorrect:
     def test_bias_correction(self):
 
-        ref_data = ("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/"
-                    "day_MPI-ESM-LR_historical.ncml")
-        fut_data = ("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/cmip5/atmos/"
-                    "day_MPI-ESM-LR_historical+rcp85.ncml")
-        hist_data = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
+        fut_data=  ("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/bias_adjusted/"
+                    "cmip5/nasa/nex-gddp-1.0/day_inmcm4_historical+rcp85_nex-gddp.ncml")
+        ref_data = ("https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/bias_adjusted/"
+                    "cmip5/nasa/nex-gddp-1.0/day_inmcm4_historical+rcp45_nex-gddp.ncml")
+        hist_data= "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
 
-        lat = 54.484
-        lon = -123.36
+        lat = 49.5
+        lon = -72.96
 
-        # CAREFUL! ERA5 IS NOT ThE SAME LONGITUDE
-        # Also, latitude goes from high to low, so I need to have it go from lat+1 to lat-1 in the slice.
-        # For the NRCan dataset, I cannot have more than about 10 years as I get a "NetCDF: DAP failure" which I think
-        # is related to a timeout.
-        ds = (
-            xr.open_dataset(hist_data)
-            .sel(
-                lat=slice(lat + 1, lat - 1),
-                lon=slice(lon - 1, lon + 1),
-                time=slice(dt.datetime(1991, 1, 1), dt.datetime(2010, 12, 31)),
-            )
-            .mean(dim={"lat", "lon"}, keep_attrs=True)
-        )
+        # Open these datasets
+        ds_fut=xr.open_dataset(fut_data)
+        ds_ref=xr.open_dataset(ref_data)
+        ds_his=xr.open_dataset(hist_data)
+        
+        # Subset the data to the desired location (2x2 degree box)
+        ds_fut_sub =subset.subset_bbox(ds_fut, lon_bnds=[lon-1, lon+1], lat_bnds=[lat-1, lat+1], start_date='2070', end_date='2071').mean(dim={'lat','lon'},keep_attrs=True)
+        ds_ref_sub =subset.subset_bbox(ds_ref, lon_bnds=[lon-1, lon+1], lat_bnds=[lat-1, lat+1], start_date='1971', end_date='1972').mean(dim={'lat','lon'},keep_attrs=True)
+        ds_his_sub =subset.subset_bbox(ds_his, lon_bnds=[lon-1, lon+1], lat_bnds=[lat-1, lat+1], start_date='1971', end_date='1972').mean(dim={'lat','lon'},keep_attrs=True)
 
-        # For lon in 0-360 format, need to add an auto-checker.
-        lon = 260
-        ds2 = (
-            xr.open_dataset(ref_data)
-            .sel(
-                lat=slice(lat - 1, lat + 1),
-                lon=slice(lon - 1, lon + 1),
-                time=slice(dt.datetime(1981, 1, 1), dt.datetime(2010, 12, 31)),
-            )
-            .mean(dim={"lat", "lon"}, keep_attrs=True)
-        )
-        ds3 = (
-            xr.open_dataset(fut_data)
-            .sel(
-                lat=slice(lat - 1, lat + 1),
-                lon=slice(lon - 1, lon + 1),
-                time=slice(dt.datetime(2041, 1, 1), dt.datetime(2070, 12, 31)),
-            )
-            .mean(dim={"lat", "lon"}, keep_attrs=True)
-        )
-
-        # Here data in ds, ds2 and ds3 are NaN!
 
         group_month_nowindow = sdba.utils.Grouper("time.month")
         Adj = sdba.DetrendedQuantileMapping(
             nquantiles=50, kind="+", group=group_month_nowindow
         )
-        Adj.train(ds["pr"], ds2["pr"])
-        Adj.adjust(ds3["pr"], interp="linear")
-        Adj.ds.af  # adjustment factors.
+        # Train the model to find the correction factors
+        Adj.train(ds_ref_sub['pr'],ds_his_sub['pr'])
+        
+        # Apply the factors to the future data to bias-correct
+        Scen_pr = Adj.adjust(ds_fut_sub['pr'], interp="linear")
+        
+        ## Repeat for temperature max
+        Adj.train(ds_ref_sub['tasmax'],ds_his_sub['tasmax'])
+        
+        ## Apply the factors to the future data to bias-correct
+        Scen_tasmax = Adj.adjust(ds_fut_sub['tasmax'], interp="linear")
+        
+        # Repeat for tasmin
+        Adj.train(ds_ref_sub['tasmin'],ds_his_sub['tasmin'])
+        Scen_tasmin = Adj.adjust(ds_fut_sub['tasmin'], interp="linear")
 
-        print(Adj.ds.af)
+        #TODO: Add numerical check
