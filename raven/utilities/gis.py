@@ -301,6 +301,8 @@ def get_hydrobasins_location_wfs(
 
     """
     from owslib.wfs import WebFeatureService
+    from owslib.feature import PostRequest_1_1_0
+    import requests
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", domain, level
@@ -315,22 +317,35 @@ def get_hydrobasins_location_wfs(
                 srsname="urn:x-ogc:def:crs:EPSG:4326",
                 method=method,
             )
+            try:
+                resp = wfs.getfeature(**kwargs)
+                data = resp.read()
+            except Exception as e:
+                raise Exception(e)
         elif method.upper() == "POST":
             if parse(ows_version) < parse("0.20.0"):
                 raise NotImplementedError("POST requires OWSlib >= 0.20.0")
-            kwargs = dict(typename=layer, bbox=coordinates, method=method)
+
+            # Direct post request with Requests module. Same parameters as above.
+            request = PostRequest_1_1_0()
+            request.create_query(typename=layer)
+            request.set_bbox(bbox=coordinates)
+            request.set_outputformat('application/json')
+
+            # With the url "boreas_inner", will get same "Could not determine request"
+            # as described in the issue
+            try:
+                raw = requests.post(GEO_URL, data=request.to_string())
+                data = raw.text
+            except Exception as e:
+                raise Exception(e)
+
         else:
             raise NotImplementedError("Method %s not implemented" % method)
-
-        try:
-            resp = wfs.getfeature(**kwargs)
-        except Exception as e:
-            raise Exception(e)
 
     else:
         raise NotImplementedError()
 
-    data = resp.read()
     return data
 
 
@@ -341,7 +356,7 @@ def get_hydrobasins_attributes_wfs(
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
-    method: str = "GET"
+    method: str = "GET",
 ) -> str:
     """Return features from the USGS HydroBASINS data set using attribute value selection and WFS 1.1.0 protocol.
 
