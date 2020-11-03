@@ -5,6 +5,7 @@ from pathlib import Path
 from xclim.core.units import units
 from xclim.core.units import units2pint
 from . state import HRUStateVariables, BasinStateVariables
+import cftime
 
 # Can be removed when xclim is pinned above 0.14
 units.define("deg_C = degC")
@@ -47,6 +48,9 @@ evaporation_options = ("PET_CONSTANT", "PET_PENMAN_MONTEITH", "PET_PENMAN_COMBIN
                        "PET_TURC_1961", "PET_MAKKINK_1957", "PET_MONTHLY_FACTOR", "PET_MOHYSE", "PET_OUDIN")
 
 state_variables = ()
+
+calendar_options = ("PROLEPTIC_GREGORIAN", "JULIAN", "GREGORIAN", "STANDARD", "NOLEAP", "365_DAY", "ALL_LEAP",
+                    "366_DAY")
 
 
 class RVFile:
@@ -391,6 +395,7 @@ class RVI(RV):
         self._time_step = 1.0
         self._evaluation_metrics = 'NASH_SUTCLIFFE RMSE'
         self._suppress_output = False
+        self._calendar = "standard"
 
         super(RVI, self).__init__(**kwargs)
 
@@ -412,7 +417,7 @@ class RVI(RV):
     @start_date.setter
     def start_date(self, x):
         if isinstance(x, dt.datetime):
-            self._start_date = x
+            self._start_date = self._dt2cf(x)
         else:
             raise ValueError("Must be datetime")
 
@@ -426,7 +431,7 @@ class RVI(RV):
     @end_date.setter
     def end_date(self, x):
         if isinstance(x, dt.datetime):
-            self._end_date = x
+            self._end_date = self._dt2cf(x)
         else:
             raise ValueError("Must be datetime")
 
@@ -544,6 +549,22 @@ class RVI(RV):
             self._ow_evaporation = v
         else:
             raise ValueError(f"Value {v} should be one of {evaporation_options}.")
+
+    @property
+    def calendar(self):
+        """Calendar"""
+        return self._calendar.upper()
+
+    @calendar.setter
+    def calendar(self, value):
+        if value.upper() in calendar_options:
+            self._calendar = value
+        else:
+            raise ValueError(f"Value should be one of {calendar_options}.")
+
+    def _dt2cf(self, date):
+        """Convert datetime to cftime datetime."""
+        return cftime._cftime.DATE_TYPES[self._calendar.lower()](*date.timetuple()[:6])
 
 
 class RVC(RV):
