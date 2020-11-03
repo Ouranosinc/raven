@@ -6,9 +6,11 @@
 # Emulation of MOHYSE simulation of Salmon River near Prince George
 #------------------------------------------------------------------------
 #
+
+:Calendar              {calendar}
 :RunName               {run_name}-{run_index}
 :StartDate             {start_date}
-:Duration              {duration}
+:EndDate               {end_date}
 :TimeStep              {time_step}
 :Method                ORDERED_SERIES
 
