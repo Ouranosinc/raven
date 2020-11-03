@@ -57,7 +57,6 @@ def assimilateQobsSingleDay(model,rvc,ts,days,number_members=25,precip_std=0.30,
     # Run the model number_member times, writing a NetCDF each time with adjusted precip/temp
     x_matrix=[]
     qsim_matrix=[]
-    pdb.set_trace()
     for i in range(0,number_members):
         x, qsim = runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp)
         x_matrix.append(x)
@@ -127,23 +126,43 @@ def runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp):
     
     pdb.set_trace()
     
-    # Convert the data arrays to datasets
-    pr = pr.to_dataset(name='pr')
-    tasmax = tasmax.to_dataset(name='tasmax')
-    tasmin = tasmin.to_dataset(name='tasmin')
-
-    # Give them a time vector
-    t=days
-    pr['time']=t
-    tasmax['time']=t
-    tasmin['time']=t
+    days=np.array(days)
+    pr=np.array(pr)
     
-    # create the netcdf file
-    met = xr.merge([pr,tasmax,tasmin], compat='override')
-   
+    ds = xr.Dataset({
+    'pr': xr.DataArray(
+                data   = pr,
+                dims   = ['time'],
+                coords = {'time': days},
+                attrs  = {
+                    '_FillValue': -999.9,
+                    'units'     : 'mm'
+                    }
+                ),
+    'tmax': xr.DataArray(
+                data   = tasmax,   # enter data here
+                dims   = ['time'],
+                coords = {'time': days},
+                attrs  = {
+                    '_FillValue': -999.9,
+                    'units'     : 'degC'
+                    }
+                ),
+    'tmin': xr.DataArray(
+                data   = tasmin,   # enter data here
+                dims   = ['time'],
+                coords = {'time': days},
+                attrs  = {
+                    '_FillValue': -999.9,
+                    'units'     : 'degC'
+                    }
+                )
+            },
+    )
+       
     # write the netcdf file
     tsfile=tmp / 'tmp_assim_met.nc'
-    met.to_netcdf(tsfile)
+    ds.to_netcdf(tsfile)
     
     # Update the model for this run
     model.rvi.start_date=days[0]
