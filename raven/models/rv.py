@@ -52,6 +52,7 @@ state_variables = ()
 calendar_options = ("PROLEPTIC_GREGORIAN", "JULIAN", "GREGORIAN", "STANDARD", "NOLEAP", "365_DAY", "ALL_LEAP",
                     "366_DAY")
 
+
 class RVFile:
 
     def __init__(self, fn):
@@ -564,6 +565,7 @@ class RVI(RV):
     def _dt2cf(self, date):
         """Convert datetime to cftime datetime."""
         return cftime._cftime.DATE_TYPES[self._calendar.lower()](*date.timetuple()[:6])
+
 
 class RVC(RV):
     def __init__(self, **kwargs):
