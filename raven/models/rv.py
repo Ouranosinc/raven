@@ -382,7 +382,7 @@ class RVI(RV):
         self.latitude = None
         self.longitude = None
         self.run_index = 0
-        self.raven_version = '3.0 rev#264'
+        self.raven_version = '3.0.1 rev#275'
 
         self._run_name = 'run'
         self._start_date = None
