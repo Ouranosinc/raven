@@ -81,6 +81,7 @@ TESTDATA['simfile_single'] = TD / 'hydro_simulations' / 'raven-gr4j-cemaneige-si
 TESTDATA['basin_test'] = TD / 'watershed_vector' / 'Basin_test.zip'
 TESTDATA['tsstats'] = TD / 'ts_stats_outputs' / 'out.nc'
 TESTDATA['polygon'] = TD / 'polygons' / 'Basin_10.zip'
+TESTDATA['climatologyESP'] = TD / 'raven-gr4j-cemaneige' / 'Salmon-River-Near-Prince-George_meteo_daily.nc'
 
 # XSkillScore test data
 TESTDATA['XSS_obs'] = TD / 'XSS_forecast_data' / 'XSS_obs.nc'

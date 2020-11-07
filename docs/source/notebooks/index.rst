@@ -29,6 +29,8 @@ Note that some of these notebooks need the bleeding edge version of OWSLib_ (>=0
    running_OSTRICH_gr4jcn
    running_OSTRICH_hbvec
    running_OSTRICH_mohyse
+   Region_selection
+   Running_models_with_multiple_timeseries_files
 
 .. _OWSLib: https://geopython.github.io/OWSLib/
 .. _Birdy: https://birdy.readthedocs.io
