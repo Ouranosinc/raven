@@ -1,19 +1,16 @@
-import pytest
-import datetime as dt
-import numpy as np
-import xarray as xr
 import json
-import matplotlib.pyplot as plt
+import datetime as dt
+import tempfile
+import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-
-import tempfile
-from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
 from raven.models import HMETS
+from .common import client_for, TESTDATA, CFG_FILE
 
 
-NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/1-Datasets/gridded_obs/nrcan_v2.ncml"
+# Get path to ncml file for NRCan data.
+NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
 
 # Temporary path
 filepath = tempfile.mkdtemp() + "/NRCAN_ts.nc"
