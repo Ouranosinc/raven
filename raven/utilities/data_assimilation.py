@@ -28,21 +28,19 @@ import pdb
 
 
 
-def assimilateQobsSingleDay(model,rvc,ts,days,number_members=25,precip_std=0.30,temp_std=2.0,qobs_std=0.15):
+def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,temp_std=2.0,qobs_std=0.15):
     tmp = Path(tempfile.mkdtemp())
+    
     # Extract the Qobs, precip and temperature data for the day of interest
     nc_inputs = xr.open_dataset(ts)
-    
     nc_inputs=nc_inputs.sel(time=days)
-    #pr=nc_inputs['pr'].sel(time=slice(days[0],days[1]))
-    #tasmax=nc_inputs['tasmax'].sel(time=slice(days[0],days[1]))
-    #tasmin=nc_inputs['tasmin'].sel(time=slice(days[0],days[1]))
-    #qobs=nc_inputs['qobs'].sel(time=slice(days[0],days[1]))
+
     
     # Check to see if all data is OK for assimilation (i.e. is Qobs=Nan or something like that, then skip)
     do_assimilation=True
+   
     for varname, da in nc_inputs.data_vars.items():
-        if np.isnan(da.data):
+        if np.isnan(da.data).any():
             do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
     
     # Extract vars individually  
@@ -52,13 +50,21 @@ def assimilateQobsSingleDay(model,rvc,ts,days,number_members=25,precip_std=0.30,
     tasmin=np.array([nc_inputs['tmin'].data])  
     
     # Apply sampling input data uncertainty by perturbation (number_members, precip_std, temp_std, qobs_std)
-    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmin,tasmax,qobs,number_members, precip_std, temp_std, qobs_std)
+    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmin,tasmax,qobs[-1],number_members, precip_std, temp_std, qobs_std)
     
     # Run the model number_member times, writing a NetCDF each time with adjusted precip/temp
     x_matrix=[]
     qsim_matrix=[]
+    rvc_main=model.outputs["solution"]
+    
     for i in range(0,number_members):
-        x, qsim = runModelwithShortMeteo(model,rvc,pr_pert[:,i],tasmax_pert[:,i],tasmin_pert[:,i],days,tmp)
+        model.resume(rvc_main)
+        
+        # THIS IS WHERE IT ALL FAILS.
+        model.rvc.hru_state.soil0=xa[0,i]
+        model.rvc.hru_state.soil1=xa[1,i]
+        
+        x, qsim = runModelwithShortMeteo(model,pr_pert[:,i],tasmax_pert[:,i],tasmin_pert[:,i],days,tmp)
         x_matrix.append(x)
         qsim_matrix.append(qsim.data)
     qsim_matrix=np.array(qsim_matrix)
@@ -76,14 +82,12 @@ def assimilateQobsSingleDay(model,rvc,ts,days,number_members=25,precip_std=0.30,
     # Set new state variables in the rvc file
     # Updated RVC file after assimilation, ready for next simulation day.    
     
-def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std, temp_std, qobs_std):
-    
-    
-    
+def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std, temp_std, qobs_std): 
+
     # Temperature: Sample from normal distribution
-    random_noise_temperature = np.random.normal(0, temp_std, [1,number_members])
-    tasmax_pert=tasmax+random_noise_temperature
-    tasmin_pert=tasmin+random_noise_temperature
+    random_noise_temperature = np.random.normal(0, temp_std, (number_members,tasmax.shape[1]))
+    tasmax_pert=np.tile(tasmax,(number_members,1))+random_noise_temperature
+    tasmin_pert=np.tile(tasmin,(number_members,1))+random_noise_temperature
     
     # Qobs: Sample from normal distribution
     qobs_pert=np.random.normal(loc=np.tile(qobs,(1,number_members)), scale=qobs_std*np.tile(qobs,(1,number_members)))
@@ -92,6 +96,8 @@ def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std,
     # Precipitation: Use a gamma function. Use shape and scale parameters independently
     shape_k=(pr**2)/(precip_std*pr)**2
     scale_t=((precip_std*pr)**2) / pr
+    shape_k=shape_k.transpose()
+    scale_t=scale_t.transpose()
     pr_pert=np.random.gamma(shape=np.tile(shape_k,(1,number_members)),scale=np.tile(scale_t,(1,number_members)))
    
     # return the data. All values should now have size nDays x number_members
@@ -110,7 +116,7 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     Jan Mandel, 2006
     Series of equations 4.1 is implemented here
     '''
-    pdb.set_trace()
+  
     number_members=qobs_pert.shape[1]
     z=np.dot(qsim,np.ones((number_members,1)))
     HA=(qsim)-(z*np.ones((1,number_members)))/number_members
@@ -125,7 +131,7 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     
     return Xa
 
-def runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp):
+def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
   
     ds = xr.Dataset({
     'pr': xr.DataArray(
@@ -165,10 +171,7 @@ def runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp):
     # Update the model for this run
     model.rvi.start_date=days[0]
     model.rvi.end_date=days[-1]
-    
-    # update the rvc file
-    model.resume(rvc)
-    
+       
     # run the model with the input files
     model([tsfile, ])
     
