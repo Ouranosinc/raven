@@ -32,5 +32,5 @@ class TestAssimilationGR4JCN:
         rvc = model.outputs["solution"]
         
         for i in range(100):
-            xa = assimilateQobsSingleDay(model,rvc,ts,start_date+dt.timedelta(days=1+i),number_members=25,precip_std=0.30,temp_std=2.0,qobs_std=0.15)
-            # TODO : NEED TO UPDATE rvc FILE WITH xa
+            xa = assimilateQobsSingleDay(model,rvc,ts,np.array([start_date+dt.timedelta(days=1+i)]),number_members=25,precip_std=0.30,temp_std=2.0,qobs_std=0.15)
+            #TODO : NEED TO UPDATE rvc FILE WITH xa

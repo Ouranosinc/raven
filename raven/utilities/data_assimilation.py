@@ -46,10 +46,10 @@ def assimilateQobsSingleDay(model,rvc,ts,days,number_members=25,precip_std=0.30,
             do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
     
     # Extract vars individually  
-    qobs=nc_inputs['qobs'].data   
-    pr=nc_inputs['rain'].data+nc_inputs['snow'].data
-    tasmax=nc_inputs['tmax'].data
-    tasmin=nc_inputs['tmin'].data    
+    qobs=np.array([nc_inputs['qobs'].data])   
+    pr=np.array([nc_inputs['rain'].data+nc_inputs['snow'].data])
+    tasmax=np.array([nc_inputs['tmax'].data])
+    tasmin=np.array([nc_inputs['tmin'].data])  
     
     # Apply sampling input data uncertainty by perturbation (number_members, precip_std, temp_std, qobs_std)
     pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmin,tasmax,qobs,number_members, precip_std, temp_std, qobs_std)
@@ -58,13 +58,16 @@ def assimilateQobsSingleDay(model,rvc,ts,days,number_members=25,precip_std=0.30,
     x_matrix=[]
     qsim_matrix=[]
     for i in range(0,number_members):
-        x, qsim = runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp)
+        x, qsim = runModelwithShortMeteo(model,rvc,pr_pert[:,i],tasmax_pert[:,i],tasmin_pert[:,i],days,tmp)
         x_matrix.append(x)
-        qsim_matrix.append(qsim)
-    
+        qsim_matrix.append(qsim.data)
+    qsim_matrix=np.array(qsim_matrix)
+    qsim_matrix=qsim_matrix[:,-1,0]
+    x_matrix=np.array(x_matrix)
+    x_matrix=x_matrix[:,:,-1].transpose()
     # Apply the actual EnKF on the states to generate new, better states.
     if do_assimilation:
-        xa=applyAssimilationOnStates(x,qobs_pert,qobs_error,qsim_matrix)
+        xa=applyAssimilationOnStates(x_matrix,qobs_pert,qobs_error,qsim_matrix)
     else:
         xa=x
     
@@ -90,7 +93,7 @@ def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std,
     shape_k=(pr**2)/(precip_std*pr)**2
     scale_t=((precip_std*pr)**2) / pr
     pr_pert=np.random.gamma(shape=np.tile(shape_k,(1,number_members)),scale=np.tile(scale_t,(1,number_members)))
-    
+   
     # return the data. All values should now have size nDays x number_members
     return pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error
     
@@ -107,28 +110,23 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     Jan Mandel, 2006
     Series of equations 4.1 is implemented here
     '''
-    number_members=qobs_pert.shape[0]
-    z=(qsim)*np.ones((number_members,1))
+    pdb.set_trace()
+    number_members=qobs_pert.shape[1]
+    z=np.dot(qsim,np.ones((number_members,1)))
     HA=(qsim)-(z*np.ones((1,number_members)))/number_members
     Y=qobs_pert-qsim    
-    Re=(qobs_error*qobs_error.transpose())/number_members # ensemble covariance calculated by equation 19 in: The Ensemble Kalman Filter: theoretical formulation and practical implementation, Evensen 2003, https://link.springer.com/article/10.1007%2Fs10236-003-0036-9
-    P=Re+(HA*HA.transpose())/(number_members-1)
-    M=(P**-1)*Y
+    Re=np.dot(qobs_error,qobs_error.transpose())/number_members # ensemble covariance calculated by equation 19 in: The Ensemble Kalman Filter: theoretical formulation and practical implementation, Evensen 2003, https://link.springer.com/article/10.1007%2Fs10236-003-0036-9
+    P=Re+(np.dot(HA,HA.transpose()))/(number_members-1)
+    M=np.dot(P**-1,Y)
     Z=(HA.transpose())*M
-    A=X-((X*np.ones((number_members,1)))*np.ones((1,number_members)))/number_members
-    Xa=X+(A*Z)/(number_members-1)
+    A=X-np.dot((np.dot(X,np.ones((number_members,1)))),np.ones((1,number_members)))/number_members
+    Xa=X+(np.dot(A,Z))/(number_members-1)
     Xa=np.maximum(Xa,0)
     
     return Xa
 
 def runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp):
-
-    
-    pdb.set_trace()
-    
-    days=np.array(days)
-    pr=np.array(pr)
-    
+  
     ds = xr.Dataset({
     'pr': xr.DataArray(
                 data   = pr,
@@ -175,10 +173,11 @@ def runModelwithShortMeteo(model,rvc,pr,tasmax,tasmin,days,tmp):
     model([tsfile, ])
     
     # allocate space and fill in with the state variables
-    x=np.empty(2)
-    x[0]=model.storage["Soil Water[0]"]
-    x[1]=model.storage["Soil Water[1]"]
+    x=[]
+    x.append(model.storage["Soil Water[0]"])
+    x.append(model.storage["Soil Water[1]"])
     qsim=model.q_sim
+   
     
     return x, qsim
 
