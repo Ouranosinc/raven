@@ -186,7 +186,7 @@ def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
     if climate_model is 'GEPS':
         duration=min(duration,10)
         filepath='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/GEPS_'
-        filepath='/home/ets/src/raventest/raven/tests/testdata/GEPS_fc_test/GEPStest_'
+        filepath='./testdata/GEPS_fc_test/GEPStest_'
     elif climate_model is 'GDPS':
         duration = min(duration, 10)
     elif climate_model is 'RDPS':
