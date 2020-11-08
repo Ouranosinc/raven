@@ -218,7 +218,8 @@ def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
     ds = xr.merge([tas, pr])
 
     # Now apply the mask of the basin contour and average the values to get a single time series
-    ds.rio.set_spatial_dims('lonc','latc')
+    # THIS IS THE LINE TO UNCOMMENT TO IDENTIFY THE X and Y COORDS.
+    # ds.rio.set_spatial_dims('lonc','latc')
     
     sub = ds.rio.clip(shdf, crs=4326)
     sub = sub.mean(dim={'lat','lon'}, keep_attrs=True)
