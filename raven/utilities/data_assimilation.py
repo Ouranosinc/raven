@@ -48,9 +48,9 @@ def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,t
     pr=np.array([nc_inputs['rain'].data+nc_inputs['snow'].data])
     tasmax=np.array([nc_inputs['tmax'].data])
     tasmin=np.array([nc_inputs['tmin'].data])  
-    
+
     # Apply sampling input data uncertainty by perturbation (number_members, precip_std, temp_std, qobs_std)
-    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmin,tasmax,qobs[-1],number_members, precip_std, temp_std, qobs_std)
+    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmin,tasmax,qobs[0,-1],number_members, precip_std, temp_std, qobs_std)
     
     # Run the model number_member times, writing a NetCDF each time with adjusted precip/temp
     x_matrix=[]
@@ -61,23 +61,27 @@ def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,t
         model.resume(rvc_main)
         
         # THIS IS WHERE IT ALL FAILS.
-        model.rvc.hru_state.soil0=xa[0,i]
-        model.rvc.hru_state.soil1=xa[1,i]
+        model.rvc.hru_state=model.rvc.hru_state._replace(soil0=xa[0,i])
+        model.rvc.hru_state=model.rvc.hru_state._replace(soil1=xa[1,i])
         
         x, qsim = runModelwithShortMeteo(model,pr_pert[:,i],tasmax_pert[:,i],tasmin_pert[:,i],days,tmp)
         x_matrix.append(x)
         qsim_matrix.append(qsim.data)
+    
     qsim_matrix=np.array(qsim_matrix)
-    qsim_matrix=qsim_matrix[:,-1,0]
+
+    qsim_matrix=qsim_matrix[:,:,0]
+    
+ 
     x_matrix=np.array(x_matrix)
     x_matrix=x_matrix[:,:,-1].transpose()
     # Apply the actual EnKF on the states to generate new, better states.
     if do_assimilation:
-        xa=applyAssimilationOnStates(x_matrix,qobs_pert,qobs_error,qsim_matrix)
+        xa=applyAssimilationOnStates(x_matrix,qobs_pert,qobs_error,qsim_matrix[:,-1])
     else:
-        xa=x
-    
-    return xa    
+        xa=x_matrix
+
+    return [xa,qsim_matrix,qobs]    
     
     # Set new state variables in the rvc file
     # Updated RVC file after assimilation, ready for next simulation day.    
@@ -88,11 +92,13 @@ def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std,
     random_noise_temperature = np.random.normal(0, temp_std, (number_members,tasmax.shape[1]))
     tasmax_pert=np.tile(tasmax,(number_members,1))+random_noise_temperature
     tasmin_pert=np.tile(tasmin,(number_members,1))+random_noise_temperature
+    tasmax_pert=tasmax_pert.transpose()
+    tasmin_pert=tasmin_pert.transpose()
     
     # Qobs: Sample from normal distribution
     qobs_pert=np.random.normal(loc=np.tile(qobs,(1,number_members)), scale=qobs_std*np.tile(qobs,(1,number_members)))
     qobs_error=np.tile(qobs,(1,number_members))-qobs_pert # might have to copy/cat/repmat qobs here.
-    
+   
     # Precipitation: Use a gamma function. Use shape and scale parameters independently
     shape_k=(pr**2)/(precip_std*pr)**2
     scale_t=((precip_std*pr)**2) / pr
@@ -116,7 +122,7 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     Jan Mandel, 2006
     Series of equations 4.1 is implemented here
     '''
-  
+    
     number_members=qobs_pert.shape[1]
     z=np.dot(qsim,np.ones((number_members,1)))
     HA=(qsim)-(z*np.ones((1,number_members)))/number_members
@@ -128,7 +134,7 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     A=X-np.dot((np.dot(X,np.ones((number_members,1)))),np.ones((1,number_members)))/number_members
     Xa=X+(np.dot(A,Z))/(number_members-1)
     Xa=np.maximum(Xa,0)
-    
+
     return Xa
 
 def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
@@ -140,7 +146,7 @@ def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
                 coords = {'time': days},
                 attrs  = {
                     '_FillValue': -999.9,
-                    'units'     : 'mm'
+                    'units'     : 'mm/d'
                     }
                 ),
     'tmax': xr.DataArray(
@@ -149,7 +155,7 @@ def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
                 coords = {'time': days},
                 attrs  = {
                     '_FillValue': -999.9,
-                    'units'     : 'degC'
+                    'units'     : 'deg_C'
                     }
                 ),
     'tmin': xr.DataArray(
@@ -158,7 +164,7 @@ def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
                 coords = {'time': days},
                 attrs  = {
                     '_FillValue': -999.9,
-                    'units'     : 'degC'
+                    'units'     : 'deg_C'
                     }
                 )
             },
