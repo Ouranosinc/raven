@@ -17,6 +17,12 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import warnings
+import rioxarray
+import fiona
+import pdb
+import tempfile
+from pathlib import Path
+from zipfile import ZipFile
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -173,3 +179,54 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
     qsims["member"] = (["member"], avail_years)
 
     return qsims
+
+def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
+
+    # Fix maximum duration
+    if climate_model is 'GEPS':
+        duration=min(duration,10)
+        filepath='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/GEPS_'
+        filepath='/home/ets/src/raventest/raven/tests/testdata/GEPS_fc_test/GEPStest_'
+    elif climate_model is 'GDPS':
+        duration = min(duration, 10)
+    elif climate_model is 'RDPS':
+        duration=min(duration,2)
+    elif climate_model is 'REPS':
+        duration=min(duration,2)
+    
+    datestr=dt.datetime.strftime(date,'%Y%m')
+    day=date.day
+    
+    filein=filepath + datestr + '.nc'
+    
+    tmp = Path(tempfile.mkdtemp())
+    ZipFile(region,'r').extractall(tmp)
+    shp = list(tmp.glob("*.shp"))[0]
+    vector = fiona.open(shp, "r")
+
+    lon_min=vector.bounds[0]
+    lon_max=vector.bounds[2]
+    lat_min=vector.bounds[1]
+    lat_max=vector.bounds[3]
+
+    ds=xr.open_dataset(filein).sel(DayOfMonth=day)
+    pdb.set_trace()
+    shdf = [vector.next()["geometry"]]
+    # Rioxarray requires CRS definitions for variables
+    tas = ds.tas.rio.write_crs(4326)
+    pr = ds.pr.rio.write_crs(4326)
+    ds = xr.merge([tas, pr])
+
+    # Now apply the mask of the basin contour and average the values to get a single time series
+    ds.rio.set_spatial_dims('lonc','latc')
+    
+    sub = ds.rio.clip(shdf, crs=4326)
+    sub = sub.mean(dim={'lat','lon'}, keep_attrs=True)
+    
+    return sub
+    
+        
+        
+        
+        
+        
