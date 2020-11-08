@@ -43,10 +43,16 @@ class TestAssimilationGR4JCN:
         
         # Do first run at 7 days
         date_list = [start_date + dt.timedelta(days=x) for x in range(7)]
-        xa = assimilateQobsSingleDay(model,xa,ts,date_list,number_members=number_members,precip_std=0.30,temp_std=2.0,qobs_std=0.15)            
+      
+        [xa,q_assim,q_openloop] = assimilateQobsSingleDay(model,xa,ts,date_list,number_members=number_members,precip_std=0.30,temp_std=2.0,qobs_std=0.15)            
+        
+        for i in range(1,25):
             
-        for i in range(100):
             # TODO: Fix this once assimilation works
-            [xa,q_assim,q_openloop] = assimilateQobsSingleDay(model,xa,ts,np.array([start_date+dt.timedelta(days=1+i)]),number_members=number_members,precip_std=0.30,temp_std=2.0,qobs_std=0.15)            
+            date_list = [start_date + dt.timedelta(days=x+7*i) for x in range(7)]
+            [xa,q_a,q_ol] = assimilateQobsSingleDay(model,xa,ts,date_list,number_members=number_members,precip_std=0.30,temp_std=2.0,qobs_std=0.15)            
             
-            
+            q_assim=np.concatenate((q_assim,q_a),1)
+            q_openloop=np.concatenate((q_openloop,q_ol))
+        
+        print(q_assim)
