@@ -87,7 +87,7 @@ tests/*/*/processor_0
 tests/*/*/OstOutput*
 tests/*/*/*.nc
 test.txt
-raven/docs/source/notebooks/*.nc
+docs/source/notebooks/*.nc
 
 # IPython
 .ipynb_checkpoints
