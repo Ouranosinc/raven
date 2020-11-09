@@ -69,6 +69,7 @@ class RavenProcess(Process):
 
                 # Namedtuples
                 if name in self.tuple_inputs:
+                    print(obj.data)
                     csv = obj.data.replace('(', '').replace(')', '')
                     arr = map(float, csv.split(','))
                     data = self.tuple_inputs[name](*arr)
