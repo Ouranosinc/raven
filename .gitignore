@@ -73,7 +73,7 @@ docs/make.bat
 docs/doctrees/
 docs/html/
 docs/build/
-docs/source/output-sanitize.cfg
+docs/source/output_sanitize.cfg
 
 # External Sources
 #src/external
