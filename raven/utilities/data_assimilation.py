@@ -23,12 +23,15 @@ import numpy as np
 import tempfile
 import datetime as dt
 from pathlib import Path
+from copy import deepcopy
+import os
 
 import pdb
 
 
 
 def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,temp_std=2.0,qobs_std=0.15):
+    model=deepcopy(model)
     tmp = Path(tempfile.mkdtemp())
     
     # Extract the Qobs, precip and temperature data for the day of interest
@@ -48,40 +51,42 @@ def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,t
     pr=np.array([nc_inputs['rain'].data+nc_inputs['snow'].data])
     tasmax=np.array([nc_inputs['tmax'].data])
     tasmin=np.array([nc_inputs['tmin'].data])  
-
+    
     # Apply sampling input data uncertainty by perturbation (number_members, precip_std, temp_std, qobs_std)
-    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmin,tasmax,qobs[0,-1],number_members, precip_std, temp_std, qobs_std)
+    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmax,tasmin,qobs[0,-1],number_members, precip_std, temp_std, qobs_std)
     
     # Run the model number_member times, writing a NetCDF each time with adjusted precip/temp
     x_matrix=[]
     qsim_matrix=[]
-    rvc_main=model.outputs["solution"]
-    
+    rvc_main=tmp / 'rvcmain.rvc'
+    os.rename(model.outputs["solution"],rvc_main)
+    #pdb.set_trace()
     for i in range(0,number_members):
         model.resume(rvc_main)
         
-        # THIS IS WHERE IT ALL FAILS.
+    
         model.rvc.hru_state=model.rvc.hru_state._replace(soil0=xa[0,i])
         model.rvc.hru_state=model.rvc.hru_state._replace(soil1=xa[1,i])
-        
+ 
         x, qsim = runModelwithShortMeteo(model,pr_pert[:,i],tasmax_pert[:,i],tasmin_pert[:,i],days,tmp)
         x_matrix.append(x)
         qsim_matrix.append(qsim.data)
     
     qsim_matrix=np.array(qsim_matrix)
-
+   
     qsim_matrix=qsim_matrix[:,:,0]
     
- 
+    
     x_matrix=np.array(x_matrix)
     x_matrix=x_matrix[:,:,-1].transpose()
+  
     # Apply the actual EnKF on the states to generate new, better states.
     if do_assimilation:
         xa=applyAssimilationOnStates(x_matrix,qobs_pert,qobs_error,qsim_matrix[:,-1])
     else:
         xa=x_matrix
 
-    return [xa,qsim_matrix,qobs]    
+    return [xa,qsim_matrix,qobs,model]    
     
     # Set new state variables in the rvc file
     # Updated RVC file after assimilation, ready for next simulation day.    
@@ -105,7 +110,7 @@ def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std,
     shape_k=shape_k.transpose()
     scale_t=scale_t.transpose()
     pr_pert=np.random.gamma(shape=np.tile(shape_k,(1,number_members)),scale=np.tile(scale_t,(1,number_members)))
-   
+    pr_pert=np.nan_to_num(pr_pert,nan=0.0)
     # return the data. All values should now have size nDays x number_members
     return pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error
     
@@ -122,7 +127,6 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     Jan Mandel, 2006
     Series of equations 4.1 is implemented here
     '''
-    
     number_members=qobs_pert.shape[1]
     z=np.dot(qsim,np.ones((number_members,1)))
     HA=(qsim)-(z*np.ones((1,number_members)))/number_members
@@ -134,11 +138,13 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     A=X-np.dot((np.dot(X,np.ones((number_members,1)))),np.ones((1,number_members)))/number_members
     Xa=X+(np.dot(A,Z))/(number_members-1)
     Xa=np.maximum(Xa,0)
-
+   
     return Xa
 
 def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
-  
+    model=deepcopy(model)
+    #pdb.set_trace()
+    
     ds = xr.Dataset({
     'pr': xr.DataArray(
                 data   = pr,
@@ -169,7 +175,7 @@ def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
                 )
             },
     )
-       
+    
     # write the netcdf file
     tsfile=tmp / 'tmp_assim_met.nc'
     ds.to_netcdf(tsfile)
@@ -177,16 +183,17 @@ def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
     # Update the model for this run
     model.rvi.start_date=days[0]
     model.rvi.end_date=days[-1]
+
        
     # run the model with the input files
-    model([tsfile, ])
-    
+    model(tsfile,overwrite=True)
+    # DO TESTS HERE FOR MODEL UPDATE PROBLEM
+    pdb.set_trace()
     # allocate space and fill in with the state variables
     x=[]
-    x.append(model.storage["Soil Water[0]"])
-    x.append(model.storage["Soil Water[1]"])
-    qsim=model.q_sim
-   
+    x.append(model.storage["Soil Water[0]"].copy(deep=True))
+    x.append(model.storage["Soil Water[1]"].copy(deep=True))
+    qsim=model.q_sim.copy(deep=True)
     
     return x, qsim
 
