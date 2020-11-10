@@ -25,12 +25,45 @@ import datetime as dt
 from pathlib import Path
 from copy import deepcopy
 import os
+from raven.models.rv import RavenNcData
 
 import pdb
 
+"""
+Suggestion:
+
+pass dictionary of std, keyed by standard_name, so that it works irrespective of the variable names in the forcing
+files, e.g.
+
+std = {"pr": 0.30, "tasmin": 2.0, "tasmax": 2.0, "water_volume_transport_in_river_channel": 0.15}
+
+Then get the files from the rvt and perturb the forcing data and save it all to disk (for all members).
+p_fn = "perturbed_forcing.nc"
+
+perturbed = {}
+dists = {"pr": "gamma"}  # Keyed by standard_name
+for key, s in std:
+    nc = model.rvt.get(key)
+    with xr.open_dataset(nc.path) as ds:
+        da = ds.get(nc.var_name).sel(time=days)
+        perturbed[nc.var_name] = perturbation(da, dists.get(key, "norm"), s, members=n_members)
+
+perturbed = xr.Dataset(perturbed)
+perturbed.to_netcdf(p_fn)
+
+Then use model.rvt.nc_index to run parallel simulations with different hru_state.
+
+model(p_fn, hru_state=[list of hru_states to start the simulation with], nc_index=range(n_members))
+
+You can probably then do something like
+
+last_storage = xr.concat(model.storage, dim="members").isel(time=-1)
+last_storage["Soil Water[0]"]
+
+"""
 
 
-def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,temp_std=2.0,qobs_std=0.15):
+def assimilateQobsSingleDay(model,xa,ts,days,number_members=25, precip_std=0.30,temp_std=2.0,qobs_std=0.15):
     model=deepcopy(model)
     tmp = Path(tempfile.mkdtemp())
 
@@ -54,6 +87,9 @@ def assimilateQobsSingleDay(model,xa,ts,days,number_members=25,precip_std=0.30,t
 
     # Apply sampling input data uncertainty by perturbation (number_members, precip_std, temp_std, qobs_std)
     pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmax,tasmin,qobs[0,-1],number_members, precip_std, temp_std, qobs_std)
+
+
+
 
     # Run the model number_member times, writing a NetCDF each time with adjusted precip/temp
     x_matrix=[]
@@ -100,15 +136,19 @@ def perturbation(da, dist, std, **kwargs):
 
     if dist == "norm":
         r = np.random.normal(0, std, size=size)
-        return da + xr.DataArray(r, dims=dims, coords={"time": da.time})
+        out = da + xr.DataArray(r, dims=dims, coords={"time": da.time})
 
     elif dist == "gamma":
         shape = (da ** 2) / (std * da) ** 2
         scale = ((std * da) ** 2) / da
         r = np.nan_to_num(np.random.gamma(shape=shape, scale=scale, size=size), nan=0.0)
-        return xr.DataArray(r, dims=dims, coords={"time": da.time})
+        out = xr.DataArray(r, dims=dims, coords={"time": da.time})
+
+    out.attrs.update(da.attrs)
+    return out
 
 
+# Richard see perturbation function above
 def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std, temp_std, qobs_std):
 
     # Temperature: Sample from normal distribution
