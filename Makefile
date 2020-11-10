@@ -233,7 +233,7 @@ notebook:
 .PHONY: lint
 lint:
 	@echo "Running flake8 code style checks ..."
-	@bash -c 'flake8'
+	@bash -c 'flake8 raven tests'
 
 .PHONY: refresh-notebooks
 refresh-notebooks:
@@ -244,11 +244,6 @@ refresh-notebooks:
 test_pdb:
 	@echo "Running tests (skip slow and online tests) with --pdb ..."
 	@bash -c "pytest -v -m 'not slow and not online' --pdb"
-
-.PHONY: pep8
-pep8:
-	@echo "Running pep8 code style checks ..."
-	@bash -c "flake8 raven tests"
 
 ## Sphinx targets
 

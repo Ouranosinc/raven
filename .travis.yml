@@ -9,69 +9,72 @@ jobs:
       python: "3.5"
       name: "macOS (Python3.5)"
       addons:
-            homebrew:
-                packages:
-                    - netcdf
-                update: true
+        homebrew:
+          packages:
+            - netcdf
+          update: true
       env:
-            - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
-    - name: "Linux (Python3.6 + pep8)"
+        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
+    - name: "Linux (Python3.6 + lint)"
       dist: xenial
       python: "3.6"
       addons:
-            apt:
-                packages:
-                    - libnetcdf-dev
+        apt:
+          packages:
+            - libnetcdf-dev
       env:
-            - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-            - PEP8=true
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - LINT=true
     - os: linux
-      name: "Linux (Python3.7 + docs)"
+      name: "Linux (Python3.7)"
       python: "3.7"
       addons:
-            apt:
-                packages:
-                    - libnetcdf-dev
+        apt:
+          packages:
+            - libnetcdf-dev
       env:
-            - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-            - DOCS=true
-    -   name: "Linux (Python3.8 + notebooks)"
-        python: "3.8"
-        addons:
-            apt:
-                packages:
-                    - libnetcdf-dev
-        env:
-            - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-            - NOTEBOOKS=true
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - DOCS=false
+    - name: "Linux (Python3.8 + notebooks)"
+      python: "3.8"
+      addons:
+        apt:
+          packages:
+            - libnetcdf-dev
+      env:
+        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+        - NOTEBOOKS=true
   allow_failures:
     - env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
         - NOTEBOOKS=true
+
+before_install:
+  - printenv
 
 install:
   - make bootstrap
   # Useful for debugging any issues with conda
   - bash -c "source $HOME/miniconda3/bin/activate raven && conda info -a"
   - bash -c "source $HOME/miniconda3/bin/activate raven && make install"
-#  - sleep 2
-#  # Prepare env with Python version
-#  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
-#  # Update now the env with our environment
-#  - conda env update -f environment.yml
-#  - source activate raven
-#  # Packages for testing
-#  - conda install pytest flake8
-#  # Install Emu WPS
-#  - python setup.py install
+  #  - sleep 2
+  #  # Prepare env with Python version
+  #  - conda create -n raven python=$TRAVIS_PYTHON_VERSION
+  #  # Update now the env with our environment
+  #  - conda env update -f environment.yml
+  #  - source activate raven
+  #  # Packages for testing
+  #  - conda install pytest flake8
+  #  # Install Emu WPS
+  #  - python setup.py install
 
 before_script:
-#  # Start WPS service on port 5000 on 0.0.0.0
-    #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
-    - bash -c "source $HOME/miniconda3/bin/activate raven && make start"
+  #  # Start WPS service on port 5000 on 0.0.0.0
+  #  - raven start --daemon --bind-host 0.0.0.0 --port 5000
+  - bash -c "source $HOME/miniconda3/bin/activate raven && make start"
 
 script:
   - bash -c "source $HOME/miniconda3/bin/activate raven && make test"
   - if [[ $NOTEBOOKS = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make FLYINGPIGEON_WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/flyingpigeon/wps test-notebooks"; fi
   - if [[ $DOCS = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make docs && make SPHINXOPTS='-b epub' docs && make SPHINXOPTS='-b latex' docs"; fi
-  - if [[ $PEP8 = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make pep8"; fi
+  - if [[ $LINT = true ]]; then bash -c "source $HOME/miniconda3/bin/activate raven && make lint"; fi
