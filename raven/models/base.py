@@ -244,8 +244,8 @@ class Raven:
 
     def _dump_rv(self):
         """Write configuration files to disk."""
+
         params = self.parameters
-        self._rvs = []
 
         for rvf in self.rvfiles.values():
             p = self.exec_path if rvf.is_tpl else self.model_path
