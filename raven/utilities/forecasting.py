@@ -23,6 +23,7 @@ import pdb
 import tempfile
 from pathlib import Path
 from zipfile import ZipFile
+from xclim import subset
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -186,7 +187,9 @@ def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
     if climate_model is 'GEPS':
         duration=min(duration,10)
         filepath='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/GEPS_'
-        filepath='./testdata/GEPS_fc_test/GEPStest_'
+        #filepath='./testdata/GEPS_fc_test/GEPStest_'
+        filepath='./testdata/GEPS_fc_test/2017060100_000.nc'
+        members=20
     elif climate_model is 'GDPS':
         duration = min(duration, 10)
     elif climate_model is 'RDPS':
@@ -197,7 +200,7 @@ def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
     datestr=dt.datetime.strftime(date,'%Y%m')
     day=date.day
     
-    filein=filepath + datestr + '.nc'
+    filein=filepath# + datestr + '.nc'
     
     tmp = Path(tempfile.mkdtemp())
     ZipFile(region,'r').extractall(tmp)
@@ -209,21 +212,29 @@ def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
     lat_min=vector.bounds[1]
     lat_max=vector.bounds[3]
 
-    ds=xr.open_dataset(filein).sel(DayOfMonth=day)
-    pdb.set_trace()
+    ds=xr.open_dataset(filein)
+
+    # Subset the data to the desired location (2x2 degree box)
+    ds=subset.subset_bbox(ds, lon_bnds=[lon_min, lon_max], lat_bnds=[lat_min, lat_max], start_date=date, end_date=date+dt.timedelta(days=duration))
+
+        
+    #ds=xr.open_dataset(filein).sel(latitude=slice(lat_max + 1, lat_min - 1),longitude=slice(lon_min - 1, lon_max + 1))
     shdf = [vector.next()["geometry"]]
     # Rioxarray requires CRS definitions for variables
-    tas = ds.tas.rio.write_crs(4326)
-    pr = ds.pr.rio.write_crs(4326)
+    tas = ds.GEPS_P_TT_10000.rio.write_crs(4326)
+    pr = ds.GEPS_P_PR_SFC.rio.write_crs(4326)
     ds = xr.merge([tas, pr])
-
+    
+        
     # Now apply the mask of the basin contour and average the values to get a single time series
     # THIS IS THE LINE TO UNCOMMENT TO IDENTIFY THE X and Y COORDS.
-    # ds.rio.set_spatial_dims('lonc','latc')
+    ds.rio.set_spatial_dims('rlon','rlat')
+    ds['rlon']=360-ds['rlon']
+    ds['rlon']=-ds['rlon']
     
     sub = ds.rio.clip(shdf, crs=4326)
-    sub = sub.mean(dim={'lat','lon'}, keep_attrs=True)
-    
+    sub = sub.mean(dim={'rlat','rlon'}, keep_attrs=True)
+
     return sub
     
         
