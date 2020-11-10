@@ -385,6 +385,7 @@ class Raven:
 
         if self.rvi:
             self.handle_date_defaults(ts)
+            self.set_calendar(ts)
 
         # Loop over parallel parameters
         procs = []
@@ -578,8 +579,17 @@ class Raven:
         ds = xr.open_mfdataset(fns, combine="by_coords")
         return ds.indexes['time'][0], ds.indexes['time'][-1]
 
-    def handle_date_defaults(self, ts):
+    @staticmethod
+    def get_calendar(fns):
+        """Return the calendar."""
+        ds = xr.open_mfdataset(fns, combine="by_coords")
+        return ds.time.encoding.get("calendar", "standard")
 
+    def set_calendar(self, ts):
+        """Set the calendar in the RVI configuration."""
+        self.rvi.calendar = self.get_calendar(ts)
+
+    def handle_date_defaults(self, ts):
         # Get start and end date from file
         start, end = self.start_end_date(ts)
 

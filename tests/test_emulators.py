@@ -64,7 +64,7 @@ class TestGR4JCN:
 
         d = model.diagnostics
         # yields NSE=0.???? for full period 1954-2010
-
+        assert model.rvi.calendar == "GREGORIAN"
         # Check parser
         assert 1 in model.solution["HRUStateVariableTable"]["data"]
 
@@ -233,10 +233,10 @@ class TestGR4JCN:
 
     def test_version(self):
         model = Raven()
-        assert model.version == "3.0"
+        assert model.version == "3.0.1"
 
         model = GR4JCN()
-        assert model.version == "3.0"
+        assert model.version == "3.0.1"
 
     def test_parallel_params(self):
         ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
