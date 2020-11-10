@@ -16,9 +16,16 @@ def test_perturbation():
     ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
     ds = xr.open_dataset(ts)
 
-    da = ds.tmax.isel(time=slice(0, 10))
-    p_tmax = perturbation(da, "norm", .01, members=50)
-    np.testing.assert_allclose(p_tmax.mean("members"), da, rtol=.1)
+    tmax = ds.tmax.isel(time=slice(0, 10))
+    p_tmax = perturbation(tmax, "norm", .01, members=50)
+    np.testing.assert_allclose(p_tmax.mean("members"), tmax, rtol=.1)
+
+    rain = ds.rain.isel(time=slice(30, 60))
+    p_rain = perturbation(rain, "gamma", 0.01, members=50)
+    np.testing.assert_allclose(p_rain.mean("members"), rain, rtol=.1)
+
+    assert p_tmax.attrs == ds.tmax.attrs
+    assert p_rain.attrs == ds.rain.attrs
 
 
 class TestAssimilationGR4JCN:
