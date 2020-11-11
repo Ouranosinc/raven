@@ -45,7 +45,7 @@ last_storage["Soil Water[0]"]
 """
 
 
-def assimilateQobsSingleDay(model,rvc, xa,ts,days,std,number_members=25):
+def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25):
 
     model=deepcopy(model)
 
@@ -62,9 +62,10 @@ def assimilateQobsSingleDay(model,rvc, xa,ts,days,std,number_members=25):
         with xr.open_dataset(nc.path) as ds:
             da = ds.get(nc.var_name).sel(time=days)
             perturbed[nc.var_name] = perturbation(da, dists.get(key, "norm"), s, members=number_members)
-
+            if nc.var_name is "qobs":
+                qobs=da.isel(time=-1).values
     perturbed = xr.Dataset(perturbed)
-
+    
     do_assimilation=True
     for varname, da in perturbed.data_vars.items():
         if np.isnan(da.data).any():
@@ -78,22 +79,23 @@ def assimilateQobsSingleDay(model,rvc, xa,ts,days,std,number_members=25):
         inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i], soil1=xa[1,i]))
 
     model(p_fn, hru_state=inistates, nc_index=range(number_members))
-
+    
     # This does not work, error with 'time' dimension not being available... but it is there.
     # also, the model.storage only returns one value. I think we might have to run the 25 members
     # independently and save them each one by one... unless there is another trick?
     # the 25 q_sims do work though, I am able to get them directly.
     last_storage = model.storage.isel(time=-1)
-    last_storage["Soil Water[0]"]
-
-    '''
-    x_matrix=np.array(x_matrix)
-    x_matrix=x_matrix[:,:,-1].transpose()
-    '''
+    soil0=np.array(last_storage["Soil Water[0]"].values)
+    soil1=np.array(last_storage["Soil Water[1]"].values)
+    x_matrix=np.column_stack((soil0,soil1)).T
+    qsim_matrix=model.q_sim.isel(time=-1).values
     # Here I now need to redefine the inputs to ApplyassimilationOnStates, TODO
     # Apply the actual EnKF on the states to generate new, better states.
+    
     if do_assimilation:
-        xa=applyAssimilationOnStates(x_matrix,qobs_pert,qobs_error,qsim_matrix[:,-1])
+        qobs_pert=perturbed['qobs'].isel(time=-1).values
+        qobs_error=np.tile(qobs,(1,number_members))-qobs_pert.T
+        xa=applyAssimilationOnStates(x_matrix,qobs_pert.reshape(1, -1),qobs_error,qsim_matrix.T)
     else:
         xa=x_matrix
 
@@ -221,7 +223,7 @@ def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
     # run the model with the input files
     model(tsfile,overwrite=True)
     # DO TESTS HERE FOR MODEL UPDATE PROBLEM
-    pdb.set_trace()
+   
     # allocate space and fill in with the state variables
     x=[]
     x.append(model.storage["Soil Water[0]"].copy(deep=True))
