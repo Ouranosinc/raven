@@ -46,15 +46,15 @@ last_storage["Soil Water[0]"]
 
 
 def assimilateQobsSingleDay(model,rvc, xa,ts,days,std,number_members=25):
-    
+
     model=deepcopy(model)
-    
+
     tmp = Path(tempfile.mkdtemp())
 
     p_fn = tmp / "perturbed_forcing.nc"
-    
+
     perturbed = {}
-    dists = {"pr": "gamma","rainfall":"gamma","prsn":"gamma"}  # Keyed by standard_name
+    dists = {"pr": "gamma", "rainfall": "gamma", "prsn": "gamma"}  # Keyed by standard_name
 
     # Magic and/or dark arts are used to do things here:
     for key, s in std.items():
@@ -62,30 +62,30 @@ def assimilateQobsSingleDay(model,rvc, xa,ts,days,std,number_members=25):
         with xr.open_dataset(nc.path) as ds:
             da = ds.get(nc.var_name).sel(time=days)
             perturbed[nc.var_name] = perturbation(da, dists.get(key, "norm"), s, members=number_members)
-    
+
     perturbed = xr.Dataset(perturbed)
-    
+
     do_assimilation=True
     for varname, da in perturbed.data_vars.items():
         if np.isnan(da.data).any():
             do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
-    
+
     perturbed.to_netcdf(p_fn)
-    
+
     # Generate my list of initial states with replacement of soil0 and soil1
     inistates=[]
     for i in range(number_members):
-        inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i],soil1=xa[1,i]))
+        inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i], soil1=xa[1,i]))
 
     model(p_fn, hru_state=inistates, nc_index=range(number_members))
-    
+
     # This does not work, error with 'time' dimension not being available... but it is there.
     # also, the model.storage only returns one value. I think we might have to run the 25 members
-    # independently and save them each one by one... unless there is another trick? 
+    # independently and save them each one by one... unless there is another trick?
     # the 25 q_sims do work though, I am able to get them directly.
-    last_storage = xr.concat(model.storage, dim="members").isel(time=-1)
+    last_storage = model.storage.isel(time=-1)
     last_storage["Soil Water[0]"]
-    
+
     '''
     x_matrix=np.array(x_matrix)
     x_matrix=x_matrix[:,:,-1].transpose()
