@@ -244,6 +244,7 @@ class Raven:
 
     def _dump_rv(self):
         """Write configuration files to disk."""
+
         params = self.parameters
 
         for rvf in self.rvfiles.values():
