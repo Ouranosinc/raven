@@ -19,7 +19,7 @@ import datetime as dt
 import warnings
 import rioxarray
 import fiona
-import pdb
+
 import tempfile
 from pathlib import Path
 from zipfile import ZipFile
@@ -183,6 +183,8 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
 
 def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
 
+    # some of this code is useless right now, but it will become important when
+    # we interact directly with the full dataset on THREDDS
     # Fix maximum duration
     if climate_model is 'GEPS':
         duration=min(duration,10)
@@ -234,7 +236,12 @@ def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
     
     sub = ds.rio.clip(shdf, crs=4326)
     sub = sub.mean(dim={'rlat','rlon'}, keep_attrs=True)
-
+    
+    sub['tas']=sub['GEPS_P_TT_10000']
+    sub=sub.drop('GEPS_P_TT_10000')
+    sub['pr']=sub['GEPS_P_PR_SFC']
+    sub=sub.drop('GEPS_P_PR_SFC')
+   
     return sub
     
         
