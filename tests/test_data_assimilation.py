@@ -32,7 +32,7 @@ class TestAssimilationGR4JCN:
     def test_simple(self):
         ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
         number_members=25
-
+        std = {"rainfall": 0.30,"prsn": 0.30, "tasmin": 2.0, "tasmax": 2.0, "water_volume_transport_in_river_channel": 0.15}
         model = GR4JCN(tempfile.mkdtemp())
 
         start_date=dt.datetime(2000,1,1)
@@ -53,23 +53,20 @@ class TestAssimilationGR4JCN:
 
         model([ts,])
         rvc = model.outputs["solution"]
-
-        plt.plot(model.q_sim)
-        plt.show()
-
-        model.resume(rvc)
+        model.rvc.parse(rvc.read_text())
+        
         xa = [model.storage["Soil Water[0]"].isel(time=-1).values, model.storage["Soil Water[1]"].isel(time=-1).values]
         xa = np.tile(xa, (number_members, 1)).T
 
         # Do first run at 7 days
         date_list = [start_date + dt.timedelta(days=x) for x in range(10)]
 
-        [xa,q_assim,q_openloop,model] = assimilateQobsSingleDay(model,xa,ts,date_list,number_members=number_members,precip_std=0.30,temp_std=2.0,qobs_std=0.15)
+        [xa,q_assim,q_openloop,model] = assimilateQobsSingleDay(model,rvc,xa,ts,date_list,std,number_members=number_members)
         model=deepcopy(model)
         for i in range(1,20):
             start_date=start_date+dt.timedelta(days=10)
             date_list = [start_date + dt.timedelta(x) for x in range(10)]
-            [xa,q_a,q_ol,model] = assimilateQobsSingleDay(model,xa,ts,date_list,number_members=number_members,precip_std=0.30,temp_std=2.0,qobs_std=0.15)
+            [xa,q_a,q_ol,model] = assimilateQobsSingleDay(model,rvc,xa,ts,date_list,std,number_members=number_members)
             model=deepcopy(model)
             q_assim=np.concatenate((q_assim,q_a),1)
             q_openloop=np.concatenate((q_openloop,q_ol),1)
