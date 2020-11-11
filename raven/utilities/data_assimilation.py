@@ -32,24 +32,6 @@ import pdb
 """
 Suggestion:
 
-pass dictionary of std, keyed by standard_name, so that it works irrespective of the variable names in the forcing
-files, e.g.
-
-std = {"pr": 0.30, "tasmin": 2.0, "tasmax": 2.0, "water_volume_transport_in_river_channel": 0.15}
-
-Then get the files from the rvt and perturb the forcing data and save it all to disk (for all members).
-p_fn = "perturbed_forcing.nc"
-
-perturbed = {}
-dists = {"pr": "gamma"}  # Keyed by standard_name
-for key, s in std:
-    nc = model.rvt.get(key)
-    with xr.open_dataset(nc.path) as ds:
-        da = ds.get(nc.var_name).sel(time=days)
-        perturbed[nc.var_name] = perturbation(da, dists.get(key, "norm"), s, members=n_members)
-
-perturbed = xr.Dataset(perturbed)
-perturbed.to_netcdf(p_fn)
 
 Then use model.rvt.nc_index to run parallel simulations with different hru_state.
 
@@ -63,59 +45,52 @@ last_storage["Soil Water[0]"]
 """
 
 
-def assimilateQobsSingleDay(model,xa,ts,days,number_members=25, precip_std=0.30,temp_std=2.0,qobs_std=0.15):
+def assimilateQobsSingleDay(model,rvc, xa,ts,days,std,number_members=25):
+    
     model=deepcopy(model)
+    
     tmp = Path(tempfile.mkdtemp())
 
-    # Extract the Qobs, precip and temperature data for the day of interest
-    nc_inputs = xr.open_dataset(ts)
-    nc_inputs=nc_inputs.sel(time=days)
+    p_fn = tmp / "perturbed_forcing.nc"
+    
+    perturbed = {}
+    dists = {"pr": "gamma","rainfall":"gamma","prsn":"gamma"}  # Keyed by standard_name
 
-
-    # Check to see if all data is OK for assimilation (i.e. is Qobs=Nan or something like that, then skip)
+    # Magic and/or dark arts are used to do things here:
+    for key, s in std.items():
+        nc = model.rvt.get(key)
+        with xr.open_dataset(nc.path) as ds:
+            da = ds.get(nc.var_name).sel(time=days)
+            perturbed[nc.var_name] = perturbation(da, dists.get(key, "norm"), s, members=number_members)
+    
+    perturbed = xr.Dataset(perturbed)
+    
     do_assimilation=True
-
-    for varname, da in nc_inputs.data_vars.items():
+    for varname, da in perturbed.data_vars.items():
         if np.isnan(da.data).any():
             do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
+    
+    perturbed.to_netcdf(p_fn)
+    
+    # Generate my list of initial states with replacement of soil0 and soil1
+    inistates=[]
+    for i in range(number_members):
+        inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i],soil1=xa[1,i]))
 
-    # Extract vars individually
-    qobs=np.array([nc_inputs['qobs'].data])
-    pr=np.array([nc_inputs['rain'].data+nc_inputs['snow'].data])
-    tasmax=np.array([nc_inputs['tmax'].data])
-    tasmin=np.array([nc_inputs['tmin'].data])
-
-    # Apply sampling input data uncertainty by perturbation (number_members, precip_std, temp_std, qobs_std)
-    pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error=applyHydrometPerturbations(pr,tasmax,tasmin,qobs[0,-1],number_members, precip_std, temp_std, qobs_std)
-
-
-
-
-    # Run the model number_member times, writing a NetCDF each time with adjusted precip/temp
-    x_matrix=[]
-    qsim_matrix=[]
-    rvc_main=tmp / 'rvcmain.rvc'
-    os.rename(model.outputs["solution"],rvc_main)
-    #pdb.set_trace()
-    for i in range(0,number_members):
-        model.resume(rvc_main)
-
-
-        model.rvc.hru_state=model.rvc.hru_state._replace(soil0=xa[0,i])
-        model.rvc.hru_state=model.rvc.hru_state._replace(soil1=xa[1,i])
-
-        x, qsim = runModelwithShortMeteo(model,pr_pert[:,i],tasmax_pert[:,i],tasmin_pert[:,i],days,tmp)
-        x_matrix.append(x)
-        qsim_matrix.append(qsim.data)
-
-    qsim_matrix=np.array(qsim_matrix)
-
-    qsim_matrix=qsim_matrix[:,:,0]
-
-
+    model(p_fn, hru_state=inistates, nc_index=range(number_members))
+    
+    # This does not work, error with 'time' dimension not being available... but it is there.
+    # also, the model.storage only returns one value. I think we might have to run the 25 members
+    # independently and save them each one by one... unless there is another trick? 
+    # the 25 q_sims do work though, I am able to get them directly.
+    last_storage = xr.concat(model.storage, dim="members").isel(time=-1)
+    last_storage["Soil Water[0]"]
+    
+    '''
     x_matrix=np.array(x_matrix)
     x_matrix=x_matrix[:,:,-1].transpose()
-
+    '''
+    # Here I now need to redefine the inputs to ApplyassimilationOnStates, TODO
     # Apply the actual EnKF on the states to generate new, better states.
     if do_assimilation:
         xa=applyAssimilationOnStates(x_matrix,qobs_pert,qobs_error,qsim_matrix[:,-1])
