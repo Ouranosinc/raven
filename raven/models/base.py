@@ -117,7 +117,7 @@ class Raven:
         self.exec_path = self.workdir / 'exec'
         self.final_path = self.workdir / self.final_dir
         self._psim = 0
-        self._pdim = None  # Parallel dimension (either params or nbasins)
+        self._pdim = None  # Parallel dimension (either initparam, params or region)
 
     @property
     def output_path(self):
@@ -356,7 +356,12 @@ class Raven:
         # Number of parallel loops is dictated by the number of parameters or nc_index.
         nloops = max(len(pdict['params']), len(pdict['nc_index']))
         if nloops > 1:
-            self._pdim = 'nbasins' if len(pdict['nc_index']) > 1 else 'params'
+            if "params" in pdict:
+                self._pdim = "params"
+            elif "hru_state" in pdict or "basin_state" in pdict:
+                self._pdim = "initparams"
+            else:
+                self._pdim = "region"
 
         for key, val in pdict.items():
             if len(val) not in [1, nloops]:
@@ -482,7 +487,7 @@ class Raven:
             ds = [xr.open_dataset(fn) for fn in files]
             try:
                 # We aggregate along the pdim dimensions.
-                out = xr.concat(ds, self._pdim, data_vars='different')
+                out = xr.concat(ds, self._pdim, data_vars='all')
                 out.to_netcdf(outfn)
                 return outfn
             except (ValueError, KeyError):
