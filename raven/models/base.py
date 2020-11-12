@@ -355,6 +355,8 @@ class Raven:
 
         # Number of parallel loops is dictated by the number of parameters or nc_index.
         nloops = max(len(pdict['params']), len(pdict['nc_index']))
+        # TODO: This logic is a broken. params is always in pdict. Instead check the length of all parallel
+        #  parameters, find the max, identify those whose length is max, then apply logic.
         if nloops > 1:
             if "params" in pdict:
                 self._pdim = "params"
@@ -639,6 +641,8 @@ class Raven:
     def solution(self):
         if self.outputs['solution'].suffix == ".rvc":
             return parse_solution(self.outputs['solution'].read_text())
+        elif self.outputs['solution'].suffix == '.zip':
+            return [parse_solution(fn.read_text()) for fn in self.ind_outputs['solution']]
 
     @property
     def diagnostics(self):
