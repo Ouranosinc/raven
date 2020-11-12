@@ -54,7 +54,7 @@ class TestAssimilationGR4JCN:
         model([ts,])
         rvc = model.outputs["solution"]
         model.rvc.parse(rvc.read_text())
-        
+
         xa = [model.storage["Soil Water[0]"].isel(time=-1).values, model.storage["Soil Water[1]"].isel(time=-1).values]
         xa = np.tile(xa, (number_members, 1)).T
 
@@ -62,11 +62,11 @@ class TestAssimilationGR4JCN:
         date_list = [start_date + dt.timedelta(days=x) for x in range(10)]
 
         [xa,q_assim,q_openloop,model] = assimilateQobsSingleDay(model,xa,ts,date_list,std,number_members=number_members)
-        
-        rvc=model.outputs["solution"]
+
+        solutions = model.solution
         # FAILS HERE
-        model.rvc.parse(rvc.read_text())
-        
+
+
         for i in range(1,20):
             start_date=start_date+dt.timedelta(days=10)
             date_list = [start_date + dt.timedelta(x) for x in range(10)]
