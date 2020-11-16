@@ -45,18 +45,19 @@ last_storage["Soil Water[0]"]
 """
 
 
-def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25):
+def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25, solutions=None):
 
     model=deepcopy(model)
-
+    
     tmp = Path(tempfile.mkdtemp())
 
     p_fn = tmp / "perturbed_forcing.nc"
 
     perturbed = {}
     dists = {"pr": "gamma", "rainfall": "gamma", "prsn": "gamma"}  # Keyed by standard_name
-
-    # Magic and/or dark arts are used to do things here:
+    
+    model.setup_model_run([ts,]) # Force the model to reupdate its ts file. If we don<t do this, the model will use the previous run's data.
+    
     for key, s in std.items():
         nc = model.rvt.get(key)
         with xr.open_dataset(nc.path) as ds:
@@ -74,23 +75,37 @@ def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25):
     perturbed.to_netcdf(p_fn)
 
     # Generate my list of initial states with replacement of soil0 and soil1
-    inistates=[]
-    for i in range(number_members):
-        inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i], soil1=xa[1,i]))
 
-    model(p_fn, hru_state=inistates, nc_index=range(number_members))
-    
-    # This does not work, error with 'time' dimension not being available... but it is there.
-    # also, the model.storage only returns one value. I think we might have to run the 25 members
-    # independently and save them each one by one... unless there is another trick?
-    # the 25 q_sims do work though, I am able to get them directly.
-    last_storage = model.storage.isel(time=-1)
-    soil0=np.array(last_storage["Soil Water[0]"].values)
-    soil1=np.array(last_storage["Soil Water[1]"].values)
-    x_matrix=np.column_stack((soil0,soil1)).T
-    qsim_matrix=model.q_sim.isel(time=-1).values
-    # Here I now need to redefine the inputs to ApplyassimilationOnStates, TODO
-    # Apply the actual EnKF on the states to generate new, better states.
+    if solutions is not None:
+        
+        # Not able to parallelize, TODO later.
+        soil0=[]
+        soil1=[]
+        qsim_matrix=[]
+        for i in range(number_members):
+            solutions[i]['HRUStateVariableTable']['data'][1][4]=xa[0,i]
+            solutions[i]['HRUStateVariableTable']['data'][1][5]=xa[1,i]
+            model(p_fn, hru_state=solutions[i], nc_index=i,overwrite=True)
+            soil0.append(model.storage.isel(time=-1)["Soil Water[0]"].values)
+            soil1.append(model.storage.isel(time=-1)["Soil Water[1]"].values)
+            qsim_matrix.append(model.q_sim.isel(time=-1).values)
+   
+        pdb.set_trace()
+        x_matrix=np.column_stack((np.array(soil0),np.array(soil1))).T
+        qsim_matrix=np.array(qsim_matrix)       
+        
+    else:
+        inistates=[]
+        for i in range(number_members):
+            inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i], soil1=xa[1,i]))
+            
+        model(p_fn, hru_state=inistates, nc_index=range(number_members))
+        last_storage = model.storage.isel(time=-1)
+        soil0=np.array(last_storage["Soil Water[0]"].values)
+        soil1=np.array(last_storage["Soil Water[1]"].values)
+        x_matrix=np.column_stack((soil0,soil1)).T
+        qsim_matrix=model.q_sim.isel(time=-1).values
+   
     
     if do_assimilation:
         qobs_pert=perturbed['qobs'].isel(time=-1).values

@@ -63,14 +63,14 @@ class TestAssimilationGR4JCN:
 
         [xa,q_assim,q_openloop,model] = assimilateQobsSingleDay(model,xa,ts,date_list,std,number_members=number_members)
 
+
         solutions = model.solution
-        # FAILS HERE
-
-
+       
+        
         for i in range(1,20):
             start_date=start_date+dt.timedelta(days=10)
             date_list = [start_date + dt.timedelta(x) for x in range(10)]
-            [xa,q_a,q_ol,model] = assimilateQobsSingleDay(model,xa,ts,date_list,std,number_members=number_members)
+            [xa,q_a,q_ol,model] = assimilateQobsSingleDay(model,xa,ts,date_list,std,number_members=number_members, solutions=solutions)
             model=deepcopy(model)
             rvc=model.outputs["solution"]
             model.rvc.parse(rvc.read_text())
