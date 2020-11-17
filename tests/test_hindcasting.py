@@ -2,7 +2,7 @@ from . common import TESTDATA
 import datetime as dt
 from raven.utilities import forecasting
 from raven.models import GR4JCN
-
+import pdb
 
 class TestHindcasting:
     def test_hindcasting_GEPS(self):
@@ -35,14 +35,16 @@ class TestHindcasting:
         
         # Now, relaunch the model at the good states.
         model.rvc.parse(rvc.read_text())
-        
+                
         model(ts=('/home/ets/src/raventest/raven/tests/hindcastfile.nc'),start_date=dt.datetime(2017, 6, 1),
-            end_date=dt.datetime(2017, 6, 2),
+            end_date=dt.datetime(2017, 6, 10),
             area=44250.6,
             elevation=843.0,
             latitude=54.4848,
             longitude=-123.3659,
-            params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),overwrite=True)
+            params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+            nc_index=range(fcst.dims.get('member')),
+            overwrite=True)
         
-        assert len(model.q_sim.values)==2
+        assert len(model.q_sim.values)==10
         
