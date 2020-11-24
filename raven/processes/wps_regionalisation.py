@@ -11,7 +11,6 @@ from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
-
 class RegionalisationProcess(RavenProcess):
     """
     Notes
@@ -122,13 +121,13 @@ class RegionalisationProcess(RavenProcess):
                               max_occurs=1,
                               supported_formats=[FORMATS.JSON, ])
 
-    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude, wio.name,
+    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude, wio.name, wio.rain_snow_fraction, wio.nc_spec,
               wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
 
     outputs = [wio.hydrograph, wio.ensemble]
 
     def _handler(self, request, response):
-
+        
         ts = [e.file for e in request.inputs.pop('ts')]
         model_name = request.inputs.pop('model_name')[0].data
         method = request.inputs.pop('method')[0].data
@@ -137,7 +136,7 @@ class RegionalisationProcess(RavenProcess):
         properties = request.inputs.pop('properties')[0].data
         properties = json.loads(properties)
         # TODO: lat and lon from properties could be confused with lat and lon to run model. Should they be the same ?
-
+        
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data

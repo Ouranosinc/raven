@@ -78,7 +78,7 @@ class OstrichMOHYSEProcess(OstrichProcess):
     model_cls = MOHYSE_OST
     tuple_inputs = {'lowerBounds': MOHYSE_OST.params,
                     'upperBounds': MOHYSE_OST.params}
-    inputs = [wio.ts, wio.nc_spec, lowerBounds, upperBounds, wio.algorithm,
+    inputs = [wio.ts, wio.nc_spec, wio.nc_index, lowerBounds, upperBounds, wio.algorithm,
               wio.max_iterations, wio.start_date, wio.end_date,
               wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation,
               wio.random_seed, wio.suppress_output, wio.rain_snow_fraction, wio.evaporation]

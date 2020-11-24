@@ -18,7 +18,7 @@ from raven.models import (
     HBVEC_OST,
 )
 from raven.models.state import HRUStateVariables
-from .common import TESTDATA, _convert_2d
+from . common import TESTDATA, _convert_2d
 import zipfile
 
 
@@ -64,7 +64,7 @@ class TestGR4JCN:
 
         d = model.diagnostics
         # yields NSE=0.???? for full period 1954-2010
-
+        assert model.rvi.calendar == "GREGORIAN"
         # Check parser
         assert 1 in model.solution["HRUStateVariableTable"]["data"]
 
@@ -187,9 +187,7 @@ class TestGR4JCN:
         )
 
         # Path to solution file from run A
-        rvc = model_a.outputs[
-            "solution"
-        ]  # <------- Richard, this is where the solution is.
+        rvc = model_a.outputs["solution"]
 
         # Resume with final state from live model
         model_a.resume()
@@ -231,12 +229,93 @@ class TestGR4JCN:
         # cumulative sums of precipitation over the run ?
         # assert model_b.solution == model_ab.solution # This does not work. Atmosphere attributes are off.
 
+    def test_resume_earlier(self):
+        """Check that we can resume a run with the start date set at another date than the time stamp in the
+        solution."""
+        ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
+        kwargs = dict(
+            area=4250.6,
+            elevation=843.0,
+            latitude=54.4848,
+            longitude=-123.3659,
+            params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+        )
+        # Reference run
+        model = GR4JCN()
+        model(
+            ts,
+            run_name="run_a",
+            start_date=dt.datetime(2000, 1, 1),
+            end_date=dt.datetime(2000, 2, 1),
+            **kwargs
+        )
+
+        s_a = model.storage["Soil Water[0]"].isel(time=-1)
+
+        # Path to solution file from run A
+        rvc = model.outputs["solution"]
+
+        # Resume with final state from live model
+        # We have two options to do this:
+        # 1. Replace model template by solution file as is: model.resume()
+        # 2. Replace variable in RVC class by parsed values: model.rvc.parse(rvc.read_text())
+        # I think in many cases option 2 will prove simpler.
+
+        model.rvc.parse(rvc.read_text())
+
+        model(
+            ts,
+            run_name="run_b",
+            start_date=dt.datetime(2000, 1, 1),
+            end_date=dt.datetime(2000, 2, 1),
+            **kwargs
+        )
+
+        s_b = model.storage[1]["Soil Water[0]"].isel(time=-1)
+        assert s_a != s_b
+
+    def test_update_soil_water(self):
+        ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
+        kwargs = dict(
+            area=4250.6,
+            elevation=843.0,
+            latitude=54.4848,
+            longitude=-123.3659,
+            params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+        )
+        # Reference run
+        model = GR4JCN()
+        model(
+            ts,
+            run_name="run_a",
+            start_date=dt.datetime(2000, 1, 1),
+            end_date=dt.datetime(2000, 2, 1),
+            **kwargs
+        )
+
+        s_0 = float(model.storage["Soil Water[0]"].isel(time=-1).values)
+        s_1 = float(model.storage["Soil Water[1]"].isel(time=-1).values)
+
+        hru_state = model.rvc.hru_state._replace(soil0=s_0, soil1=s_1)
+
+        model(
+            ts,
+            run_name="run_b",
+            start_date=dt.datetime(2000, 1, 1),
+            end_date=dt.datetime(2000, 2, 1),
+            hru_state=hru_state,
+            **kwargs
+        )
+
+        assert s_0 != model.storage[1]["Soil Water[0]"].isel(time=-1)
+        assert s_1 != model.storage[1]["Soil Water[1]"].isel(time=-1)
+
     def test_version(self):
         model = Raven()
-        assert model.version == "3.0"
+        assert model.version == "3.0.1"
 
         model = GR4JCN()
-        assert model.version == "3.0"
+        assert model.version == "3.0.1"
 
     def test_parallel_params(self):
         ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
