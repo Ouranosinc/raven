@@ -160,7 +160,7 @@ class TestShapeSelectionProcess:
 
         assert {"feature", "upstream_ids"}.issubset([*out])
 
-    def test_lake_huron_WFS_POST(self):
+    def test_lake_huron_POST(self):
         client = client_for(
             Service(processes=[HydroBasinsSelectionProcess(),], cfgfiles=CFG_FILE)
         )

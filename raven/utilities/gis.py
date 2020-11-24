@@ -301,42 +301,29 @@ def get_hydrobasins_location_wfs(
 
     """
     from owslib.wfs import WebFeatureService
-    from owslib.feature import PostRequest_1_1_0
-    import requests
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", domain, level
     )
+    wfs_version = "1.1.0"
 
     if coordinates is not None:
-        wfs = WebFeatureService(GEO_URL, version="1.1.0", timeout=30)
-        if method.upper() == "GET":
+        if method.upper() in {"GET", "POST"}:
+            add_kwargs = dict(srsname="urn:x-ogc:def:crs:EPSG:4326")
+            if method.upper() == "POST":
+                if parse(ows_version) < parse("0.20.0"):
+                    raise NotImplementedError("POST requires OWSlib >= 0.20.0")
+                add_kwargs = dict(propertyname=None)
+            wfs = WebFeatureService(GEO_URL, version=wfs_version, timeout=30)
             kwargs = dict(
                 typename=layer,
                 bbox=coordinates,
-                srsname="urn:x-ogc:def:crs:EPSG:4326",
                 method=method,
+                **add_kwargs
             )
             try:
                 resp = wfs.getfeature(**kwargs)
                 data = resp.read()
-            except Exception as e:
-                raise Exception(e)
-        elif method.upper() == "POST":
-            if parse(ows_version) < parse("0.20.0"):
-                raise NotImplementedError("POST requires OWSlib >= 0.20.0")
-
-            # Direct post request with Requests module. Same parameters as above.
-            request = PostRequest_1_1_0()
-            request.create_query(typename=layer)
-            request.set_bbox(bbox=coordinates)
-            request.set_outputformat('application/json')
-
-            # With the url "boreas_inner", will get same "Could not determine request"
-            # as described in the issue
-            try:
-                raw = requests.post(GEO_URL, data=request.to_string())
-                data = raw.text
             except Exception as e:
                 raise Exception(e)
 
@@ -414,9 +401,12 @@ def get_hydrobasins_attributes_wfs(
                 outputFormat="json",
                 filter=filterxml,
             )
-            if (parse(ows_version) < parse("0.20.0")) & (method == "POST"):
-                raise NotImplementedError("POST requires OWSlib >= 0.20.0")
             q = Request(method=method, url=GEO_URL, params=params).prepare().url
+
+            # NOTE: This could be rewritten for OWSLib to return the dataset instead of the URL if the need arises
+            # from owslib.wfs import WebFeatureService
+            # wfs = WebFeatureService(url=GEO_URL, version="1.1.0", timeout=30)
+            # req = wfs.getfeature(**params)
 
         except Exception as e:
             raise Exception(e)
