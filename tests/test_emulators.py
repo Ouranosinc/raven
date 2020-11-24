@@ -57,7 +57,7 @@ class TestGR4JCN:
         model.rvh.elevation = "843.0"
         model.rvh.latitude = 54.4848
         model.rvh.longitude = -123.3659
-
+        model.rvt.pr.deaccumulate=False
         model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
         assert model.rvi.suppress_output == ""
         model([ts, ])
