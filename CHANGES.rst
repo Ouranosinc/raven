@@ -6,6 +6,8 @@ Changes
 * Update to Raven 3.0
 * Update to xclim 0.18
 * Update to xarray 0.16
+* Add configuration options: `deaccumulate`
+* Clean notebooks
 
 
 0.10.x (2020-03-09) Oxford
