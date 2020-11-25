@@ -343,7 +343,6 @@ def get_hydrobasins_attributes_wfs(
     level: int = 12,
     lakes: bool = True,
     domain: str = None,
-    method: str = "GET",
 ) -> str:
     """Return features from the USGS HydroBASINS data set using attribute value selection and WFS 1.1.0 protocol.
 
@@ -362,8 +361,6 @@ def get_hydrobasins_attributes_wfs(
       Whether or not the vector should include the delimitation of lakes.
     domain : str
       The domain of teh HydroBASINS data. Possible values:"na", "ar".
-    method : {"GET", "POST"}
-      The method by which to pass data for the WFS request. Supported methods are those provided via OWSlib.
 
     Returns
     -------
@@ -401,12 +398,7 @@ def get_hydrobasins_attributes_wfs(
                 outputFormat="json",
                 filter=filterxml,
             )
-            q = Request(method=method, url=GEO_URL, params=params).prepare().url
-
-            # NOTE: This could be rewritten for OWSLib to return the dataset instead of the URL if the need arises
-            # from owslib.wfs import WebFeatureService
-            # wfs = WebFeatureService(url=GEO_URL, version="1.1.0", timeout=30)
-            # req = wfs.getfeature(**params)
+            q = Request(method="GET", url=GEO_URL, params=params).prepare().url
 
         except Exception as e:
             raise Exception(e)

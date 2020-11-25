@@ -104,7 +104,7 @@ class HydroBasinsSelectionProcess(Process):
 
         domain = gis.select_hybas_domain(bbox)
         hybas_gml = gis.get_hydrobasins_location_wfs(
-            bbox, lakes=lakes, level=level, domain=domain, method=method
+            coordinates=bbox, lakes=lakes, level=level, domain=domain, method=method
         )
 
         if isinstance(hybas_gml, str):
@@ -146,7 +146,6 @@ class HydroBasinsSelectionProcess(Process):
                 lakes=lakes,
                 level=level,
                 domain=domain,
-                method=method
             )
 
             # Read table of relevant features sharing main basin
