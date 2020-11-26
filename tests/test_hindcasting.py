@@ -3,6 +3,7 @@ import datetime as dt
 from raven.utilities import forecasting
 from raven.models import GR4JCN
 
+
 '''
 Test to perform a hindcast using Caspar data on THREDDS.
 Currently only runs GEPS, eventually will run GEPS, GDPS, REPS and RDPS.
@@ -51,20 +52,30 @@ class TestHindcasting:
         # data provided in the testdata above. Then the dates will not work, and the model errors.
         model = GR4JCN()
         
-        # Now, relaunch the model at the good states.
         model.rvc.parse(rvc.read_text())
-        model.rvt.pr.deaccumulate = True
+        
+        # Provide the info to be able to change the deaccumulation option.
+        model.rvi.start_date = dt.datetime(2018, 6, 1)
+        model.rvi.end_date = dt.datetime(2018, 6, 10)
+        model.rvi.run_name = "test"
+
+        model.rvh.name = "Salmon"
+        model.rvh.area = "44250.6"
+        model.rvh.elevation = "843.0"
+        model.rvh.latitude = 54.4848
+        model.rvh.longitude = -123.3659
+        
+        # Here is the deaccumulation. Does not seem to work? 
+        # Found that the update is the problem: self.rvt.update(ncvars) overwrites!
+        #in /models/base.py(291)setup_model_run()
+        model.rvt.pr.deaccumulate=True
+        
+        model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+     
         # And run the model with the forecast data.        
-        model(ts=('/home/ets/src/raventest/raven/tests/hindcastfile.nc'),start_date=dt.datetime(2018, 6, 1),
-            end_date=dt.datetime(2018, 6, 10),
-            area=44250.6,
-            elevation=843.0,
-            latitude=54.4848,
-            longitude=-123.3659,
-            params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+        model(ts=('/home/ets/src/raventest/raven/tests/hindcastfile.nc'),
             nc_index=range(fcst.dims.get('member')),
-            
-            overwrite=True)
+            overwrite=True, pr={'linear_transform': (1.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}) # Also tried to force it here, it seems to me that this should work?
         
         # The model now has the forecast data generated and it has 10 days of forecasts.
         assert len(model.q_sim.values)==10
