@@ -183,73 +183,74 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
 
     return qsims
 
-def get_hindcast_day(region,date, duration = 2, climate_model='GEPS'):
+def get_hindcast_day(region,date, climate_model='GEPS'):
+    '''
+    This function generates a forecast dataset that can be used to run raven. 
+    Data comes from the CASPAR archive and must be aggregated such that each file
+    contains forecast data for a single day, but for all forecast timesteps and
+    all members.
+    
+    The code takes the region shapefile, the forecast date required, and the 
+    climate_model to use, here GEPS by default, but eventually could be 
+    GEPS, GDPS, REPS or RDPS.
+    '''
 
-    # some of this code is useless right now, but it will become important when
-    # we interact directly with the full dataset on THREDDS
-    # Fix maximum duration
+    # Get the file locations and filenames as a function of the climate model and date
     if climate_model is 'GEPS':
-        duration=min(duration,10)
-        filepath='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/GEPS_'
-        #filepath='./testdata/GEPS_fc_test/GEPStest_'
-        filepath='/home/ets/src/raventest/GEPS_20170601.nc'
-        members=20
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GEPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+        
+        # Here we also extract the times at 6-hour intervals as Raven must have 
+        #constant timesteps.
         times=[]
         for single_time in (date + dt.timedelta(hours=n) for n in range(0,384,6)):
             times.append(single_time)
             
     elif climate_model is 'GDPS':
-        duration = min(duration, 10)
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GDPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+        
     elif climate_model is 'RDPS':
-        duration=min(duration,2)
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/REPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+        
     elif climate_model is 'REPS':
-        duration=min(duration,2)
-    
-    datestr=dt.datetime.strftime(date,'%Y%m')
-    day=date.day
-    
-    filein=filepath# + datestr + '.nc'
-    
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/RDPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+        
+    # Extract the shapefile from the zipped package
     tmp = Path(tempfile.mkdtemp())
     ZipFile(region,'r').extractall(tmp)
     shp = list(tmp.glob("*.shp"))[0]
     vector = fiona.open(shp, "r")
-
+    shdf = [vector.next()["geometry"]]
+    
+    # extract the bounding box to subset the entire forecast grid to something
+    # more manageable
     lon_min=vector.bounds[0]
     lon_max=vector.bounds[2]
     lat_min=vector.bounds[1]
     lat_max=vector.bounds[3]
 
+    # Open the forecast data
     ds=xr.open_dataset(filein)
     
-    # Subset the data to the desired location (2x2 degree box)
-    ds=subset.subset_bbox(ds, lon_bnds=[lon_min, lon_max], lat_bnds=[lat_min, lat_max]).sel(time=times)#, start_date=date, end_date=date+dt.timedelta(days=duration))
+    # Subset the data to the desired location (bounding box) and times
+    ds=subset.subset_bbox(ds, lon_bnds=[lon_min, lon_max], lat_bnds=[lat_min, lat_max]).sel(time=times)
         
-    #ds=xr.open_dataset(filein).sel(latitude=slice(lat_max + 1, lat_min - 1),longitude=slice(lon_min - 1, lon_max + 1))
-    shdf = [vector.next()["geometry"]]
     # Rioxarray requires CRS definitions for variables
     # Here the name of the variable could differ based on the Caspar file processing
     tas = ds.tas.rio.write_crs(4326)
     pr = ds.pr.rio.write_crs(4326)
     ds = xr.merge([tas, pr])
-    
-        
+            
     # Now apply the mask of the basin contour and average the values to get a single time series
-    # THIS IS THE LINE TO UNCOMMENT TO IDENTIFY THE X and Y COORDS.
     ds.rio.set_spatial_dims('rlon','rlat')
+
+    # rlon format is not changed by the subset.subset, do that here.
     ds['rlon']=360-ds['rlon']
     ds['rlon']=-ds['rlon']
     
+    # clip the netcdf and average across space.
     sub = ds.rio.clip(shdf, crs=4326)
     sub = sub.mean(dim={'rlat','rlon'}, keep_attrs=True)
-    
-    
-    '''
-    sub['tas']=sub['GEPS_P_TT_10000']
-    sub=sub.drop('GEPS_P_TT_10000')
-    sub['pr']=sub['GEPS_P_PR_SFC']
-    sub=sub.drop('GEPS_P_PR_SFC')
-    '''
+     
     return sub
     
         
