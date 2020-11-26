@@ -244,6 +244,7 @@ class Raven:
 
     def _dump_rv(self):
         """Write configuration files to disk."""
+
         params = self.parameters
 
         for rvf in self.rvfiles.values():
@@ -583,7 +584,7 @@ class Raven:
     def get_calendar(fns):
         """Return the calendar."""
         ds = xr.open_mfdataset(fns, combine="by_coords")
-        return ds.time.encoding["calendar"]
+        return ds.time.encoding.get("calendar", "standard")
 
     def set_calendar(self, ts):
         """Set the calendar in the RVI configuration."""
