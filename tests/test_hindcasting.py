@@ -23,6 +23,7 @@ class TestHindcasting:
         # Collect the hindcast data for the date, location and climate model.
         # Limited to GEPS for now, for a restricted period (2017-06-01 to 2018-08-31)
         fcst=forecasting.get_hindcast_day(shape,date,climate_model='GEPS')
+        fcst.pr.attrs['GRIB_stepType'] = 'accum'
         
         # write the forecast data to file
         fcst.to_netcdf('/home/ets/src/raventest/raven/tests/hindcastfile.nc')
@@ -54,28 +55,17 @@ class TestHindcasting:
         
         model.rvc.parse(rvc.read_text())
         
-        # Provide the info to be able to change the deaccumulation option.
-        model.rvi.start_date = dt.datetime(2018, 6, 1)
-        model.rvi.end_date = dt.datetime(2018, 6, 10)
-        model.rvi.run_name = "test"
-
-        model.rvh.name = "Salmon"
-        model.rvh.area = "44250.6"
-        model.rvh.elevation = "843.0"
-        model.rvh.latitude = 54.4848
-        model.rvh.longitude = -123.3659
-        
-        # Here is the deaccumulation. Does not seem to work? 
-        # Found that the update is the problem: self.rvt.update(ncvars) overwrites!
-        #in /models/base.py(291)setup_model_run()
-        model.rvt.pr.deaccumulate=True
-        
-        model.rvp.params = model.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
-     
         # And run the model with the forecast data.        
         model(ts=('/home/ets/src/raventest/raven/tests/hindcastfile.nc'),
             nc_index=range(fcst.dims.get('member')),
-            overwrite=True, pr={'linear_transform': (1.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}) # Also tried to force it here, it seems to me that this should work?
+            start_date=dt.datetime(2018, 6, 1),
+            end_date=dt.datetime(2018, 6, 10),
+            area=44250.6,
+            elevation=843.0,
+            latitude=54.4848,
+            longitude=-123.3659,
+            params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
+            overwrite=True, pr={'linear_transform': (1000.0, 0.0),'time_shift': -.25}) # Timeshift is to bring [meters] to [mm] 
         
         # The model now has the forecast data generated and it has 10 days of forecasts.
         assert len(model.q_sim.values)==10
