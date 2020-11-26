@@ -53,7 +53,7 @@ class TestHindcasting:
         
         # Now, relaunch the model at the good states.
         model.rvc.parse(rvc.read_text())
-        
+        model.rvt.pr.deaccumulate = True
         # And run the model with the forecast data.        
         model(ts=('/home/ets/src/raventest/raven/tests/hindcastfile.nc'),start_date=dt.datetime(2018, 6, 1),
             end_date=dt.datetime(2018, 6, 10),
@@ -63,6 +63,7 @@ class TestHindcasting:
             longitude=-123.3659,
             params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
             nc_index=range(fcst.dims.get('member')),
+            
             overwrite=True)
         
         # The model now has the forecast data generated and it has 10 days of forecasts.
