@@ -156,6 +156,18 @@ class TestRavenNcData:
 
         assert ":LinearTransform 24000.000000000000000 0.000000000000000" in str(v)
 
+    def test_deaccumulate(self):
+        v = RavenNcData(
+            var="tasmin",
+            path="/path/tasmin.nc",
+            var_name="tn",
+            unit="deg_C",
+            dimensions=["time", ],
+            deaccumulate=True
+        )
+
+        assert ":Deaccumulate" in str(v)
+
 
 class TestMonthlyAve:
     def test_simple(self):
