@@ -23,7 +23,6 @@ class TestHindcasting:
         # Collect the hindcast data for the date, location and climate model.
         # Limited to GEPS for now, for a restricted period (2017-06-01 to 2018-08-31)
         fcst=forecasting.get_hindcast_day(shape,date,climate_model='GEPS')
-        fcst.pr.attrs['GRIB_stepType'] = 'accum'
         
         # write the forecast data to file
         fcst.to_netcdf('/home/ets/src/raventest/raven/tests/hindcastfile.nc')
@@ -65,7 +64,7 @@ class TestHindcasting:
             latitude=54.4848,
             longitude=-123.3659,
             params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
-            overwrite=True, pr={'linear_transform': (1000.0, 0.0),'time_shift': -.25}) # Timeshift is to bring [meters] to [mm] 
+            overwrite=True, pr={'linear_transform': (1000.0, 0.0),'time_shift': -.25, 'deaccumulate':True}) # Timeshift is to bring [meters] to [mm] 
         
         # The model now has the forecast data generated and it has 10 days of forecasts.
         assert len(model.q_sim.values)==10
