@@ -78,7 +78,7 @@ class TestOstrichGR4JCemaNeigeProcess:
         assert 'DIAG_RMSE' in tmp_content[0]
         idx_diag = tmp_content[0].split(',').index("DIAG_RMSE")
         diag = np.float(tmp_content[1].split(',')[idx_diag])
-        
+
         np.testing.assert_almost_equal(diag, 36.373, 4, err_msg='RMSE is not matching expected value')
 
         assert "rv_config" in out

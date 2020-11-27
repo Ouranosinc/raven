@@ -10,7 +10,7 @@ def test_graph_fit(ts_stats, params):
 
     datainputs = "ts=files@xlink:href=file://{ts};" \
                  "params=files@xlink:href=file://{params};" \
-        .format(ts=ts_stats, params=params, format='png')
+        .format(ts=ts_stats, params=params)
 
     resp = client.get(
         service='WPS', request='Execute', version='1.0.0', identifier='graph_fit',

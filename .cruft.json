@@ -1,0 +1,35 @@
+{
+    "template": "https://github.com/bird-house/cookiecutter-birdhouse",
+    "commit": "b6969697401008114c8e25846ae5801e7e65224d",
+    "skip": [
+        "raven/processes/wps_say_hello.py",
+        "tests/test_wps_hello.py",
+        "docs/source/notebooks/example.ipynb",
+        ".travis.yml",
+        "environment.yml",
+        "requirements.txt",
+        "docs/source/notebooks/index.rst",
+        "docs/source/processes.rst",
+        "raven/processes/__init__.py",
+        "tests/test_wps_caps.py"
+    ],
+    "context": {
+        "cookiecutter": {
+            "full_name": "David Huard",
+            "email": "huard.david@ouranos.ca",
+            "github_username": "Ouranosinc",
+            "project_name": "Raven",
+            "project_slug": "raven",
+            "project_repo_name": "raven",
+            "project_readthedocs_name": "pavics-raven",
+            "project_short_description": "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
+            "version": "0.10.0",
+            "open_source_license": "MIT license",
+            "http_port": "9099",
+            "_copy_without_render": [
+                "{{cookiecutter.project_slug}}/templates/*.cfg"
+            ],
+            "_template": "https://github.com/bird-house/cookiecutter-birdhouse"
+        }
+    }
+}

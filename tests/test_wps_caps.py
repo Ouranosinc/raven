@@ -38,7 +38,9 @@ def test_wps_caps():
                   'base_flow_index',
                   'ts_stats_graph',
                   'regionalisation',
+                  'hindcast-evaluation',
                   'graph_objective_function_fit',
                   'fit',
-                  'graph_fit'
+                  'graph_fit',
+                  "climatology_esp",
                   }

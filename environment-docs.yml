@@ -1,4 +1,5 @@
-name: raven
+# conda env create -f environment-docs.yml
+name: raven-docs
 channels:
 - conda-forge
 - defaults
@@ -8,4 +9,6 @@ dependencies:
 - sphinx
 - nbsphinx
 - ipython
-- xclim==0.12.2
+- xskillscore
+- xclim==0.18
+- sphinx_rtd_theme
