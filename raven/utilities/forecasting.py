@@ -18,6 +18,15 @@ import pandas as pd
 import datetime as dt
 import warnings
 
+import rioxarray
+import fiona
+
+import tempfile
+from pathlib import Path
+from zipfile import ZipFile
+from xclim import subset
+
+import pdb
 LOGGER = logging.getLogger("PYWPS")
 
 
@@ -173,3 +182,98 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
     qsims["member"] = (["member"], avail_years)
 
     return qsims
+
+
+def get_recent_ECCC_forecast(region, climate_model='GEPS'):
+    '''
+    This function generates a forecast dataset that can be used to run raven. 
+    Data comes from the ECCC datamart and collected daily. It is aggregated 
+    such that each file contains forecast data for a single day, but for all 
+    forecast timesteps and all members.
+    
+    The code takes the region shapefile and the climate_model to use, here GEPS
+    by default, but eventually could be GEPS, GDPS, REPS or RDPS.
+    '''
+   
+    # Get the file locations and filenames as a function of the climate model and date
+    if climate_model is 'GEPS':
+        
+        # Forecasts will always be recent so start with today!
+        date_now=dt.datetime.now()
+
+        # Find the most recent data on the server by looping from today and go
+        #backwards 5 days. If no data is present, not much value in forecasting.
+        filein=None
+        for i in range(0,7):
+            
+            # Write the string
+            date=date_now-dt.timedelta(days=i)
+            datefcst=dt.datetime.strftime(date,"%Y%m%d")
+            
+            # try to open the files. If it works, great, if no
+            try:
+                filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/CMC_geps-raw_latlon0p5x0p5_' + datefcst + '00_allP_allmbrs.nc'
+                ds=xr.open_dataset(filein)
+                # Checking that these exist. IF the files are still processing, possible that one or both are not available!
+                assert 'pr' in ds
+                assert 'tas' in ds
+                break
+            except:
+                filein=None
+        
+        # If we have not found any GEPS data, raise error.
+        if filein is None:
+            raise RuntimeError('Unable to locate valid forecast data up to 5 days prior to today.')
+
+
+        
+        # Here we also extract the times at 6-hour intervals as Raven must have 
+        #constant timesteps.
+        times=[]
+        date = dt.datetime(date.year, date.month, date.day)
+        for single_time in (date + dt.timedelta(hours=n) for n in range(0,384,6)):
+            times.append(single_time)
+
+    elif climate_model is 'GDPS':
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GDPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+
+    elif climate_model is 'RDPS':
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/REPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+
+    elif climate_model is 'REPS':
+        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/RDPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+
+    # Extract the shapefile from the zipped package
+    tmp = Path(tempfile.mkdtemp())
+    ZipFile(region,'r').extractall(tmp)
+    shp = list(tmp.glob("*.shp"))[0]
+    vector = fiona.open(shp, "r")
+    shdf = [vector.next()["geometry"]]
+
+    # extract the bounding box to subset the entire forecast grid to something
+    # more manageable
+    lon_min=vector.bounds[0]
+    lon_max=vector.bounds[2]
+    lat_min=vector.bounds[1]
+    lat_max=vector.bounds[3]
+    
+    # Subset the data to the desired location (bounding box) and times
+    ds=subset.subset_bbox(ds, lon_bnds=[lon_min, lon_max], lat_bnds=[lat_min, lat_max]).sel(time=times)
+
+    # Rioxarray requires CRS definitions for variables
+    # Here the name of the variable could differ based on the Caspar file processing
+    tas = ds.tas.rio.write_crs(4326)
+    pr = ds.pr.rio.write_crs(4326)
+    ds = xr.merge([tas, pr])
+    
+    # Now apply the mask of the basin contour and average the values to get a single time series
+    ds.rio.set_spatial_dims('lon','lat')
+
+    # lon format is not changed by the subset.subset, do that here.
+    ds['lon']=ds['lon']-360
+    
+    # clip the netcdf and average across space.
+    sub = ds.rio.clip(shdf, crs=4326)
+    sub = sub.mean(dim={'lat','lon'}, keep_attrs=True)
+
+    return sub, date

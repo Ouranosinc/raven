@@ -23,7 +23,6 @@ from .wps_q_stats import TSStatsProcess, FreqAnalysisProcess, FitProcess, BaseFl
 from .wps_indicator_analysis import GraphIndicatorAnalysis
 from .wps_graph_objective_function_fit import GraphObjectiveFunctionFitProcess
 from .wps_graph_fit import GraphFitProcess
-from .wps_get_geomet_forecasts import GetGeometDataProcess
 from .wps_climatology_esp import ClimatologyEspProcess
 from .wps_forecast_evaluation import HindcastEvaluationProcess
 
@@ -56,7 +55,6 @@ processes = [
     RegionalisationProcess(),
     GraphObjectiveFunctionFitProcess(),
     GraphFitProcess(),
-    GetGeometDataProcess(),
     ClimatologyEspProcess(),
     HindcastEvaluationProcess(),
 ]
