@@ -543,7 +543,8 @@ class Raven:
                                                    dimensions=ds[alt_name].dims,
                                                    units=ds[alt_name].attrs.get("units"),
                                                    )
-
+                                if "GRIB_stepType" in ds[alt_name].attrs:
+                                    ncvars[var]["deaccumulate"] = ds[alt_name].attrs["GRIB_stepType"] == "accum"
                                 break
         return ncvars
 
