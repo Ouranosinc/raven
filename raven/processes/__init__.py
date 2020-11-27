@@ -24,6 +24,9 @@ from .wps_indicator_analysis import GraphIndicatorAnalysis
 from .wps_graph_objective_function_fit import GraphObjectiveFunctionFitProcess
 from .wps_graph_fit import GraphFitProcess
 from .wps_forecast_flood_risk import ForecastFloodRiskProcess
+from .wps_climatology_esp import ClimatologyEspProcess
+from .wps_forecast_evaluation import HindcastEvaluationProcess
+
 
 processes = [
     RavenProcess(),
@@ -55,4 +58,6 @@ processes = [
     GraphObjectiveFunctionFitProcess(),
     GraphFitProcess(),
     ForecastFloodRiskProcess(),
+    ClimatologyEspProcess(),
+    HindcastEvaluationProcess(),
 ]

@@ -2,14 +2,13 @@
 
 """Top-level package for Raven."""
 
+from .__version__ import __author__, __email__, __version__  # noqa: F401
+
 import os
-from .wsgi import application
+from .wsgi import application  # noqa: F401
 from pathlib import Path
 import warnings
 
-__author__ = """David Huard"""
-__email__ = 'huard.david@ouranos.ca'
-__version__ = '0.10.0'
 
 if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
     raven_exec = Path(__file__).parent.parent / 'bin' / 'raven'
