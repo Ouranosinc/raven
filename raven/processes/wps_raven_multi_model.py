@@ -1,6 +1,6 @@
 from raven.processes import RavenProcess
 from pywps import LiteralInput
-from raven.models import HMETS, GR4JCN, HBVEC, MOHYSE, RavenMultiModel
+from ravenpy.models import HMETS, GR4JCN, HBVEC, MOHYSE, RavenMultiModel
 from . import wpsio as wio
 
 hmets = LiteralInput('hmets', 'Comma separated list of HMETS parameters',

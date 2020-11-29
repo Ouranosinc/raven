@@ -43,4 +43,5 @@ def test_wps_caps():
                   'fit',
                   'graph_fit',
                   "climatology_esp",
+                  "forecast-floodrisk"
                   }

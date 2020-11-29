@@ -1,3 +1,4 @@
+-e https://github.com/CSHS-CWRA/RavenPy#egg=ravenpy
 six
 pywps==4.2.3
 owslib==0.18

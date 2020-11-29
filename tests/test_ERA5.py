@@ -8,7 +8,7 @@ from pywps.tests import assert_response_success
 
 from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RavenHMETSProcess
-from raven.models import HMETS
+from ravenpy.models import HMETS
 import json
 import matplotlib.pyplot as plt
 

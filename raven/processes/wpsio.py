@@ -7,7 +7,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
 from pywps import FORMATS, Format
 from raven import config
-from raven.models import rv
+from ravenpy.models import rv
 
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #

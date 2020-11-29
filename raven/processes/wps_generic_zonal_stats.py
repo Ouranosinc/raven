@@ -8,7 +8,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check, generic_vector_reproject
-from raven.utilities import gis
+from ravenpy.utilities import gis
 
 LOGGER = logging.getLogger("PYWPS")
 SUMMARY_ZONAL_STATS = ['count', 'min', 'max', 'mean', 'median', 'sum', 'nodata']
