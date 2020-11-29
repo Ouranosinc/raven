@@ -9,7 +9,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import archive_sniffer, crs_sniffer, generic_vector_reproject, single_file_check
 
 LOGGER = logging.getLogger("PYWPS")

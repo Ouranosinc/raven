@@ -9,7 +9,7 @@ from pywps import Format
 from pywps import Process
 import xarray as xr
 
-from raven.utilities.graphs import ts_fit_graph
+from ravenpy.utilities.graphs import ts_fit_graph
 
 
 class GraphFitProcess(Process):

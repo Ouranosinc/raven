@@ -12,7 +12,7 @@ from pywps import Process, FORMATS, Format
 from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check, raster_datatype_sniffer, generic_raster_warp
 
 LOGGER = logging.getLogger("PYWPS")

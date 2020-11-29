@@ -5,7 +5,7 @@ import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
 from raven.processes import RavenHMETSProcess
-from raven.models import HMETS
+from ravenpy.models import HMETS
 from .common import client_for, TESTDATA, CFG_FILE
 
 

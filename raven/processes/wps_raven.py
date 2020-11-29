@@ -5,7 +5,7 @@ import json
 
 from pywps import Process, Format, LiteralOutput
 
-from raven.models import Raven
+from ravenpy.models import Raven
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

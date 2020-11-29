@@ -4,7 +4,7 @@ from pywps import LiteralInput
 from pywps import Process
 from . import wpsio as wio
 
-from raven.utilities import forecasting
+from ravenpy.utilities import forecasting
 
 
 class ClimatologyEspProcess(Process):

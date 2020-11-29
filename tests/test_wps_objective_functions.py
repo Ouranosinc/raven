@@ -6,7 +6,7 @@ import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 
-from raven.models import Raven
+from ravenpy.models import Raven
 from raven.processes import GraphObjectiveFunctionFitProcess, ObjectiveFunctionProcess
 from .common import client_for, TESTDATA, CFG_FILE, get_output
 

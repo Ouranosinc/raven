@@ -67,7 +67,7 @@ class GR4JCemaNeigeProcess(Process):
         )
 
     def _handler(self, request, response):
-        from raven.models import gr4j
+        from ravenpy.models import gr4j
 
         # xr.set_options(enable_cftimeindex=True)
 
