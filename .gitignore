@@ -91,6 +91,7 @@ tests/*/*/*.nc
 
 # IPython
 .ipynb_checkpoints
+docs/source/notebooks/*.nc
 
 # gcc/fortran
 *.o
