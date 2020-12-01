@@ -5,16 +5,16 @@ dist: xenial
 jobs:
   fast_finish: true
   include:
-    - os: osx
-      python: "3.5"
-      name: "macOS (Python3.5)"
-      addons:
-        homebrew:
-          packages:
-            - netcdf
-          update: true
-      env:
-        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
+#    - os: osx
+#      python: "3.5"
+#      name: "macOS (Python3.5)"
+#      addons:
+#        homebrew:
+#          packages:
+#            - netcdf
+#          update: true
+#      env:
+#        - CONDA_FN="Miniconda3-latest-MacOSX-x86_64.sh"
     - name: "Linux (Python3.6 + lint)"
       dist: xenial
       python: "3.6"
@@ -25,16 +25,16 @@ jobs:
       env:
         - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
         - LINT=true
-    - os: linux
-      name: "Linux (Python3.7)"
-      python: "3.7"
-      addons:
-        apt:
-          packages:
-            - libnetcdf-dev
-      env:
-        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
-        - DOCS=false
+#    - os: linux
+#      name: "Linux (Python3.7)"
+#      python: "3.7"
+#      addons:
+#        apt:
+#          packages:
+#            - libnetcdf-dev
+#      env:
+#        - CONDA_FN="Miniconda3-latest-Linux-x86_64.sh"
+#        - DOCS=false
     - name: "Linux (Python3.8 + notebooks)"
       python: "3.8"
       addons:
