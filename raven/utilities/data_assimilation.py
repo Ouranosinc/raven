@@ -8,30 +8,27 @@ Created on Sun Nov  1 20:48:03 2020
 
 '''
 model = Raven model instance, preset with parameters etc.
-ts = the timeseries needed by model
-rvc = Raven RVC file that contains the initial model states (needs to be the same size as number_members)
-day = data for the days of assimilation. Assimilation is performed after last day.
+xa = the set of state variables. In this case, soil0 and soil1 from GR4JCN. Will eventually need to update for other models, other variables
+ts = the timeseries of inputs needed by model (tas, pr, qobs, etc.)
+days = data for the days of assimilation. Assimilation is performed after last day.
 number_members = number of EnKF members
-precip_std = standard deviation used to sample precip (fraction of observed value)
-temp_std = standard deviation used to sample temperature (degrees Celcius)
-qobs_std = standard deviation used to sample observed streamflow (fraction of observed value)
+std = variables for uncertainty estimation of input and streamflow variables.
+    ex: std = {"rainfall": 0.30,"prsn": 0.30, "tasmin": 2.0, "tasmax": 2.0, "water_volume_transport_in_river_channel": 0.15}
+precip = standard deviation used to sample precip, uses gamma distribution (fraction of observed value)
+temperature = standard deviation used to sample temperature, normal dist (degrees Celcius)
+qobs = standard deviation used to sample observed streamflow, normal dist (fraction of observed value)
 '''
 
 import xarray as xr
-import math
 import numpy as np
 import tempfile
-import datetime as dt
 from pathlib import Path
 from copy import deepcopy
-import os
-from raven.models.rv import RavenNcData
-
-import pdb
 
 """
 Suggestion:
-
+This was initially suggested to make parallel and faster. However, I was blocked and could not make it work
+I've reverted to coding it in series but it will need to be made parallel as right now it's way too slow (4h for 300 assimilation periods)
 
 Then use model.rvt.nc_index to run parallel simulations with different hru_state.
 
@@ -64,6 +61,7 @@ def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25, solutions=N
             da = ds.get(nc.var_name).sel(time=days)
             perturbed[nc.var_name] = perturbation(da, dists.get(key, "norm"), s, members=number_members)
             if nc.var_name is "qobs":
+                qobs_full=da.values
                 qobs=da.isel(time=-1).values
     perturbed = xr.Dataset(perturbed)
     
@@ -72,49 +70,44 @@ def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25, solutions=N
         if np.isnan(da.data).any():
             do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
 
-    perturbed.to_netcdf(p_fn)
+    perturbed.to_netcdf(p_fn,mode="w")
 
     # Generate my list of initial states with replacement of soil0 and soil1
-
-    if solutions is not None:
-        
-        # Not able to parallelize, TODO later.
-        soil0=[]
-        soil1=[]
-        qsim_matrix=[]
-        for i in range(number_members):
-            solutions[i]['HRUStateVariableTable']['data'][1][4]=xa[0,i]
-            solutions[i]['HRUStateVariableTable']['data'][1][5]=xa[1,i]
-            model(p_fn, hru_state=solutions[i], nc_index=i,overwrite=True)
-            soil0.append(model.storage.isel(time=-1)["Soil Water[0]"].values)
-            soil1.append(model.storage.isel(time=-1)["Soil Water[1]"].values)
-            qsim_matrix.append(model.q_sim.isel(time=-1).values)
-   
-        pdb.set_trace()
-        x_matrix=np.column_stack((np.array(soil0),np.array(soil1))).T
-        qsim_matrix=np.array(qsim_matrix)       
-        
-    else:
-        inistates=[]
-        for i in range(number_members):
-            inistates.append(model.rvc.hru_state._replace(soil0=xa[0,i], soil1=xa[1,i]))
-            
-        model(p_fn, hru_state=inistates, nc_index=range(number_members))
-        last_storage = model.storage.isel(time=-1)
-        soil0=np.array(last_storage["Soil Water[0]"].values)
-        soil1=np.array(last_storage["Soil Water[1]"].values)
-        x_matrix=np.column_stack((soil0,soil1)).T
-        qsim_matrix=model.q_sim.isel(time=-1).values
-   
     
+    soil0=[]
+    soil1=[]
+    qsim_matrix=[]
+    solutions_end=[]
+          
+    # Not able to parallelize, TODO later. For each member:
+    for i in range(number_members):
+        model.rvc.parse(solutions[i]) # parse and update model with the member's initial states from previous run
+        model.rvc.hru_state=model.rvc.hru_state._replace(soil0=xa[0,i], soil1=xa[1,i]) # update the assimilated variables
+        model(p_fn, nc_index=i,overwrite=True) # run the model with the good timeseries and good ncindex
+        soil0.append(model.storage.isel(time=-1)["Soil Water[0]"].values) # get variable soil0 at end of run
+        soil1.append(model.storage.isel(time=-1)["Soil Water[1]"].values) # get variable soil1 at end of run
+        qsim_matrix.append(model.q_sim.values) # get and stack the members in a Qsim matrix
+        solutions_end.append(model.outputs['solution'].read_text()) # read the output file for the next period's assimilation
+    
+    # stack the variables to be assimilated into a single matrix
+    x_matrix=np.column_stack((np.array(soil0),np.array(soil1))).T
+    qsim_matrix=np.array(qsim_matrix).squeeze() # make this an array to display later
+    qsim_vector=qsim_matrix[:,-1] #get last period Qsim for assimilation
+
+    # if there is no problem related to missing Qobs or other vars:
     if do_assimilation:
+        # prepare the perturbed Qobs and Qobs errors for each member
         qobs_pert=perturbed['qobs'].isel(time=-1).values
         qobs_error=np.tile(qobs,(1,number_members))-qobs_pert.T
-        xa=applyAssimilationOnStates(x_matrix,qobs_pert.reshape(1, -1),qobs_error,qsim_matrix.T)
+        
+        #actually do the assimilation, return "xa", the assimilated states for the next period
+        xa=applyAssimilationOnStates(x_matrix,qobs_pert.reshape(1, -1),qobs_error,qsim_vector.reshape(1,-1))
     else:
+        
+        # If no assimilation, then the unassimilated states are returned.
         xa=x_matrix
 
-    return [xa,qsim_matrix,qobs,model]
+    return [xa,qsim_matrix,np.array(qobs_full),model, solutions_end]
 
     # Set new state variables in the rvc file
     # Updated RVC file after assimilation, ready for next simulation day.
@@ -139,30 +132,6 @@ def perturbation(da, dist, std, **kwargs):
     out.attrs.update(da.attrs)
     return out
 
-
-# Richard see perturbation function above
-def applyHydrometPerturbations(pr,tasmax,tasmin,qobs,number_members, precip_std, temp_std, qobs_std):
-
-    # Temperature: Sample from normal distribution
-    random_noise_temperature = np.random.normal(0, temp_std, (number_members,tasmax.shape[1]))
-    tasmax_pert=np.tile(tasmax,(number_members,1))+random_noise_temperature
-    tasmin_pert=np.tile(tasmin,(number_members,1))+random_noise_temperature
-    tasmax_pert=tasmax_pert.transpose()
-    tasmin_pert=tasmin_pert.transpose()
-
-    # Qobs: Sample from normal distribution
-    qobs_pert=np.random.normal(loc=np.tile(qobs,(1,number_members)), scale=qobs_std*np.tile(qobs,(1,number_members)))
-    qobs_error=np.tile(qobs,(1,number_members))-qobs_pert # might have to copy/cat/repmat qobs here.
-
-    # Precipitation: Use a gamma function. Use shape and scale parameters independently
-    shape_k=(pr**2)/(precip_std*pr)**2
-    scale_t=((precip_std*pr)**2) / pr
-    shape_k=shape_k.transpose()
-    scale_t=scale_t.transpose()
-    pr_pert=np.random.gamma(shape=np.tile(shape_k,(1,number_members)),scale=np.tile(scale_t,(1,number_members)))
-    pr_pert=np.nan_to_num(pr_pert,nan=0.0)
-    # return the data. All values should now have size nDays x number_members
-    return pr_pert,tasmax_pert,tasmin_pert,qobs_pert,qobs_error
 
 
 def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
@@ -193,7 +162,6 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
 
 def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
     model=deepcopy(model)
-    #pdb.set_trace()
 
     ds = xr.Dataset({
     'pr': xr.DataArray(
