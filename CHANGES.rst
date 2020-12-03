@@ -6,7 +6,7 @@ Changes
 * Update to Raven 3.0
 * Update to xclim 0.18
 * Update to xarray 0.16
-
+* Add first basic data assimilation implementation.
 
 0.10.x (2020-03-09) Oxford
 --------------------------
