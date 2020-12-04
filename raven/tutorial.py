@@ -4,6 +4,7 @@ import logging
 from typing import Optional, Union
 from pathlib import Path
 from urllib.request import urlretrieve
+from urllib.parse import urljoin
 
 from xarray import open_dataset as _open_dataset
 from xarray import Dataset
@@ -142,7 +143,7 @@ def open_dataset(
     fullname = name.with_suffix(suffix)
 
     if dap_url is not None:
-        dap_file = Path(dap_url) / fullname
+        dap_file = urljoin(dap_url, str(name))
         try:
             ds = _open_dataset(dap_file, **kwds)
             return ds
