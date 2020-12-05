@@ -242,7 +242,6 @@ def get_recent_ECCC_forecast(region_coll, climate_model="GEPS"):
     # Here we also extract the times at 6-hour intervals as Raven must have
     # constant timesteps
     start = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-    start -= dt.timedelta(days=1)
 
     times = [start + dt.timedelta(hours=n) for n in range(0, 384, 6)]
 
