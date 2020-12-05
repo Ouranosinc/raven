@@ -12,10 +12,10 @@ Tools for hydrological forecasting
 
 import datetime as dt
 import logging
+import re
 import tempfile
 import warnings
 from pathlib import Path
-from zipfile import ZipFile
 
 import numpy as np
 
@@ -190,9 +190,8 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
 def get_ECCC_dataset(climate_model):
 
     if climate_model == "GEPS":
-        # This is a test link, to be replaced eventually
-        # file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/GEPS_latest.ncml"
-        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/CMC_geps-raw_latlon0p5x0p5_2020120200_allP_allmbrs.nc"
+        # To fix: what should be this URL?
+        file_url = "/home/christian/Downloads/CMC_geps-raw_latlon0p5x0p5_2020120400_allP_allmbrs.nc"
     else:
         # Eventually: GDPS, RDPS and REPS
         raise NotImplementedError("Only the GEPS model is currently supported")
@@ -207,7 +206,7 @@ def get_ECCC_dataset(climate_model):
     return ds
 
 
-def get_recent_ECCC_forecast(region, climate_model="GEPS"):
+def get_recent_ECCC_forecast(region_coll, climate_model="GEPS"):
     """
     This function generates a forecast dataset that can be used to run raven.
     Data comes from the ECCC datamart and collected daily. It is aggregated
@@ -216,27 +215,32 @@ def get_recent_ECCC_forecast(region, climate_model="GEPS"):
 
     The code takes the region shapefile and the climate_model to use, here GEPS
     by default, but eventually could be GEPS, GDPS, REPS or RDPS.
+
+    Parameters
+    ----------
+    region_coll : fiona.collection.Collection
+      The region vectors.
+    climate_model : str
+      Type of climate model, for now only "GEPS" is supported.
+
+    Returns
+    -------
+    forecast : xararray.Dataset
+      The forecast dataset.
+
     """
 
     ds = get_ECCC_dataset(climate_model)
 
-    # Extract the shapefile from the zipped package
-    tmp = Path(tempfile.mkdtemp())
-    ZipFile(region, "r").extractall(tmp)
-    shp = list(tmp.glob("*.shp"))[0]
-    vector = fiona.open(shp, "r")
-    shdf = [vector.next()["geometry"]]
-
-    # extract the bounding box to subset the entire forecast grid to something
+    # Extract the bounding box to subset the entire forecast grid to something
     # more manageable
-    lon_min = vector.bounds[0]
-    lon_max = vector.bounds[2]
-    lat_min = vector.bounds[1]
-    lat_max = vector.bounds[3]
+    lon_min = region_coll.bounds[0]
+    lon_max = region_coll.bounds[2]
+    lat_min = region_coll.bounds[1]
+    lat_max = region_coll.bounds[3]
 
     # Here we also extract the times at 6-hour intervals as Raven must have
-    # constant timesteps.
-    # start = dt.datetime.fromordinal(dt.date.today().toordinal()) - dt.timedelta(days=1)
+    # constant timesteps
     start = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
     start -= dt.timedelta(days=1)
 
@@ -248,9 +252,12 @@ def get_recent_ECCC_forecast(region, climate_model="GEPS"):
     ).sel(time=times)
 
     # Rioxarray requires CRS definitions for variables
+    # Get CRS, e.g. 4326
+    crs = int(re.match("epsg:(\d+)", region_coll.crs["init"]).group(1))
+
     # Here the name of the variable could differ based on the Caspar file processing
-    tas = ds.tas.rio.write_crs(4326)
-    pr = ds.pr.rio.write_crs(4326)
+    tas = ds.tas.rio.write_crs(crs)
+    pr = ds.pr.rio.write_crs(crs)
     ds = xr.merge([tas, pr])
 
     # Now apply the mask of the basin contour and average the values to get a single time series
@@ -260,7 +267,8 @@ def get_recent_ECCC_forecast(region, climate_model="GEPS"):
     ds["lon"] = ds["lon"] - 360
 
     # clip the netcdf and average across space.
-    sub = ds.rio.clip(shdf, crs=4326)
-    sub = sub.mean(dim={"lat", "lon"}, keep_attrs=True)
+    shdf = [region_coll.next()["geometry"]]
+    forecast = ds.rio.clip(shdf, crs=crs)
+    forecast = forecast.mean(dim={"lat", "lon"}, keep_attrs=True)
 
-    return sub  # , date
+    return forecast

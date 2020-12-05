@@ -1,5 +1,7 @@
 import datetime as dt
+import tempfile
 
+from fiona.io import ZipMemoryFile
 from raven.models import GR4JCN
 from raven.utilities import forecasting
 
@@ -16,16 +18,18 @@ To do so will need to add the actual data from ECCC but this is a proof of conce
 class TestECCCForecast:
     def test_forecasting_GEPS(self):
 
-        # Extract the watershed contour
-        shape = TESTDATA["watershed_vector"]
-
         # Collect the most recent forecast data for location and climate model.
         # Limited to GEPS for now
-        fcst = forecasting.get_recent_ECCC_forecast(shape, climate_model="GEPS")
+        with open(TESTDATA["watershed_vector"], "rb") as f:
+            with ZipMemoryFile(f.read()) as z:
+                region_coll = z.open("LSJ_LL.shp")
+                fcst = forecasting.get_recent_ECCC_forecast(
+                    region_coll, climate_model="GEPS"
+                )
 
         # write the forecast data to file
-        # fcst.to_netcdf('/home/ets/src/raventest/raven/tests/fcstfile.nc')
-        fcst.to_netcdf("/tmp/eccc/fcstfile.nc")
+        tmp_dir = tempfile.TemporaryDirectory()
+        fcst.to_netcdf(f"{tmp_dir.name}/fcstfile.nc")
 
         # Prepare a RAVEN model run using historical data, GR4JCN in this case.
         # This is a dummy run to get initial states. In a real forecast situation,
@@ -54,14 +58,10 @@ class TestECCCForecast:
 
         model.rvc.parse(rvc.read_text())
 
-        # And run the model with the forecast data.
-        # model(ts=('/home/ets/src/raventest/raven/tests/fcstfile.nc'),
-
         start = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-        start -= dt.timedelta(days=1)
 
         model(
-            ts=("/tmp/eccc/fcstfile.nc"),
+            ts=(f"{tmp_dir.name}/fcstfile.nc"),
             nc_index=range(fcst.dims.get("member")),
             start_date=start,
             end_date=start + dt.timedelta(days=9),
@@ -74,9 +74,9 @@ class TestECCCForecast:
             pr={"time_shift": -0.25, "deaccumulate": True},
         )
 
-        return
-
         # The model now has the forecast data generated and it has 10 days of forecasts.
         assert len(model.q_sim.values) == 10
         # Also see if GEPS has 20 members produced.
         assert model.q_sim.values.shape[1] == 20
+
+        tmp_dir.cleanup()
