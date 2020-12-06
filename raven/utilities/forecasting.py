@@ -192,6 +192,7 @@ def get_ECCC_dataset(climate_model):
     if climate_model == "GEPS":
         # To fix: what should be this URL?
         file_url = "/home/christian/Downloads/CMC_geps-raw_latlon0p5x0p5_2020120400_allP_allmbrs.nc"
+        # RICHARD TEMP -- file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/GEPS_latest.ncml"
     else:
         # Eventually: GDPS, RDPS and REPS
         raise NotImplementedError("Only the GEPS model is currently supported")
@@ -242,7 +243,7 @@ def get_recent_ECCC_forecast(region_coll, climate_model="GEPS"):
     # Here we also extract the times at 6-hour intervals as Raven must have
     # constant timesteps
     start = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
-
+    start = pd.to_datetime(ds.time[0].values) # RICHARD: problem with units? start should be the first timestep in the ds file.
     times = [start + dt.timedelta(hours=n) for n in range(0, 384, 6)]
 
     # Subset the data to the desired location (bounding box) and times
