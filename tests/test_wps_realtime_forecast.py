@@ -39,9 +39,9 @@ class TestRealtimeForecasts:
             "model_name={model_name};"
             "climate_model={climate_model};"
             "region_vector=file@xlink:href=file://{region_vector};"
-            "rvc=file@xlink:href=file://{rvc};"
             "rain_snow_fraction={rain_snow_fraction};"
-            "nc_spec={pr}".format(
+            "nc_spec={pr};"
+            "rvc=file@xlink:href=file://{rvc};".format(
                 params=params,
                 latitude=54.4848,
                 longitude=-123.3659,
@@ -51,9 +51,10 @@ class TestRealtimeForecasts:
                 model_name=model,
                 climate_model=climate_model,
                 region_vector=region_vector,
-                rvc=rvc,
                 rain_snow_fraction="RAINSNOW_DINGMAN",
                 pr=json.dumps({'pr': {'linear_transform': (1000.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}}),
+                rvc=rvc,
+
             )
         )
         

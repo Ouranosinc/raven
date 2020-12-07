@@ -41,7 +41,7 @@ class RealtimeForecastProcess(Process):
                               data_type="string", min_occurs=1, max_occurs=1)
                                      
         inputs = [params, wio.latitude, wio.longitude, wio.name, wio.area, wio.elevation, 
-                  wio.model_name, climate_model, region_vector, wio.rvc, wio.rain_snow_fraction, wio.nc_spec]
+                  wio.model_name, climate_model, region_vector, wio.rain_snow_fraction, wio.nc_spec, wio.rvc]
     
         outputs = [wio.forecast]
     
@@ -77,7 +77,7 @@ class RealtimeForecastProcess(Process):
             kwds[key] = request.inputs[key][0].data
         response.update_status('Inputs are read', 1)
         
-        pdb.set_trace()
+        
         # Prepare the forecast data from the latest ECCC forecast.
         fcst = forecasting.get_recent_ECCC_forecast(
                fiona.open(vector_file), climate_model=climate_model)
@@ -89,9 +89,10 @@ class RealtimeForecastProcess(Process):
         fcst.to_netcdf(f"{tmp_dir.name}/fcstfile.nc")
         
         # Add the forecast file to the ts needed by Raven and run the model
-        kwds['ts']=fcst
+        kwds['ts']=f"{tmp_dir.name}/fcstfile.nc"
         kwds['nc_index']=range(fcst.dims.get("member"))
         kwds['start_date']=pd.to_datetime(fcst.time[0].values)
+        pdb.set_trace()
         qsim=forecasting.perform_forecasting_step(rvc, model_name, **kwds)
         
         response.update_status('Computed hydrological forecast', 99)
