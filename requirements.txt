@@ -26,7 +26,7 @@ rtree
 fiona
 descartes
 geopandas
-pyproj~=2.5.0
+pyproj>=2.5.0
 rasterio
 rasterstats
 shapely
