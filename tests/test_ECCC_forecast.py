@@ -1,12 +1,13 @@
 import datetime as dt
 import tempfile
 
+import pandas as pd
 from fiona.io import ZipMemoryFile
+
 from raven.models import GR4JCN
 from raven.utilities import forecasting
 
 from .common import TESTDATA
-
 
 """
 Test to perform a hindcast using auto-queried ECCC data aggregated on THREDDS.
@@ -58,7 +59,7 @@ class TestECCCForecast:
 
         model.rvc.parse(rvc.read_text())
 
-        start = dt.datetime.combine(dt.date.today(), dt.datetime.min.time())
+        start = pd.to_datetime(fcst.time[0].values)
 
         model(
             ts=(f"{tmp_dir.name}/fcstfile.nc"),
