@@ -78,7 +78,7 @@ class TestAssimilationGR4JCN:
         date_list = [start_date + dt.timedelta(days=x) for x in range(10)]
 
         # perform the assimilation step here
-        [xa,q_assim,q_obs,model, solutions_end] = assimilateQobsSingleDay(model,xa,ts,date_list,std,number_members=number_members, solutions=solutions_end)
+        [xa,q_assim,q_obs,model, solutions_end] = assimilateQobsSingleDay(model,xa,ts,date_list,std,solutions=solutions_end)
        
         #solutions = model.solution #This should be more efficient but I simply cannot make it work. once in memory, can't reuse it and change values within to perform assimilation.
        
@@ -100,7 +100,7 @@ class TestAssimilationGR4JCN:
             model.rvi.end_date=date_list[-1]
             
             # Perform the assimilation. Note that we use the solutions_end from the previous run and return an updated one after assimilation.
-            [xa,q_a,q_o,model,solutions_end] = assimilateQobsSingleDay(model,xa,ts,date_list,std,number_members=number_members, solutions=solutions_end)
+            [xa,q_a,q_o,model,solutions_end] = assimilateQobsSingleDay(model,xa,ts,date_list,std, solutions=solutions_end)
             
             # reupdate the new start_date
             start_date=start_date+dt.timedelta(days=assim_timestep)

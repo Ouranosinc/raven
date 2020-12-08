@@ -42,12 +42,13 @@ last_storage["Soil Water[0]"]
 """
 
 
-def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25, solutions=None):
+def assimilateQobsSingleDay(model, xa,ts,days,std,solutions):
 
     model=deepcopy(model)
-    
     tmp = Path(tempfile.mkdtemp())
-
+    
+    number_members = len(solutions)
+    
     p_fn = tmp / "perturbed_forcing.nc"
 
     perturbed = {}
@@ -65,10 +66,12 @@ def assimilateQobsSingleDay(model, xa,ts,days,std,number_members=25, solutions=N
                 qobs=da.isel(time=-1).values
     perturbed = xr.Dataset(perturbed)
     
+    # preset the assimilation flag. By default, we will do it.
     do_assimilation=True
-    for varname, da in perturbed.data_vars.items():
-        if np.isnan(da.data).any():
-            do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
+    
+    # However, if there are nans (especially in observed flow, but others will make the process fail too), don't assimilate and return the states as-is.
+    if perturbed.isnull().any():
+        do_assimilation=False # We will simply run the model with the current rvcs for the given time-step.
 
     perturbed.to_netcdf(p_fn,mode="w")
 
@@ -159,59 +162,4 @@ def applyAssimilationOnStates(X,qobs_pert,qobs_error,qsim):
     Xa=np.maximum(Xa,0)
 
     return Xa
-
-def runModelwithShortMeteo(model,pr,tasmax,tasmin,days,tmp):
-    model=deepcopy(model)
-
-    ds = xr.Dataset({
-    'pr': xr.DataArray(
-                data   = pr,
-                dims   = ['time'],
-                coords = {'time': days},
-                attrs  = {
-                    '_FillValue': -999.9,
-                    'units'     : 'mm/d'
-                    }
-                ),
-    'tmax': xr.DataArray(
-                data   = tasmax,   # enter data here
-                dims   = ['time'],
-                coords = {'time': days},
-                attrs  = {
-                    '_FillValue': -999.9,
-                    'units'     : 'deg_C'
-                    }
-                ),
-    'tmin': xr.DataArray(
-                data   = tasmin,   # enter data here
-                dims   = ['time'],
-                coords = {'time': days},
-                attrs  = {
-                    '_FillValue': -999.9,
-                    'units'     : 'deg_C'
-                    }
-                )
-            },
-    )
-
-    # write the netcdf file
-    tsfile=tmp / 'tmp_assim_met.nc'
-    ds.to_netcdf(tsfile)
-
-    # Update the model for this run
-    model.rvi.start_date=days[0]
-    model.rvi.end_date=days[-1]
-
-
-    # run the model with the input files
-    model(tsfile,overwrite=True)
-    # DO TESTS HERE FOR MODEL UPDATE PROBLEM
-   
-    # allocate space and fill in with the state variables
-    x=[]
-    x.append(model.storage["Soil Water[0]"].copy(deep=True))
-    x.append(model.storage["Soil Water[1]"].copy(deep=True))
-    qsim=model.q_sim.copy(deep=True)
-
-    return x, qsim
 
