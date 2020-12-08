@@ -25,7 +25,7 @@ from .wps_graph_objective_function_fit import GraphObjectiveFunctionFitProcess
 from .wps_graph_fit import GraphFitProcess
 from .wps_climatology_esp import ClimatologyEspProcess
 from .wps_forecast_evaluation import HindcastEvaluationProcess
-
+from .wps_hindcast import HindcastingProcess
 
 processes = [
     RavenProcess(),
@@ -58,4 +58,5 @@ processes = [
     GraphFitProcess(),
     ClimatologyEspProcess(),
     HindcastEvaluationProcess(),
+    HindcastingProcess(),
 ]
