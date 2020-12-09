@@ -5,6 +5,7 @@ from typing import Optional, Union
 from pathlib import Path
 from urllib.request import urlretrieve
 from urllib.parse import urljoin
+from urllib.error import HTTPError
 
 from xarray import open_dataset as _open_dataset
 from xarray import Dataset
@@ -21,9 +22,9 @@ def _get(
     fullname: Path, github_url: str, branch: str, suffix: str, cache_dir: Path,
 ) -> Path:
     cache_dir = cache_dir.absolute()
-    local_file = cache_dir / fullname
+    local_file = cache_dir / branch / fullname
     md5name = fullname.with_suffix("{}.md5".format(suffix))
-    md5file = cache_dir / md5name
+    md5file = cache_dir / branch / md5name
 
     if not local_file.is_file():
         # This will always leave this directory on disk.
@@ -33,9 +34,14 @@ def _get(
         url = "/".join((github_url, "raw", branch, fullname.as_posix()))
         LOGGER.info("Fetching remote file: %s" % fullname.as_posix())
         urlretrieve(url, local_file)
-        url = "/".join((github_url, "raw", branch, md5name.as_posix()))
-        LOGGER.info("Fetching remote file md5: %s" % fullname.as_posix())
-        urlretrieve(url, md5file)
+        try:
+            url = "/".join((github_url, "raw", branch, md5name.as_posix()))
+            LOGGER.info("Fetching remote file md5: %s" % fullname.as_posix())
+            urlretrieve(url, md5file)
+        except HTTPError as e:
+            msg = f"{md5name.as_posix()} not found. Aborting file retrieval."
+            local_file.unlink()
+            raise FileNotFoundError(msg) from e
 
         localmd5 = file_md5_checksum(local_file)
         try:
@@ -56,7 +62,7 @@ def _get(
 def get_file(
     name,
     github_url: str = "https://github.com/Ouranosinc/raven-testdata",
-    branch: Optional[str] = None,
+    branch: str = "master",
     cache_dir: Path = _default_cache_dir,
 ) -> Path:
     """
@@ -100,7 +106,7 @@ def open_dataset(
     suffix: Optional[str] = None,
     dap_url: Optional[str] = None,
     github_url: str = "https://github.com/Ouranosinc/raven-testdata",
-    branch: Optional[str] = None,
+    branch: str = "master",
     cache: bool = True,
     cache_dir: Path = _default_cache_dir,
     **kwds,
