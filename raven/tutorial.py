@@ -22,9 +22,9 @@ def _get(
     fullname: Path, github_url: str, branch: str, suffix: str, cache_dir: Path,
 ) -> Path:
     cache_dir = cache_dir.absolute()
-    local_file = cache_dir / fullname
+    local_file = cache_dir / branch / fullname
     md5name = fullname.with_suffix("{}.md5".format(suffix))
-    md5file = cache_dir / md5name
+    md5file = cache_dir / branch / md5name
 
     if not local_file.is_file():
         # This will always leave this directory on disk.
@@ -62,7 +62,7 @@ def _get(
 def get_file(
     name,
     github_url: str = "https://github.com/Ouranosinc/raven-testdata",
-    branch: Optional[str] = None,
+    branch: str = "master",
     cache_dir: Path = _default_cache_dir,
 ) -> Path:
     """
@@ -106,7 +106,7 @@ def open_dataset(
     suffix: Optional[str] = None,
     dap_url: Optional[str] = None,
     github_url: str = "https://github.com/Ouranosinc/raven-testdata",
-    branch: Optional[str] = None,
+    branch: str = "master",
     cache: bool = True,
     cache_dir: Path = _default_cache_dir,
     **kwds,
