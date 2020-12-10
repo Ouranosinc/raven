@@ -35,6 +35,7 @@ class TestRealtimeForecasts:
             "longitude={longitude};"
             "name={name};"
             "area={area};"
+            "duration={duration};"
             "elevation={elevation};"
             "forecast_model={forecast_model};"
             "region_vector=file@xlink:href=file://{region_vector};"
@@ -46,6 +47,7 @@ class TestRealtimeForecasts:
                 longitude=-123.3659,
                 name="Salmon",
                 area="4250.6",
+                duration=3,
                 elevation="843.0",
                 forecast_model=forecast_model,
                 region_vector=region_vector,
@@ -71,7 +73,7 @@ class TestRealtimeForecasts:
         # Display forecast to show it works
 
         forecast, _ = urlretrieve(out["hydrograph"])
-        tmp = xr.open_dataset(forecast)
-        qfcst = tmp["q_sim"][:].data.transpose()
-        plt.plot(qfcst)
-        plt.show()
+        #tmp = xr.open_dataset(forecast)
+        #qfcst = tmp["q_sim"][:].data.transpose()
+        #plt.plot(qfcst)
+        #plt.show()

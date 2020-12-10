@@ -17,26 +17,13 @@ To do so will need to add the actual data from ECCC but this is a proof of conce
 
 
 class TestECCCForecast:
-    def test_forecasting_GEPS(self):
-
-        # Collect the most recent forecast data for location and climate model.
-        # Limited to GEPS for now
-        with open(TESTDATA["watershed_vector"], "rb") as f:
-            with ZipMemoryFile(f.read()) as z:
-                region_coll = z.open("LSJ_LL.shp")
-                fcst = forecasting.get_recent_ECCC_forecast(
-                    region_coll, climate_model="GEPS"
-                )
-
-        # write the forecast data to file
-        tmp_dir = tempfile.TemporaryDirectory()
-        fcst.to_netcdf(f"{tmp_dir.name}/fcstfile.nc")
+    def test_forecasting_GEPS(self, tmpdir):
 
         # Prepare a RAVEN model run using historical data, GR4JCN in this case.
         # This is a dummy run to get initial states. In a real forecast situation,
         # this run would end on the day before the forecast, but process is the same.
         ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
-        model = GR4JCN()
+        model = GR4JCN(workdir=tmpdir)
         model(
             ts,
             start_date=dt.datetime(2000, 1, 1),
@@ -51,21 +38,32 @@ class TestECCCForecast:
         # Extract the final states that will be used as the next initial states
         rvc = model.outputs["solution"]
 
+        # Collect the most recent forecast data for location and climate model.
+        # Limited to GEPS for now
+        with open(TESTDATA["watershed_vector"], "rb") as f:
+            with ZipMemoryFile(f.read()) as z:
+                region_coll = z.open("LSJ_LL.shp")
+                fcst = forecasting.get_recent_ECCC_forecast(
+                    region_coll, climate_model="GEPS"
+                )
+
+        # write the forecast data to file
+        ts = f"{tmpdir}/fcstfile.nc"
+        fcst.to_netcdf(ts)
+
         # It is necessary to clean the model state because the input variables of the previous
         # model are not the same as the ones provided in the forecast model. therefore, if we
         # do not clean, the model will simply add the hindcast file to the list of available
         # data provided in the testdata above. Then the dates will not work, and the model errors.
+
         model = GR4JCN()
 
         model.rvc.parse(rvc.read_text())
 
-        start = pd.to_datetime(fcst.time[0].values)
-
         model(
-            ts=(f"{tmp_dir.name}/fcstfile.nc"),
+            ts=(ts,),
             nc_index=range(fcst.dims.get("member")),
-            start_date=start,
-            end_date=start + dt.timedelta(days=9),
+            duration=9,
             area=44250.6,
             elevation=843.0,
             latitude=54.4848,
@@ -80,4 +78,3 @@ class TestECCCForecast:
         # Also see if GEPS has 20 members produced.
         assert model.q_sim.values.shape[1] == 20
 
-        tmp_dir.cleanup()

@@ -8,6 +8,7 @@ from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
 from pywps import FORMATS, Format
 from raven import config
 from raven.models import rv
+from raven.models import HMETS, GR4JCN, HBVEC, MOHYSE
 
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
@@ -69,7 +70,6 @@ rvc = ComplexInput('rvc', 'Initial conditions input file',
                             "and there are no required commands in this file (it could even be completely "
                             "empty).",
                    min_occurs=0,
-                   default="",
                    supported_formats=[FORMATS.TEXT])
 
 start_date = LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
@@ -195,6 +195,27 @@ region_vector = ComplexInput('region_vector', 'Vector shape file of a region',
                              min_occurs=1,
                              max_occurs=1,
                              supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP, FORMATS.ZIP])
+
+hmets = LiteralInput('hmets', 'Comma separated list of HMETS parameters',
+                     abstract='Parameters: ' + ', '.join(HMETS.params._fields),
+                     data_type='string',
+                     min_occurs=0)
+
+gr4jcn = LiteralInput('gr4jcn', 'Comma separated list of GR4JCN parameters',
+                      abstract='Parameters: ' + ', '.join(GR4JCN.params._fields),
+                      data_type='string',
+                      min_occurs=0)
+
+mohyse = LiteralInput('mohyse', 'Comma separated list of MOHYSE parameters',
+                      abstract='Parameters: ' + ', '.join(MOHYSE.params._fields),
+                      data_type='string',
+                      min_occurs=0)
+
+hbvec = LiteralInput('hbvec', 'Comma separated list of HBV-EC parameters',
+                     abstract='Parameters: ' + ', '.join(HBVEC.params._fields),
+                     data_type='string',
+                     min_occurs=0)
+
 # --- #
 
 rv_config = ComplexOutput('rv_config', 'Raven/Ostrich configuration files',

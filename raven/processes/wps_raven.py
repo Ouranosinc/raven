@@ -53,7 +53,7 @@ class RavenProcess(Process):
 
     def options(self, request):
         """Parse model options."""
-        # Input specs dictionary. Could a all given in the same dict or a list of dicts.
+        # Input specs dictionary. Could be all given in the same dict or a list of dicts.
         kwds = defaultdict(list)
         for spec in request.inputs.pop('nc_spec', []):
             kwds.update(json.loads(spec.data))
@@ -64,9 +64,7 @@ class RavenProcess(Process):
 
                 # Namedtuples
                 if name in self.tuple_inputs:
-                    csv = obj.data.replace('(', '').replace(')', '')
-                    arr = map(float, csv.split(','))
-                    data = self.tuple_inputs[name](*arr)
+                    data =self.parse_tuple(obj)
 
                 # Other parameters
                 else:
@@ -79,6 +77,11 @@ class RavenProcess(Process):
 
         return kwds
 
+    def parse_tuple(self, obj):
+        csv = obj.data.replace('(', '').replace(')', '')
+        arr = map(float, csv.split(','))
+        return self.tuple_inputs[obj.identifier](*arr)
+
     def run(self, model, ts, kwds):
         """Run the model.
 
@@ -90,7 +93,7 @@ class RavenProcess(Process):
 
         This is used by emulators.
         """
-        rvc = self.get_config(request, ids=("rvc",))
+        rvc = self.get_config(request, ids=("rvc",))["rvc"]
         if rvc:
             model.resume(rvc)
 
@@ -104,8 +107,8 @@ class RavenProcess(Process):
         if config:
             if len(config) > 1:
                 raise NotImplementedError("Multi-model simulations are not yet supported.")
-
-            model.configure(list(config.values())[0])
+            conf = list(config.values()).pop()
+            model.configure(conf.values())
 
         self.initialize(model, request)
 

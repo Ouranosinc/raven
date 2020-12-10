@@ -193,7 +193,6 @@ class TestGR4JCN:
 
         # Resume with final state from live model
         model_a.resume()
-        assert model_a.rvfiles["rvc"].content.startswith(":")
 
         model_a(
             ts,
