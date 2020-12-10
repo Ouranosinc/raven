@@ -1,105 +1,65 @@
 import logging
-import pdb
 from pathlib import Path
 import fiona
-from pywps import ComplexInput, LiteralInput, Process, FORMATS
-import tempfile
+import xarray as xr
 import pandas as pd
-
 from raven.utilities import forecasting
-from raven.utils import archive_sniffer, single_file_check
-
+from raven.models import RavenMultiModel
+from . wps_raven_multi_model import RavenMultiModelProcess, hmets, gr4jcn, hbvec
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
-class RealtimeForecastProcess(Process):
-    def __init__(self):
+
+class RealtimeForecastProcess(RavenMultiModelProcess):
+    identifier = "realtime-forecast"
+    title = "Perform realtime forecast using most recent ECCC forecast data."
+    abstract = "Perform a deterministic or probabilistic raven forecast using the most recent ECCC forecast."
+    version = '0.1'
+    keywords = ["forecasting", "ECCC", "GEPS", "REPS", "GDPS", "RDPS", "ensemble forecasts"]
+
+    inputs = [wio.forecast_model, wio.region_vector, hmets, gr4jcn, hbvec, wio.duration,
+              wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction,
+              wio.nc_spec, wio.rvc]
+    model_cls = RavenMultiModel
+
+    def meteo(self, request):
+        """Fetch the latest forecast from ECCC.
+
+        Returns
+        -------
+        list
+          List of input file paths.
         """
-        Notes
-        -----
-    
-    
-        """
-        
-    
-        climate_model = LiteralInput('climate_model', 'Which ECCC forecast model should be used',
-                              abstract='Which of the four climate models should be used: GEPS, GDPS, REPS, RDPS.',
-                              data_type='string',
-                              allowed_values=('GEPS', 'REPS', 'GDPS', 'RDPS'),
-                              default='GEPS',
-                              min_occurs=1)
-        
-        region_vector = ComplexInput('region_vector', 'Vector Shape of the desired location',
-                             abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
-                                      ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
-                             min_occurs=1, max_occurs=1,
-                             supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP, FORMATS.ZIP])
-        
-        params = LiteralInput("params","Comma separated list of model parameters",
-                              abstract="Parameters to run the model",
-                              data_type="string", min_occurs=1, max_occurs=1)
-                                     
-        inputs = [params, wio.latitude, wio.longitude, wio.name, wio.area, wio.elevation, 
-                  wio.model_name, climate_model, region_vector, wio.rain_snow_fraction, wio.nc_spec, wio.rvc]
-    
-        outputs = [wio.forecast]
-    
-        super(RealtimeForecastProcess, self).__init__(
-                self._handler,
-                identifier = "realtime-forecast",
-                title = "Perform realtime forecast using most recent ECCC forecast data.",
-                abstract = "Perform a deterministic or probabilistic raven forecast using the most recent ECCC forecast.",
-                version = '0.1',
-                inputs=inputs,
-                outputs=outputs,
-                keywords=["forecasting", "ECCC", "GEPS", "REPS", "GDPS", "RDPS", "ensemble forecasts"],
-                status_supported=True,
-                store_supported=True)
-        
-    # Start WPS
-    def _handler(self, request, response):
-        
-        
-        # Get what is needed integrally
-        model_name = request.inputs.pop('model_name')[0].data
-        climate_model = request.inputs.pop('climate_model')[0].data
-        region_vector = request.inputs.pop('region_vector')[0].file
-        rvc=request.inputs.pop('rvc')[0].file
-        
-        extensions = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
-        vector_file = single_file_check(archive_sniffer(region_vector, working_dir=self.workdir, extensions=extensions))
-        
-        
-        # Build the other kewds needed to run the model
-        kwds = {}
-        for key, val in request.inputs.items():
-            kwds[key] = request.inputs[key][0].data
-        response.update_status('Inputs are read', 1)
-        
-        
         # Prepare the forecast data from the latest ECCC forecast.
+
+        # Use for testing
+        #return [Path("~/src/raven-testdata/eccc_geps/fcstfile.nc"),]
+
+        # Region shapefile
+        vector_file = self.region(request)
+
+        # Forecast model
+        forecast_model = request.inputs.pop("forecast_model")[0].data
+
+        # Fetch data and average over region
         fcst = forecasting.get_recent_ECCC_forecast(
-               fiona.open(vector_file), climate_model=climate_model)
-        
-        response.update_status('Forecast data is generated', 2)
+               fiona.open(vector_file), climate_model=forecast_model)
 
-        # write the forecast data to file
-        tmp_dir = tempfile.TemporaryDirectory()
-        fcst.to_netcdf(f"{tmp_dir.name}/fcstfile.nc")
-        
-        # Add the forecast file to the ts needed by Raven and run the model
-        kwds['ts']=f"{tmp_dir.name}/fcstfile.nc"
-        kwds['nc_index']=range(fcst.dims.get("member"))
-        kwds['start_date']=pd.to_datetime(fcst.time[0].values)
-        pdb.set_trace()
-        qsim=forecasting.perform_forecasting_step(rvc, model_name, **kwds)
-        
-        response.update_status('Computed hydrological forecast', 99)
+        # Write the forecast data to file on-disk
+        # To speed-up testing, copy this file and return it instead of recomputing every time.
+        fn = Path(self.workdir) / "fcstfile.nc"
+        fcst.to_netcdf(fn)
 
-        # Write output
-        nc_qsim = Path(self.workdir) / 'qsim.nc'
-        qsim.to_netcdf(nc_qsim)
-        response.outputs['forecast'].file = str(nc_qsim)
+        return [fn]
 
-        return response
+    def run(self, model, ts, kwds):
+        """Initialize the model with the RVC file, then run it with the forecast data."""
+        # Open forecast file and set some attributes.
+        fcst = xr.open_dataset(ts[0])
+        kwds['nc_index'] = range(fcst.dims.get("member"))
+
+        model(ts=ts, **kwds)
+        fcst.close()
+
+

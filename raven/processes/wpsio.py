@@ -181,6 +181,20 @@ nc_spec = LiteralInput('nc_spec', "NetCDF input file specifications",
                        min_occurs=0,
                        max_occurs=20)
 
+forecast_model = LiteralInput('forecast_model', 'ECCC forecast model',
+                             abstract='The name of the forecast model run by Environment and Climate Change '
+                                      'Canada.',
+                             data_type='string',
+                             allowed_values=('GEPS',), # 'REPS', 'GDPS', 'RDPS'),
+                             default='GEPS',
+                             min_occurs=1)
+
+region_vector = ComplexInput('region_vector', 'Vector shape file of a region',
+                             abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
+                                      ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
+                             min_occurs=1,
+                             max_occurs=1,
+                             supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP, FORMATS.ZIP])
 # --- #
 
 rv_config = ComplexOutput('rv_config', 'Raven/Ostrich configuration files',

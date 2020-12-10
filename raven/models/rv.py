@@ -192,17 +192,18 @@ class RavenNcData(RV):
                   'water_volume_transport_in_river_channel': "HYDROGRAPH"
                   }
 
-    _var_runits = {'tasmin': 'deg_C',
-                   'tasmax': 'deg_C',
-                   'tas': 'deg_C',
+    _var_runits = {'tasmin': 'degC',
+                   'tasmax': 'degC',
+                   'tas': 'degC',
                    'pr': "mm/d",
                    'rainfall': "mm/d",
                    'prsn': "mm/d",
                    'evspsbl': "mm/d",
-                   'water_volume_transport_in_river_channel': "m3/s"
+                   'water_volume_transport_in_river_channel': "m**3/s"
                    }
 
     def __init__(self, **kwargs):
+        """Instantiate from attributes scrapped from the netCDF file."""
         self.var = None
         self.path = None
         self.var_name = None

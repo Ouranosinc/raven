@@ -10,12 +10,12 @@ from pywps.tests import assert_response_success
 from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import RealtimeForecastProcess
 
+
 class TestRealtimeForecasts:
     def test_GEPS(self):
         client = client_for(
             Service(processes=[RealtimeForecastProcess(), ], cfgfiles=CFG_FILE)
         )
-
         #
         # model = 'HMETS'
         # params = '9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, ' \
@@ -23,21 +23,20 @@ class TestRealtimeForecasts:
 
         model = "GR4JCN"
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"
-        climate_model= "GEPS"
+        forecast_model= "GEPS"
         region_vector=TESTDATA['watershed_vector']
         rvc=TESTDATA['solution.rvc']
 
         # Date of the forecast that will be used to determine the members of the climatology-based ESP
         # (same day of year of all other years)
         datainputs = (
-            "params={params};"
+            "gr4jcn={params};"
             "latitude={latitude};"
             "longitude={longitude};"
             "name={name};"
             "area={area};"
             "elevation={elevation};"
-            "model_name={model_name};"
-            "climate_model={climate_model};"
+            "forecast_model={forecast_model};"
             "region_vector=file@xlink:href=file://{region_vector};"
             "rain_snow_fraction={rain_snow_fraction};"
             "nc_spec={pr};"
@@ -48,16 +47,15 @@ class TestRealtimeForecasts:
                 name="Salmon",
                 area="4250.6",
                 elevation="843.0",
-                model_name=model,
-                climate_model=climate_model,
+                forecast_model=forecast_model,
                 region_vector=region_vector,
                 rain_snow_fraction="RAINSNOW_DINGMAN",
-                pr=json.dumps({'pr': {'linear_transform': (1000.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}}),
+                pr=json.dumps({'pr': {'linear_transform': (1.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}}),
                 rvc=rvc,
 
             )
         )
-        
+
         resp = client.get(
             service="WPS",
             request="Execute",
@@ -65,14 +63,14 @@ class TestRealtimeForecasts:
             identifier="realtime-forecast",
             datainputs=datainputs,
         )
-        pdb.set_trace()
+
         assert_response_success(resp)
         out = get_output(resp.xml)
-        assert "forecast" in out
+        assert "hydrograph" in out
 
         # Display forecast to show it works
 
-        forecast, _ = urlretrieve(out["forecast"])
+        forecast, _ = urlretrieve(out["hydrograph"])
         tmp = xr.open_dataset(forecast)
         qfcst = tmp["q_sim"][:].data.transpose()
         plt.plot(qfcst)

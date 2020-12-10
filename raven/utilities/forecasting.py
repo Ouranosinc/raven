@@ -119,7 +119,7 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
     dateLimit = start_date.replace(year=start_date.year + 1)
     if dateLimit > forecast_date:
         msg = (
-            "Forecast date is whithin the warm-up period. Select another forecast date."
+            "Forecast date is within the warm-up period. Select another forecast date."
         )
         warnings.warn(msg)
 
@@ -190,8 +190,7 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
 def get_ECCC_dataset(climate_model):
 
     if climate_model == "GEPS":
-        # To fix: this links to testdata, will need to update with offical url
-        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/GEPS_latest.ncml"
+        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/forecasts/eccc_geps/GEPS_latest.ncml"
     else:
         # Eventually: GDPS, RDPS and REPS
         raise NotImplementedError("Only the GEPS model is currently supported")

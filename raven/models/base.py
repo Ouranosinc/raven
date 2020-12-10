@@ -58,17 +58,6 @@ class Raven:
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow', 'dis']
                        }
 
-    # Expected units (pint-compatible)
-    _units = {'tasmin': "degC",
-              'tasmax': "degC",
-              'tas': "degC",
-              'pr': "mm/d",
-              'rainfall': "mm/d",
-              'prsn': "mm/d",
-              'evspsbl': "mm/d",
-              'water_volume_transport_in_river_channel': "m**3/s"
-              }
-
     _parallel_parameters = ['params', 'hru_state', 'basin_state', 'nc_index', 'name', 'area', 'elevation', 'latitude',
                             'longitude', 'region_id', 'hrus']
 
