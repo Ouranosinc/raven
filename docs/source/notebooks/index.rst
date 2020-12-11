@@ -43,5 +43,14 @@ Parallel simulations
    Parameter_ensemble_simulations
    Multiple_watersheds_simulation
 
+Advanced workflows
+==================
+
+.. toctree::
+   :maxdepth: 1
+
+   Full_process_example_1
+   Bias_correcting_climate_data
+
 .. _OWSLib: https://geopython.github.io/OWSLib/
 .. _Birdy: https://birdy.readthedocs.io
