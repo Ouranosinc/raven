@@ -1,29 +1,24 @@
-import pytest
 import datetime as dt
-import numpy as np
-import xarray as xr
 
 from pywps import Service
 from pywps.tests import assert_response_success
 
-from . common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
+from . common import client_for, CFG_FILE
 from raven.processes import RavenHMETSProcess
 from ravenpy.models import HMETS
 import json
-import matplotlib.pyplot as plt
 
 params = (9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919,
           2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947)
 
 
-@pytest.mark.slow
 class TestRavenERA5:
     def test_simple(self, era5_hr):
         model = HMETS()
         model(ts=era5_hr,
               params=params,
               start_date=dt.datetime(2018, 1, 1),
-              end_date=dt.datetime(2018, 8, 10),
+              end_date=dt.datetime(2018, 1, 3),
               name='Salmon',
               run_name='test-hmets-era5',
               area=4250.6,
@@ -36,9 +31,7 @@ class TestRavenERA5:
               )
 
 
-@pytest.mark.slow
 class TestRavenERA5Process:
-
     def test_simple(self, era5_hr):
         client = client_for(Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE))
 
@@ -59,7 +52,7 @@ class TestRavenERA5Process:
             .format(ts=era5_hr,
                     params=params,
                     start_date=dt.datetime(2018, 1, 1),
-                    end_date=dt.datetime(2018, 8, 10),
+                    end_date=dt.datetime(2018, 1, 3),
                     init='155,455',
                     name='Salmon',
                     run_name='test-hmets-era5',
@@ -76,8 +69,4 @@ class TestRavenERA5Process:
             service='WPS', request='Execute', version='1.0.0', identifier='raven-hmets',
             datainputs=datainputs)
         assert_response_success(resp)
-#        out = get_output(resp.xml)
-#        tmp,_= urlretrieve(out['hydrograph'])
-#        q=xr.open_dataset(tmp)
-#        plt.plot(q['q_sim'])
-#        plt.show()
+
