@@ -191,6 +191,7 @@ def get_ECCC_dataset(climate_model):
 
     if climate_model == "GEPS":
         file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/forecasts/eccc_geps/GEPS_latest.ncml"
+        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/GEPS_latest.ncml"
     else:
         # Eventually: GDPS, RDPS and REPS
         raise NotImplementedError("Only the GEPS model is currently supported")

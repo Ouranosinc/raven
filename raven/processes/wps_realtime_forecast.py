@@ -52,7 +52,7 @@ class RealtimeForecastProcess(RavenProcess):
         forecast_model = request.inputs.pop("forecast_model")[0].data
 
         # Short-cut for testing
-        return [Path("/home/david/src/raven-testdata/eccc_geps/fcstfile.nc"),]
+        # return [Path("/home/david/src/raven-testdata/eccc_geps/fcstfile.nc"),]
 
         # Fetch data and average over region
         fcst = forecasting.get_recent_ECCC_forecast(
