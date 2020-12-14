@@ -119,10 +119,10 @@ class HindcastEvaluationProcess(Process):
             elif "member" in hcst.dims:
 
                 if metric == "threshold_brier_score":
-                    m = func(obs, hcst, threshold=bss_threshold).mean("time")
+                    m = func(obs, hcst, threshold=bss_threshold, dim="time")
 
                 else:
-                    m = func(obs, hcst, dim="member").mean("time")
+                    m = func(obs, hcst, dim="time")
 
             out[metric] = m.values.tolist()
 

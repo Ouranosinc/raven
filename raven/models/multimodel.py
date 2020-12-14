@@ -40,12 +40,18 @@ class RavenMultiModel(Raven):
 
     def assign(self, key, value):
         """Assign key to all models, unless it's model parameters."""
+        # Model parameter case
         if key in self._names:
             m = self._models[self._names.index(key)]
             m.assign('params', value)
         else:
             for m in self._models:
                 m.assign(key, value)
+
+    def resume(self, solution=None):
+        # TODO: Add support for model dependent solutions.
+        for m in self._models:
+            m.resume(solution)
 
     @property
     def rvs(self):
