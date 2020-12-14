@@ -11,6 +11,8 @@ The following graphs can be plotted:
 import numpy as np
 import pandas as pd
 import xarray as xr
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from scipy import stats
 
@@ -388,7 +390,7 @@ def hindcast(file, fcst_var, qobs, qobs_var):
     """
 
     ds = xr.open_dataset(file)
-    ds2= xr.open_dataset(qobs)
+    ds2 = xr.open_dataset(qobs)
 
     # Get time data for the plot
     dates = pd.DatetimeIndex(ds.time.values)
