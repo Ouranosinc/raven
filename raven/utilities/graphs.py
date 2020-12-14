@@ -330,3 +330,76 @@ def ts_fit_graph(ts, params):
 
     plt.tight_layout()
     return fig
+
+
+
+def forecast(file, fcst_var='q_sim'):
+    """
+    forecast_hydrographs
+
+    INPUTS:
+        file -- Raven output file containing simulated streamflows
+        fcst_var -- name of the q_sim to forecast.
+    Create a graphic of the hydrograph for each member
+    """
+
+    ds = xr.open_dataset(file)
+
+    # Get time data for the plot
+    dates = pd.DatetimeIndex(ds.time.values)
+    first_date = dates.min().strftime('%Y/%m/%d')
+    last_date = dates.max().strftime('%Y/%m/%d')
+
+    fig, ax = plt.subplots()  # initialize figure
+
+    # Plot the simulated streamflows for each hydrological model
+    ds[fcst_var].plot.line('b',x='time')
+    
+    # plt.xlim([first_date, last_date])
+    ax.set_xlabel('Time')
+    ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
+    ax.set_title('Forecasted hydrograph between {} and {}.'.format(first_date, last_date))
+    ax.legend()
+    ax.grid()
+
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+
+    return fig
+
+def hindcast(file, fcst_var, qobs, qobs_var):
+    """
+    forecast_hydrographs
+
+    INPUTS:
+        file -- Raven output file containing simulated streamflows
+        fcst_var -- name of the q_sim to forecast.
+        qobs= nc file with qobs matching with fcst for hindcast
+        qobs_var = name of qobs variable in qobs file
+    Create a graphic of the hydrograph for each member
+    """
+
+    ds = xr.open_dataset(file)
+    ds2= xr.open_dataset(qobs)
+    # Get time data for the plot
+    dates = pd.DatetimeIndex(ds.time.values)
+    first_date = dates.min().strftime('%Y/%m/%d')
+    last_date = dates.max().strftime('%Y/%m/%d')
+    
+    fig, ax = plt.subplots()  # initialize figure
+
+    # Plot the simulated streamflows for each hydrological model
+    ds[fcst_var].plot.line('b',x='time')
+    ds2[qobs_var].plot.line('r')
+    
+    # plt.xlim([first_date, last_date])
+    ax.set_xlabel('Time')
+    ax.set_ylabel(r'$Streamflow [m^3s^{{-1}}]$')
+    ax.set_title('Forecasted hydrograph between {} and {}.'.format(first_date, last_date))
+    ax.legend()
+    ax.grid()
+
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+
+    return fig
