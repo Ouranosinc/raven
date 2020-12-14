@@ -88,6 +88,9 @@ TESTDATA['XSS_obs'] = TD / 'XSS_forecast_data' / 'XSS_obs.nc'
 TESTDATA['XSS_fcst_det'] = TD / 'XSS_forecast_data' / 'XSS_fcst_det.nc'
 TESTDATA['XSS_fcst_ensemble'] = TD / 'XSS_forecast_data' / 'XSS_fcst_ens.nc'
 
+TESTDATA['floodrisk_ens'] = TD / 'flood_risk' / 'XSS_fcst_ens.nc'
+TESTDATA['floodrisk_det'] = TD / 'flood_risk' / 'XSS_fcst_det.nc'
+
 
 class WpsTestClient(WpsClient):
 
@@ -113,7 +116,6 @@ def count_pixels(stats, numeric_categories=False):
 
 
 def synthetic_gr4j_inputs(path):
-
     time = pd.date_range(start='2000-07-01', end='2002-07-01', freq='D')
 
     pr = 3 * np.ones(len(time))
@@ -218,15 +220,15 @@ def get_output(doc):
         [identifier_el] = xpath_ns(output_el, './ows:Identifier')
 
         lit_el = xpath_ns(output_el, './wps:Data/wps:LiteralData')
-        if lit_el != []:
+        if lit_el:
             output[identifier_el.text] = lit_el[0].text
 
         ref_el = xpath_ns(output_el, './wps:Reference')
-        if ref_el != []:
+        if ref_el:
             output[identifier_el.text] = ref_el[0].attrib['href']
 
         data_el = xpath_ns(output_el, './wps:Data/wps:ComplexData')
-        if data_el != []:
+        if data_el:
             output[identifier_el.text] = data_el[0].text
 
     return output

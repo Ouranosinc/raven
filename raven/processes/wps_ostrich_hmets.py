@@ -110,8 +110,9 @@ class OstrichHMETSProcess(OstrichProcess):
     model_cls = HMETS_OST
     tuple_inputs = {'lowerBounds': HMETS_OST.params,
                     'upperBounds': HMETS_OST.params}
-    inputs = [wio.ts, wio.nc_spec, lowerBounds, upperBounds, wio.algorithm, wio.max_iterations, wio.start_date,
-              wio.end_date, wio.duration, wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation,
+    inputs = [wio.ts, wio.nc_spec, wio.nc_index, lowerBounds, upperBounds, wio.algorithm, wio.max_iterations,
+              wio.start_date, wio.end_date, wio.duration, wio.run_name, wio.name, wio.area,
+              wio.latitude, wio.longitude, wio.elevation,
               wio.random_seed, wio.suppress_output, wio.rain_snow_fraction, wio.evaporation]
 
     keywords = ["Ostrich", "Calibration", "DDS"]
