@@ -71,6 +71,7 @@ class TestECCCForecast:
             params=(0.529, -3.396, 407.29, 1.072, 16.9, 0.947),
             overwrite=True,
             pr={"time_shift": -0.25, "deaccumulate": True},
+            tas={"time_shift": -0.25},
         )
 
         # The model now has the forecast data generated and it has 10 days of forecasts.
