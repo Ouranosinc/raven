@@ -142,7 +142,7 @@ class TestGR4JCN:
         qsim2 = model.q_sim.copy(deep=True)
         m2 = qsim2.mean()
         model.hydrograph.close()
-        
+
         assert m1 != m2
 
         np.testing.assert_almost_equal(m1, m2, 1)
