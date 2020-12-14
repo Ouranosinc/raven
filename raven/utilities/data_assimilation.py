@@ -128,7 +128,7 @@ def assimilateQobsSingleDay(model, xa, ts, days, std, solutions):
         qobs_error = np.tile(qobs, (1, number_members)) - qobs_pert.T
 
         # actually do the assimilation, return "xa", the assimilated states for the next period
-        xa = applyAssimilationOnStates(
+        xa = update_state(
             x_matrix, qobs_pert.reshape(1, -1), qobs_error, qsim_vector.reshape(1, -1)
         )
     else:
@@ -143,11 +143,22 @@ def assimilateQobsSingleDay(model, xa, ts, days, std, solutions):
 
 
 def perturbation(da, dist, std, **kwargs):
-    """Return perturbed time series."""
+    """Return perturbed time series.
+
+    Parameters
+    ----------
+    da : DataArray
+      Input time series to be perturbed.
+    dist : {"norm", "gamma"}
+      Name of statistical distribution from which random perturbations are drawn.
+    std : float
+      Standard deviation of random perturbation.
+    kwargs : dict
+      Name and size of additional dimensions, apart from time.
+
+    """
     nt = len(da.time)
-    size = list(kwargs.values()) + [
-        nt,
-    ]
+    size = list(kwargs.values()) + [nt]
     dims = list(kwargs.keys()) + ["time"]
 
     if dist == "norm":
@@ -160,40 +171,53 @@ def perturbation(da, dist, std, **kwargs):
         r = np.nan_to_num(np.random.gamma(shape=shape, scale=scale, size=size), nan=0.0)
         out = xr.DataArray(r, dims=dims, coords={"time": da.time})
 
+    else:
+        raise AttributeError(f"{dist} is not supported.")
+
     out.attrs.update(da.attrs)
     return out
 
 
-def applyAssimilationOnStates(X, qobs_pert, qobs_error, qsim):
+def update_state(x, qobs_pert, qobs_error, qsim):
     """
-    X = states, matrix of nStates x number_members
-    qobs_pert = perturbed observed streamflows of size 1 x number_members
-    qobs_error = amount of error added to qobs to get qobs_pert , size 1 x number_members
-    qsim = vector of simulated streamflows, size 1 x number_members
+    Update model state by assimilation.
 
-    Taken from http://ccm.ucdenver.edu/reports/rep231.pdf
-    University of colorado report on the efficient implementation of EnKF
-    Jan Mandel, 2006
-    Series of equations 4.1 is implemented here
+    Parameters
+    ----------
+    x : ndarray (n_states, n_members)
+      Model state initial values.
+    qobs_pert : ndarray (1, n_members)
+      Perturbed observed streamflows.
+    qobs_error : ndarray (1, n_members)
+      Perturbation added to qobs to get qobs_pert.
+    qsim : ndarray (1, n_members)
+      Simulated streamflows.
+
+    Returns
+    -------
+    ndarray (n_states, n_members)
+      Model state values after assimilation.
+
+    Reference
+    ---------
+    The Ensemble Kalman Filter: theoretical formulation and practical implementation, Evensen 2003
+    https://link.springer.com/article/10.1007%2Fs10236-003-0036-9
+
+    University of colorado report on the efficient implementation of EnKF, Jan Mandel, 2006
+    http://ccm.ucdenver.edu/reports/rep231.pdf
     """
-    number_members = qobs_pert.shape[1]
-    z = np.dot(qsim, np.ones((number_members, 1)))
-    HA = (qsim) - (z * np.ones((1, number_members))) / number_members
-    Y = qobs_pert - qsim
-    Re = (
-        np.dot(qobs_error, qobs_error.transpose()) / number_members
-    )  # ensemble covariance calculated by equation 19 in: The Ensemble Kalman Filter: theoretical formulation and practical implementation, Evensen 2003, https://link.springer.com/article/10.1007%2Fs10236-003-0036-9
-    P = Re + (np.dot(HA, HA.transpose())) / (number_members - 1)
-    M = np.dot(P ** -1, Y)
-    Z = (HA.transpose()) * M
-    A = (
-        X
-        - np.dot(
-            (np.dot(X, np.ones((number_members, 1)))), np.ones((1, number_members))
-        )
-        / number_members
-    )
-    Xa = X + (np.dot(A, Z)) / (number_members - 1)
-    Xa = np.maximum(Xa, 0)
+    n_members = qobs_pert.shape[1]
+    z = np.dot(qsim, np.ones((n_members, 1)))
+    ha = qsim - (z * np.ones((1, n_members))) / n_members
+    y = qobs_pert - qsim
 
-    return Xa
+    # Equations 4.1 from Mandel, 2006
+    re = np.dot(qobs_error, qobs_error.transpose()) / n_members
+    p = re + (np.dot(ha, ha.transpose())) / (n_members - 1)
+    m = np.dot(p ** -1, y)
+    z = (ha.transpose()) * m
+    a = x - np.dot((np.dot(x, np.ones((n_members, 1)))), np.ones((1, n_members))) / n_members
+    xa = x + (np.dot(a, z)) / (n_members - 1)
+    xa = np.maximum(xa, 0)
+
+    return xa
