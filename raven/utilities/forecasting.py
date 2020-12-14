@@ -10,22 +10,23 @@ Created on Fri Jul 17 09:11:58 2020
 Tools for hydrological forecasting
 """
 
-from raven.models import get_model
+import datetime as dt
 import logging
-import xarray as xr
+import re
+import tempfile
+import warnings
+from pathlib import Path
+
+import fiona
 import numpy as np
 import pandas as pd
-import datetime as dt
-import warnings
-import rioxarray
 import fiona
-
-import tempfile
-from pathlib import Path
 from zipfile import ZipFile
-from xclim import subset
 
-import pdb
+import rioxarray
+import xarray as xr
+from xclim import subset
+from raven.models import get_model
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -119,7 +120,9 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
     # year, then the timedelta=365 days will not be robust. (and we cannot use timedelta(years=1)...)
     dateLimit = start_date.replace(year=start_date.year + 1)
     if dateLimit > forecast_date:
-        msg = "Forecast date is whithin the warm-up period. Select another forecast date."
+        msg = (
+            "Forecast date is within the warm-up period. Select another forecast date."
+        )
         warnings.warn(msg)
 
     # initialize the array of forecast variables
@@ -148,8 +151,10 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
             days=forecast_duration - 1
         ) > pd.to_datetime(tsnc["time"][-1].values):
             avail_years.remove(years)
-            msg = f"Year {years} has been removed because it is the last year in the dataset and does not cover the " \
-                  f"forecast duration."
+            msg = (
+                f"Year {years} has been removed because it is the last year in the dataset and does not cover the "
+                f"forecast duration."
+            )
             warnings.warn(msg)
 
     # We will iterate this for all forecast years
@@ -183,7 +188,8 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
 
     return qsims
 
-def get_hindcast_day(region,date, climate_model='GEPS'):
+
+def get_hindcast_day(region_coll,date, climate_model='GEPS'):
     '''
     This function generates a forecast dataset that can be used to run raven. 
     Data comes from the CASPAR archive and must be aggregated such that each file
@@ -196,65 +202,147 @@ def get_hindcast_day(region,date, climate_model='GEPS'):
     '''
 
     # Get the file locations and filenames as a function of the climate model and date
-    if climate_model is 'GEPS':
-        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GEPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+    [ds,times]=get_CASPAR_dataset(climate_model,date)
+   
+
+    return get_subsetted_forecast(region_coll,ds,times,True)
+
+def get_CASPAR_dataset(climate_model,date):
+
+    if climate_model == 'GEPS':
+        file_url='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GEPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
+        ds = xr.open_dataset(file_url)       
+        # Here we also extract the times at 6-hour intervals as Raven must have
+        # constant timesteps and GEPS goes to 6 hours
+        start = pd.to_datetime(ds.time[0].values)
+        times = [start + dt.timedelta(hours=n) for n in range(0, 384, 6)]
+    else:
+        # Eventually: GDPS, RDPS and REPS
+        raise NotImplementedError("Only the GEPS model is currently supported")
+
+    # Checking that these exist.
+    for f in ["pr", "tas"]:
+        if f not in ds:
+            raise AttributeError(f"'{f}' not present in dataset")
+
+    return ds, times
         
-        # Here we also extract the times at 6-hour intervals as Raven must have 
-        #constant timesteps.
-        times=[]
-        for single_time in (date + dt.timedelta(hours=n) for n in range(0,384,6)):
-            times.append(single_time)
-            
-    elif climate_model is 'GDPS':
-        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GDPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
-        
-    elif climate_model is 'RDPS':
-        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/REPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
-        
-    elif climate_model is 'REPS':
-        filein='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/RDPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
-        
-    # Extract the shapefile from the zipped package
-    tmp = Path(tempfile.mkdtemp())
-    ZipFile(region,'r').extractall(tmp)
-    shp = list(tmp.glob("*.shp"))[0]
-    vector = fiona.open(shp, "r")
-    shdf = [vector.next()["geometry"]]
+def get_ECCC_dataset(climate_model):
+
+    if climate_model == "GEPS":
+        # Eventually the file will find a permanent home, until then let's use the test folder.
+        #file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/forecasts/eccc_geps/GEPS_latest.ncml"
+        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/GEPS_latest.ncml"
+        ds = xr.open_dataset(file_url)
+        # Here we also extract the times at 6-hour intervals as Raven must have
+        # constant timesteps and GEPS goes to 6 hours
+        start = pd.to_datetime(ds.time[0].values)
+        times = [start + dt.timedelta(hours=n) for n in range(0, 384, 6)]
+    else:
+        # Eventually: GDPS, RDPS and REPS
+        raise NotImplementedError("Only the GEPS model is currently supported")
+
+
+    # Checking that these exist. IF the files are still processing, possible that one or both are not available!
+    for f in ["pr", "tas"]:
+        if f not in ds:
+            raise AttributeError(f"'{f}' not present in dataset")
+
+    return ds, times
+
+
+def get_recent_ECCC_forecast(region_coll, climate_model="GEPS"):
+    """
+    This function generates a forecast dataset that can be used to run raven.
+    Data comes from the ECCC datamart and collected daily. It is aggregated
+    such that each file contains forecast data for a single day, but for all
+    forecast timesteps and all members.
+
+    The code takes the region shapefile and the climate_model to use, here GEPS
+    by default, but eventually could be GEPS, GDPS, REPS or RDPS.
+
+    Parameters
+    ----------
+    region_coll : fiona.collection.Collection
+      The region vectors.
+    climate_model : str
+      Type of climate model, for now only "GEPS" is supported.
+
+    Returns
+    -------
+    forecast : xararray.Dataset
+      The forecast dataset.
+
+    """
+
+    [ds,times] = get_ECCC_dataset(climate_model)
     
-    # extract the bounding box to subset the entire forecast grid to something
+    return get_subsetted_forecast(region_coll,ds,times,False)
+
+
+def get_subsetted_forecast(region_coll,ds,times,is_caspar):
+    '''
+    This function takes a dataset, a region and the time sampling array and returns
+    the subsetted values for the given region and times
+    
+    Parameters
+    ----------
+    region_coll : fiona.collection.Collection
+      The region vectors.
+    ds : xarray.Dataset
+      The dataset containing the raw, worldwide forecast data
+    times: dt.datetime
+      The array of times required to do the forecast.
+    is_caspar: boolean
+      True if the data comes from Caspar, false otherwise. Used to define 
+      lat/lon on rotated grid.
+      
+    Returns
+    -------
+    forecast : xararray.Dataset
+      The forecast dataset.
+      
+    '''
+    # Extract the bounding box to subset the entire forecast grid to something
     # more manageable
-    lon_min=vector.bounds[0]
-    lon_max=vector.bounds[2]
-    lat_min=vector.bounds[1]
-    lat_max=vector.bounds[3]
+    lon_min = region_coll.bounds[0]
+    lon_max = region_coll.bounds[2]
+    lat_min = region_coll.bounds[1]
+    lat_max = region_coll.bounds[3]
 
-    # Open the forecast data
-    ds=xr.open_dataset(filein)
-    
     # Subset the data to the desired location (bounding box) and times
-    ds=subset.subset_bbox(ds, lon_bnds=[lon_min, lon_max], lat_bnds=[lat_min, lat_max]).sel(time=times)
-        
-    # Rioxarray requires CRS definitions for variables
-    # Here the name of the variable could differ based on the Caspar file processing
-    tas = ds.tas.rio.write_crs(4326)
-    pr = ds.pr.rio.write_crs(4326)
-    ds = xr.merge([tas, pr])
-            
-    # Now apply the mask of the basin contour and average the values to get a single time series
-    ds.rio.set_spatial_dims('rlon','rlat')
+    ds = subset.subset_bbox(
+        ds, lon_bnds=[lon_min, lon_max], lat_bnds=[lat_min, lat_max]
+    ).sel(time=times)
 
-    # rlon format is not changed by the subset.subset, do that here.
-    ds['rlon']=360-ds['rlon']
-    ds['rlon']=-ds['rlon']
+    # Rioxarray requires CRS definitions for variables
+    # Get CRS, e.g. 4326
+    crs = int(re.match("epsg:(\d+)", region_coll.crs["init"]).group(1))
+
+    # Here the name of the variable could differ based on the Caspar file processing
+    tas = ds.tas.rio.write_crs(crs)
+    pr = ds.pr.rio.write_crs(crs)
+    ds = xr.merge([tas, pr])
+
+    # Now apply the mask of the basin contour and average the values to get a single time series
+    if is_caspar == True:
+        ds.rio.set_spatial_dims('rlon','rlat')   
+        ds["rlon"] = ds["rlon"] - 360
+        # clip the netcdf and average across space.
+        shdf = [region_coll.next()["geometry"]]
+        forecast = ds.rio.clip(shdf, crs=crs)
+        forecast = forecast.mean(dim={"rlat", "rlon"}, keep_attrs=True)
+
+    else:
+        ds.rio.set_spatial_dims("lon", "lat")
+        ds["lon"] = ds["lon"] - 360
+        # clip the netcdf and average across space.
+        shdf = [region_coll.next()["geometry"]]
+        forecast = ds.rio.clip(shdf, crs=crs)
+        forecast = forecast.mean(dim={"lat", "lon"}, keep_attrs=True)
     
-    # clip the netcdf and average across space.
-    sub = ds.rio.clip(shdf, crs=4326)
-    sub = sub.mean(dim={'rlat','rlon'}, keep_attrs=True)
-     
-    return sub
-    
-        
-        
-        
-        
-        
+
+
+
+    return forecast
+

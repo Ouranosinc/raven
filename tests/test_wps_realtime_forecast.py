@@ -1,5 +1,5 @@
 import pytest
-
+import pdb
 import datetime as dt
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -8,13 +8,13 @@ from pywps import Service
 from pywps.tests import assert_response_success
 
 from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
-from raven.processes import HindcastingProcess
+from raven.processes import RealtimeForecastProcess
 
 
-class TestHindcasting:
+class TestRealtimeForecasts:
     def test_GEPS(self):
         client = client_for(
-            Service(processes=[HindcastingProcess(), ], cfgfiles=CFG_FILE)
+            Service(processes=[RealtimeForecastProcess(), ], cfgfiles=CFG_FILE)
         )
         #
         # model = 'HMETS'
@@ -26,8 +26,7 @@ class TestHindcasting:
         forecast_model= "GEPS"
         region_vector=TESTDATA['watershed_vector']
         rvc=TESTDATA['solution.rvc']
-        hdate=dt.datetime(2018,6,1)
-        
+
         # Date of the forecast that will be used to determine the members of the climatology-based ESP
         # (same day of year of all other years)
         datainputs = (
@@ -43,9 +42,7 @@ class TestHindcasting:
             "rain_snow_fraction={rain_snow_fraction};"
             "nc_spec={pr};"
             "nc_spec={tas};"
-            "rvc=file@xlink:href=file://{rvc};"
-            "hdate={hdate};"
-            .format(
+            "rvc=file@xlink:href=file://{rvc};".format(
                 params=params,
                 latitude=54.4848,
                 longitude=-123.3659,
@@ -59,15 +56,15 @@ class TestHindcasting:
                 pr=json.dumps({'pr': {'linear_transform': (1.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}}),
                 tas=json.dumps({'tas': {'linear_transform': (1.0, 0.0), 'time_shift': -.25}}),
                 rvc=rvc,
-                hdate=hdate,
+
             )
         )
- 
+
         resp = client.get(
             service="WPS",
             request="Execute",
             version="1.0.0",
-            identifier="hindcasting",
+            identifier="realtime-forecast",
             datainputs=datainputs,
         )
 

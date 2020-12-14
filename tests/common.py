@@ -88,6 +88,8 @@ TESTDATA['XSS_obs'] = TD / 'XSS_forecast_data' / 'XSS_obs.nc'
 TESTDATA['XSS_fcst_det'] = TD / 'XSS_forecast_data' / 'XSS_fcst_det.nc'
 TESTDATA['XSS_fcst_ensemble'] = TD / 'XSS_forecast_data' / 'XSS_fcst_ens.nc'
 
+TESTDATA['floodrisk_ens'] = TD / 'flood_risk' / 'XSS_fcst_ens.nc'
+TESTDATA['floodrisk_det'] = TD / 'flood_risk' / 'XSS_fcst_det.nc'
 
 class WpsTestClient(WpsClient):
 

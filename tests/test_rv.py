@@ -134,7 +134,7 @@ class TestRavenNcData:
 
         assert compare(
             tmp,
-            """:Data TEMP_MIN deg_C
+            """:Data TEMP_MIN degC
                                   :ReadFromNetCDF
                                      :FileNameNC      /path/tasmin.nc
                                      :VarNameNC       tn
