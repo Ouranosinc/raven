@@ -43,6 +43,7 @@ dependencies:
 - pysheds
 - psycopg2
 - xskillscore
+- tbb
 - pip:
   - spotpy
   - urlpath

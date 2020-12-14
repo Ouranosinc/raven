@@ -4,6 +4,7 @@ Changes
 0.11.x
 ------
 * Add processes to run hydrological simulations on ECCC GEPS forecasts/hindcasts
+* Add process to create forecast graphic
 * Update to Raven 3.0
 * Update to xclim 0.18
 * Update to xarray 0.16
