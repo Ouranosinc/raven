@@ -1,5 +1,5 @@
 """
-Library to perform graphs for the streamflow time series analysis.
+Library to create graphics for the streamflow time series analysis.
 
 The following graphs can be plotted:
     - hydrograph
@@ -329,4 +329,89 @@ def ts_fit_graph(ts, params):
         ax.legend(frameon=False)
 
     plt.tight_layout()
+    return fig
+
+
+def forecast(file, fcst_var='q_sim'):
+    """Return forecast graphic.
+
+    Create a graphic of the hydrograph for each member
+
+    Parameters
+    ----------
+    file : str, Path
+      Raven output file containing simulated streamflows.
+    fcst_var : str
+      Name of the streamflow variable.
+    """
+
+    ds = xr.open_dataset(file)
+
+    # Get time data for the plot
+    dates = pd.DatetimeIndex(ds.time.values)
+    start = dates.min()
+    end = dates.max()
+
+    fig, ax = plt.subplots()  # initialize figure
+
+    # Plot the simulated streamflows for each hydrological model
+    ds[fcst_var].plot.line('b', x='time', add_legend=False)
+
+    # plt.xlim([first_date, last_date])
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Streamflow (m³/s)')
+    ax.set_title(f'Forecasted hydrograph between {start:%Y/%m/%d} and {end:%Y/%m/%d}.')
+    ax.grid()
+
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+
+    return fig
+
+
+def hindcast(file, fcst_var, qobs, qobs_var):
+    """Return forecast graphic.
+
+    Create a graphic of the hydrograph for each member
+
+    Parameters
+    ----------
+    file : str, Path
+      Raven output file containing simulated streamflows.
+    fcst_var : str
+      Name of the streamflow variable.
+    qobs : str, Path
+      Streamflow observation file, with times matching the hindcast
+    qobs_var : str
+      Nname of the streamflow observation variable.
+
+    """
+
+    ds = xr.open_dataset(file)
+    ds2= xr.open_dataset(qobs)
+
+    # Get time data for the plot
+    dates = pd.DatetimeIndex(ds.time.values)
+    start = dates.min()
+    end = dates.max()
+
+    fig, ax = plt.subplots()  # initialize figure
+
+    # Plot the simulated streamflows for each hydrological model
+    hh = ds[fcst_var].plot.line('b', x='time', label="Hindcasts")
+    ho = ds2[qobs_var].plot.line('r', label="Observations")
+
+    # plt.xlim([first_date, last_date])
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Streamflow (m³/s)')
+    ax.set_title(f'Hindcasted hydrograph between {start:%Y/%m/%d} and {end:%Y/%m/%d}.')
+
+    # Add legend
+    handles = hh[:1] + ho
+    ax.legend(handles, [h.get_label() for h in handles])
+    ax.grid()
+
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+
     return fig
