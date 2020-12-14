@@ -2,18 +2,14 @@ import json
 import logging
 import math
 import re
+import shutil
 import tarfile
 import tempfile
 import zipfile
 from functools import partial
 from pathlib import Path
 from re import search
-from typing import Any
-from typing import List
-from typing import Optional
-from typing import Sequence
-from typing import Tuple
-from typing import Union
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import fiona
 import fiona.crs
@@ -23,13 +19,10 @@ import rasterio
 import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
+from affine import Affine
 from gdal import DEMProcessing
 from rasterio.crs import CRS
-from shapely.geometry import GeometryCollection
-from shapely.geometry import MultiPolygon
-from shapely.geometry import Polygon
-from shapely.geometry import mapping
-from shapely.geometry import shape
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, mapping, shape
 from shapely.ops import transform
 
 LOGGER = logging.getLogger("RAVEN")
@@ -299,7 +292,7 @@ def single_file_check(file_list: List[Union[str, Path]]) -> Any:
 def boundary_check(
     *args: Sequence[Union[str, Path]],
     max_y: Union[int, float] = 60,
-    min_y: Union[int, float] = -60
+    min_y: Union[int, float] = -60,
 ) -> None:
     """Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Raise a warning if so.
 
@@ -784,3 +777,86 @@ def generic_vector_reproject(
 
                 sink.write("{}".format(json.dumps(output)))
     return
+
+
+def zonalstats_raster_file(
+    stats: dict,
+    working_dir: str = None,
+    identifier: str = None,
+    raster_compression: str = RASTERIO_TIFF_COMPRESSION,
+    data_type: str = None,
+    crs: str = None,
+) -> str:
+    """
+    Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected to the proper CRS.
+
+    Parameters
+    ----------
+    stats : dict
+      The dictionary produced by the rasterstats `zonalstats` function.
+    working_dir : str
+      The working directory (self.workdir).
+    identifier : str
+      The identifier of the process (self.identifier).
+    raster_compression : str
+      The type of compression used on the raster file (default: 'lzw').
+    data_type : str
+      The data encoding of the raster used to write the grid (e.g. 'int16').
+    crs : str
+      The coordinate reference system.
+
+    Returns
+    -------
+    str
+    """
+    out_dir = Path(working_dir).joinpath("output")
+    out_dir.mkdir(exist_ok=True)
+
+    for i in range(len(stats)):
+
+        file = "subset_{}.tiff".format(i + 1)
+        raster_subset = Path(out_dir).joinpath(file)
+
+        try:
+            raster_location = stats[i]
+            raster = raster_location["mini_raster_array"]
+            grid_properties = raster_location["mini_raster_affine"][0:6]
+            nodata = raster_location["mini_raster_nodata"]
+
+            aff = Affine(*grid_properties)
+
+            LOGGER.info("Writing raster data to {}".format(raster_subset))
+
+            masked_array = np.ma.masked_values(raster, nodata)
+            if masked_array.mask.all():
+                msg = "Subset {} is empty, continuing...".format(i)
+                LOGGER.warning(msg)
+
+            normal_array = np.asarray(masked_array, dtype=data_type)
+
+            # Write to GeoTIFF
+            with rasterio.open(
+                raster_subset,
+                "w",
+                driver="GTiff",
+                count=1,
+                compress=raster_compression,
+                height=raster.shape[0],
+                width=raster.shape[1],
+                dtype=data_type,
+                transform=aff,
+                crs=crs,
+                nodata=nodata,
+            ) as f:
+                f.write(normal_array, 1)
+
+        except Exception as e:
+            msg = "Failed to write raster outputs: {}".format(e)
+            LOGGER.error(msg)
+            raise Exception(msg)
+
+    # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
+    out_fn = Path(working_dir).joinpath(identifier)
+    shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)
+
+    return "{}.zip".format(out_fn)
