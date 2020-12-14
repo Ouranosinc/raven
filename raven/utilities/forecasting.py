@@ -191,27 +191,28 @@ def perform_climatology_esp(model_name, forecast_date, forecast_duration, **kwds
 
 def get_hindcast_day(region_coll,date, climate_model='GEPS'):
     '''
-    This function generates a forecast dataset that can be used to run raven. 
+    This function generates a forecast dataset that can be used to run raven.
     Data comes from the CASPAR archive and must be aggregated such that each file
     contains forecast data for a single day, but for all forecast timesteps and
     all members.
-    
-    The code takes the region shapefile, the forecast date required, and the 
-    climate_model to use, here GEPS by default, but eventually could be 
+
+    The code takes the region shapefile, the forecast date required, and the
+    climate_model to use, here GEPS by default, but eventually could be
     GEPS, GDPS, REPS or RDPS.
     '''
 
     # Get the file locations and filenames as a function of the climate model and date
-    [ds,times]=get_CASPAR_dataset(climate_model,date)
-   
+    [ds,times] = get_CASPAR_dataset(climate_model,date)
 
     return get_subsetted_forecast(region_coll,ds,times,True)
 
-def get_CASPAR_dataset(climate_model,date):
+
+def get_CASPAR_dataset(climate_model, date):
+    """Return Caspar Dataset."""
 
     if climate_model == 'GEPS':
         file_url='https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/caspar/daily/GEPS_' + dt.datetime.strftime(date,'%Y%m%d') + '.nc'
-        ds = xr.open_dataset(file_url)       
+        ds = xr.open_dataset(file_url)
         # Here we also extract the times at 6-hour intervals as Raven must have
         # constant timesteps and GEPS goes to 6 hours
         start = pd.to_datetime(ds.time[0].values)
@@ -226,13 +227,14 @@ def get_CASPAR_dataset(climate_model,date):
             raise AttributeError(f"'{f}' not present in dataset")
 
     return ds, times
-        
-def get_ECCC_dataset(climate_model):
 
+
+def get_ECCC_dataset(climate_model):
+    """Return latest GEPS forecast Dataset."""
     if climate_model == "GEPS":
         # Eventually the file will find a permanent home, until then let's use the test folder.
-        #file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/forecasts/eccc_geps/GEPS_latest.ncml"
-        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/birdhouse/testdata/geps_forecast/GEPS_latest.ncml"
+        file_url = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/forecasts/eccc_geps/GEPS_latest.ncml"
+
         ds = xr.open_dataset(file_url)
         # Here we also extract the times at 6-hour intervals as Raven must have
         # constant timesteps and GEPS goes to 6 hours
@@ -241,7 +243,6 @@ def get_ECCC_dataset(climate_model):
     else:
         # Eventually: GDPS, RDPS and REPS
         raise NotImplementedError("Only the GEPS model is currently supported")
-
 
     # Checking that these exist. IF the files are still processing, possible that one or both are not available!
     for f in ["pr", "tas"]:
@@ -276,7 +277,7 @@ def get_recent_ECCC_forecast(region_coll, climate_model="GEPS"):
     """
 
     [ds,times] = get_ECCC_dataset(climate_model)
-    
+
     return get_subsetted_forecast(region_coll,ds,times,False)
 
 
@@ -284,7 +285,7 @@ def get_subsetted_forecast(region_coll,ds,times,is_caspar):
     '''
     This function takes a dataset, a region and the time sampling array and returns
     the subsetted values for the given region and times
-    
+
     Parameters
     ----------
     region_coll : fiona.collection.Collection
@@ -294,14 +295,14 @@ def get_subsetted_forecast(region_coll,ds,times,is_caspar):
     times: dt.datetime
       The array of times required to do the forecast.
     is_caspar: boolean
-      True if the data comes from Caspar, false otherwise. Used to define 
+      True if the data comes from Caspar, false otherwise. Used to define
       lat/lon on rotated grid.
-      
+
     Returns
     -------
     forecast : xararray.Dataset
       The forecast dataset.
-      
+
     '''
     # Extract the bounding box to subset the entire forecast grid to something
     # more manageable
@@ -326,7 +327,7 @@ def get_subsetted_forecast(region_coll,ds,times,is_caspar):
 
     # Now apply the mask of the basin contour and average the values to get a single time series
     if is_caspar == True:
-        ds.rio.set_spatial_dims('rlon','rlat')   
+        ds.rio.set_spatial_dims('rlon','rlat')
         ds["rlon"] = ds["rlon"] - 360
         # clip the netcdf and average across space.
         shdf = [region_coll.next()["geometry"]]
@@ -340,9 +341,6 @@ def get_subsetted_forecast(region_coll,ds,times,is_caspar):
         shdf = [region_coll.next()["geometry"]]
         forecast = ds.rio.clip(shdf, crs=crs)
         forecast = forecast.mean(dim={"lat", "lon"}, keep_attrs=True)
-    
-
-
 
     return forecast
 
