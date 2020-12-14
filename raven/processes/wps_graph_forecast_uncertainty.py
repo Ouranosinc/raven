@@ -5,7 +5,7 @@ from pywps import FORMATS
 from pywps import Format
 from pywps import Process
 
-from raven.utilities.graphs import forecast, hindcast
+from raven.utilities import graphs
 
 
 class GraphFcstUncertaintyProcess(Process):
@@ -13,9 +13,9 @@ class GraphFcstUncertaintyProcess(Process):
         inputs = [ComplexInput('fcst', 'Stream flow forecasts',
                                abstract='Stream flow forecast time series',
                                supported_formats=[FORMATS.NETCDF]),
-                 
-                  LiteralInput("fcst_var","name of the streamflow variable in fcst",
-                               abstract="name of the streamflow variable in fcst",
+
+                  LiteralInput("fcst_var", "Streamflow forecast variable name",
+                               abstract="Name of the streamflow variable in fcst",
                                data_type="string",
                                min_occurs=0,
                                max_occurs=1,
@@ -27,9 +27,9 @@ class GraphFcstUncertaintyProcess(Process):
                                supported_formats=[FORMATS.NETCDF],
                                min_occurs=0,
                                max_occurs=1,),
-                  
-                  LiteralInput("qobs_var","name of the streamflow variable in qobs",
-                               abstract="name of the streamflow variable in qobs",
+
+                  LiteralInput("qobs_var","Streamflow observation variable name",
+                               abstract="Name of the streamflow variable in qobs",
                                data_type="string",
                                min_occurs=0,
                                max_occurs=1,
@@ -58,18 +58,22 @@ class GraphFcstUncertaintyProcess(Process):
             store_supported=True)
 
     def _handler(self, request, response):
+
+        # Handle inputs
         sim_fn = request.inputs['fcst'][0].file
         fcst_var=request.inputs['fcst_var'][0].data
-        # Create and save graphic
-       
+
+        # Create graphic
         if 'qobs' in request.inputs:
-            # Then its a hindcast with qobs
+            # Then it's a hindcast with qobs
             qobs_fn = request.inputs['qobs'][0].file
             qobs_var=request.inputs['qobs_var'][0].data
-            fig = hindcast(sim_fn, fcst_var, qobs_fn, qobs_var)
-        else:
-            fig = forecast(sim_fn, fcst_var)
+            fig = graphs.hindcast(sim_fn, fcst_var, qobs_fn, qobs_var)
 
+        else:
+            fig = graphs.forecast(sim_fn, fcst_var)
+
+        # Save file to disk
         fig_fn_fcst = Path(self.workdir) / 'forecast_hydrographs.png'
         fig.savefig(fig_fn_fcst)
         plt.close(fig)
