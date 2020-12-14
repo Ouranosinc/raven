@@ -8,6 +8,7 @@ from pywps import LiteralInput, LiteralOutput, ComplexInput, ComplexOutput
 from pywps import FORMATS, Format
 from raven import config
 from raven.models import rv
+from raven.models import HMETS, GR4JCN, HBVEC, MOHYSE
 
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
@@ -69,7 +70,6 @@ rvc = ComplexInput('rvc', 'Initial conditions input file',
                             "and there are no required commands in this file (it could even be completely "
                             "empty).",
                    min_occurs=0,
-                   default="",
                    supported_formats=[FORMATS.TEXT])
 
 start_date = LiteralInput('start_date', 'Simulation start date (AAAA-MM-DD)',
@@ -180,6 +180,48 @@ nc_spec = LiteralInput('nc_spec', "NetCDF input file specifications",
                        data_type='string',
                        min_occurs=0,
                        max_occurs=20)
+
+forecast_model = LiteralInput('forecast_model', 'ECCC forecast model',
+                             abstract='The name of the forecast model run by Environment and Climate Change '
+                                      'Canada.',
+                             data_type='string',
+                             allowed_values=('GEPS',), # 'REPS', 'GDPS', 'RDPS'),
+                             default='GEPS',
+                             min_occurs=1)
+
+hdate = LiteralInput('hdate', 'Hindcast start date (AAAA-MM-DD)',
+                          abstract='Start date of the hindcast (AAAA-MM-DD). '
+                                   'Defaults to the start of the forcing file. ',
+                          data_type='dateTime',
+                          min_occurs=1,
+                          max_occurs=1)
+
+region_vector = ComplexInput('region_vector', 'Vector shape file of a region',
+                             abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
+                                      ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
+                             min_occurs=1,
+                             max_occurs=1,
+                             supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP, FORMATS.ZIP])
+
+hmets = LiteralInput('hmets', 'Comma separated list of HMETS parameters',
+                     abstract='Parameters: ' + ', '.join(HMETS.params._fields),
+                     data_type='string',
+                     min_occurs=0)
+
+gr4jcn = LiteralInput('gr4jcn', 'Comma separated list of GR4JCN parameters',
+                      abstract='Parameters: ' + ', '.join(GR4JCN.params._fields),
+                      data_type='string',
+                      min_occurs=0)
+
+mohyse = LiteralInput('mohyse', 'Comma separated list of MOHYSE parameters',
+                      abstract='Parameters: ' + ', '.join(MOHYSE.params._fields),
+                      data_type='string',
+                      min_occurs=0)
+
+hbvec = LiteralInput('hbvec', 'Comma separated list of HBV-EC parameters',
+                     abstract='Parameters: ' + ', '.join(HBVEC.params._fields),
+                     data_type='string',
+                     min_occurs=0)
 
 # --- #
 
