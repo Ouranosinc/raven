@@ -192,17 +192,18 @@ class RavenNcData(RV):
                   'water_volume_transport_in_river_channel': "HYDROGRAPH"
                   }
 
-    _var_runits = {'tasmin': 'deg_C',
-                   'tasmax': 'deg_C',
-                   'tas': 'deg_C',
+    _var_runits = {'tasmin': 'degC',
+                   'tasmax': 'degC',
+                   'tas': 'degC',
                    'pr': "mm/d",
                    'rainfall': "mm/d",
                    'prsn': "mm/d",
                    'evspsbl': "mm/d",
-                   'water_volume_transport_in_river_channel': "m3/s"
+                   'water_volume_transport_in_river_channel': "m**3/s"
                    }
 
     def __init__(self, **kwargs):
+        """Instantiate from attributes scrapped from the netCDF file."""
         self.var = None
         self.path = None
         self.var_name = None
@@ -432,8 +433,13 @@ class RVI(RV):
         else:
             raise ValueError("Must be datetime")
 
-        if x != dt.datetime(1, 1, 1):
+        if x == dt.datetime(1, 1, 1):
+            return
+
+        if self._duration is None:
             self._update_duration()
+        else:
+            self._update_end_date()
 
     @property
     def end_date(self):
