@@ -42,5 +42,8 @@ def test_wps_caps():
                   'graph_objective_function_fit',
                   'fit',
                   'graph_fit',
-                  "climatology_esp",
+                  'climatology_esp',
+                  'forecast-floodrisk',
+                  'hindcasting',
+                  'realtime-forecast',
                   }

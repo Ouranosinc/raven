@@ -11,3 +11,5 @@ dependencies:
 - ipython
 - xskillscore
 - xclim==0.18
+- sphinx_rtd_theme
+- rioxarray

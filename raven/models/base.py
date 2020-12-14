@@ -58,17 +58,6 @@ class Raven:
                        'water_volume_transport_in_river_channel': ['qobs', 'discharge', 'streamflow', 'dis']
                        }
 
-    # Expected units (pint-compatible)
-    _units = {'tasmin': "degC",
-              'tasmax': "degC",
-              'tas': "degC",
-              'pr': "mm/d",
-              'rainfall': "mm/d",
-              'prsn': "mm/d",
-              'evspsbl': "mm/d",
-              'water_volume_transport_in_river_channel': "m**3/s"
-              }
-
     _parallel_parameters = ['params', 'hru_state', 'basin_state', 'nc_index', 'name', 'area', 'elevation', 'latitude',
                             'longitude', 'region_id', 'hrus']
 
@@ -244,6 +233,7 @@ class Raven:
 
     def _dump_rv(self):
         """Write configuration files to disk."""
+
         params = self.parameters
 
         for rvf in self.rvfiles.values():
@@ -392,6 +382,7 @@ class Raven:
 
         if self.rvi:
             self.handle_date_defaults(ts)
+            self.set_calendar(ts)
 
         # Loop over parallel parameters
         procs = []
@@ -435,17 +426,14 @@ class Raven:
         ----------
         solution : str, Path
           Path to solution file. If None, will use solution from last model run if any.
-
-        Note that the starting date of the next run should be identical to the end date of the previous run.
         """
         if solution is None:
             fn = self.outputs['solution']
         else:
             fn = solution
 
-        rvc = RVFile(fn)
-        rvc.rename(self.name)
-        self.rvfiles['rvc'] = rvc
+        self.rvc.parse(Path(fn).read_text())
+
 
     def parse_results(self, path=None):
         """Store output files in the self.outputs dictionary."""
@@ -548,7 +536,8 @@ class Raven:
                                                    dimensions=ds[alt_name].dims,
                                                    units=ds[alt_name].attrs.get("units"),
                                                    )
-
+                                if "GRIB_stepType" in ds[alt_name].attrs:
+                                    ncvars[var]["deaccumulate"] = ds[alt_name].attrs["GRIB_stepType"] == "accum"
                                 break
         return ncvars
 
@@ -585,8 +574,17 @@ class Raven:
         ds = xr.open_mfdataset(fns, combine="by_coords")
         return ds.indexes['time'][0], ds.indexes['time'][-1]
 
-    def handle_date_defaults(self, ts):
+    @staticmethod
+    def get_calendar(fns):
+        """Return the calendar."""
+        ds = xr.open_mfdataset(fns, combine="by_coords")
+        return ds.time.encoding.get("calendar", "standard")
 
+    def set_calendar(self, ts):
+        """Set the calendar in the RVI configuration."""
+        self.rvi.calendar = self.get_calendar(ts)
+
+    def handle_date_defaults(self, ts):
         # Get start and end date from file
         start, end = self.start_end_date(ts)
 
@@ -594,9 +592,8 @@ class Raven:
         if rvi.start_date in [None, dt.datetime(1, 1, 1)]:
             rvi.start_date = start
 
-        else:
-            if rvi.end_date in [None, dt.datetime(1, 1, 1)]:
-                rvi.end_date = end
+        if rvi.end_date in [None, dt.datetime(1, 1, 1)]:
+            rvi.end_date = end
 
     @property
     def rvs(self):

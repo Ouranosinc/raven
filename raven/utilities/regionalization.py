@@ -5,6 +5,7 @@ Tools for hydrological regionalization
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import json
 import statsmodels.api as sm
 import xarray as xr
 from raven.models import get_model
@@ -99,6 +100,13 @@ def regionalize(method, model, nash, params=None, props=None, target_props=None,
 
     # Run the model over all parameters and create ensemble DataArray
     m = get_model(model)()
+
+    if 'nc_spec' in kwds:
+        nc_dict=json.loads(kwds['nc_spec'])
+        for key, val in nc_dict.items():
+            m.assign(key, val)
+        del kwds['nc_spec']
+    
     qsims = []
 
     for params in reg_params:

@@ -23,7 +23,7 @@ PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.anaconda.com/miniconda
-RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/Raven-rev264.zip
+RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/Raven-rev288.zip
 RAVEN_SRC    = $(CURDIR)/src/RAVEN
 OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
 OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
@@ -233,7 +233,7 @@ notebook:
 .PHONY: lint
 lint:
 	@echo "Running flake8 code style checks ..."
-	@bash -c 'flake8'
+	@bash -c 'flake8 raven tests'
 
 .PHONY: refresh-notebooks
 refresh-notebooks:
@@ -244,11 +244,6 @@ refresh-notebooks:
 test_pdb:
 	@echo "Running tests (skip slow and online tests) with --pdb ..."
 	@bash -c "pytest -v -m 'not slow and not online' --pdb"
-
-.PHONY: pep8
-pep8:
-	@echo "Running pep8 code style checks ..."
-	@bash -c "flake8 raven tests"
 
 ## Sphinx targets
 

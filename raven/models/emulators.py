@@ -59,7 +59,7 @@ class GR4JCN_OST(Ostrich, GR4JCN):
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvi.suppress_output = True
-        self.txt = Ost(algorithm='DSS',
+        self.txt = Ost(algorithm='DDS',
                        max_iterations=50,
                        lowerBounds=GR4JCN.params(None, None, None, None, None, None),
                        upperBounds=GR4JCN.params(None, None, None, None, None, None),
@@ -96,7 +96,7 @@ class MOHYSE_OST(Ostrich, MOHYSE):
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvi.suppress_output = True
-        self.txt = Ost(algorithm='DSS',
+        self.txt = Ost(algorithm='DDS',
                        max_iterations=50,
                        lowerBounds=MOHYSE.params(None, None, None, None, None, None, None, None, None, None),
                        upperBounds=MOHYSE.params(None, None, None, None, None, None, None, None, None, None),
@@ -149,7 +149,7 @@ class HMETS_OST(Ostrich, HMETS):
     def __init__(self, *args, **kwds):
         super().__init__(*args, **kwds)
         self.rvi.suppress_output = True
-        self.txt = Ost(algorithm='DSS',
+        self.txt = Ost(algorithm='DDS',
                        max_iterations=50,
                        lowerBounds=HMETS.params(None, None, None, None, None, None, None, None, None, None, None,
                                                 None, None, None, None, None, None, None, None, None, None),
@@ -244,7 +244,7 @@ class HBVEC_OST(Ostrich, HBVEC):
         self.rvi.suppress_output = True
         self.low = HBVEC.params
         self.high = HBVEC.params
-        self.txt = Ost(algorithm='DSS',
+        self.txt = Ost(algorithm='DDS',
                        max_iterations=50,
                        lowerBounds=self.low(None, None, None, None, None, None, None, None, None, None, None,
                                             None, None, None, None, None, None, None, None, None, None),
