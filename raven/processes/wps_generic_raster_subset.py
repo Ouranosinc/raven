@@ -81,9 +81,7 @@ class RasterSubsetProcess(Process):
                 "DEM subset of `shape` region in GeoTIFF format.",
                 abstract="Elevation statistics: min, max, mean, median, sum, nodata",
                 as_reference=True,
-                supported_formats=[
-                    Format("application/zip"),
-                ],
+                supported_formats=[FORMATS.ZIP],
             ),
         ]
 
