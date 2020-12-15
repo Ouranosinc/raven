@@ -65,9 +65,7 @@ def feature_contains(
         pass
     else:
         raise ValueError(
-            "point should be shapely.Point or tuple of coordinates, got : {} of type({})".format(
-                point, type(point)
-            )
+            f"point should be shapely.Point or tuple of coordinates, got : {point} of type({type(point)})"
         )
 
     shape_crs = crs_sniffer(single_file_check(shp))
@@ -260,7 +258,7 @@ def select_hybas_domain(
             for _ in coll.filter(bbox=bbox):
                 return dom
 
-    raise LookupError("Could not find feature containing bbox {}.".format(bbox))
+    raise LookupError(f"Could not find feature containing bbox {bbox}.")
 
 
 def get_hydrobasins_location_wfs(

@@ -132,9 +132,7 @@ class RasterSubsetProcess(Process):
         vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
 
         if ras_crs != vec_crs:
-            msg = "CRS for files {} and {} are not the same. Reprojecting raster...".format(
-                vector_file, raster_file
-            )
+            msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting raster..."
             LOGGER.warning(msg)
 
             projected = tempfile.NamedTemporaryFile(
@@ -202,9 +200,7 @@ class RasterSubsetProcess(Process):
             # response.outputs['raster'].file = '{}.zip'.format(out_fn)
 
         except Exception as e:
-            msg = "Failed to perform raster subset using {} and {}: {}".format(
-                shape_url, raster_url, e
-            )
+            msg = f"Failed to perform raster subset using {shape_url} and {raster_url}: {e}"
             LOGGER.error(msg)
             raise Exception(msg)
 
