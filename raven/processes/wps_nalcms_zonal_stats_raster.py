@@ -63,7 +63,7 @@ NALCMS_PROJ4 = (
 )
 
 
-class NALCMSZonalStatisticsProcess(Process):
+class NALCMSZonalStatisticsRasterProcess(Process):
     """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions"""
 
     def __init__(self):
@@ -154,9 +154,9 @@ class NALCMSZonalStatisticsProcess(Process):
 
         super(NALCMSZonalStatisticsProcess, self).__init__(
             self._handler,
-            identifier="nalcms-zonal-stats",
+            identifier="nalcms-zonal-stats-raster",
             title="NALCMS Land Use Zonal Statistics with raster output",
-            version="2.0",
+            version="1.0",
             abstract="Return zonal statistics, land-use cover, and raster grid for the CEC NALCMS based "
             "on the boundaries of a vector file.",
             metadata=[],
