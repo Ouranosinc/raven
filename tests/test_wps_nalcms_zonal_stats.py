@@ -15,12 +15,7 @@ from .common import CFG_FILE, TESTDATA, client_for, count_pixels, get_output
 class TestNALCMSZonalStatsProcess:
     def test_simplified_categories(self):
         client = client_for(
-            Service(
-                processes=[
-                    NALCMSZonalStatisticsProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -61,12 +56,7 @@ class TestNALCMSZonalStatsProcess:
 
     def test_true_categories(self):
         client = client_for(
-            Service(
-                processes=[
-                    NALCMSZonalStatisticsProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -107,12 +97,7 @@ class TestNALCMSZonalStatsProcess:
 
     def test_wcs_simplified_categories(self):
         client = client_for(
-            Service(
-                processes=[
-                    NALCMSZonalStatisticsProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
         fields = [
             "select_all_touching={touches}",
@@ -149,12 +134,7 @@ class TestNALCMSZonalStatsProcess:
 
     def test_wcs_true_categories(self):
         client = client_for(
-            Service(
-                processes=[
-                    NALCMSZonalStatisticsProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
         fields = [
             "select_all_touching={touches}",
@@ -193,12 +173,7 @@ class TestNALCMSZonalStatsProcess:
 class TestNALCMSZonalStatsWithRasterProcess:
     def test_wcs_simplified_categories(self):
         client = client_for(
-            Service(
-                processes=[
-                    NALCMSZonalStatisticsRasterProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)
         )
         fields = [
             "select_all_touching={touches}",
@@ -217,7 +192,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
             service="WPS",
             request="Execute",
             version="1.0.0",
-            identifier="nalcms-zonal-stats",
+            identifier="nalcms-zonal-stats-raster",
             datainputs=datainputs,
         )
 
