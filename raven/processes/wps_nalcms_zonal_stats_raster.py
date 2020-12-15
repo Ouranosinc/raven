@@ -239,6 +239,8 @@ class NALCMSZonalStatisticsRasterProcess(Process):
         summary_stats = SUMMARY_ZONAL_STATS
 
         try:
+
+            # Use zonalstats to produce a GeoJSON
             stats = zonal_stats(
                 projected,
                 raster_file,
@@ -247,7 +249,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 categorical=True,
                 all_touched=touches,
                 geojson_out=True,
-                raster_out=True,
+                raster_out=False,
             )
 
             land_use = list()
@@ -263,8 +265,20 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 land_use.append(lu)
                 # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
+            # Use zonalstats to produce sets of raster grids
+            raster_subset = zonal_stats(
+                projected,
+                raster_file,
+                stats=summary_stats,
+                band=band,
+                categorical=True,
+                all_touched=touches,
+                geojson_out=False,
+                raster_out=True,
+            )
+
             raster_out = zonalstats_raster_file(
-                stats,
+                raster_subset,
                 working_dir=self.workdir,
                 identifier=self.identifier,
                 data_type=data_type,

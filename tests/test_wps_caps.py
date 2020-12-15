@@ -47,4 +47,5 @@ def test_wps_caps():
         "forecast-floodrisk",
         "hindcasting",
         "realtime-forecast",
+        "graph_forecast_uncertainty"
     }
