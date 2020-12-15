@@ -142,3 +142,8 @@ class BasinStateVariables(NamedTuple):
     qlat: tuple = (0, 0, 0)
     qlatlast: float = 0
     qin: tuple = 20 * (0,)
+
+
+# Conversion between HRUStateVariables Attributes
+HRU_NC_MAP = {"soil0": "SOIL WATER[0]",
+              "soil1": "SOIL WATER[1]"}

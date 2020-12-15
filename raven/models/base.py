@@ -15,6 +15,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import operator
 from collections import OrderedDict
 from pathlib import Path
 
@@ -23,7 +24,7 @@ import six
 import xarray as xr
 
 import raven
-from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData, parse_solution
+from .rv import RVFile, RV, RVI, isinstance_namedtuple, Ost, RavenNcData, parse_solution, get_states
 
 
 class Raven:
@@ -338,22 +339,24 @@ class Raven:
         for p in self._parallel_parameters:
             a = kwds.pop(p, None)
 
-            if p in ['params', 'hrus', 'basin_state', 'hru_state'] and a is not None:
+            if a is not None and p in ['params', 'basin_state', 'hru_state']:
                 pdict[p] = np.atleast_2d(a)
             else:
                 pdict[p] = np.atleast_1d(a)
 
-        # Number of parallel loops is dictated by the number of parameters or nc_index.
-        nloops = max(len(pdict['params']), len(pdict['nc_index']))
-        # TODO: This logic is a broken. params is always in pdict. Instead check the length of all parallel
-        #  parameters, find the max, identify those whose length is max, then apply logic.
+        # Number of parallel loops is dictated by the number of parallel parameters or nc_index.
+        plen = {pp: len(pdict[pp]) for pp in self._parallel_parameters + ['nc_index']}
+
+        # Find the longest parallel array and its length
+        longer, nloops = max(plen.items(), key=operator.itemgetter(1))
+
+        # Assign the name of the parallel dimension
+        # nbasins is set by RavenC++
         if nloops > 1:
-            if "params" in pdict:
-                self._pdim = "params"
-            elif "hru_state" in pdict or "basin_state" in pdict:
-                self._pdim = "initparams"
-            else:
-                self._pdim = "region"
+            self._pdim = {"params": "params",
+                          "hru_state": "state",
+                          "basin_state": "state",
+                          "nc_index": "nbasins"}[longer]
 
         for key, val in pdict.items():
             if len(val) not in [1, nloops]:
@@ -384,7 +387,7 @@ class Raven:
             self.handle_date_defaults(ts)
             self.set_calendar(ts)
 
-        # Loop over parallel parameters
+        # Loop over parallel parameters - sets self.rvi.run_index
         procs = []
         for self.psim in range(nloops):
             for key, val in pdict.items():
@@ -434,17 +437,16 @@ class Raven:
 
         self.rvc.parse(Path(fn).read_text())
 
-
-    def parse_results(self, path=None):
+    def parse_results(self, path=None, run_name=None):
         """Store output files in the self.outputs dictionary."""
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
         path = path or self.exec_path
-
-        patterns = {'hydrograph': '*Hydrographs.nc',
-                    'storage': '*WatershedStorage.nc',
-                    'solution': '*solution.rvc',
-                    'diagnostics': '*Diagnostics.csv'
+        run_name = run_name or self.rvi.run_name
+        patterns = {'hydrograph': f'{run_name}*Hydrographs.nc',
+                    'storage': f'{run_name}*WatershedStorage.nc',
+                    'solution': f'{run_name}*solution.rvc',
+                    'diagnostics': f'{run_name}*Diagnostics.csv'
                     }
 
         for key, pattern in patterns.items():
@@ -640,6 +642,22 @@ class Raven:
             return parse_solution(self.outputs['solution'].read_text())
         elif self.outputs['solution'].suffix == '.zip':
             return [parse_solution(fn.read_text()) for fn in self.ind_outputs['solution']]
+
+    def get_final_state(self, hru_index=1, basin_index=1):
+        """Return model state at the end of simulation.
+
+        Parameters
+        ----------
+        hru_index : None, int
+          Set index value or None to get all HRUs.
+        basin_index : None, int
+          Set index value or None to get all basin states.
+        """
+        solution = self.solution
+        if isinstance(solution, dict):
+            return get_states(solution, hru_index, basin_index)
+        else:
+            return zip(*[get_states(s, hru_index, basin_index) for s in solution])
 
     @property
     def diagnostics(self):

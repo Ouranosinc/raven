@@ -24,6 +24,7 @@ import numpy as np
 import tempfile
 from pathlib import Path
 from copy import deepcopy
+from raven.models.state import HRU_NC_MAP
 
 """
 Suggestion:
@@ -42,104 +43,69 @@ last_storage["Soil Water[0]"]
 """
 
 
-def assimilateQobsSingleDay(model, xa, ts, days, std, solutions):
+def assimilate(model, ts, q_obs, keys, basin_states, hru_states, days):
+    """Assimilate streamflow over one day.
+
+    Parameters
+    ----------
+    model : raven.Model
+      Raven model instance configured to run.
+    ts : str, Path
+      Perturbed time series.
+    keys : tuple
+      Name of hru_state attributes to be assimilated, for example ("soil0", "soil1").
+    basin_states : sequence
+      Model initial conditions, BasinStateVariables instances.
+    hru_states : sequence
+      Model initial conditions, HRUStateVariables instances.
+    ts : str, Path, list
+      Input netCDF file names.
+    days : datetime
+      Dates ...
+    std : dict
+      Standard deviation of the perturbation noise for each input variable, keyed by variable standard name.
+
+    """
+    qkey = "water_volume_transport_in_river_channel"
+
+    if len(basin_states) != len(hru_states):
+        raise ValueError("`basin_states` and `hru_states` must have the same length.")
 
     model = deepcopy(model)
-    tmp = Path(tempfile.mkdtemp())
 
-    number_members = len(solutions)
+    # Number of members
+    n_members = len(basin_states)
 
-    p_fn = tmp / "perturbed_forcing.nc"
+    # Run simulation with perturbed inputs
+    model(ts, hru_state=hru_states, basin_state=basin_states, nc_index=range(n_members))
 
-    perturbed = {}
-    dists = {
-        "pr": "gamma",
-        "rainfall": "gamma",
-        "prsn": "gamma",
-    }  # Keyed by standard_name
+    # Extract final states (n_states, n_members)
+    f_hru_states, f_basin_states = model.get_final_state()
+    x_matrix = np.array([[getattr(state, key) for key in keys] for state in f_hru_states]).T
 
-    model.setup_model_run(
-        [
-            ts,
-        ]
-    )  # Force the model to reupdate its ts file. If we don<t do this, the model will use the previous run's data.
+    # Sanity check
+    if x_matrix.shape != (len(keys), n_members):
+        raise ValueError
 
-    for key, s in std.items():
-        nc = model.rvt.get(key)
-        with xr.open_dataset(nc.path) as ds:
-            da = ds.get(nc.var_name).sel(time=days)
-            perturbed[nc.var_name] = perturbation(
-                da, dists.get(key, "norm"), s, members=number_members
-            )
-            if nc.var_name is "qobs":
-                qobs_full = da.values
-                qobs = da.isel(time=-1).values
-    perturbed = xr.Dataset(perturbed)
+    #vnames = [HRU_NC_MAP[k] for k in keys]
+    #x_matrix = model.storage.isel(time=-1)[vnames].to_array()
 
-    # preset the assimilation flag. By default, we will do it.
-    do_assimilation = True
+    # Last time step for assimilation
+    qsim_vector = model.q_sim.isel(time=-1, nbasins=0).values
 
-    # However, if there are nans (especially in observed flow, but others will make the process fail too), don't assimilate and return the states as-is.
-    if perturbed.isnull().any():
-        do_assimilation = False  # We will simply run the model with the current rvcs for the given time-step.
+    # If there are problems related to missing Qobs or other variables, do not assimilate.
+    with xr.open_dataset(ts) as perturbed:
+        if perturbed.isnull().any().to_array().any():
+            xa = x_matrix
+        else:
+            # Prepare the perturbed Qobs and Qobs errors for each member
+            qobs_pert = perturbed[qkey].isel(time=-1)
+            qobs_error = q_obs.isel(time=-1) - qobs_pert
 
-    perturbed.to_netcdf(p_fn, mode="w")
+            # Do the assimilation, return the assimilated states for the next period
+            xa = update_state(x_matrix, qobs_pert.values, qobs_error.values, qsim_vector)
 
-    # Generate my list of initial states with replacement of soil0 and soil1
-
-    soil0 = []
-    soil1 = []
-    qsim_matrix = []
-    solutions_end = []
-
-    # Not able to parallelize, TODO later. For each member:
-    for i in range(number_members):
-        model.rvc.parse(
-            solutions[i]
-        )  # parse and update model with the member's initial states from previous run
-        model.rvc.hru_state = model.rvc.hru_state._replace(
-            soil0=xa[0, i], soil1=xa[1, i]
-        )  # update the assimilated variables
-        model(
-            p_fn, nc_index=i, overwrite=True
-        )  # run the model with the good timeseries and good ncindex
-        soil0.append(
-            model.storage.isel(time=-1)["Soil Water[0]"].values
-        )  # get variable soil0 at end of run
-        soil1.append(
-            model.storage.isel(time=-1)["Soil Water[1]"].values
-        )  # get variable soil1 at end of run
-        qsim_matrix.append(
-            model.q_sim.values
-        )  # get and stack the members in a Qsim matrix
-        solutions_end.append(
-            model.outputs["solution"].read_text()
-        )  # read the output file for the next period's assimilation
-
-    # stack the variables to be assimilated into a single matrix
-    x_matrix = np.column_stack((np.array(soil0), np.array(soil1))).T
-    qsim_matrix = np.array(qsim_matrix).squeeze()  # make this an array to display later
-    qsim_vector = qsim_matrix[:, -1]  # get last period Qsim for assimilation
-
-    # if there is no problem related to missing Qobs or other vars:
-    if do_assimilation:
-        # prepare the perturbed Qobs and Qobs errors for each member
-        qobs_pert = perturbed["qobs"].isel(time=-1).values
-        qobs_error = np.tile(qobs, (1, number_members)) - qobs_pert.T
-
-        # actually do the assimilation, return "xa", the assimilated states for the next period
-        xa = update_state(
-            x_matrix, qobs_pert.reshape(1, -1), qobs_error, qsim_vector.reshape(1, -1)
-        )
-    else:
-
-        # If no assimilation, then the unassimilated states are returned.
-        xa = x_matrix
-
-    return [xa, qsim_matrix, np.array(qobs_full), model, solutions_end]
-
-    # Set new state variables in the rvc file
-    # Updated RVC file after assimilation, ready for next simulation day.
+    return [xa, model]
 
 
 def perturbation(da, dist, std, **kwargs):
@@ -186,11 +152,11 @@ def update_state(x, qobs_pert, qobs_error, qsim):
     ----------
     x : ndarray (n_states, n_members)
       Model state initial values.
-    qobs_pert : ndarray (1, n_members)
+    qobs_pert : ndarray (n_members)
       Perturbed observed streamflows.
-    qobs_error : ndarray (1, n_members)
+    qobs_error : ndarray (n_members)
       Perturbation added to qobs to get qobs_pert.
-    qsim : ndarray (1, n_members)
+    qsim : ndarray (n_members)
       Simulated streamflows.
 
     Returns
@@ -206,7 +172,13 @@ def update_state(x, qobs_pert, qobs_error, qsim):
     University of colorado report on the efficient implementation of EnKF, Jan Mandel, 2006
     http://ccm.ucdenver.edu/reports/rep231.pdf
     """
-    n_members = qobs_pert.shape[1]
+    n_states, n_members = np.shape(x)
+
+    # Make sure arrays have shape (1, n_members)
+    qobs_pert = np.atleast_2d(qobs_pert)
+    qobs_error = np.atleast_2d(qobs_error)
+    qsim = np.atleast_2d(qsim)
+
     z = np.dot(qsim, np.ones((n_members, 1)))
     ha = qsim - (z * np.ones((1, n_members))) / n_members
     y = qobs_pert - qsim
