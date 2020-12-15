@@ -33,6 +33,16 @@ Typical workflows
    Region_selection
 
 
+Forecasting
+===========
+.. toctree::
+   :maxdepth: 1
+
+   Hydrological_realtime_forecasting.ipynb
+   Hydrological_hindcasting.ipynb
+   Climatological_ESP_forecasting.ipynb
+
+
 Parallel simulations
 ====================
 
