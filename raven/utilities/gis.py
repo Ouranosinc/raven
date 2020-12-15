@@ -1,14 +1,12 @@
-import fiona
 import collections
 from pathlib import Path
-from typing import List
-from typing import Sequence
-from typing import Tuple
-from typing import Union
+from typing import Iterable, List, Sequence, Tuple, Union
 
+import fiona
 import pandas as pd
+from shapely.geometry import Point, shape
+
 from raven.utils import crs_sniffer, single_file_check
-from shapely.geometry import shape, Point
 
 GEO_URL = "http://boreas.ouranos.ca/geoserver/wfs"
 
@@ -176,7 +174,7 @@ def get_bbox(vector: str, all_features: bool = True) -> list:
 
 
 def get_raster_wcs(
-    coordinates: Sequence[Union[int, float, str]],
+    coordinates: Union[Iterable, Sequence[Union[float, str]]],
     geographic: bool = True,
     layer: str = None,
 ) -> bytes:
@@ -200,8 +198,9 @@ def get_raster_wcs(
       A GeoTIFF array.
 
     """
-    from owslib.wcs import WebCoverageService
     from lxml import etree
+
+    from owslib.wcs import WebCoverageService
 
     (left, down, right, up) = coordinates
 
@@ -350,9 +349,10 @@ def get_hydrobasins_attributes_wfs(
       URL to the GeoJSON-encoded WFS response.
 
     """
-    from requests import Request
-    from owslib.fes import PropertyIsLike
     from lxml import etree
+    from requests import Request
+
+    from owslib.fes import PropertyIsLike
 
     layer = "public:USGS_HydroBASINS_{}{}_lev{}".format(
         "lake_" if lakes else "", domain, level
