@@ -131,7 +131,7 @@ class NALCMSZonalStatisticsProcess(Process):
             ras_crs = crs_sniffer(raster_file)
 
             if vec_crs != ras_crs:
-                msg = 'CRS for files {} and {} are not the same. Reprojecting...'.format(vector_file, raster_file)
+                msg = f'CRS for files {vector_file} and {raster_file} are not the same. Reprojecting...'
                 LOGGER.warning(msg)
 
                 # Reproject full vector to preserve feature attributes
@@ -186,7 +186,7 @@ class NALCMSZonalStatisticsProcess(Process):
             response.outputs['statistics'].data = json.dumps(land_use)
 
         except Exception as e:
-            msg = 'Failed to perform zonal statistics using {} and {}: {}'.format(shape_url, raster_url, e)
+            msg = f'Failed to perform zonal statistics using {shape_url} and {raster_url}: {e}'
             LOGGER.error(msg)
             raise Exception(msg) from e
 

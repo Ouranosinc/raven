@@ -153,49 +153,9 @@ class RasterSubsetProcess(Process):
             response.outputs["raster"].file = zonalstats_raster_file(
                 stats,
                 working_dir=self.workdir,
-                identifier=self.identifier,
                 data_type=data_type,
                 crs=vec_crs or ras_crs,
             )
-
-            # for i in range(len(stats)):
-            #
-            #     file = 'subset_{}.tiff'.format(i + 1)
-            #     raster_subset = os.path.join(out_dir, file)
-            #
-            #     try:
-            #         raster_location = stats[i]
-            #         raster = raster_location['mini_raster_array']
-            #         grid_properties = raster_location['mini_raster_affine'][0:6]
-            #         nodata = raster_location['mini_raster_nodata']
-            #
-            #         aff = Affine(*grid_properties)
-            #
-            #         LOGGER.info('Writing raster data to {}'.format(raster_subset))
-            #
-            #         masked_array = np.ma.masked_values(raster, nodata)
-            #         if masked_array.mask.all():
-            #             msg = 'Subset {} is empty, continuing...'.format(i)
-            #             LOGGER.warning(msg)
-            #
-            #         normal_array = np.asarray(masked_array, dtype=data_type)
-            #
-            #         # Write to GeoTIFF
-            #         with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress=raster_compression,
-            #                       height=raster.shape[0], width=raster.shape[1], dtype=data_type, transform=aff,
-            #                       crs=vec_crs or ras_crs, nodata=nodata) as f:
-            #             f.write(normal_array, 1)
-            #
-            #     except Exception as e:
-            #         msg = 'Failed to write raster outputs: {}'.format(e)
-            #         LOGGER.error(msg)
-            #         raise Exception(msg)
-            #
-            # # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
-            # out_fn = os.path.join(self.workdir, self.identifier)
-            # shutil.make_archive(base_name=out_fn, format='zip', root_dir=out_dir, logger=LOGGER)
-            #
-            # response.outputs['raster'].file = '{}.zip'.format(out_fn)
 
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url} and {raster_url}: {e}"
