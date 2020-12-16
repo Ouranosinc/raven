@@ -280,7 +280,6 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             raster_out = zonalstats_raster_file(
                 raster_subset,
                 working_dir=self.workdir,
-                identifier=self.identifier,
                 data_type=data_type,
                 crs=vec_crs,
             )

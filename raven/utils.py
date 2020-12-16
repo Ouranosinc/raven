@@ -8,7 +8,9 @@ import tempfile
 import zipfile
 from functools import partial
 from pathlib import Path
+from random import choice
 from re import search
+from string import ascii_letters
 from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import fiona
@@ -782,7 +784,6 @@ def generic_vector_reproject(
 def zonalstats_raster_file(
     stats: dict,
     working_dir: str = None,
-    identifier: str = None,
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
     data_type: str = None,
     crs: str = None,
@@ -795,9 +796,7 @@ def zonalstats_raster_file(
     stats : dict
       The dictionary produced by the rasterstats `zonalstats` function.
     working_dir : str
-      The working directory (self.workdir).
-    identifier : str
-      The identifier of the process (self.identifier).
+      The working directory.
     raster_compression : str
       The type of compression used on the raster file (default: 'lzw').
     data_type : str
@@ -814,8 +813,8 @@ def zonalstats_raster_file(
 
     for i in range(len(stats)):
 
-        file = "subset_{}.tiff".format(i + 1)
-        raster_subset = Path(out_dir).joinpath(file)
+        fn = "subset_{}.tiff".format(i + 1)
+        raster_subset = Path(out_dir).joinpath(fn)
 
         try:
             raster_location = stats[i]
@@ -856,7 +855,8 @@ def zonalstats_raster_file(
             raise Exception(msg)
 
     # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
-    out_fn = Path(working_dir).joinpath(identifier)
+    foldername = f"subset_{''.join(choice(ascii_letters) for i in range(10))}"
+    out_fn = Path(working_dir).joinpath(foldername)
     shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)
 
     return "{}.zip".format(out_fn)
