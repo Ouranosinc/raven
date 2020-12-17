@@ -22,7 +22,7 @@ class RealtimeForecastProcess(RavenProcess):
                     'gr4jcn': GR4JCN.params,
                     'hbvec': HBVEC.params,
                     'mohyse': MOHYSE.params}
-    inputs = [wio.forecast_model, wio.region_vector, wio.hmets, wio.gr4jcn, wio.hbvec, wio.duration,
+    inputs = [wio.forecast_model, wio.shape, wio.hmets, wio.gr4jcn, wio.hbvec, wio.duration,
               wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction,
               wio.nc_spec, wio.rvc]
 
