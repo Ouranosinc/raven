@@ -12,7 +12,6 @@ from pywps.exceptions import InvalidParameterValue
 from raven.utilities import gis
 from raven.utils import archive_sniffer, single_file_check, parse_lonlat
 from raven.utils import crs_sniffer
-from shapely.geometry import shape, Point
 
 LOGGER = logging.getLogger("PYWPS")
 

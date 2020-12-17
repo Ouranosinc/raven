@@ -220,6 +220,13 @@ hbvec = LiteralInput('hbvec', 'Comma separated list of HBV-EC parameters',
 
 # --- GIS Inputs --- #
 
+region_vector = ComplexInput('region_vector', 'Vector shape file of a region',
+                             abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
+                                      ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',
+                             min_occurs=1,
+                             max_occurs=1,
+                             supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP, FORMATS.ZIP])
+
 shape = ComplexInput('shape', 'Vector shape of a region',
                              abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
                                       ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.',

@@ -14,7 +14,7 @@ from raven.utils import (
     generic_raster_warp,
     zonalstats_raster_file,
 )
-import raven.processes.wpsio as wio
+from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 

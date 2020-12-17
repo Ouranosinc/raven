@@ -12,7 +12,7 @@ from raven.utils import (
     generic_vector_reproject,
     single_file_check,
 )
-from raven.processes.wpsio import dem_raster, raster_band, select_all_touching, statistics, region_vector
+from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 SUMMARY_ZONAL_STATS = ["count", "min", "max", "mean", "median", "sum", "nodata"]
@@ -23,9 +23,9 @@ class ZonalStatisticsProcess(Process):
 
     def __init__(self):
         inputs = [
-            region_vector,
-            dem_raster,
-            raster_band,
+            wio.shape,
+            wio.dem_raster,
+            wio.raster_band,
             LiteralInput(
                 "categorical",
                 "Return distinct pixel categories",
@@ -34,11 +34,11 @@ class ZonalStatisticsProcess(Process):
                 min_occurs=1,
                 max_occurs=1,
             ),
-            select_all_touching,
+            wio.select_all_touching,
         ]
 
         outputs = [
-            statistics,
+            wio.statistics,
         ]
 
         super(ZonalStatisticsProcess, self).__init__(

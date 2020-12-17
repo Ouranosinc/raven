@@ -13,7 +13,7 @@ from raven.utils import (
     generic_vector_reproject,
     single_file_check,
 )
-import raven.processes.wpsio as wio
+from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
