@@ -16,7 +16,7 @@ from raven.utils import (
     single_file_check,
     zonalstats_raster_file,
 )
-from raven.processes.wpsio import features, land_use_raster, raster_band, region_vector, select_all_touching, simple_categories, statistics
+from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -67,16 +67,16 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
     def __init__(self):
         inputs = [
-            region_vector,
-            land_use_raster,
-            simple_categories,
-            raster_band,
-            select_all_touching,
+            wio.shape,
+            wio.land_use_raster,
+            wio.simple_categories,
+            wio.raster_band,
+            wio.select_all_touching,
         ]
 
         outputs = [
-            features,
-            statistics,
+            wio.features,
+            wio.statistics,
             ComplexOutput(
                 "raster",
                 "DEM grid subset by the requested shape.",
@@ -101,7 +101,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
     def _handler(self, request, response):
 
-        shape_url = request.inputs["region_vector"][0].file
+        shape_url = request.inputs["shape"][0].file
         simple_categories = request.inputs["simple_categories"][0].data
         band = request.inputs["band"][0].data
         touches = request.inputs["select_all_touching"][0].data
