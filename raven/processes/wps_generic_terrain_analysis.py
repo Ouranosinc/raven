@@ -12,6 +12,7 @@ from rasterio.crs import CRS
 from raven.utilities import gis
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check, boundary_check
 from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop, generic_vector_reproject
+import raven.processes.wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -21,22 +22,8 @@ class TerrainAnalysisProcess(Process):
 
     def __init__(self):
         inputs = [
-            ComplexInput('raster', 'Digital elevation model (DEM)',
-                         abstract='The DEM to be queried. Defaults to the EarthEnv-DEM90 product.',
-                         metadata=[Metadata('EarthEnv-DEM90', 'https://www.earthenv.org/DEM'),
-                                   Metadata(
-                                       'Robinson, Natalie, James Regetz, and Robert P. Guralnick (2014). '
-                                       'EarthEnv-DEM90: A Nearly-Global, Void-Free, Multi-Scale Smoothed, 90m Digital '
-                                       'Elevation Model from Fused ASTER and SRTM Data. ISPRS Journal of '
-                                       'Photogrammetry and Remote Sensing 87: 57–67.',
-                                       'https://doi.org/10.1016/j.isprsjprs.2013.11.002')],
-                         min_occurs=0, max_occurs=1, supported_formats=[FORMATS.GEOTIFF]),
-            ComplexInput('shape', 'Vector Shape',
-                         abstract='An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage.'
-                                  ' The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.'
-                                  ' The raster will be subsetted before analysis is performed.',
-                         min_occurs=1, max_occurs=1,
-                         supported_formats=[FORMATS.GEOJSON, FORMATS.GML, FORMATS.JSON, FORMATS.SHP]),
+            wio.dem_raster,
+            wio.shape,
             LiteralInput('projected_crs',
                          'Coordinate Reference System for terrain analysis (Default: EPSG:6622, "NAD83(CSRS) /'
                          ' Quebec Lambert". The CRS chosen should be projected and appropriate for the region'
@@ -44,9 +31,7 @@ class TerrainAnalysisProcess(Process):
                          data_type='integer',
                          default=6622,
                          min_occurs=1, max_occurs=1),
-            LiteralInput('select_all_touching', 'Perform calculation on boundary pixels',
-                         data_type='boolean', default='false',
-                         min_occurs=1, max_occurs=1),
+            wio.select_all_touching,
         ]
 
         outputs = [
@@ -57,7 +42,7 @@ class TerrainAnalysisProcess(Process):
             ComplexOutput('dem', "Subsetted digital elevation model",
                           abstract="DEM GeoTIFF image",
                           as_reference=True,
-                          supported_formats=[FORMATS.GEOTIFF, ])
+                          supported_formats=[FORMATS.GEOTIFF])
         ]
 
         super(TerrainAnalysisProcess, self).__init__(
@@ -84,8 +69,7 @@ class TerrainAnalysisProcess(Process):
         # -----------------------------------------------
         projection = CRS.from_user_input(destination_crs)
         if not projection.is_projected:
-            msg = 'Destination CRS {} is not projected.' \
-                  ' Terrain analysis values will not be valid.'.format(projection.to_epsg())
+            msg = f'Destination CRS {projection.to_epsg()} is not projected. Terrain analysis values will not be valid.'
             LOGGER.error(ValueError(msg))
             raise ValueError(msg)
 

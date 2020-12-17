@@ -2,9 +2,7 @@ import logging
 import tempfile
 
 from pywps import ComplexOutput
-from pywps import LiteralInput, ComplexInput
-from pywps import Process, FORMATS, Format
-from pywps.app.Common import Metadata
+from pywps import Process, FORMATS
 from rasterstats import zonal_stats
 
 from raven.utilities import gis
@@ -16,6 +14,7 @@ from raven.utils import (
     generic_raster_warp,
     zonalstats_raster_file,
 )
+import raven.processes.wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -25,54 +24,10 @@ class RasterSubsetProcess(Process):
 
     def __init__(self):
         inputs = [
-            ComplexInput(
-                "shape",
-                "Vector Shape",
-                abstract="An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage."
-                " The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf."
-                " The shape and raster should have a matching CRS.",
-                min_occurs=1,
-                max_occurs=1,
-                supported_formats=[
-                    FORMATS.GEOJSON,
-                    FORMATS.GML,
-                    FORMATS.JSON,
-                    FORMATS.SHP,
-                ],
-            ),
-            ComplexInput(
-                "raster",
-                "Gridded raster data set",
-                abstract="The raster to be queried. Defaults to the EarthEnv-DEM90 product.",
-                metadata=[
-                    Metadata("EarthEnv-DEM90", "https://www.earthenv.org/DEM"),
-                    Metadata(
-                        "Robinson, Natalie, James Regetz, and Robert P. Guralnick (2014). "
-                        "EarthEnv-DEM90: A Nearly-Global, Void-Free, Multi-Scale Smoothed, 90m Digital "
-                        "Elevation Model from Fused ASTER and SRTM Data. ISPRS Journal of "
-                        "Photogrammetry and Remote Sensing 87: 57–67.",
-                        "https://doi.org/10.1016/j.isprsjprs.2013.11.002",
-                    ),
-                ],
-                min_occurs=0,
-                max_occurs=1,
-                supported_formats=[FORMATS.GEOTIFF],
-            ),
-            LiteralInput(
-                "band",
-                "Raster band",
-                data_type="integer",
-                default=1,
-                abstract="Band of raster examined to perform zonal statistics. Default: 1",
-                min_occurs=1,
-                max_occurs=1,
-            ),
-            LiteralInput(
-                "select_all_touching",
-                "Additionally select boundary pixels that are touched by shape",
-                data_type="boolean",
-                default="false",
-            ),
+            wio.shape,
+            wio.dem_raster,
+            wio.raster_band,
+            wio.select_all_touching,
         ]
 
         outputs = [

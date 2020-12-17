@@ -4,9 +4,7 @@ import tempfile
 from collections import defaultdict
 
 from pywps import ComplexOutput
-from pywps import LiteralInput, ComplexInput
 from pywps import Process, FORMATS
-from pywps.app.Common import Metadata
 from rasterstats import zonal_stats
 
 from raven.utilities import gis
@@ -18,6 +16,7 @@ from raven.utils import (
     single_file_check,
     zonalstats_raster_file,
 )
+from raven.processes.wpsio import features, land_use_raster, raster_band, region_vector, select_all_touching, simple_categories, statistics
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -68,82 +67,16 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
     def __init__(self):
         inputs = [
-            ComplexInput(
-                "shape",
-                "Vector Shape",
-                abstract="An ESRI Shapefile, GML, JSON, GeoJSON, or single layer GeoPackage."
-                " The ESRI Shapefile must be zipped and contain the .shp, .shx, and .dbf.",
-                min_occurs=1,
-                max_occurs=1,
-                supported_formats=[
-                    FORMATS.GEOJSON,
-                    FORMATS.GML,
-                    FORMATS.JSON,
-                    FORMATS.SHP,
-                ],
-            ),
-            ComplexInput(
-                "raster",
-                "Gridded Land Use raster data set",
-                abstract="The Land Use raster to be queried. Default is the CEC NALCMS 2010. Provided raster "
-                "must use the UN FAO Land Cover Classification System (19 types).",
-                metadata=[
-                    Metadata(
-                        "Commission for Environmental Cooperation North American Land Change Monitoring System",
-                        "http://www.cec.org/tools-and-resources/map-files/land-cover-2010-landsat-30m",
-                    ),
-                    Metadata(
-                        "Latifovic, R., Homer, C., Ressl, R., Pouliot, D., Hossain, S.N., Colditz, R.R.,"
-                        "Olthof, I., Giri, C., Victoria, A., (2012). North American land change "
-                        "monitoring system. In: Giri, C., (Ed), Remote Sensing of Land Use and Land "
-                        "Cover: Principles and Applications, CRC-Press, pp. 303-324"
-                    ),
-                ],
-                min_occurs=0,
-                max_occurs=1,
-                supported_formats=[FORMATS.GEOTIFF],
-            ),
-            LiteralInput(
-                "simple_categories",
-                "Use simplified land classification categories for hydrological "
-                "modeling purposes.",
-                data_type="boolean",
-                default="false",
-                min_occurs=0,
-                max_occurs=1,
-            ),
-            LiteralInput(
-                "band",
-                "Raster band",
-                data_type="integer",
-                default=1,
-                abstract="Band of raster examined to perform zonal statistics.",
-                min_occurs=0,
-                max_occurs=1,
-            ),
-            LiteralInput(
-                "select_all_touching",
-                "Additionally select boundary pixels that are touched by shape.",
-                data_type="boolean",
-                default="false",
-                min_occurs=0,
-                max_occurs=1,
-            ),
+            region_vector,
+            land_use_raster,
+            simple_categories,
+            raster_band,
+            select_all_touching,
         ]
 
         outputs = [
-            ComplexOutput(
-                "features",
-                "DEM properties within the region defined by the vector provided.",
-                abstract="Category pixel counts using either standard or simplified UNFAO categories",
-                supported_formats=[FORMATS.GEOJSON],
-            ),
-            ComplexOutput(
-                "statistics",
-                "DEM properties by feature",
-                abstract="Land-use type pixel counts using either standard or simplified UNFAO categories.",
-                supported_formats=[FORMATS.JSON],
-            ),
+            features,
+            statistics,
             ComplexOutput(
                 "raster",
                 "DEM grid subset by the requested shape.",
@@ -168,7 +101,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
     def _handler(self, request, response):
 
-        shape_url = request.inputs["shape"][0].file
+        shape_url = request.inputs["region_vector"][0].file
         simple_categories = request.inputs["simple_categories"][0].data
         band = request.inputs["band"][0].data
         touches = request.inputs["select_all_touching"][0].data
