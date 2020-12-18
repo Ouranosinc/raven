@@ -4,13 +4,21 @@ import tempfile
 
 import shapely.geometry as sgeo
 import shapely.ops as ops
-from pywps import LiteralInput, ComplexOutput
-from pywps import Process, FORMATS
 from rasterio.crs import CRS
 
+from pywps import FORMATS, ComplexOutput, LiteralInput, Process
 from raven.utilities import gis
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check, boundary_check
-from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop, generic_vector_reproject
+from raven.utils import (
+    archive_sniffer,
+    boundary_check,
+    crs_sniffer,
+    dem_prop,
+    generic_raster_clip,
+    generic_raster_warp,
+    generic_vector_reproject,
+    single_file_check,
+)
+
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
@@ -23,25 +31,33 @@ class TerrainAnalysisProcess(Process):
         inputs = [
             wio.dem_raster,
             wio.shape,
-            LiteralInput('projected_crs',
-                         'Coordinate Reference System for terrain analysis (Default: EPSG:6622, "NAD83(CSRS) /'
-                         ' Quebec Lambert". The CRS chosen should be projected and appropriate for the region'
-                         ' of interest.',
-                         data_type='integer',
-                         default=6622,
-                         min_occurs=1, max_occurs=1),
+            LiteralInput(
+                "projected_crs",
+                "Coordinate Reference System for terrain analysis (Default: EPSG:6622, 'NAD83(CSRS) /"
+                " Quebec Lambert'. The CRS chosen should be projected and appropriate for the region"
+                " of interest.",
+                data_type="integer",
+                default=6622,
+                min_occurs=1,
+                max_occurs=1,
+            ),
             wio.select_all_touching,
         ]
 
         outputs = [
-            ComplexOutput('properties', 'Feature schemas',
-                          abstract='DEM properties (mean elevation, slope, and aspect) for each geometry.',
-                          supported_formats=[FORMATS.JSON],
-                          ),
-            ComplexOutput('dem', "Subsetted digital elevation model",
-                          abstract="DEM GeoTIFF image",
-                          as_reference=True,
-                          supported_formats=[FORMATS.GEOTIFF])
+            ComplexOutput(
+                "properties",
+                "Feature schemas",
+                abstract="DEM properties (mean elevation, slope, and aspect) for each geometry.",
+                supported_formats=[FORMATS.JSON],
+            ),
+            ComplexOutput(
+                "dem",
+                "Subsetted digital elevation model",
+                abstract="DEM GeoTIFF image",
+                as_reference=True,
+                supported_formats=[FORMATS.GEOTIFF],
+            ),
         ]
 
         super(TerrainAnalysisProcess, self).__init__(
@@ -54,46 +70,54 @@ class TerrainAnalysisProcess(Process):
             inputs=inputs,
             outputs=outputs,
             status_supported=True,
-            store_supported=True)
+            store_supported=True,
+        )
 
     def _handler(self, request, response):
 
         # Process inputs
         # ---------------
-        shape_url = request.inputs['shape'][0].file
-        destination_crs = request.inputs['projected_crs'][0].data
-        touches = request.inputs['select_all_touching'][0].data
+        shape_url = request.inputs["shape"][0].file
+        destination_crs = request.inputs["projected_crs"][0].data
+        touches = request.inputs["select_all_touching"][0].data
 
         # Checks for valid CRS and that CRS is projected
         # -----------------------------------------------
         projection = CRS.from_user_input(destination_crs)
         if not projection.is_projected:
-            msg = f'Destination CRS {projection.to_epsg()} is not projected. Terrain analysis values will not be valid.'
+            msg = f"Destination CRS {projection.to_epsg()} is not projected. Terrain analysis values will not be valid."
             LOGGER.error(ValueError(msg))
             raise ValueError(msg)
 
         # Collect and process the shape
         # -----------------------------
-        vectors = ['.gml', '.shp', '.gpkg', '.geojson', '.json']
-        vector_file = single_file_check(archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors))
+        vectors = [".gml", ".shp", ".gpkg", ".geojson", ".json"]
+        vector_file = single_file_check(
+            archive_sniffer(shape_url, working_dir=self.workdir, extensions=vectors)
+        )
         vec_crs = crs_sniffer(vector_file)
 
         # Check that boundaries within 60N and 60S
         boundary_check(vector_file)
 
-        if 'raster' in request.inputs:
-            raster_url = request.inputs['raster'][0].file
-            rasters = ['.tiff', '.tif']
-            raster_file = single_file_check(archive_sniffer(raster_url, working_dir=self.workdir, extensions=rasters))
+        if "raster" in request.inputs:
+            raster_url = request.inputs["raster"][0].file
+            rasters = [".tiff", ".tif"]
+            raster_file = single_file_check(
+                archive_sniffer(
+                    raster_url, working_dir=self.workdir, extensions=rasters
+                )
+            )
 
         else:
             # Assuming that the shape coordinate are in WGS84
             bbox = gis.get_bbox(vector_file)
-            raster_url = 'public:EarthEnv_DEM90_NorthAmerica'
+            raster_url = "public:EarthEnv_DEM90_NorthAmerica"
             raster_bytes = gis.get_raster_wcs(bbox, geographic=True, layer=raster_url)
-            raster_file = tempfile.NamedTemporaryFile(prefix='wcs_', suffix='.tiff', delete=False,
-                                                      dir=self.workdir).name
-            with open(raster_file, 'wb') as f:
+            raster_file = tempfile.NamedTemporaryFile(
+                prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
+            ).name
+            with open(raster_file, "wb") as f:
                 f.write(raster_bytes)
 
         ras_crs = crs_sniffer(raster_file)
@@ -101,10 +125,13 @@ class TerrainAnalysisProcess(Process):
         # Reproject raster
         # ----------------
         if ras_crs != projection.to_proj4():
-            msg = 'CRS for {} is not {}. Reprojecting raster...'.format(raster_file, projection)
+            msg = "CRS for {} is not {}. Reprojecting raster...".format(
+                raster_file, projection
+            )
             LOGGER.warning(msg)
-            warped_fn = tempfile.NamedTemporaryFile(prefix='warped_', suffix='.tiff', delete=False,
-                                                    dir=self.workdir).name
+            warped_fn = tempfile.NamedTemporaryFile(
+                prefix="warped_", suffix=".tiff", delete=False, dir=self.workdir
+            ).name
             generic_raster_warp(raster_file, warped_fn, projection.to_proj4())
 
         else:
@@ -112,27 +139,40 @@ class TerrainAnalysisProcess(Process):
 
         # Perform the terrain analysis
         # ----------------------------
-        rpj = tempfile.NamedTemporaryFile(prefix='reproj_', suffix='.json', delete=False, dir=self.workdir).name
-        generic_vector_reproject(vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_proj4())
+        rpj = tempfile.NamedTemporaryFile(
+            prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
+        ).name
+        generic_vector_reproject(
+            vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_proj4()
+        )
         with open(rpj) as src:
             geo = json.load(src)
 
-        features = [sgeo.shape(feat['geometry']) for feat in geo['features']]
+        features = [sgeo.shape(feat["geometry"]) for feat in geo["features"]]
         union = ops.unary_union(features)
 
-        clipped_fn = tempfile.NamedTemporaryFile(prefix='clipped_', suffix='.tiff', delete=False,
-                                                 dir=self.workdir).name
+        clipped_fn = tempfile.NamedTemporaryFile(
+            prefix="clipped_", suffix=".tiff", delete=False, dir=self.workdir
+        ).name
         # Ensure that values for regions outside of clip are kept
-        generic_raster_clip(raster=warped_fn, output=clipped_fn, geometry=union, touches=touches,
-                            fill_with_nodata=True, padded=True)
+        generic_raster_clip(
+            raster=warped_fn,
+            output=clipped_fn,
+            geometry=union,
+            touches=touches,
+            fill_with_nodata=True,
+            padded=True,
+        )
 
         # Compute DEM properties for each feature.
         properties = []
         for i in range(len(features)):
-            properties.append(dem_prop(clipped_fn, geom=features[i], directory=self.workdir))
+            properties.append(
+                dem_prop(clipped_fn, geom=features[i], directory=self.workdir)
+            )
         properties.append(dem_prop(clipped_fn, directory=self.workdir))
 
-        response.outputs['properties'].data = json.dumps(properties)
-        response.outputs['dem'].file = clipped_fn
+        response.outputs["properties"].data = json.dumps(properties)
+        response.outputs["dem"].file = clipped_fn
 
         return response
