@@ -810,10 +810,11 @@ def zonalstats_raster_file(
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
+    crs = CRS().from_user_input(crs).to_proj4()
 
     for i in range(len(stats)):
 
-        fn = "subset_{}.tiff".format(i + 1)
+        fn = f"subset_{i + 1}.tiff"
         raster_subset = Path(out_dir).joinpath(fn)
 
         try:
@@ -824,11 +825,11 @@ def zonalstats_raster_file(
 
             aff = Affine(*grid_properties)
 
-            LOGGER.info("Writing raster data to {}".format(raster_subset))
+            LOGGER.info(f"Writing raster data to {raster_subset}")
 
             masked_array = np.ma.masked_values(raster, nodata)
             if masked_array.mask.all():
-                msg = "Subset {} is empty, continuing...".format(i)
+                msg = f"Subset {i} is empty, continuing..."
                 LOGGER.warning(msg)
 
             normal_array = np.asarray(masked_array, dtype=data_type)
@@ -850,7 +851,7 @@ def zonalstats_raster_file(
                 f.write(normal_array, 1)
 
         except Exception as e:
-            msg = "Failed to write raster outputs: {}".format(e)
+            msg = f"Failed to write raster outputs: {e}"
             LOGGER.error(msg)
             raise Exception(msg)
 
