@@ -214,13 +214,13 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 raster_subset,
                 working_dir=self.workdir,
                 data_type=data_type,
-                crs=vec_crs,
+                crs=NALCMS_PROJ4,
             )
 
             feature_collect = {"type": "FeatureCollection", "features": stats}
             response.outputs["features"].data = json.dumps(feature_collect)
             response.outputs["statistics"].data = json.dumps(land_use)
-            response.outputs["raster"].data = raster_out
+            response.outputs["raster"].file = raster_out
 
         except Exception as e:
             msg = f"Failed to perform zonal statistics using {shape_url} and {raster_url}: {e}"
