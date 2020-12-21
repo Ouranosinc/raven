@@ -787,7 +787,8 @@ def zonalstats_raster_file(
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
     data_type: str = None,
     crs: str = None,
-) -> str:
+    zip: bool = False,
+) -> Union[str, List[str]]:
     """
     Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected to the proper CRS.
 
@@ -803,10 +804,12 @@ def zonalstats_raster_file(
       The data encoding of the raster used to write the grid (e.g. 'int16').
     crs : str
       The coordinate reference system.
+    zip: bool
+      Return the files as a zipped archive (default: False).
 
     Returns
     -------
-    str
+    Union[str, List[str]]
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
@@ -856,8 +859,11 @@ def zonalstats_raster_file(
             raise Exception(msg)
 
     # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
-    foldername = f"subset_{''.join(choice(ascii_letters) for i in range(10))}"
-    out_fn = Path(working_dir).joinpath(foldername)
-    shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)
+    if zip:
+        foldername = f"subset_{''.join(choice(ascii_letters) for _ in range(10))}"
+        out_fn = Path(working_dir).joinpath(foldername)
+        shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)
 
-    return "{}.zip".format(out_fn)
+        return "{}.zip".format(out_fn)
+    else:
+        return [f.as_posix() for f in out_dir.glob("*")]
