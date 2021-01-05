@@ -49,11 +49,17 @@ class TestAssimilationGR4JCN:
             "water_volume_transport_in_river_channel": 0.15,
         }
 
+        # Use the same random seed for both tasmin and tasmax
+        rs = np.random.SeedSequence(None).generate_state(1)[0]
+        seed = {"tasmin": rs,
+                "tasmax": rs}
+
         # Perturbation distribution
         dists = {
             "pr": "gamma",
             "rainfall": "gamma",
-            "prsn": "gamma"}
+            "prsn": "gamma",
+            "water_volume_transport_in_river_channel": "rnorm"}
 
         qkey = "water_volume_transport_in_river_channel"
         if qkey not in std:
@@ -103,11 +109,15 @@ class TestAssimilationGR4JCN:
         perturbed = {}
         for key, s in std.items():
             nc = model.rvt.get(key)
+
             with xr.open_dataset(nc.path) as ds:
                 da = ds.get(nc.var_name).sel(time=slice(start_date, end_date))
+
                 perturbed[key] = perturbation(
-                    da, dists.get(key, "norm"), s, member=n_members
+                    da, dists.get(key, "norm"), std=s, seed=seed.get(key, None), member=n_members
                 )
+
+                # Save flow for later
                 if key == qkey:
                     q_obs = da
 
@@ -149,11 +159,12 @@ class TestAssimilationGR4JCN:
         model([ts, ])
 
         # We can now plot everything!
-        plt.plot(q_assim.T, "r")  # plot the assimilated flows
-        plt.plot(q_obs.T, "b")  # plot the observed flows
+        plt.plot(q_assim.T, "r", label="Assimilated")  # plot the assimilated flows
+        plt.plot(q_obs.T, "b", label="Observed")  # plot the observed flows
         plt.plot(
-            model.q_sim, "g"
+            model.q_sim, "g", label="Simulated"
         )  # plot the open_loop (simulation with no assimilation)
+        # plt.legend()
         plt.show()
 
         assert q_assim.shape[0] == n_members
