@@ -108,17 +108,20 @@ def assimilate(model, ts, q_obs, keys, basin_states, hru_states, days):
     return [xa, model]
 
 
-def perturbation(da, dist, std, **kwargs):
+def perturbation(da, dist, std, seed=None, **kwargs):
     """Return perturbed time series.
 
     Parameters
     ----------
     da : DataArray
       Input time series to be perturbed.
-    dist : {"norm", "gamma"}
-      Name of statistical distribution from which random perturbations are drawn.
+    dist : {"norm", "gamma", "rnorm"}
+      Name of statistical distribution from which random perturbations are drawn. `rnorm` stands for relative normal, where the given standard deviation is multiplied by the value being perturbed.
     std : float
       Standard deviation of random perturbation.
+    seed : int
+      Seed for the random number generator. Setting the same seed for different variables will ensure the same
+      perturbations are generated.
     kwargs : dict
       Name and size of additional dimensions, apart from time.
 
@@ -127,14 +130,21 @@ def perturbation(da, dist, std, **kwargs):
     size = list(kwargs.values()) + [nt]
     dims = list(kwargs.keys()) + ["time"]
 
+    # Create random state object. If seed is None, the seed itself will be random.
+    rs = np.random.RandomState(seed)
+
     if dist == "norm":
-        r = np.random.normal(0, std, size=size)
+        r = rs.normal(0, std, size=size)
+        out = da + xr.DataArray(r, dims=dims, coords={"time": da.time})
+
+    elif dist == "rnorm":
+        r = rs.normal(0, da * std, size=size)
         out = da + xr.DataArray(r, dims=dims, coords={"time": da.time})
 
     elif dist == "gamma":
         shape = (da ** 2) / (std * da) ** 2
         scale = ((std * da) ** 2) / da
-        r = np.nan_to_num(np.random.gamma(shape=shape, scale=scale, size=size), nan=0.0)
+        r = np.nan_to_num(rs.gamma(shape=shape, scale=scale, size=size), nan=0.0)
         out = xr.DataArray(r, dims=dims, coords={"time": da.time})
 
     else:
