@@ -202,7 +202,7 @@ def get_hindcast_day(region_coll,date, climate_model='GEPS'):
     '''
 
     # Get the file locations and filenames as a function of the climate model and date
-    [ds,times] = get_CASPAR_dataset(climate_model,date)
+    [ds, times] = get_CASPAR_dataset(climate_model,date)
 
     return get_subsetted_forecast(region_coll,ds,times,True)
 
