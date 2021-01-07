@@ -603,15 +603,9 @@ class RVC(RV):
         path : string
           `solution.rvc` content.
         """
-
-        data = parse_solution(rvc)
-        for index, params in data['HRUStateVariableTable']['data'].items():
-            self._hru_state[index] = HRUStateVariables(*params)
-
-        for index, raw in data["BasinStateVariables"]["BasinIndex"].items():
-            params = {k.lower(): v for (k, v) in raw.items()}
-            self._basin_state[index] = BasinStateVariables(**params)
-
+        hru, basin = get_states(rvc)
+        self._hru_state.update(hru)
+        self._basin_state.update(basin)
         return
 
     @property
@@ -716,6 +710,33 @@ def guess_linear_transform(actual, expected):
 
     """
     # TODO : For precip we also need the frequency to sum over one day.
+
+
+def get_states(solution, hru_index=None, basin_index=None):
+    """Return state variables.
+
+    Parameters
+    ----------
+    solution : dict
+      `solution.rvc` parsed content.
+    """
+    hru_state = {}
+    basin_state = {}
+
+    for index, params in solution['HRUStateVariableTable']['data'].items():
+        hru_state[index] = HRUStateVariables(*params)
+
+    for index, raw in solution["BasinStateVariables"]["BasinIndex"].items():
+        params = {k.lower(): v for (k, v) in raw.items()}
+        basin_state[index] = BasinStateVariables(**params)
+
+    if hru_index is not None:
+        hru_state = hru_state[hru_index]
+
+    if basin_index is not None:
+        basin_state = basin_state[basin_index]
+
+    return hru_state, basin_state
 
 
 def parse_solution(rvc):
