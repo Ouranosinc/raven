@@ -442,7 +442,7 @@ class Raven:
         # Output files default names. The actual output file names will be composed of the run_name and the default
         # name.
         path = path or self.exec_path
-        run_name = run_name or self.rvi.run_name
+        run_name = run_name or getattr(self.rvi, "run_name", "")
         patterns = {'hydrograph': f'{run_name}*Hydrographs.nc',
                     'storage': f'{run_name}*WatershedStorage.nc',
                     'solution': f'{run_name}*solution.rvc',

@@ -603,7 +603,8 @@ class RVC(RV):
         path : string
           `solution.rvc` content.
         """
-        hru, basin = get_states(rvc)
+        objs = parse_solution(rvc)
+        hru, basin = get_states(objs)
         self._hru_state.update(hru)
         self._basin_state.update(basin)
         return
