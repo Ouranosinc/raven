@@ -204,7 +204,7 @@ class TestGR4JCN:
 
         for key in ["Soil Water[0]", "Soil Water[1]"]:
             np.testing.assert_array_almost_equal(
-                model_a.storage[1][key] - model_ab.storage[key], 0, 5
+                model_a.storage[key] - model_ab.storage[key], 0, 5
             )
 
         # Resume with final state from saved solution file
@@ -272,7 +272,7 @@ class TestGR4JCN:
             **kwargs
         )
 
-        s_b = model.storage[1]["Soil Water[0]"].isel(time=-1)
+        s_b = model.storage["Soil Water[0]"].isel(time=-1)
         assert s_a != s_b
 
     def test_update_soil_water(self):
@@ -308,8 +308,8 @@ class TestGR4JCN:
             **kwargs
         )
 
-        assert s_0 != model.storage[1]["Soil Water[0]"].isel(time=-1)
-        assert s_1 != model.storage[1]["Soil Water[1]"].isel(time=-1)
+        assert s_0 != model.storage["Soil Water[0]"].isel(time=-1)
+        assert s_1 != model.storage["Soil Water[1]"].isel(time=-1)
 
     def test_version(self):
         model = Raven()
