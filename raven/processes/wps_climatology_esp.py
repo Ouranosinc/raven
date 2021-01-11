@@ -12,7 +12,7 @@ class ClimatologyEspProcess(Process):
 
         fdate = LiteralInput(
             "forecast_date",
-            "date of the forcast",
+            "date of the forecast",
             abstract="Date that the climatology-based ESP ensemble will be performed",
             data_type="dateTime",
             min_occurs=1,
