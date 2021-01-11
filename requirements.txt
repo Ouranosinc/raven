@@ -9,7 +9,7 @@ psutil
 numpy
 scipy
 matplotlib
-xarray==0.16
+xarray==0.16.0
 xclim==0.18
 pandas
 requests

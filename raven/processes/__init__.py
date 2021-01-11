@@ -26,6 +26,9 @@ from .wps_graph_fit import GraphFitProcess
 from .wps_forecast_flood_risk import ForecastFloodRiskProcess
 from .wps_climatology_esp import ClimatologyEspProcess
 from .wps_forecast_evaluation import HindcastEvaluationProcess
+from .wps_hindcast import HindcastingProcess
+from .wps_realtime_forecast import RealtimeForecastProcess
+from .wps_graph_forecast_uncertainty import GraphFcstUncertaintyProcess
 
 
 processes = [
@@ -60,4 +63,7 @@ processes = [
     ForecastFloodRiskProcess(),
     ClimatologyEspProcess(),
     HindcastEvaluationProcess(),
+    HindcastingProcess(),
+    RealtimeForecastProcess(),
+    GraphFcstUncertaintyProcess(),
 ]

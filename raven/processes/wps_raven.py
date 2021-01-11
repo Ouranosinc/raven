@@ -1,26 +1,36 @@
+import json
 import logging
 from collections import defaultdict
 from pathlib import Path
-import json
 
-from pywps import Process, Format, LiteralOutput
-
+from pywps import Format, LiteralOutput, Process
 from ravenpy.models import Raven
+
+from raven.utils import archive_sniffer, single_file_check
+
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
 
 class RavenProcess(Process):
-    identifier = 'raven'
-    abstract = 'Raven hydrological framework'
-    title = "Run the Raven hydrological framework using model configuration files and forcing time series. In " \
-            "the `rvt` file, only provide the name of the forcing file, not an absolute or relative path."
-    version = '0.1'
+    identifier = "raven"
+    abstract = "Raven hydrological framework"
+    title = (
+        "Run the Raven hydrological framework using model configuration files and forcing time series. In "
+        "the `rvt` file, only provide the name of the forcing file, not an absolute or relative path."
+    )
+    version = "0.1"
 
     tuple_inputs = {}
     inputs = [wio.ts, wio.nc_spec, wio.conf]
-    outputs = [wio.hydrograph, wio.storage, wio.solution, wio.diagnostics, wio.rv_config]
+    outputs = [
+        wio.hydrograph,
+        wio.storage,
+        wio.solution,
+        wio.diagnostics,
+        wio.rv_config,
+    ]
     model_cls = Raven
 
     def __init__(self):
@@ -34,56 +44,98 @@ class RavenProcess(Process):
             inputs=self.inputs,
             outputs=self.outputs,
             status_supported=True,
-            store_supported=True
+            store_supported=True,
         )
 
     def model(self, request):
+        """Return model class."""
         return self.model_cls(workdir=self.workdir)
 
-    def _handler(self, request, response):
-        response.update_status('PyWPS process {} started.'.format(self.identifier), 0)
+    def meteo(self, request):
+        """Return meteo input files."""
+        return [f.file for f in request.inputs.pop("ts")]
 
-        model = self.model(request)
+    def region(self, request):
+        """Return region shape file."""
+        extensions = [".gml", ".shp", ".gpkg", ".geojson", ".json"]
+        region_vector = request.inputs.pop("region_vector")[0].file
+        return single_file_check(
+            archive_sniffer(
+                region_vector, working_dir=self.workdir, extensions=extensions
+            )
+        )
 
-        # Model configuration
-        if 'conf' in request.inputs:
-            conf = request.inputs.pop('conf')
-            config = self.get_config(conf)
-            model.configure(config.values())
-
-        # Input data files
-        ts = [f.file for f in request.inputs.pop('ts')]
-
-        # Input specs dictionary. Could a all given in the same dict or a list of dicts.
-        nc_spec = {}
-        for spec in request.inputs.pop('nc_spec', []):
-            nc_spec.update(json.loads(spec.data))
-
-        for key, val in nc_spec.items():
-            model.assign(key, val)
+    def options(self, request):
+        """Parse model options."""
+        # Input specs dictionary. Could be all given in the same dict or a list of dicts.
+        kwds = defaultdict(list)
+        for spec in request.inputs.pop("nc_spec", []):
+            kwds.update(json.loads(spec.data))
 
         # Parse all other input parameters
-        kwds = defaultdict(list)
         for name, objs in request.inputs.items():
             for obj in objs:
 
                 # Namedtuples
                 if name in self.tuple_inputs:
-                    csv = obj.data.replace('(', '').replace(')', '')
-                    arr = map(float, csv.split(','))
-                    data = self.tuple_inputs[name](*arr)
+                    data = self.parse_tuple(obj)
 
                 # Other parameters
                 else:
                     data = obj.data
 
-                if name in model._parallel_parameters:
+                if name in Raven._parallel_parameters:
                     kwds[name].append(data)
                 else:
-                    model.assign(name, data)
+                    kwds[name] = data
+
+        return kwds
+
+    def parse_tuple(self, obj):
+        csv = obj.data.replace("(", "").replace(")", "")
+        arr = map(float, csv.split(","))
+        return self.tuple_inputs[obj.identifier](*arr)
+
+    def run(self, model, ts, kwds):
+        """Run the model.
+
+        If keywords contain `rvc`, initialize the model using the initial condition file."""
+        model(ts=ts, **kwds)
+
+    def initialize(self, model, request):
+        """Set initial conditions from a solution.rvc file.
+
+        This is used by emulators.
+        """
+        rvc = self.get_config(request, ids=("rvc",))["rvc"]
+        if rvc:
+            model.resume(rvc)
+
+    def _handler(self, request, response):
+        response.update_status("PyWPS process {} started.".format(self.identifier), 0)
+
+        model = self.model(request)
+
+        # Model configuration (RV files)
+        config = self.get_config(request, ids=("conf",))
+        if config:
+            if len(config) > 1:
+                raise NotImplementedError(
+                    "Multi-model simulations are not yet supported."
+                )
+            conf = list(config.values()).pop()
+            model.configure(conf.values())
+
+        self.initialize(model, request)
+
+        # Input data files
+        ts = self.meteo(request)
+
+        # Model options
+        kwds = self.options(request)
 
         # Launch model with input files
-        model(ts=ts, **kwds)
+        self.run(model, ts, kwds)
 
         # Store output files name. If an output counts multiple files, they'll be zipped.
         for key in response.outputs.keys():
@@ -93,21 +145,21 @@ class RavenProcess(Process):
                     response.outputs[key].data = str(val)
                 else:
                     response.outputs[key].file = str(val)
-                    if val.suffix == '.zip':
-                        response.outputs[key].data_format = \
-                            Format('application/zip', extension='.zip', encoding='base64')
+                    if val.suffix == ".zip":
+                        response.outputs[key].data_format = Format(
+                            "application/zip", extension=".zip", encoding="base64"
+                        )
 
         return response
 
-    @staticmethod
-    def get_config(conf):
+    def get_config(self, request, ids=("conf",)):
         """Return a dictionary storing the configuration files content."""
         config = defaultdict(dict)
-        for obj in conf:
-            fn = Path(obj.file)
-            config[fn.stem][fn.suffix[1:]] = fn
+        for key in ids:
+            if key in request.inputs:
+                conf = request.inputs.pop(key)
+                for obj in conf:
+                    fn = Path(obj.file)
+                    config[fn.stem][fn.suffix[1:]] = fn
 
-        if len(config.keys()) > 1:
-            raise NotImplementedError("Multi-model simulations are not yet supported.")
-
-        return config[fn.stem]
+        return config

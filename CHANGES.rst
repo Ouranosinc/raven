@@ -3,12 +3,14 @@ Changes
 
 0.11.x
 ------
+* Add processes to run hydrological simulations on ECCC GEPS forecasts/hindcasts
+* Add process to create forecast graphic
+* Add first basic data assimilation utilities
 * Update to Raven 3.0
 * Update to xclim 0.18
 * Update to xarray 0.16
 * Add configuration options: `deaccumulate`
 * Clean notebooks
-
 
 0.10.x (2020-03-09) Oxford
 --------------------------
