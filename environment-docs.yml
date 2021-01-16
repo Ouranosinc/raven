@@ -14,5 +14,5 @@ dependencies:
 - sphinx_rtd_theme
 - rioxarray
 - gdal
-- pip
+- pip:
   - ravenpy
