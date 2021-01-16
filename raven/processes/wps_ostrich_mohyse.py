@@ -1,5 +1,5 @@
 from .wps_ostrich import OstrichProcess
-from raven.models import MOHYSE_OST
+from ravenpy.models import MOHYSE_OST
 from . import wpsio as wio
 import logging
 from pywps import FORMATS, LiteralInput, ComplexOutput

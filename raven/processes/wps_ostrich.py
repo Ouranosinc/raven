@@ -1,4 +1,4 @@
-from raven.models import Ostrich
+from ravenpy.models import Ostrich
 from raven.processes import RavenProcess
 from . import wpsio as wio
 import logging
