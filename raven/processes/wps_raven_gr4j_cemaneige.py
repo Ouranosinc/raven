@@ -1,6 +1,6 @@
 from raven import config
 from .wps_raven import RavenProcess
-from raven.models import GR4JCN
+from ravenpy.models import GR4JCN
 from . import wpsio as wio
 import logging
 from pywps import LiteralInput

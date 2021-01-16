@@ -9,7 +9,7 @@ from pywps import Process, FORMATS
 from pywps.app.Common import Metadata
 from rasterio.crs import CRS
 
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check, boundary_check
 from raven.utils import generic_raster_warp, generic_raster_clip, dem_prop, generic_vector_reproject
 

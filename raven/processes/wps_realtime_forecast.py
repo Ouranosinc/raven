@@ -1,13 +1,14 @@
-import pdb
 import logging
+import pdb
 from pathlib import Path
+
 import fiona
 import xarray as xr
-from raven.utilities import forecasting
-from raven.models import get_model
-from raven.models import HMETS, GR4JCN, HBVEC, MOHYSE
-from . wps_raven import RavenProcess
+from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, get_model
+from ravenpy.utilities import forecasting
+
 from . import wpsio as wio
+from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -16,15 +17,39 @@ class RealtimeForecastProcess(RavenProcess):
     identifier = "realtime-forecast"
     title = "Perform realtime forecast using most recent ECCC forecast data."
     abstract = "Perform a deterministic or probabilistic raven forecast using the most recent ECCC forecast."
-    version = '0.1'
-    keywords = ["forecasting", "ECCC", "GEPS", "REPS", "GDPS", "RDPS", "ensemble forecasts"]
-    tuple_inputs = {'hmets': HMETS.params,
-                    'gr4jcn': GR4JCN.params,
-                    'hbvec': HBVEC.params,
-                    'mohyse': MOHYSE.params}
-    inputs = [wio.forecast_model, wio.region_vector, wio.hmets, wio.gr4jcn, wio.hbvec, wio.duration,
-              wio.run_name, wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation, wio.rain_snow_fraction,
-              wio.nc_spec, wio.rvc]
+    version = "0.1"
+    keywords = [
+        "forecasting",
+        "ECCC",
+        "GEPS",
+        "REPS",
+        "GDPS",
+        "RDPS",
+        "ensemble forecasts",
+    ]
+    tuple_inputs = {
+        "hmets": HMETS.params,
+        "gr4jcn": GR4JCN.params,
+        "hbvec": HBVEC.params,
+        "mohyse": MOHYSE.params,
+    }
+    inputs = [
+        wio.forecast_model,
+        wio.region_vector,
+        wio.hmets,
+        wio.gr4jcn,
+        wio.hbvec,
+        wio.duration,
+        wio.run_name,
+        wio.name,
+        wio.area,
+        wio.latitude,
+        wio.longitude,
+        wio.elevation,
+        wio.rain_snow_fraction,
+        wio.nc_spec,
+        wio.rvc,
+    ]
 
     def model(self, request):
         """Return model class."""
@@ -56,7 +81,8 @@ class RealtimeForecastProcess(RavenProcess):
 
         # Fetch data and average over region
         fcst = forecasting.get_recent_ECCC_forecast(
-               fiona.open(vector_file), climate_model=forecast_model)
+            fiona.open(vector_file), climate_model=forecast_model
+        )
 
         # Write the forecast data to file on-disk
         # To speed-up testing, copy this file and return it instead of recomputing every time.
@@ -69,12 +95,10 @@ class RealtimeForecastProcess(RavenProcess):
         """Initialize the model with the RVC file, then run it with the forecast data."""
         # Open forecast file and set some attributes.
         fcst = xr.open_dataset(ts[0])
-        kwds['nc_index'] = range(fcst.dims.get("member"))
+        kwds["nc_index"] = range(fcst.dims.get("member"))
 
         print(model.exec_path)
 
         model(ts=ts, **kwds)
 
         fcst.close()
-
-

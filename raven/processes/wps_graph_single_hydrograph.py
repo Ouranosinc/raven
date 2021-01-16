@@ -14,7 +14,7 @@ from pywps import FORMATS
 from pywps import Format
 from pywps import Process
 
-from raven.utilities.graphs import mean_annual_hydrograph, hydrograph, spaghetti_annual_hydrograph
+from ravenpy.utilities.graphs import mean_annual_hydrograph, hydrograph, spaghetti_annual_hydrograph
 
 
 class GraphSingleHydrographProcess(Process):

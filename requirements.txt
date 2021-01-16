@@ -1,3 +1,4 @@
+ravenpy
 six
 pywps==4.2.3
 owslib==0.18
@@ -8,7 +9,7 @@ psutil
 numpy
 scipy
 matplotlib
-xarray==0.16.0
+xarray==0.16.2
 xclim==0.18
 pandas
 requests

@@ -1,13 +1,15 @@
-import json
 import datetime as dt
+import json
 import tempfile
+
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from raven.processes import RavenHMETSProcess
-from raven.models import HMETS
-from .common import client_for, TESTDATA, CFG_FILE
+from ravenpy.utilities.testdata import get_test_data
 
+from raven.processes import RavenHMETSProcess
+
+from .common import CFG_FILE, client_for
 
 # Get path to ncml file for NRCan data.
 NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
@@ -16,7 +18,10 @@ NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/dataset
 filepath = tempfile.mkdtemp() + "/NRCAN_ts.nc"
 
 # Get information for given catchment, could be passed in parameter to the function
-salmon = xr.open_dataset(TESTDATA["raven-hmets-nc-ts"])
+ts = get_test_data(
+    "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
+)[0]
+salmon = xr.open_dataset(ts)
 lat = salmon.lat.values[0]
 lon = salmon.lon.values[0]
 
@@ -39,56 +44,15 @@ ds = (
 ds.to_netcdf(filepath)
 
 
-class TestRavenNRCAN:
-    def test_simple(self):
-
-        params = (
-            9.5019,
-            0.2774,
-            6.3942,
-            0.6884,
-            1.2875,
-            5.4134,
-            2.3641,
-            0.0973,
-            0.0464,
-            0.1998,
-            0.0222,
-            -1.0919,
-            2.6851,
-            0.3740,
-            1.0000,
-            0.4739,
-            0.0114,
-            0.0243,
-            0.0069,
-            310.7211,
-            916.1947,
-        )
-
-        model = HMETS()
-        model(
-            ts=filepath,
-            params=params,
-            start_date=start_date,
-            end_date=end_date,
-            name="Salmon",
-            run_name="test-hmets-NRCAN",
-            area=4250.6,
-            elevation=843.0,
-            latitude=54.4848,
-            longitude=-123.3659,
-            rain_snow_fraction="RAINSNOW_DINGMAN",
-            tasmax={"linear_transform": (1.0, -273.15)},
-            tasmin={"linear_transform": (1.0, -273.15)},
-            pr={"linear_transform": (86400, 0.0)},
-        )
-
-
 class TestRavenNRCANProcess:
     def test_simple(self):
         client = client_for(
-            Service(processes=[RavenHMETSProcess(), ], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    RavenHMETSProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
 
         params = (

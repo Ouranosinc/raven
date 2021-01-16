@@ -1,7 +1,7 @@
 from raven import config
 from raven.processes import RavenProcess
 from pywps import LiteralInput
-from raven.models import HBVEC
+from ravenpy.models import HBVEC
 from . import wpsio as wio
 
 # Defaults for this process

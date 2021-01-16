@@ -1,5 +1,5 @@
 from importlib import reload
-from raven.utilities import graphs
+from ravenpy.utilities import graphs
 reload(graphs)
 from .common import TESTDATA
 from raven.processes.wps_q_stats import fit, stats
