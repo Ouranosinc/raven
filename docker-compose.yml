@@ -19,6 +19,7 @@ services:
     image: raven-wps-tests
     volumes:
       - /home/christian/gh/raven-testdata:/testdata
+      - ./:/opt/wps
     environment:
       - RAVENPY_TESTDATA_PATH=/testdata
-    command: bash -c "source activate wps && pytest"
+    command: bash -c "source activate wps && pytest -x"
