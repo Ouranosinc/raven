@@ -1,20 +1,25 @@
-import pytest
 import datetime as dt
-import xarray as xr
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import pytest
+import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
 
-
-from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import ClimatologyEspProcess
+
+from .common import CFG_FILE, TESTDATA, client_for, get_output, urlretrieve
 
 
 class TestClimatologyESP:
     def test_simple(self):
         client = client_for(
-            Service(processes=[ClimatologyEspProcess(), ], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    ClimatologyEspProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
 
         #
@@ -72,8 +77,8 @@ class TestClimatologyESP:
 
         # Display forecast to show it works
 
-        forecast, _ = urlretrieve(out["forecast"])
-        tmp = xr.open_dataset(forecast)
-        qfcst = tmp["q_sim"][:].data.transpose()
-        plt.plot(qfcst)
-        plt.show()
+        # forecast, _ = urlretrieve(out["forecast"])
+        # tmp = xr.open_dataset(forecast)
+        # qfcst = tmp["q_sim"][:].data.transpose()
+        # plt.plot(qfcst)
+        # plt.show()
