@@ -26,7 +26,7 @@ RUN ["/bin/bash", "-c", "source activate wps && pip install ravenpy --install-op
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
-CMD ["source activate wps && exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
+CMD ["/bin/bash", "-c", "source activate wps && exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
 
 # docker build -t huard/raven .
 # docker run -p 9099:9099 huard/raven
