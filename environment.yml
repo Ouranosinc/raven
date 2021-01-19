@@ -3,7 +3,6 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- ravenpy
 - pip
 - six
 - pywps==4.2.3
@@ -17,7 +16,7 @@ dependencies:
 - numpy
 - scipy
 - xarray # ==0.16.0
-- xclim # ==0.18
+- xclim==0.18
 - rioxarray
 - matplotlib
 - dask

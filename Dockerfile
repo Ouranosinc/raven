@@ -20,16 +20,13 @@ COPY . /opt/wps
 
 WORKDIR /opt/wps
 
-RUN make raven_dev
-RUN make ostrich_dev
-
 # Install WPS
-RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
+RUN ["/bin/bash", "-c", "source activate wps && pip install ravenpy --install-option=\"--with-binaries\" && pip install -e ."]
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["source activate wps && exec raven start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
+CMD ["source activate wps && exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
 
 # docker build -t huard/raven .
 # docker run -p 9099:9099 huard/raven
