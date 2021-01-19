@@ -5,7 +5,7 @@ channels:
 dependencies:
 - pip
 - six
-- pywps==4.2.3
+- pywps==4.2.9
 - unidecode
 - birdy
 - owslib==0.18
@@ -15,8 +15,8 @@ dependencies:
 - psutil
 - numpy
 - scipy
-- xarray # ==0.16.0
-- xclim==0.18
+- xarray
+- xclim
 - rioxarray
 - matplotlib
 - dask
