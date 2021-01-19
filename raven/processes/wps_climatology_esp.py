@@ -91,12 +91,13 @@ class ClimatologyEspProcess(Process):
         kwds["params"] = params
 
         qsims = forecasting.perform_climatology_esp(
-            model_name, forecast_date, forecast_duration, **kwds
+            model_name, forecast_date, forecast_duration, workdir=self.workdir, **kwds
         )
 
         # Prepare the forecast netcdf result file and send the path to the results output.
         forecastfile = self.workdir + "/forecast.nc"
         qsims.to_netcdf(forecastfile)
         response.outputs["forecast"].file = forecastfile
+        print(self.workdir)
 
         return response

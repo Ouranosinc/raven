@@ -3,21 +3,20 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- ravenpy
 - pip
 - six
-- pywps==4.2.3
+- pywps
 - unidecode
 - birdy
-- owslib==0.18
+- owslib
 - poppler
 - jinja2
 - click
 - psutil
 - numpy
 - scipy
-- xarray # ==0.16.0
-- xclim # ==0.18
+- xarray
+- xclim
 - rioxarray
 - matplotlib
 - dask
@@ -46,5 +45,6 @@ dependencies:
 - xskillscore
 - tbb
 - pip:
+  - ravenpy
   - spotpy
   - urlpath
