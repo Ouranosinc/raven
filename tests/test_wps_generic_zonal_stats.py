@@ -1,5 +1,5 @@
 import json
-
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from shapely.geometry import shape, MultiPolygon
@@ -78,6 +78,7 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
+    @pytest.mark.online
     def test_geoserver_dem_wcs_simple(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [
@@ -105,6 +106,7 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature['geometry'])
         assert isinstance(type(geometry), type(MultiPolygon))
 
+    @pytest.mark.online
     def test_geoserver_dem_wcs_categorized(self):
         client = client_for(Service(processes=[ZonalStatisticsProcess(), ], cfgfiles=CFG_FILE))
         fields = [

@@ -11,6 +11,7 @@ from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import HindcastingProcess
 
 
+@pytest.mark.online
 class TestHindcasting:
     def test_GEPS(self):
         client = client_for(
@@ -27,7 +28,7 @@ class TestHindcasting:
         region_vector=TESTDATA['watershed_vector']
         rvc=TESTDATA['solution.rvc']
         hdate=dt.datetime(2018,6,1)
-        
+
         # Date of the forecast that will be used to determine the members of the climatology-based ESP
         # (same day of year of all other years)
         datainputs = (
@@ -62,7 +63,7 @@ class TestHindcasting:
                 hdate=hdate,
             )
         )
- 
+
         resp = client.get(
             service="WPS",
             request="Execute",

@@ -1,5 +1,5 @@
 import json
-
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from shapely.geometry import MultiPolygon
@@ -8,6 +8,7 @@ from raven.processes import NALCMSZonalStatisticsProcess
 from .common import client_for, TESTDATA, CFG_FILE, get_output, count_pixels
 
 
+@pytest.mark.online
 class TestNALCMSZonalStatsProcess:
 
     def test_simplified_categories(self):

@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import tempfile
+import pytest
 
 import xarray as xr
 from pywps import Service
@@ -11,39 +12,43 @@ from raven.processes import RavenHMETSProcess
 
 from .common import CFG_FILE, client_for
 
-# Get path to ncml file for NRCan data.
-NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
-
 # Temporary path
 filepath = tempfile.mkdtemp() + "/NRCAN_ts.nc"
-
-# Get information for given catchment, could be passed in parameter to the function
-ts = get_test_data(
-    "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
-)[0]
-salmon = xr.open_dataset(ts)
-lat = salmon.lat.values[0]
-lon = salmon.lon.values[0]
 
 # Start and end dates
 start_date = dt.datetime(2006, 1, 1)
 end_date = dt.datetime(2007, 12, 31)
 
-# Get data for the covered period including a 1-degree bounding box for good measure. Eventually we will be
-# able to take the catchment polygon as a mask and average points residing inside.
 
-ds = (
-    xr.open_dataset(NRCAN_path)
-    .sel(
-        lat=slice(lat + 1, lat - 1),
-        lon=slice(lon - 1, lon + 1),
-        time=slice(start_date, end_date),
+def setup():
+    # Get path to ncml file for NRCan data.
+    NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
+
+
+    # Get information for given catchment, could be passed in parameter to the function
+    ts = get_test_data(
+        "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
+    )[0]
+    salmon = xr.open_dataset(ts)
+    lat = salmon.lat.values[0]
+    lon = salmon.lon.values[0]
+
+    # Get data for the covered period including a 1-degree bounding box for good measure. Eventually we will be
+    # able to take the catchment polygon as a mask and average points residing inside.
+
+    ds = (
+        xr.open_dataset(NRCAN_path)
+        .sel(
+            lat=slice(lat + 1, lat - 1),
+            lon=slice(lon - 1, lon + 1),
+            time=slice(start_date, end_date),
+        )
+        .mean(dim={"lat", "lon"}, keep_attrs=True)
     )
-    .mean(dim={"lat", "lon"}, keep_attrs=True)
-)
-ds.to_netcdf(filepath)
+    ds.to_netcdf(filepath)
 
 
+@pytest.mark.online
 class TestRavenNRCANProcess:
     def test_simple(self):
         client = client_for(

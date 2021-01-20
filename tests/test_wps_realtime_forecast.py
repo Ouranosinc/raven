@@ -13,6 +13,7 @@ from raven.processes import RealtimeForecastProcess
 from .common import CFG_FILE, TESTDATA, client_for, get_output, urlretrieve
 
 
+@pytest.mark.online
 class TestRealtimeForecasts:
     def test_GEPS(self):
         client = client_for(
