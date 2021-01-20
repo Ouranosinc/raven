@@ -13,23 +13,20 @@ RUN conda update -n base conda
 
 # Create conda environment
 COPY environment.yml /opt/wps/
-RUN conda create --yes -n wps python=3.6 && conda env update -n wps -f /opt/wps/environment.yml
+RUN conda create --yes -n wps python=3.8 && conda env update -n wps -f /opt/wps/environment.yml
 
 # Copy WPS project
 COPY . /opt/wps
 
 WORKDIR /opt/wps
 
-RUN make raven_dev
-RUN make ostrich_dev
-
-# Install WPS
-RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
+# (1) Install RavenPy: note that this also installs the Raven and Ostrich binaries in the wps conda env's bin
+# (2) Install RavenWPS in editable mode
+RUN ["/bin/bash", "-c", "source activate wps && pip install ravenpy --install-option=\"--with-binaries\" && pip install -e ."]
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
-ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["source activate wps && exec raven start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
+CMD ["/bin/bash", "-c", "source activate wps && exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
 
 # docker build -t huard/raven .
 # docker run -p 9099:9099 huard/raven
