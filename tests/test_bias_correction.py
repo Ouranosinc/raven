@@ -1,8 +1,10 @@
+import pytest
 import xarray as xr
 import xclim.sdba as sdba
 from xclim import subset
 
 
+@pytest.mark.online
 class TestBiasCorrect:
     def test_bias_correction(self):
 

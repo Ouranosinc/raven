@@ -1,3 +1,4 @@
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from .common import client_for, CFG_FILE, get_output
@@ -6,6 +7,7 @@ import json
 from raven.processes import HydroBasinsSelectionProcess
 
 
+@pytest.mark.online
 class TestShapeSelectionProcess:
 
     def test_manicouagan(self):

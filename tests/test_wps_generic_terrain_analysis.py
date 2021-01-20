@@ -36,6 +36,7 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]['slope'] > 0
         assert out[0]['aspect'] > 0
 
+    @pytest.mark.online
     @pytest.mark.skip('slow')
     def test_shape_subset_wcs(self):
         client = client_for(Service(processes=[TerrainAnalysisProcess(), ], cfgfiles=CFG_FILE))
@@ -61,6 +62,8 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]['slope'] > 0
         assert out[0]['aspect'] > 0
 
+
+    @pytest.mark.online
     def test_single_polygon(self):
         client = client_for(Service(processes=[TerrainAnalysisProcess(), ], cfgfiles=CFG_FILE))
         fields = [
