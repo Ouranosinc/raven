@@ -14,7 +14,6 @@ def test_wps_caps():
     sn = set(names.split())
 
     assert sn == {
-        "gr4j-cemaneige",
         "raster-subset",
         "raven",
         "raven-multi-model",
