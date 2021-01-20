@@ -14,6 +14,8 @@ services:
   # (1) Make sure you have raven-testdata locally (https://github.com/Ouranosinc/raven-testdata)
   # (2) Set the left part (local path) in the `volumes` section below to the right path
   # (3) Run: docker-compose run tests
+  #
+  # In case of weird error, rebuild from scratch: docker-compose build --no-cache tests
   tests:
     build: .
     image: raven-wps-tests
