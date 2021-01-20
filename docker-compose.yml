@@ -18,7 +18,7 @@ services:
     build: .
     image: raven-wps-tests
     volumes:
-      - /home/christian/gh/raven-testdata:/testdata
+      - ../raven-testdata:/testdata
       - ./:/opt/wps
     environment:
       - RAVENPY_TESTDATA_PATH=/testdata
