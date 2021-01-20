@@ -29,34 +29,48 @@ from .wps_realtime_forecast import RealtimeForecastProcess
 from .wps_graph_forecast_uncertainty import GraphFcstUncertaintyProcess
 
 
-processes = [
+modeling = [
     RavenProcess(),
-    RasterSubsetProcess(),
     RavenGR4JCemaNeigeProcess(),
     RavenMOHYSEProcess(),
     RavenHMETSProcess(),
     RavenHBVECProcess(),
+    RavenMultiModelProcess(),
+    ClimatologyEspProcess(),
+    HindcastEvaluationProcess(),
+    HindcastingProcess(),
+    RealtimeForecastProcess(),
+]
+
+calibration = [
+    OstrichGR4JCemaNeigeProcess(),
+    OstrichMOHYSEProcess(),
+    OstrichHMETSProcess(),
+    OstrichHBVECProcess(),
+]
+
+geo = [
+    RasterSubsetProcess(),
     ShapePropertiesProcess(),
     HydroBasinsSelectionProcess(),
     TerrainAnalysisProcess(),
     ZonalStatisticsProcess(),
     NALCMSZonalStatisticsProcess(),
-    OstrichGR4JCemaNeigeProcess(),
-    OstrichMOHYSEProcess(),
-    OstrichHMETSProcess(),
-    OstrichHBVECProcess(),
+]
+
+analysis = [
     ObjectiveFunctionProcess(),
-    RavenMultiModelProcess(),
+    RegionalisationProcess(),
+    ForecastFloodRiskProcess(),
+]
+
+graphs = [
     GraphEnsUncertaintyProcess(),
     GraphSingleHydrographProcess(),
     GraphIndicatorAnalysis(),
-    RegionalisationProcess(),
     GraphObjectiveFunctionFitProcess(),
     GraphFitProcess(),
-    ForecastFloodRiskProcess(),
-    ClimatologyEspProcess(),
-    HindcastEvaluationProcess(),
-    HindcastingProcess(),
-    RealtimeForecastProcess(),
     GraphFcstUncertaintyProcess(),
 ]
+
+processes = modeling + calibration + geo + analysis + graphs
