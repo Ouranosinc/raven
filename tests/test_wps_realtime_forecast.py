@@ -7,14 +7,15 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
+from ravenpy.utilities.testdata import get_test_data
 
 from raven.processes import RealtimeForecastProcess
 
-from .common import CFG_FILE, TESTDATA, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output, urlretrieve
 
 
 class TestRealtimeForecasts:
-    def test_GEPS(self):
+    def test_GEPS(self, rvc_file):
         client = client_for(
             Service(
                 processes=[
@@ -31,8 +32,7 @@ class TestRealtimeForecasts:
         model = "GR4JCN"
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"
         forecast_model = "GEPS"
-        region_vector = TESTDATA["watershed_vector"]
-        rvc = TESTDATA["solution.rvc"]
+        region_vector = get_test_data("watershed_vector", "LSJ_LL.zip")[0]
 
         # Date of the forecast that will be used to determine the members of the climatology-based ESP
         # (same day of year of all other years)
@@ -72,7 +72,7 @@ class TestRealtimeForecasts:
                 tas=json.dumps(
                     {"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}}
                 ),
-                rvc=rvc,
+                rvc=rvc_file.name,
             )
         )
 
