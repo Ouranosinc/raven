@@ -1,20 +1,28 @@
-import pytest
-
 import datetime as dt
-import xarray as xr
-import matplotlib.pyplot as plt
 import json
+import tempfile
+
+import matplotlib.pyplot as plt
+import pytest
+import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
+from ravenpy.utilities.testdata import get_test_data
 
-from .common import client_for, TESTDATA, CFG_FILE, get_output, urlretrieve
 from raven.processes import HindcastingProcess
+
+from .common import CFG_FILE, client_for, get_output, urlretrieve
 
 
 class TestHindcasting:
-    def test_GEPS(self):
+    def test_GEPS(self, rvc_file):
         client = client_for(
-            Service(processes=[HindcastingProcess(), ], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    HindcastingProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
         #
         # model = 'HMETS'
@@ -23,11 +31,11 @@ class TestHindcasting:
 
         model = "GR4JCN"
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"
-        forecast_model= "GEPS"
-        region_vector=TESTDATA['watershed_vector']
-        rvc=TESTDATA['solution.rvc']
-        hdate=dt.datetime(2018,6,1)
-        
+        forecast_model = "GEPS"
+        region_vector = get_test_data("watershed_vector", "LSJ_LL.zip")[0]
+
+        hdate = dt.datetime(2018, 6, 1)
+
         # Date of the forecast that will be used to determine the members of the climatology-based ESP
         # (same day of year of all other years)
         datainputs = (
@@ -44,8 +52,7 @@ class TestHindcasting:
             "nc_spec={pr};"
             "nc_spec={tas};"
             "rvc=file@xlink:href=file://{rvc};"
-            "hdate={hdate};"
-            .format(
+            "hdate={hdate};".format(
                 params=params,
                 latitude=54.4848,
                 longitude=-123.3659,
@@ -56,13 +63,23 @@ class TestHindcasting:
                 forecast_model=forecast_model,
                 region_vector=region_vector,
                 rain_snow_fraction="RAINSNOW_DINGMAN",
-                pr=json.dumps({'pr': {'linear_transform': (1.0, 0.0), 'time_shift': -.25, 'deaccumulate':True}}),
-                tas=json.dumps({'tas': {'linear_transform': (1.0, 0.0), 'time_shift': -.25}}),
-                rvc=rvc,
+                pr=json.dumps(
+                    {
+                        "pr": {
+                            "linear_transform": (1.0, 0.0),
+                            "time_shift": -0.25,
+                            "deaccumulate": True,
+                        }
+                    }
+                ),
+                tas=json.dumps(
+                    {"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}}
+                ),
+                rvc=rvc_file.name,
                 hdate=hdate,
             )
         )
- 
+
         resp = client.get(
             service="WPS",
             request="Execute",
@@ -78,7 +95,7 @@ class TestHindcasting:
         # Display forecast to show it works
 
         forecast, _ = urlretrieve(out["hydrograph"])
-        #tmp = xr.open_dataset(forecast)
-        #qfcst = tmp["q_sim"][:].data.transpose()
-        #plt.plot(qfcst)
-        #plt.show()
+        # tmp = xr.open_dataset(forecast)
+        # qfcst = tmp["q_sim"][:].data.transpose()
+        # plt.plot(qfcst)
+        # plt.show()
