@@ -29,7 +29,7 @@ class TestRavenNRCANProcess:
         lat = salmon.lat.values[0]
         lon = salmon.lon.values[0]
 
-        ts = get_test_data("nrcan", "NRCAN_ts.nc")[0]
+        ts = get_test_data("nrcan", "NRCAN_2006-2007_subset.nc")[0]
 
         params = (
             "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, "
