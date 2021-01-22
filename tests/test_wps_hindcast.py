@@ -15,7 +15,7 @@ from .common import CFG_FILE, client_for, get_output, urlretrieve
 
 
 class TestHindcasting:
-    def test_GEPS(self, rvc_file):
+    def test_GEPS(self):
         client = client_for(
             Service(
                 processes=[
@@ -75,7 +75,7 @@ class TestHindcasting:
                 tas=json.dumps(
                     {"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}}
                 ),
-                rvc=rvc_file.name,
+                rvc=get_test_data("gr4j_cemaneige", "solution.rvc")[0],
                 hdate=hdate,
             )
         )
