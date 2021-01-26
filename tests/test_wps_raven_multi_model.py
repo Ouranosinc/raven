@@ -3,7 +3,7 @@ import datetime as dt
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import GraphEnsUncertaintyProcess, GraphSingleHydrographProcess, RavenMultiModelProcess
 
@@ -39,10 +39,9 @@ def test_raven_multi_model_process(request):
         "latitude={latitude};"
         "longitude={longitude};"
         "elevation={elevation};".format(
-            ts=get_test_data(
-                "raven-gr4j-cemaneige",
-                "Salmon-River-Near-Prince-George_meteo_daily.nc",
-            )[0],
+            ts=get_local_testdata(
+                "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+            ),
             gr4jcn=gr4jcn,
             hmets=hmets,
             start_date=dt.datetime(2000, 1, 1),
@@ -106,9 +105,9 @@ def test_graph_single_hydrograph(request):
         )
     )
     datainputs = "sim=files@xlink:href=file://{sim};".format(
-        sim=get_test_data(
-            "hydro_simulations", "raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
-        )[0]
+        sim=get_local_testdata(
+            "hydro_simulations/raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
+        )
     )
 
     resp = client.get(

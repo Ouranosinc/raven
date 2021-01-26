@@ -4,7 +4,7 @@ import json
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHMETSProcess
 
@@ -22,14 +22,14 @@ class TestRavenNRCANProcess:
             )
         )
 
-        salmon = get_test_data(
-            "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
-        )[0]
+        salmon = get_local_testdata(
+            "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
+        )
         salmon = xr.open_dataset(salmon)
         lat = salmon.lat.values[0]
         lon = salmon.lon.values[0]
 
-        ts = get_test_data("nrcan", "NRCAN_2006-2007_subset.nc")[0]
+        ts = get_local_testdata("nrcan/NRCAN_2006-2007_subset.nc")
 
         params = (
             "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, "

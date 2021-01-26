@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RegionalisationProcess
 
@@ -58,10 +58,9 @@ class TestRegionalisation:
         )
 
         inp = inputs.copy()
-        inp["ts"] = get_test_data(
-            "raven-gr4j-cemaneige",
-            "Salmon-River-Near-Prince-George_meteo_daily.nc",
-        )[0]
+        inp["ts"] = get_local_testdata(
+            "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+        )
         inp["model_name"] = "GR4JCN"
         inp["ndonors"] = 2
         inp["method"] = method
@@ -98,10 +97,9 @@ class TestRegionalisation:
 
         inp = inputs.copy()
         inp.update(
-            ts=get_test_data(
-                "raven-gr4j-cemaneige",
-                "Salmon-River-Near-Prince-George_meteo_daily.nc",
-            )[0],
+            ts=get_local_testdata(
+                "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+            ),
             start_date=dt.datetime(2000, 1, 1),
             end_date=dt.datetime(2002, 1, 1),
             area=4250.6,

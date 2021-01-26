@@ -1,7 +1,7 @@
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import GraphFcstUncertaintyProcess
 
@@ -22,7 +22,8 @@ class TestForecastGraphProcess:
         datainputs = (
             "fcst=files@xlink:href=file://{fcst};"
             "fcst_var={fcst_var};".format(
-                fcst=get_test_data("flood_risk", "XSS_fcst_ens.nc")[0], fcst_var="fcst"
+                fcst=get_local_testdata("flood_risk", "XSS_fcst_ens.nc"),
+                fcst_var="fcst",
             )
         )
 
@@ -53,9 +54,9 @@ class TestForecastGraphProcess:
             "qobs=files@xlink:href=file://{qobs};"
             "fcst_var={fcst_var};"
             "qobs_var={qobs_var};".format(
-                fcst=get_test_data("flood_risk", "XSS_fcst_ens.nc")[0],
+                fcst=get_local_testdata("flood_risk/XSS_fcst_ens.nc"),
                 fcst_var="fcst",
-                qobs=get_test_data("XSS_forecast_data", "XSS_obs.nc")[0],
+                qobs=get_local_testdata("XSS_forecast_data/XSS_obs.nc"),
                 qobs_var="obs",
             )
         )

@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import OstrichHMETSProcess
 
@@ -46,10 +46,9 @@ class TestOstrichHMETSProcess:
             "longitude={longitude};"
             "elevation={elevation};"
             "random_seed=0".format(
-                ts=get_test_data(
-                    "raven-gr4j-cemaneige",
-                    "Salmon-River-Near-Prince-George_meteo_daily.nc",
-                )[0],
+                ts=get_local_data(
+                    "raven-gr4j-cemaneigeSalmon-River-Near-Prince-George_meteo_daily.nc",
+                ),
                 algorithm="DDS",
                 max_iterations=10,
                 params=params,
@@ -131,10 +130,9 @@ class TestOstrichHMETSProcess:
             "latitude={latitude};"
             "longitude={longitude};"
             "elevation={elevation};".format(
-                ts=get_test_data(
-                    "raven-gr4j-cemaneige",
-                    "Salmon-River-Near-Prince-George_meteo_daily.nc",
-                )[0],
+                ts=get_local_testdata(
+                    "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+                ),
                 algorithm="DDS",
                 max_iterations=10,
                 params=params,

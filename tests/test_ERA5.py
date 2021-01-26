@@ -3,7 +3,7 @@ import json
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHMETSProcess
 
@@ -45,7 +45,7 @@ class TestRavenERA5Process:
             )
         )
 
-        ts = get_test_data("era5", "tas_pr_20180101-20180108.nc")[0]
+        ts = get_local_testdata("era5/tas_pr_20180101-20180108.nc")
 
         datainputs = (
             "ts=files@xlink:href=file://{ts};"

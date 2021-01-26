@@ -3,7 +3,7 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ForecastFloodRiskProcess
 
@@ -25,7 +25,7 @@ class TestForecastEvaluationProcess:
             "fcst=files@xlink:href=file://{fcst};"
             "name=fcst;"
             "flood_level={flood_level};".format(
-                fcst=get_test_data("flood_risk", "XSS_fcst_det.nc")[0],
+                fcst=get_local_testdata("flood_risk/XSS_fcst_det.nc"),
                 flood_level=0.5,
             )
         )
@@ -58,7 +58,7 @@ class TestForecastEvaluationProcess:
             "fcst=files@xlink:href=file://{fcst};"
             "name=fcst;"
             "flood_level={flood_level};".format(
-                fcst=get_test_data("flood_risk", "XSS_fcst_ens.nc")[0], flood_level=0.5
+                fcst=get_local_testdata("flood_risk/XSS_fcst_ens.nc"), flood_level=0.5
             )
         )
 

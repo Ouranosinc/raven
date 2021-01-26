@@ -1,7 +1,7 @@
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import BaseFlowIndexProcess, FitProcess, FreqAnalysisProcess, TSStatsProcess
 
@@ -24,9 +24,9 @@ def test_tsstats_process():
         "op={op};"
         "season={season};"
         "variable={v};".format(
-            da=get_test_data(
-                "hydro_simulations", "raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
-            )[0],
+            da=get_local_testdata(
+                "hydro_simulations/raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
+            ),
             freq="YS",
             op="max",
             season="JJA",
@@ -66,9 +66,9 @@ def test_freqanalysis_process():
         "mode={mode};"
         "season={season};"
         "variable={v};".format(
-            da=get_test_data(
-                "hydro_simulations", "raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
-            )[0],
+            da=get_local_testdata(
+                "hydro_simulations/raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
+            ),
             freq="YS",
             mode="max",
             t1=2,
@@ -135,9 +135,9 @@ def test_baseflowindex_process():
         "q=files@xlink:href=file://{da};"
         "freq={freq};"
         "variable={v};".format(
-            da=get_test_data(
-                "hydro_simulations", "raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
-            )[0],
+            da=get_local_testdata(
+                "hydro_simulations/raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
+            ),
             freq="YS",
             v="q_sim",
         )

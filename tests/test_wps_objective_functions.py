@@ -6,7 +6,7 @@ import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.models import Raven
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import GraphObjectiveFunctionFitProcess, ObjectiveFunctionProcess
 
@@ -15,10 +15,10 @@ from .common import CFG_FILE, client_for, get_output
 
 @pytest.fixture(scope="module")
 def gr4j():
-    rvs = get_test_data("raven-gr4j-cemaneige", "raven-gr4j-salmon.rv?")
-    ts = get_test_data(
-        "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
-    )[0]
+    rvs = get_local_testdata("raven-gr4j-cemaneige/raven-gr4j-salmon.rv?")
+    ts = get_local_testdata(
+        "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
+    )
 
     model = Raven(tempfile.mkdtemp())
     model.configure(rvs)
