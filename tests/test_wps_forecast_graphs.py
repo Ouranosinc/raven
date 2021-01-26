@@ -22,7 +22,7 @@ class TestForecastGraphProcess:
         datainputs = (
             "fcst=files@xlink:href=file://{fcst};"
             "fcst_var={fcst_var};".format(
-                fcst=get_local_testdata("flood_risk", "XSS_fcst_ens.nc"),
+                fcst=get_local_testdata("flood_risk/XSS_fcst_ens.nc"),
                 fcst_var="fcst",
             )
         )
