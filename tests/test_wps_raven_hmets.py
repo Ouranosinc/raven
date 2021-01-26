@@ -128,7 +128,7 @@ class TestRavenHMETSProcess:
             "elevation={elevation};".format(
                 ts=get_local_testdata(
                     "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
-                )[0],
+                ),
                 params1=params1,
                 params2=params2,
                 params3=params3,

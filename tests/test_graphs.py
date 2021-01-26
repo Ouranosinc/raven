@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 from ravenpy.utilities import graphs
+from ravenpy.utilities.testdata import get_local_testdata
 from xclim.indicators.land import fit, stats
 
 

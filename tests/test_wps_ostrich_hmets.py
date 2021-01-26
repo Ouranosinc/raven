@@ -46,7 +46,7 @@ class TestOstrichHMETSProcess:
             "longitude={longitude};"
             "elevation={elevation};"
             "random_seed=0".format(
-                ts=get_local_data(
+                ts=get_local_testdata(
                     "raven-gr4j-cemaneigeSalmon-River-Near-Prince-George_meteo_daily.nc",
                 ),
                 algorithm="DDS",
