@@ -5,8 +5,6 @@ services:
     image: raven-wps
     volumes:
       - ./:/opt/wps
-      - ~/rpy:/rpy
-      - ~/gh/raven-testdata:/testdata
     ports:
       - "9099:9099"
 

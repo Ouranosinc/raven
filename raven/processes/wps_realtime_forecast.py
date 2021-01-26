@@ -97,8 +97,6 @@ class RealtimeForecastProcess(RavenProcess):
         fcst = xr.open_dataset(ts[0])
         kwds["nc_index"] = range(fcst.dims.get("member"))
 
-        print(model.exec_path)
-
         model(ts=ts, **kwds)
 
         fcst.close()

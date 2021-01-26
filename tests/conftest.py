@@ -1,15 +1,18 @@
+import tempfile
+
 import pytest
 import xarray as xr
+from ravenpy.utilities.testdata import get_local_testdata
 from xclim.indicators.land import fit, stats
-
-from .common import TESTDATA
 
 
 @pytest.fixture
 def q_sim_1(tmp_path):
     """A file storing a Raven streamflow simulation over one basin."""
 
-    return TESTDATA["simfile_single"]
+    return get_local_testdata(
+        "hydro_simulations/raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc"
+    )
 
 
 @pytest.fixture
