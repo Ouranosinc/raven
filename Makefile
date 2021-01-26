@@ -1,6 +1,6 @@
 # Configuration
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
-APP_NAME := raven
+APP_NAME := raven-wps
 
 WPS_URL = http://localhost:9099
 

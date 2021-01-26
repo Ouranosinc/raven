@@ -4,15 +4,16 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- python=3.6
-- pywps>=4.2
+- python>=3.6
+- pywps
 - sphinx
 - nbsphinx
 - ipython
 - xskillscore
-- xclim==0.18
+- xclim
 - sphinx_rtd_theme
 - rioxarray
 - gdal
+- pip
 - pip:
   - ravenpy
