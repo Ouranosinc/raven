@@ -6,10 +6,11 @@ import numpy as np
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ShapePropertiesProcess
 
-from .common import CFG_FILE, TESTDATA, client_for, get_output
+from .common import CFG_FILE, client_for, get_output
 
 
 class TestGenericShapePropertiesProcess:
@@ -154,7 +155,9 @@ class TestGenericShapePropertiesProcess:
             "projected_crs={projected_crs}",
         ]
         datainputs = ";".join(fields).format(
-            file=TESTDATA["mrc_subset"], crs=4326, projected_crs=32198
+            file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            crs=4326,
+            projected_crs=32198,
         )
 
         resp = client.get(
@@ -207,7 +210,9 @@ class TestGenericShapePropertiesProcess:
             "projected_crs={projected_crs}",
         ]
         datainputs = ";".join(fields).format(
-            file=TESTDATA["mrc_subset_zipped"], crs=4326, projected_crs=32198
+            file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.zip"),
+            crs=4326,
+            projected_crs=32198,
         )
 
         resp = client.get(
