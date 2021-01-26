@@ -2,7 +2,7 @@ import json
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 from shapely.geometry import MultiPolygon
 
 from raven.processes import NALCMSZonalStatisticsProcess
@@ -33,8 +33,8 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
-            raster=get_test_data("cec_nalcms2010_30m", "cec_nalcms_subQC.tiff")[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=get_local_testdata("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
         )
 
         resp = client.get(
@@ -79,8 +79,8 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=False,
             band=1,
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
-            raster=get_test_data("cec_nalcms2010_30m", "cec_nalcms_subQC.tiff")[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=get_local_testdata("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
         )
 
         resp = client.get(
@@ -123,7 +123,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=get_test_data("watershed_vector", "Basin_test.zip")[0],
+            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",
@@ -165,7 +165,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=False,
             band=1,
-            shape=get_test_data("watershed_vector", "Basin_test.zip")[0],
+            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",

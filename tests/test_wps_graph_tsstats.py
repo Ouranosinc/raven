@@ -8,7 +8,7 @@ Created on Fri May 17 14:02:50 2019
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import GraphIndicatorAnalysis
 
@@ -29,7 +29,7 @@ def test_graph_timeseries_stats(request):
         "ts_stats=files@xlink:href=file://{ts_stats};"
         "trend={trend};"
         "alpha={alpha};".format(
-            ts_stats=get_test_data("ts_stats_outputs", "out.nc")[0],
+            ts_stats=get_local_testdata("ts_stats_outputs/out.nc"),
             trend=False,
             alpha=0.05,
         )

@@ -1,7 +1,7 @@
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import GR4JCemaNeigeProcess
 
@@ -19,9 +19,9 @@ class TestGR4JCemaNeigeProcess:
                 cfgfiles=CFG_FILE,
             )
         )
-        pr = get_test_data("gr4j_cemaneige", "pr.nc")[0]
-        tas = get_test_data("gr4j_cemaneige", "tas.nc")[0]
-        evap = get_test_data("gr4j_cemaneige", "evap.nc")[0]
+        pr = get_local_testdata("gr4j_cemaneige/pr.nc")
+        tas = get_local_testdata("gr4j_cemaneige/tas.nc")
+        evap = get_local_testdata("gr4j_cemaneige/evap.nc")
 
         datainputs = (
             f"pr=files@xlink:href=file://{pr};"

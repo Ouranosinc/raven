@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import HindcastEvaluationProcess
 
@@ -22,8 +22,8 @@ class TestForecastEvaluationProcess:
             )
         )
 
-        obs = get_test_data("XSS_forecast_data", "XSS_obs.nc")[0]
-        hcst = get_test_data("XSS_forecast_data", "XSS_fcst_det.nc")[0]
+        obs = get_local_testdata("XSS_forecast_data/XSS_obs.nc")
+        hcst = get_local_testdata("XSS_forecast_data/XSS_fcst_det.nc")
         datainputs = (
             f"obs=files@xlink:href=file://{obs};"
             f"hcst=files@xlink:href=file://{hcst};"
@@ -52,8 +52,8 @@ class TestForecastEvaluationProcess:
             )
         )
 
-        obs = get_test_data("XSS_forecast_data", "XSS_obs.nc")[0]
-        hcst = get_test_data("XSS_forecast_data", "XSS_fcst_ens.nc")[0]
+        obs = get_local_testdata("XSS_forecast_data/XSS_obs.nc")
+        hcst = get_local_testdata("XSS_forecast_data/XSS_fcst_ens.nc")
         datainputs = (
             f"obs=files@xlink:href=file://{obs};"
             f"hcst=files@xlink:href=file://{hcst};"

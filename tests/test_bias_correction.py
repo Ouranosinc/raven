@@ -2,7 +2,7 @@ import datetime as dt
 
 import xarray as xr
 import xclim.sdba as sdba
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 from xclim import subset
 
 
@@ -10,19 +10,17 @@ class TestBiasCorrect:
     def test_bias_correction(self):
 
         ds_fut_sub = xr.open_dataset(
-            get_test_data(
-                "cmip5",
-                "nasa_nex-gddp-1.0_day_inmcm4_historical+rcp85_nex-gddp_2070-2071_subset.nc",
-            )[0]
+            get_local_testdata(
+                "cmip5/nasa_nex-gddp-1.0_day_inmcm4_historical+rcp85_nex-gddp_2070-2071_subset.nc",
+            )
         )
         ds_ref_sub = xr.open_dataset(
-            get_test_data(
-                "cmip5",
-                "nasa_nex-gddp-1.0_day_inmcm4_historical+rcp45_nex-gddp_1971-1972_subset.nc",
-            )[0]
+            get_local_testdata(
+                "cmip5/nasa_nex-gddp-1.0_day_inmcm4_historical+rcp45_nex-gddp_1971-1972_subset.nc",
+            )
         )
         ds_his_sub = xr.open_dataset(
-            get_test_data("nrcan", "NRCAN_1971-1972_subset.nc")[0]
+            get_local_testdata("nrcan/NRCAN_1971-1972_subset.nc")
         )
 
         group_month_nowindow = sdba.utils.Grouper("time.month")

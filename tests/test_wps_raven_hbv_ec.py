@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHBVECProcess
 
@@ -41,10 +41,9 @@ class TestRavenHBVECProcess:
             "latitude={latitude};"
             "longitude={longitude};"
             "elevation={elevation};".format(
-                ts=get_test_data(
-                    "raven-gr4j-cemaneige",
-                    "Salmon-River-Near-Prince-George_meteo_daily.nc",
-                )[0],
+                ts=get_local_testdata(
+                    "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+                ),
                 params=params,
                 start_date=dt.datetime(2000, 1, 1),
                 end_date=dt.datetime(2002, 1, 1),
@@ -129,10 +128,9 @@ class TestRavenHBVECProcess:
             "latitude={latitude};"
             "longitude={longitude};"
             "elevation={elevation};".format(
-                ts=get_test_data(
-                    "raven-gr4j-cemaneige",
-                    "Salmon-River-Near-Prince-George_meteo_daily.nc",
-                )[0],
+                ts=get_local_testdata(
+                    "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+                ),
                 params1=params1,
                 params2=params2,
                 params3=params3,

@@ -2,7 +2,7 @@ import json
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 from shapely.geometry import MultiPolygon, shape
 
 from raven.processes import ZonalStatisticsProcess
@@ -33,10 +33,10 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=False,
             band=1,
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
-            raster=get_test_data(
-                "earthenv_dem_90m", "earthenv_dem90_southernQuebec.tiff"
-            )[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=get_local_testdata(
+                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
+            ),
         )
 
         resp = client.get(
@@ -81,10 +81,10 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=True,
             band=1,
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
-            raster=get_test_data(
-                "earthenv_dem_90m", "earthenv_dem90_southernQuebec.tiff"
-            )[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=get_local_testdata(
+                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
+            ),
         )
 
         resp = client.get(
@@ -131,7 +131,7 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=False,
             band=1,
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
         )
         resp = client.get(
             service="WPS",
@@ -173,7 +173,7 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=True,
             band=1,
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
         )
         resp = client.get(
             service="WPS",

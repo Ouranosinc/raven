@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import HindcastingProcess
 
@@ -32,7 +32,7 @@ class TestHindcasting:
         model = "GR4JCN"
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"
         forecast_model = "GEPS"
-        region_vector = get_test_data("watershed_vector", "LSJ_LL.zip")[0]
+        region_vector = get_local_testdata("watershed_vector/LSJ_LL.zip")
 
         hdate = dt.datetime(2018, 6, 1)
 
@@ -75,7 +75,7 @@ class TestHindcasting:
                 tas=json.dumps(
                     {"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}}
                 ),
-                rvc=get_test_data("gr4j_cemaneige", "solution.rvc")[0],
+                rvc=get_local_testdata("gr4j_cemaneige/solution.rvc"),
                 hdate=hdate,
             )
         )

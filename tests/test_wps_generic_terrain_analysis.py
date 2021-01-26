@@ -3,7 +3,7 @@ import json
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import TerrainAnalysisProcess
 
@@ -28,10 +28,10 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            raster=get_test_data(
-                "earthenv_dem_90m", "earthenv_dem90_southernQuebec.tiff"
-            )[0],
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
+            raster=get_local_testdata(
+                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
+            ),
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
             projected_crs="6622",
             touches=True,
         )
@@ -68,7 +68,7 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_test_data("donneesqc_mrc_poly", "mrc_subset.gml")[0],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
             projected_crs="6622",
             touches=True,
         )
@@ -104,7 +104,7 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_test_data("polygons", "Basin_10.zip")[0],
+            shape=get_local_testdata("polygons/Basin_10.zip"),
             projected_crs="6622",
             touches=True,
         )

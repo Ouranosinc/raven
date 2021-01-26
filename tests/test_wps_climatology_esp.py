@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ClimatologyEspProcess
 
@@ -49,10 +49,9 @@ class TestClimatologyESP:
             "forecast_date={forecast_date};"
             "forecast_duration={forecast_duration};"
             "model_name={model_name};".format(
-                ts=get_test_data(
-                    "raven-gr4j-cemaneige",
-                    "Salmon-River-Near-Prince-George_meteo_daily.nc",
-                )[0],
+                ts=get_local_testdata(
+                    "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+                ),
                 params=params,
                 init="155,455",
                 name="Salmon",

@@ -1,6 +1,6 @@
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenProcess
 
@@ -20,10 +20,10 @@ class TestRavenProcess:
             )
         )
 
-        rvs = get_test_data("raven-gr4j-cemaneige", "raven-gr4j-salmon.rv?")
-        ts = get_test_data(
-            "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
-        )[0]
+        rvs = get_local_testdata("raven-gr4j-cemaneige/raven-gr4j-salmon.rv?")
+        ts = get_local_testdata(
+            "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
+        )
         config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
@@ -51,8 +51,8 @@ class TestRavenProcess:
             )
         )
 
-        rvs = get_test_data("raven-hmets", "raven-hmets-salmon.rv?")
-        ts = get_test_data("raven-hmets", "Salmon-River-Near-Prince-George_*.rvt")
+        rvs = get_local_testdata("raven-hmets/raven-hmets-salmon.rv?")
+        ts = get_local_testdata("raven-hmets/Salmon-River-Near-Prince-George_*.rvt")
         config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
@@ -80,8 +80,8 @@ class TestRavenProcess:
             )
         )
 
-        rvs = get_test_data("raven-mohyse", "raven-mohyse-salmon.rv?")
-        ts = get_test_data("raven-mohyse", "Salmon-River-Near-Prince-George_*.rvt")
+        rvs = get_local_testdata("raven-mohyse/raven-mohyse-salmon.rv?")
+        ts = get_local_testdata("raven-mohyse/Salmon-River-Near-Prince-George_*.rvt")
         config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
@@ -109,8 +109,8 @@ class TestRavenProcess:
             )
         )
 
-        rvs = get_test_data("raven-hbv-ec", "raven-hbv-ec-salmon.rv?")
-        ts = get_test_data("raven-hbv-ec", "Salmon-River-Near-Prince-George_*.rvt")
+        rvs = get_local_testdata("raven-hbv-ec/raven-hbv-ec-salmon.rv?")
+        ts = get_local_testdata("raven-hbv-ec/Salmon-River-Near-Prince-George_*.rvt")
         config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
