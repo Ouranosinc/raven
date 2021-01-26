@@ -1,6 +1,6 @@
 ravenpy
 six
-pywps==4.2.3
+pywps==4.2.9
 owslib==0.18
 lxml
 jinja2
@@ -9,8 +9,8 @@ psutil
 numpy
 scipy
 matplotlib
-xarray==0.16.2
-xclim==0.18
+xarray
+xclim>=0.23
 pandas
 requests
 netCDF4
@@ -44,4 +44,4 @@ bokeh
 distributed
 partd
 fsspec
-gdal==3.0.4
+gdal
