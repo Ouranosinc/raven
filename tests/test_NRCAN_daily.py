@@ -1,54 +1,16 @@
 import datetime as dt
 import json
-import tempfile
-import pytest
 
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_test_data
+from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHMETSProcess
 
 from .common import CFG_FILE, client_for
 
-# Temporary path
-filepath = tempfile.mkdtemp() + "/NRCAN_ts.nc"
 
-# Start and end dates
-start_date = dt.datetime(2006, 1, 1)
-end_date = dt.datetime(2007, 12, 31)
-
-
-def setup():
-    # Get path to ncml file for NRCan data.
-    NRCAN_path = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
-
-
-    # Get information for given catchment, could be passed in parameter to the function
-    ts = get_test_data(
-        "raven-gr4j-cemaneige", "Salmon-River-Near-Prince-George_meteo_daily.nc"
-    )[0]
-    salmon = xr.open_dataset(ts)
-    lat = salmon.lat.values[0]
-    lon = salmon.lon.values[0]
-
-    # Get data for the covered period including a 1-degree bounding box for good measure. Eventually we will be
-    # able to take the catchment polygon as a mask and average points residing inside.
-
-    ds = (
-        xr.open_dataset(NRCAN_path)
-        .sel(
-            lat=slice(lat + 1, lat - 1),
-            lon=slice(lon - 1, lon + 1),
-            time=slice(start_date, end_date),
-        )
-        .mean(dim={"lat", "lon"}, keep_attrs=True)
-    )
-    ds.to_netcdf(filepath)
-
-
-@pytest.mark.online
 class TestRavenNRCANProcess:
     def test_simple(self):
         client = client_for(
@@ -60,10 +22,22 @@ class TestRavenNRCANProcess:
             )
         )
 
+        salmon = get_local_testdata(
+            "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
+        )
+        salmon = xr.open_dataset(salmon)
+        lat = salmon.lat.values[0]
+        lon = salmon.lon.values[0]
+
+        ts = get_local_testdata("nrcan/NRCAN_2006-2007_subset.nc")
+
         params = (
             "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, "
             "2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947"
         )
+
+        start_date = dt.datetime(2006, 1, 1)
+        end_date = dt.datetime(2007, 12, 31)
 
         datainputs = (
             "ts=files@xlink:href=file://{ts};"
@@ -81,7 +55,7 @@ class TestRavenNRCANProcess:
             "nc_spec={tasmax};"
             "nc_spec={tasmin};"
             "nc_spec={pr}".format(
-                ts=filepath,  # This is a file on disk, need to pass 'g'
+                ts=ts,
                 params=params,
                 start_date=start_date,
                 end_date=end_date,

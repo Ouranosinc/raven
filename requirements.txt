@@ -10,7 +10,7 @@ numpy
 scipy
 matplotlib
 xarray
-xclim==0.22
+xclim>=0.23
 pandas
 requests
 netCDF4
