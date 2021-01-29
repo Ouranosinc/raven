@@ -3,17 +3,20 @@ Changes
 
 0.11.x
 ------
+
 * Add processes to run hydrological simulations on ECCC GEPS forecasts/hindcasts
 * Add process to create forecast graphic
 * Add first basic data assimilation utilities
-* Update to Raven 3.0
-* Update to xclim 0.18
-* Update to xarray 0.16
+* Factor out extra project RavenPy (at version 0.2.2), using Raven 3.0.1
+* Upgrade to xclim 0.23.0
+* Upgrade to xarray 0.16.2
 * Add configuration options: `deaccumulate`
 * Clean notebooks
 
+
 0.10.x (2020-03-09) Oxford
 --------------------------
+
 * `suppress_ouput` also triggers `:DontWriteWatershedStorage`
 * Added support for ERA5 (hourly), NRCan and CANOPEX datasets
 * Support linear transforms (unit changes)
@@ -25,6 +28,7 @@ Changes
 
 0.9.x (2019-11-11)
 ------------------
+
 * Return configuration files used to run model in a zip archive
 
 
@@ -92,5 +96,3 @@ Changes
 * Provides generic RAVEN framework configuration
 * Process for GR4J-Cemaneige emulator
 * Process for HMETS emulator
-
-

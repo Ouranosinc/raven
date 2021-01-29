@@ -1,10 +1,9 @@
 import logging
 
-from pywps import LiteralInput
-from pywps import Process
-from . import wpsio as wio
-
+from pywps import LiteralInput, Process
 from ravenpy.utilities import forecasting
+
+from . import wpsio as wio
 
 
 class ClimatologyEspProcess(Process):
@@ -98,6 +97,5 @@ class ClimatologyEspProcess(Process):
         forecastfile = self.workdir + "/forecast.nc"
         qsims.to_netcdf(forecastfile)
         response.outputs["forecast"].file = forecastfile
-        print(self.workdir)
 
         return response

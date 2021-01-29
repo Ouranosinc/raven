@@ -1,51 +1,63 @@
-
 from pathlib import Path
 
-from matplotlib import pyplot as plt
-# from plotly.tools import mpl_to_plotly
-from pywps import ComplexInput, LiteralInput, ComplexOutput
-from pywps import FORMATS
-from pywps import Format
-from pywps import Process
 import xarray as xr
+from matplotlib import pyplot as plt
 
+# from plotly.tools import mpl_to_plotly
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, LiteralInput, Process
 from ravenpy.utilities.graphs import ts_fit_graph
 
 
 class GraphFitProcess(Process):
     def __init__(self):
-        inputs = [ComplexInput('ts', 'Stream flow time series',
-                               abstract='Stream flow time series',
-                               supported_formats=[FORMATS.NETCDF]),
-                  ComplexInput('params', 'Distribution parameters',
-                               abstract='Statistical distribution parameters fitted to time series',
-                               supported_formats=[FORMATS.NETCDF]),
-                  LiteralInput('variable', "Variable name",
-                               abstract="Name of time series variable. If none will default to the first data variable "
-                                        "found in file.",
-                               data_type='string',
-                               min_occurs=0,
-                               max_occurs=1
-                               ),
-                  LiteralInput('format', "Output graphic format",
-                               abstract="Graphic format.",
-                               data_type='string',
-                               default='png',
-                               min_occurs=0,
-                               max_occurs=1,
-                               allowed_values=['png', 'jpeg', 'pdf'])
-                  ]
+        inputs = [
+            ComplexInput(
+                "ts",
+                "Stream flow time series",
+                abstract="Stream flow time series",
+                supported_formats=[FORMATS.NETCDF],
+            ),
+            ComplexInput(
+                "params",
+                "Distribution parameters",
+                abstract="Statistical distribution parameters fitted to time series",
+                supported_formats=[FORMATS.NETCDF],
+            ),
+            LiteralInput(
+                "variable",
+                "Variable name",
+                abstract="Name of time series variable. If none will default to the first data variable "
+                "found in file.",
+                data_type="string",
+                min_occurs=0,
+                max_occurs=1,
+            ),
+            LiteralInput(
+                "format",
+                "Output graphic format",
+                abstract="Graphic format.",
+                data_type="string",
+                default="png",
+                min_occurs=0,
+                max_occurs=1,
+                allowed_values=["png", "jpeg", "pdf"],
+            ),
+        ]
 
         outputs = [
-            ComplexOutput('graph_fit', 'Graphic',
-                          abstract="Graphic showing time series histogram and the probability density "
-                                   "function of the fitted distribution.",
-                          as_reference=True,
-                          supported_formats=(Format(mime_type='image/png'),
-                                             Format(mime_type='image/jpeg'),
-                                             Format(mime_type='application/pdf'),
-                                             Format(mime_type='application/json'),
-                                             )),
+            ComplexOutput(
+                "graph_fit",
+                "Graphic",
+                abstract="Graphic showing time series histogram and the probability density "
+                "function of the fitted distribution.",
+                as_reference=True,
+                supported_formats=(
+                    Format(mime_type="image/png"),
+                    Format(mime_type="image/jpeg"),
+                    Format(mime_type="application/pdf"),
+                    Format(mime_type="application/json"),
+                ),
+            ),
         ]
 
         super(GraphFitProcess, self).__init__(
@@ -59,14 +71,14 @@ class GraphFitProcess(Process):
             outputs=outputs,
             keywords=[],
             status_supported=True,
-            store_supported=True)
+            store_supported=True,
+        )
 
     def _handler(self, request, response):
-        print(request.inputs)
-        ts_fn = request.inputs['ts'][0].file
-        p_fn = request.inputs['params'][0].file
-        v = request.inputs['variable'][0].data if 'variable' in request.inputs else None
-        format = request.inputs['format'][0].data
+        ts_fn = request.inputs["ts"][0].file
+        p_fn = request.inputs["params"][0].file
+        v = request.inputs["variable"][0].data if "variable" in request.inputs else None
+        format = request.inputs["format"][0].data
 
         # Create and save graphics
         ds = xr.open_dataset(ts_fn)
@@ -76,11 +88,11 @@ class GraphFitProcess(Process):
 
         ts = ds[v]
 
-        p = xr.open_dataset(p_fn)['params']  # Name of variable is hard-coded
+        p = xr.open_dataset(p_fn)["params"]  # Name of variable is hard-coded
 
         fig = ts_fit_graph(ts, p)
 
-        if format == 'plotly':
+        if format == "plotly":
             # This is not working great with this figure due to the twin axes.
             raise NotImplementedError
             # Create plotly object
@@ -91,13 +103,15 @@ class GraphFitProcess(Process):
             # response.outputs['graph_fit'].data_format = Format('application/json')
 
         else:
-            fig_fn = Path(self.workdir) / ('ts_fit.' + format)
+            fig_fn = Path(self.workdir) / ("ts_fit." + format)
             fig.savefig(fig_fn, format=format)
             plt.close(fig)
-            response.outputs['graph_fit'].file = str(fig_fn)
-            if format in ['png', 'jpeg']:
-                response.outputs['graph_fit'].data_format = Format('image/{}'.format(format))
-            elif format == 'pdf':
-                response.outputs['graph_fit'].data_format = Format('application/pdf')
+            response.outputs["graph_fit"].file = str(fig_fn)
+            if format in ["png", "jpeg"]:
+                response.outputs["graph_fit"].data_format = Format(
+                    "image/{}".format(format)
+                )
+            elif format == "pdf":
+                response.outputs["graph_fit"].data_format = Format("application/pdf")
 
         return response
