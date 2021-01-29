@@ -23,11 +23,6 @@ PYTHON_VERSION = 3.6
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.anaconda.com/miniconda
-RAVEN_URL    = http://www.civil.uwaterloo.ca/jmai/raven/Raven-rev288.zip
-RAVEN_SRC    = $(CURDIR)/src/RAVEN
-OSTRICH_URL  = http://www.civil.uwaterloo.ca/jmai/raven/Ostrich_2017-12-19_plus_progressJSON.zip
-OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
-OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 
@@ -106,53 +101,17 @@ bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
 	bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
-.PHONY: raven_dev
-raven_dev:
-	@echo "Downloading RAVEN hydrological framework ..."
-	@test -d src || mkdir src
-	@test -f $(CURDIR)/src/RAVEN.zip || curl $(RAVEN_URL) --output "$(CURDIR)/src/RAVEN.zip"
-	@echo "Unzipping RAVEN ..."
-	@test -d $(RAVEN_SRC) || unzip -j $(CURDIR)/src/RAVEN.zip -d "$(RAVEN_SRC)"
-	@echo "Compiling RAVEN ..."
-	@test -f $(RAVEN_SRC)/Raven.exe || $(MAKE) -C $(RAVEN_SRC) -j4
-	@test -d bin || mkdir bin
-	@-bash -c "cp $(RAVEN_SRC)/Raven.exe ./bin/raven"
-
-.PHONY: ostrich_dev
-ostrich_dev:
-	@echo "Downloading OSTRICH calibration framework ..."
-	@test -d src || mkdir src
-	@test -f $(CURDIR)/src/OSTRICH.zip || curl $(OSTRICH_URL) --output "$(CURDIR)/src/OSTRICH.zip"
-	@echo "Unzipping OSTRICH ..."
-	@test -d $(OSTRICH_SRC) || unzip -j $(CURDIR)/src/OSTRICH.zip -d "$(OSTRICH_SRC)"
-	@echo "Compiling OSTRICH ..."
-	@test -f $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) || $(MAKE) $(OSTRICH_TARGET) -C $(OSTRICH_SRC) -j4
-	@test -d bin || mkdir bin
-	@-bash -c "cp $(OSTRICH_SRC)/Ostrich$(OSTRICH_TARGET) ./bin/ostrich"
-
-.PHONY: raven_clean
-raven_clean:
-	@echo "Removing src and executable for RAVEN"
-	@test -f $(CURDIR)/src/RAVEN.zip && rm -v "$(CURDIR)/src/RAVEN.zip" || echo "No zip to remove"
-	@test -d $(RAVEN_SRC) && rm -rfv $(RAVEN_SRC) || echo "No src directory to remove"
-	@test -f ./bin/raven && rm -v ./bin/raven || echo "No executable to remove"
-
-.PHONY: ostrich_clean
-ostrich_clean:
-	@echo "Removing src and executable for OSTRICH"
-	@test -f $(CURDIR)/src/OSTRICH.zip && rm -v "$(CURDIR)/src/OSTRICH.zip" || echo "No zip to remove"
-	@test -d $(OSTRICH_SRC) && rm -rfv $(OSTRICH_SRC) || echo "No src directory to remove"
-	@test -f ./bin/ostrich && rm -v ./bin/ostrich || echo "No executable to remove"
-
 .PHONY: install
-install: raven_dev ostrich_dev
+install:
 	@echo "Installing application ..."
+	bash -c 'pip install ravenpy --install-option="--with-binaries"'
 	@-bash -c 'pip install -e .'
 	@echo "\nStart service with \`make start'"
 
 .PHONY: develop
 develop:
 	@echo "Installing development requirements for tests and docs ..."
+	bash -c 'pip install ravenpy --install-option="--with-binaries"'
 	@-bash -c 'pip install -e ".[dev]"'
 
 .PHONY: start
