@@ -4,18 +4,23 @@ from shapely.geometry import MultiPolygon
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from raven.processes import (
-    NALCMSZonalStatisticsProcess,
-    NALCMSZonalStatisticsRasterProcess,
-)
+from ravenpy.utilities.testdata import get_local_testdata
+from shapely.geometry import MultiPolygon
 
-from .common import CFG_FILE, TESTDATA, client_for, count_pixels, get_output
+from raven.processes import NALCMSZonalStatisticsProcess, NALCMSZonalStatisticsRasterProcess
+
+from .common import CFG_FILE, client_for, count_pixels, get_output
 
 
 class TestNALCMSZonalStatsProcess:
     def test_simplified_categories(self):
         client = client_for(
-            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    NALCMSZonalStatisticsProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
 
         fields = [
@@ -30,8 +35,8 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=TESTDATA["mrc_subset"],
-            raster=TESTDATA["cec_nalcms_2010"],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=get_local_testdata("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
         )
 
         resp = client.get(
@@ -56,7 +61,12 @@ class TestNALCMSZonalStatsProcess:
 
     def test_true_categories(self):
         client = client_for(
-            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    NALCMSZonalStatisticsProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
 
         fields = [
@@ -71,8 +81,8 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=False,
             band=1,
-            shape=TESTDATA["mrc_subset"],
-            raster=TESTDATA["cec_nalcms_2010"],
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=get_local_testdata("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
         )
 
         resp = client.get(
@@ -97,7 +107,12 @@ class TestNALCMSZonalStatsProcess:
 
     def test_wcs_simplified_categories(self):
         client = client_for(
-            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    NALCMSZonalStatisticsProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
         fields = [
             "select_all_touching={touches}",
@@ -110,7 +125,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=TESTDATA["basin_test"],
+            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",
@@ -134,7 +149,12 @@ class TestNALCMSZonalStatsProcess:
 
     def test_wcs_true_categories(self):
         client = client_for(
-            Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
+            Service(
+                processes=[
+                    NALCMSZonalStatisticsProcess(),
+                ],
+                cfgfiles=CFG_FILE,
+            )
         )
         fields = [
             "select_all_touching={touches}",
@@ -147,7 +167,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=False,
             band=1,
-            shape=TESTDATA["basin_test"],
+            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",
@@ -186,7 +206,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=TESTDATA["basin_test"],
+            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",

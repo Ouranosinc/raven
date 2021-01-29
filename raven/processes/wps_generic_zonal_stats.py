@@ -5,7 +5,7 @@ import tempfile
 from rasterstats import zonal_stats
 
 from pywps import FORMATS, ComplexInput, LiteralInput, Process
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import (
     archive_sniffer,
     crs_sniffer,

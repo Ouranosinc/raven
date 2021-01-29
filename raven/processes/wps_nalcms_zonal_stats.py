@@ -6,7 +6,7 @@ from collections import defaultdict
 from pywps import Process
 from rasterstats import zonal_stats
 
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import (
     archive_sniffer,
     crs_sniffer,

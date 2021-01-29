@@ -101,3 +101,5 @@ docs/source/notebooks/*.nc
 
 # Merge conflict
 *.orig
+
+venv

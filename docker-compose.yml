@@ -2,12 +2,26 @@ version: '3'
 services:
   wps:
     build: .
-    image: local_raven
+    image: raven-wps
+    volumes:
+      - ./:/opt/wps
     ports:
       - "9099:9099"
 
-
-# docker-compose build
-# docker-compose up
-# docker-compose down
-# docker-compose rm
+  # To use:
+  # (1) Make sure you have raven-testdata locally (https://github.com/Ouranosinc/raven-testdata)
+  #     besides this repo checkout to satisfy the volumes mount assumption.
+  # (2) Run: docker-compose run tests
+  #
+  # In case of weird error or to ensure all dependencies are up-to-date
+  # rebuild from scratch: `docker-compose build --no-cache tests`
+  # and re-run `docker-compose run tests` again.
+  tests:
+    build: .
+    image: raven-wps-tests
+    volumes:
+      - ../raven-testdata:/testdata
+      - ./:/opt/wps
+    environment:
+      - RAVENPY_TESTDATA_PATH=/testdata
+    command: bash -c "source activate wps && pytest -x"

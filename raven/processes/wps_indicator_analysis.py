@@ -6,7 +6,7 @@ from pywps import FORMATS
 from pywps import Format
 from pywps import Process
 
-from raven.utilities.graphs import ts_graphs
+from ravenpy.utilities.graphs import ts_graphs
 
 
 class GraphIndicatorAnalysis(Process):

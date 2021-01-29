@@ -1,51 +1,24 @@
 import xarray as xr
 import xclim.sdba as sdba
-from xclim import subset
+from ravenpy.utilities.testdata import get_local_testdata
 
 
 class TestBiasCorrect:
     def test_bias_correction(self):
 
-        fut_data = (
-            "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/bias_adjusted/"
-            "cmip5/nasa/nex-gddp-1.0/day_inmcm4_historical+rcp85_nex-gddp.ncml"
+        ds_fut_sub = xr.open_dataset(
+            get_local_testdata(
+                "cmip5/nasa_nex-gddp-1.0_day_inmcm4_historical+rcp85_nex-gddp_2070-2071_subset.nc",
+            )
         )
-        ref_data = (
-            "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/simulations/bias_adjusted/"
-            "cmip5/nasa/nex-gddp-1.0/day_inmcm4_historical+rcp45_nex-gddp.ncml"
+        ds_ref_sub = xr.open_dataset(
+            get_local_testdata(
+                "cmip5/nasa_nex-gddp-1.0_day_inmcm4_historical+rcp45_nex-gddp_1971-1972_subset.nc",
+            )
         )
-        hist_data = "https://pavics.ouranos.ca/twitcher/ows/proxy/thredds/dodsC/datasets/gridded_obs/nrcan_v2.ncml"
-
-        lat = 49.5
-        lon = -72.96
-
-        # Open these datasets
-        ds_fut = xr.open_dataset(fut_data)
-        ds_ref = xr.open_dataset(ref_data)
-        ds_his = xr.open_dataset(hist_data)
-
-        # Subset the data to the desired location (2x2 degree box)
-        ds_fut_sub = subset.subset_bbox(
-            ds_fut,
-            lon_bnds=[lon - 1, lon + 1],
-            lat_bnds=[lat - 1, lat + 1],
-            start_date="2070",
-            end_date="2071",
-        ).mean(dim={"lat", "lon"}, keep_attrs=True)
-        ds_ref_sub = subset.subset_bbox(
-            ds_ref,
-            lon_bnds=[lon - 1, lon + 1],
-            lat_bnds=[lat - 1, lat + 1],
-            start_date="1971",
-            end_date="1972",
-        ).mean(dim={"lat", "lon"}, keep_attrs=True)
-        ds_his_sub = subset.subset_bbox(
-            ds_his,
-            lon_bnds=[lon - 1, lon + 1],
-            lat_bnds=[lat - 1, lat + 1],
-            start_date="1971",
-            end_date="1972",
-        ).mean(dim={"lat", "lon"}, keep_attrs=True)
+        ds_his_sub = xr.open_dataset(
+            get_local_testdata("nrcan/NRCAN_1971-1972_subset.nc")
+        )
 
         group_month_nowindow = sdba.utils.Grouper("time.month")
         Adj = sdba.DetrendedQuantileMapping(
