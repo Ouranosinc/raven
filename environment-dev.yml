@@ -1,0 +1,24 @@
+name: raven
+channels:
+- conda-forge
+- defaults
+dependencies:
+- pytest
+- flake8
+- pytest-flake8
+- ipython
+- pytest-notebook
+- nbsphinx
+- nbval
+- nbconvert
+- sphinx>=1.7
+- bumpversion
+- twine
+- cruft
+- pytest-dependency
+- pytest-notebook
+- sphinx-autoapi
+- black
+- pip
+- pip:
+    - urlpath
