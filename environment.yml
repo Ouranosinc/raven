@@ -8,7 +8,7 @@ dependencies:
 - pywps==4.2.9
 - unidecode
 - birdy
-- owslib
+- owslib<=0.22
 - poppler
 - jinja2
 - click
@@ -45,6 +45,6 @@ dependencies:
 - xskillscore
 - tbb
 - pip:
-  - ravenpy
+  - ravenpy >= 0.2.2
   - spotpy
   - urlpath

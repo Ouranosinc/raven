@@ -1,7 +1,7 @@
 # vim:set ft=dockerfile:
 FROM continuumio/miniconda3
 MAINTAINER https://github.com/huard/raven
-LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.10.0"
+LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.11.0"
 
 # Update Debian system
 RUN apt-get update && apt-get install -y \

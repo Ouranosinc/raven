@@ -149,6 +149,8 @@ class RavenProcess(Process):
                         response.outputs[key].data_format = Format(
                             "application/zip", extension=".zip", encoding="base64"
                         )
+            else:
+                response.outputs[key].data = ""
 
         return response
 
