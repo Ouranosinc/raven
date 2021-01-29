@@ -30,9 +30,14 @@ OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
 OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
-FLYINGPIGEON_WPS_URL = http://localhost:8093
-FINCH_WPS_URL = http://localhost:5000
 
+# Additional servers used by notebooks
+FLYINGPIGEON_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/flyingpigeon/wps
+FINCH_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
+
+# Replace by these to run local servers
+# FLYINGPIGEON_WPS_URL = http://localhost:8093
+# FINCH_WPS_URL = http://localhost:5000
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
