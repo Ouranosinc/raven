@@ -7,7 +7,7 @@ import shapely.ops as ops
 from rasterio.crs import CRS
 
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import (
     archive_sniffer,
     boundary_check,
