@@ -21,6 +21,7 @@ dependencies:
   # for pip packages
   - pip
   - nc-time-axis
+  - ipyleaflet
   - pip:
     # visual debugger for Jupyter Notebook, not working with JupyterLab at this moment
     - owslib<0.22
