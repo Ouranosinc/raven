@@ -1,4 +1,5 @@
 from pywps import Service
+
 from raven.processes import processes
 
 from .common import client_for
@@ -13,7 +14,6 @@ def test_wps_caps():
     sn = set(names.split())
 
     assert sn == {
-        "gr4j-cemaneige",
         "raster-subset",
         "raven",
         "raven-multi-model",
@@ -33,19 +33,15 @@ def test_wps_caps():
         "ostrich-hbv-ec",
         "objective-function",
         "graph_ensemble_uncertainty",
+        "graph_forecast_uncertainty",
         "graph_single_hydrograph",
-        "ts_stats",
-        "freq_analysis",
-        "base_flow_index",
         "ts_stats_graph",
         "regionalisation",
         "hindcast-evaluation",
         "graph_objective_function_fit",
-        "fit",
         "graph_fit",
         "climatology_esp",
         "forecast-floodrisk",
         "hindcasting",
         "realtime-forecast",
-        "graph_forecast_uncertainty"
     }

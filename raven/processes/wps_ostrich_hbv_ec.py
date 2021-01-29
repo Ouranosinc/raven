@@ -1,5 +1,5 @@
 from .wps_ostrich import OstrichProcess
-from raven.models import HBVEC_OST
+from ravenpy.models import HBVEC_OST
 from . import wpsio as wio
 import logging
 from pywps import FORMATS, LiteralInput, ComplexOutput

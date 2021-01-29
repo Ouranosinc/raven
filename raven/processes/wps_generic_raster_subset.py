@@ -5,7 +5,7 @@ from pywps import ComplexOutput
 from pywps import Process, FORMATS
 from rasterstats import zonal_stats
 
-from raven.utilities import gis
+from ravenpy.utilities import gis
 from raven.utils import (
     archive_sniffer,
     crs_sniffer,
@@ -95,6 +95,10 @@ class RasterSubsetProcess(Process):
             raster_file = projected
 
         data_type = raster_datatype_sniffer(raster_file)
+        # raster_compression = 'lzw'
+        #
+        # out_dir = os.path.join(self.workdir, 'output')
+        # os.makedirs(out_dir)
 
         try:
             stats = zonal_stats(
@@ -104,6 +108,34 @@ class RasterSubsetProcess(Process):
                 all_touched=touches,
                 raster_out=True,
             )
+
+            # for i in range(len(stats)):
+            #
+            #     file = 'subset_{}.tiff'.format(i + 1)
+            #     raster_subset = os.path.join(out_dir, file)
+            #
+            #     try:
+            #         raster_location = stats[i]
+            #         raster = raster_location['mini_raster_array']
+            #         grid_properties = raster_location['mini_raster_affine'][0:6]
+            #         nodata = raster_location['mini_raster_nodata']
+            #
+            #         aff = Affine(*grid_properties)
+            #
+            #         LOGGER.info('Writing raster data to {}'.format(raster_subset))
+            #
+            #         masked_array = np.ma.masked_values(raster, nodata)
+            #         if masked_array.mask.all():
+            #             msg = 'Subset {} is empty, continuing...'.format(i)
+            #             LOGGER.warning(msg)
+            #
+            #         normal_array = np.asarray(masked_array, dtype=data_type)
+            #
+            #         # Write to GeoTIFF
+            #         with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress=raster_compression,
+            #                       height=raster.shape[0], width=raster.shape[1], dtype=data_type, transform=aff,
+            #                       crs=vec_crs or ras_crs, nodata=nodata) as f:
+            #             f.write(normal_array, 1)
 
             response.outputs["raster"].file = zonalstats_raster_file(
                 stats,
