@@ -101,17 +101,23 @@ bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
 	bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
-.PHONY: install
-install:
-	@echo "Installing application ..."
+.PHONY: install_ravenpy_with_binaries
+install_ravenpy_with_binaries:
+	# Have to uninstall first, otherwise ravenpy is already installed
+	# without option "--with-binaries" so it won't re-install again, even
+	# with "pip install --upgrade" because same version.
+	bash -c 'pip uninstall --yes ravenpy'
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
+
+.PHONY: install
+install: install_ravenpy_with_binaries
+	@echo "Installing application ..."
 	@-bash -c 'pip install -e .'
 	@echo "\nStart service with \`make start'"
 
 .PHONY: develop
-develop:
+develop: install_ravenpy_with_binaries
 	@echo "Installing development requirements for tests and docs ..."
-	bash -c 'pip install ravenpy --install-option="--with-binaries"'
 	@-bash -c 'pip install -e ".[dev]"'
 
 .PHONY: start
