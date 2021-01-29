@@ -30,8 +30,13 @@ OSTRICH_SRC  = $(CURDIR)/src/OSTRICH
 OSTRICH_TARGET = GCC    # can be also MPI but requires mpi compiler; not tested
 UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
-FLYINGPIGEON_WPS_URL = http://localhost:8093
 
+# Additional servers used by notebooks
+FLYINGPIGEON_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/flyingpigeon/wps
+FINCH_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
+
+# To run tests on local servers, use
+# make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
@@ -223,12 +228,12 @@ notebook-sanitizer:
 .PHONY: test-notebooks
 test-notebooks: notebook-sanitizer
 	@echo "Running notebook-based tests"
-	@bash -c "env WPS_URL=$(WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: notebook
 notebook:
 	@echo "Running notebook server"
-	@bash -c "env WPS_URL=$(WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook $(CURDIR)/docs/source/notebooks/"
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook $(CURDIR)/docs/source/notebooks/"
 
 .PHONY: lint
 lint:
@@ -238,7 +243,7 @@ lint:
 .PHONY: refresh-notebooks
 refresh-notebooks:
 	@echo "Refresh all notebook outputs under docs/source/notebooks"
-	@bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do WPS_URL="$(WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output "$$nb" "$$nb"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$$nb"; done; cd $(APP_ROOT)'
+	@bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output "$$nb" "$$nb"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$$nb"; done; cd $(APP_ROOT)'
 
 .PHONY: test_pdb
 test_pdb:

@@ -11,6 +11,7 @@ dependencies:
   - netcdf4
   - pydap
   - cartopy
+  - rioxarray
   - descartes
   - xclim
   # to edit .ipynb
@@ -19,7 +20,11 @@ dependencies:
   - notebook
   # for pip packages
   - pip
+  - nc-time-axis
+  - ipyleaflet
   - pip:
     # visual debugger for Jupyter Notebook, not working with JupyterLab at this moment
+    - owslib<0.22
     - pixiedust
     - birdhouse-birdy
+    - ravenpy
