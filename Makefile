@@ -35,9 +35,8 @@ DOWNLOAD_CACHE = /tmp/
 FLYINGPIGEON_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/flyingpigeon/wps
 FINCH_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
 
-# Replace by these to run local servers
-# FLYINGPIGEON_WPS_URL = http://localhost:8093
-# FINCH_WPS_URL = http://localhost:5000
+# To run tests on local servers, use
+# make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
