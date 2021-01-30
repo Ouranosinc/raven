@@ -17,3 +17,4 @@ pytest-notebook
 sphinx-autoapi
 urlpath
 black
+nc-time-axis
