@@ -1,7 +1,11 @@
-from pywps import Service
-from pywps.tests import assert_response_success
+import tempfile
+
+from metalink import download as md
+import rasterio as rio
 from ravenpy.utilities.testdata import get_local_testdata
 
+from pywps import Service
+from pywps.tests import assert_response_success
 from raven.processes import RasterSubsetProcess
 
 from .common import CFG_FILE, client_for, get_output
@@ -12,9 +16,9 @@ class TestGenericRasterSubsetProcess:
         client = client_for(
             Service(
                 processes=[
-                    RasterSubsetProcess(),
+                    RasterSubsetProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -44,5 +48,13 @@ class TestGenericRasterSubsetProcess:
 
         assert_response_success(resp)
         out = get_output(resp.xml)
-
         assert {"raster"}.issubset([*out])
+
+        raster_dir = md.get(out["raster"], path=tempfile.mkdtemp())
+
+        bounds = list()
+        for f in raster_dir:
+            raster = rio.open(f)
+            assert raster.bounds
+            bounds.append(raster.bounds)
+        assert len(set(bounds)) == len(bounds)
