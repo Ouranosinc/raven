@@ -3,6 +3,7 @@ import tempfile
 
 from pywps import ComplexOutput
 from pywps import Process, FORMATS
+from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
 
 from ravenpy.utilities import gis
@@ -36,7 +37,7 @@ class RasterSubsetProcess(Process):
                 "DEM subset of `shape` region in GeoTIFF format.",
                 abstract="Elevation statistics: min, max, mean, median, sum, nodata",
                 as_reference=True,
-                supported_formats=[FORMATS.ZIP],
+                supported_formats=[FORMATS.GEOTIFF, FORMATS.META4],
             ),
         ]
 
@@ -109,6 +110,13 @@ class RasterSubsetProcess(Process):
                 raster_out=True,
             )
 
+            raster_files = zonalstats_raster_file(
+                stats,
+                working_dir=self.workdir,
+                data_type=data_type,
+                crs=vec_crs or ras_crs,
+            )
+
             # for i in range(len(stats)):
             #
             #     file = 'subset_{}.tiff'.format(i + 1)
@@ -137,12 +145,14 @@ class RasterSubsetProcess(Process):
             #                       crs=vec_crs or ras_crs, nodata=nodata) as f:
             #             f.write(normal_array, 1)
 
-            response.outputs["raster"].file = zonalstats_raster_file(
-                stats,
-                working_dir=self.workdir,
-                data_type=data_type,
-                crs=vec_crs or ras_crs,
-            )
+            ml = MetaLink4('test-ml-1', 'MetaLink with links to raster files.', workdir=self.workdir)
+            for i, file in enumerate(raster_files):
+                # Create a MetaFile instance, which instantiates a ComplexOutput object.
+                mf = MetaFile(file.name, description="Raster file", fmt=FORMATS.GEOTIFF)
+                mf.data = 'output: {}'.format(i)  # or mf.file = <path to file> or mf.url = <url>
+                ml.append(mf)
+
+            response.outputs["raster"].data = ml.xml
 
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url} and {raster_url}: {e}"
