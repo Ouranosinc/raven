@@ -22,3 +22,4 @@ dependencies:
 - pip
 - pip:
     - urlpath
+    - pymetalink
