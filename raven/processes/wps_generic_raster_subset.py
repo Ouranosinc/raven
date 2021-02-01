@@ -92,7 +92,7 @@ class RasterSubsetProcess(Process):
             projected = tempfile.NamedTemporaryFile(
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
-            generic_raster_warp(vector_file, projected, target_crs=vec_crs)
+            generic_raster_warp(raster_file, projected, target_crs=vec_crs)
             raster_file = projected
 
         data_type = raster_datatype_sniffer(raster_file)
