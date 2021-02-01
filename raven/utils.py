@@ -22,7 +22,7 @@ import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
 from affine import Affine
-from gdal import DEMProcessing
+from osgeo.gdal import DEMProcessing
 from rasterio.crs import CRS
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, mapping, shape
 from shapely.ops import transform
@@ -33,7 +33,7 @@ LOGGER = logging.getLogger("RAVEN")
 GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"  # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
 RASTERIO_TIFF_COMPRESSION = "lzw"
 
-WGS84 = "+init=epsg:4326"
+WGS84 = "4326"
 WGS84_PROJ4 = "+proj=longlat +datum=WGS84 +no_defs"
 LAEA = "+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 WORLDMOLL = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
@@ -788,7 +788,7 @@ def zonalstats_raster_file(
     data_type: str = None,
     crs: str = None,
     zip: bool = False,
-) -> Union[str, List[str]]:
+) -> Union[str, List[Path]]:
     """
     Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected to the proper CRS.
 
@@ -809,7 +809,7 @@ def zonalstats_raster_file(
 
     Returns
     -------
-    Union[str, List[str]]
+    Union[str, List[Path]]
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
@@ -863,7 +863,6 @@ def zonalstats_raster_file(
         foldername = f"subset_{''.join(choice(ascii_letters) for _ in range(10))}"
         out_fn = Path(working_dir).joinpath(foldername)
         shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)
-
         return "{}.zip".format(out_fn)
     else:
-        return [f.as_posix() for f in out_dir.glob("*")]
+        return [f for f in out_dir.glob("*")]
