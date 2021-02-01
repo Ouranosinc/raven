@@ -53,12 +53,7 @@ class TestGenericShapePropertiesProcess:
     def test_simple(self):
         shape = self.make_shape()
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -97,12 +92,7 @@ class TestGenericShapePropertiesProcess:
 
         shape = self.make_shape()
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -141,12 +131,7 @@ class TestGenericShapePropertiesProcess:
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -196,12 +181,7 @@ class TestGenericShapePropertiesProcess:
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
