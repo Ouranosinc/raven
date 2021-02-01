@@ -8,7 +8,7 @@ dependencies:
 - pywps==4.2.9
 - unidecode
 - birdy
-- owslib<=0.22
+- owslib==0.21
 - poppler
 - jinja2
 - click
