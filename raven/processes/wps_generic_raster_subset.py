@@ -37,7 +37,7 @@ class RasterSubsetProcess(Process):
                 "DEM subset of `shape` region in GeoTIFF format.",
                 abstract="Elevation statistics: min, max, mean, median, sum, nodata",
                 as_reference=True,
-                supported_formats=[FORMATS.GEOTIFF, FORMATS.META4],
+                supported_formats=[FORMATS.META4, FORMATS.GEOTIFF],
             ),
         ]
 
@@ -96,10 +96,6 @@ class RasterSubsetProcess(Process):
             raster_file = projected
 
         data_type = raster_datatype_sniffer(raster_file)
-        # raster_compression = 'lzw'
-        #
-        # out_dir = os.path.join(self.workdir, 'output')
-        # os.makedirs(out_dir)
 
         try:
             stats = zonal_stats(
@@ -117,42 +113,17 @@ class RasterSubsetProcess(Process):
                 crs=vec_crs or ras_crs,
             )
 
-            # for i in range(len(stats)):
-            #
-            #     file = 'subset_{}.tiff'.format(i + 1)
-            #     raster_subset = os.path.join(out_dir, file)
-            #
-            #     try:
-            #         raster_location = stats[i]
-            #         raster = raster_location['mini_raster_array']
-            #         grid_properties = raster_location['mini_raster_affine'][0:6]
-            #         nodata = raster_location['mini_raster_nodata']
-            #
-            #         aff = Affine(*grid_properties)
-            #
-            #         LOGGER.info('Writing raster data to {}'.format(raster_subset))
-            #
-            #         masked_array = np.ma.masked_values(raster, nodata)
-            #         if masked_array.mask.all():
-            #             msg = 'Subset {} is empty, continuing...'.format(i)
-            #             LOGGER.warning(msg)
-            #
-            #         normal_array = np.asarray(masked_array, dtype=data_type)
-            #
-            #         # Write to GeoTIFF
-            #         with rio.open(raster_subset, 'w', driver='GTiff', count=1, compress=raster_compression,
-            #                       height=raster.shape[0], width=raster.shape[1], dtype=data_type, transform=aff,
-            #                       crs=vec_crs or ras_crs, nodata=nodata) as f:
-            #             f.write(normal_array, 1)
+            if len(raster_files) > 1:
+                ml = MetaLink4('test-ml-1', 'MetaLink with links to raster files.', workdir=self.workdir)
+                for i, file in enumerate(raster_files):
+                    # Create a MetaFile instance, which instantiates a ComplexOutput object.
+                    mf = MetaFile(file.name, description="Raster file", fmt=FORMATS.GEOTIFF)
+                    mf.file = file.as_posix()  # or mf.file = <path to file> or mf.url = <url>
+                    ml.append(mf)
 
-            ml = MetaLink4('test-ml-1', 'MetaLink with links to raster files.', workdir=self.workdir)
-            for i, file in enumerate(raster_files):
-                # Create a MetaFile instance, which instantiates a ComplexOutput object.
-                mf = MetaFile(file.name, description="Raster file", fmt=FORMATS.GEOTIFF)
-                mf.data = 'output: {}'.format(i)  # or mf.file = <path to file> or mf.url = <url>
-                ml.append(mf)
-
-            response.outputs["raster"].data = ml.xml
+                response.outputs["raster"].data = ml.xml
+            else:
+                response.outputs["raster"].file = raster_files[0]
 
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url} and {raster_url}: {e}"
