@@ -1,5 +1,9 @@
 version: '3'
 services:
+  # To periodically refresh deps or have weird error: `docker-compose build --no-cache wps`
+  # `docker-compose run wps`
+  # WPS service available at: http://localhost:9099/wps
+  # Test: make WPS_URL=http://localhost:9099/wps test-notebooks
   wps:
     build: .
     image: raven-wps
