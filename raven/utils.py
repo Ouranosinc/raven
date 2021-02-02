@@ -385,13 +385,16 @@ def geom_transform(
       Reprojected geometry.
     """
     try:
-        reprojected = transform(
-            partial(pyproj.transform, pyproj.Proj(source_crs), pyproj.Proj(target_crs)),
-            geom,
-        )
+        # reprojected = transform(
+        #     partial(pyproj.transform, pyproj.Proj(source_crs), pyproj.Proj(target_crs)),
+        #     geom,
+        # )
+        from pyproj import Transformer
+        reprojected = transform(Transformer.from_crs(source_crs, target_crs), geom)
+
         return reprojected
     except Exception as e:
-        msg = "{}: Failed to reproject geometry".format(e)
+        msg = f"{e}: Failed to reproject geometry"
         LOGGER.error(msg)
         raise Exception(msg)
 

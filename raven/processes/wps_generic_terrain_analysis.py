@@ -56,7 +56,7 @@ class TerrainAnalysisProcess(Process):
                 "Subsetted digital elevation model",
                 abstract="DEM GeoTIFF image",
                 as_reference=True,
-                supported_formats=[FORMATS.GEOTIFF],
+                supported_formats=[FORMATS.GEOTIFF, FORMATS.META4],
             ),
         ]
 
@@ -132,7 +132,7 @@ class TerrainAnalysisProcess(Process):
             warped_fn = tempfile.NamedTemporaryFile(
                 prefix="warped_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
-            generic_raster_warp(raster_file, warped_fn, projection.to_proj4())
+            generic_raster_warp(raster_file, warped_fn, projection)
 
         else:
             warped_fn = raster_file
@@ -143,7 +143,7 @@ class TerrainAnalysisProcess(Process):
             prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
         ).name
         generic_vector_reproject(
-            vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_proj4()
+            vector_file, rpj, source_crs=vec_crs, target_crs=projection
         )
         with open(rpj) as src:
             geo = json.load(src)
