@@ -12,6 +12,11 @@ Changes
 * Upgrade to xarray 0.16.2
 * Add configuration options: `deaccumulate`
 * Clean notebooks
+* Pin RavenPy to 0.2.3
+* Pin owslib to 0.21
+* Fix RavenC binaries installation for deployment
+* Move some tests to RavenPy
+* Regionalization data is now bundled with RavenPy
 
 
 0.10.x (2020-03-09) Oxford
