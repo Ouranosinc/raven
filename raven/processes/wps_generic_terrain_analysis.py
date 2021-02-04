@@ -4,7 +4,7 @@ import tempfile
 
 import shapely.geometry as sgeo
 import shapely.ops as ops
-from rasterio.crs import CRS
+from pyproj.crs import CRS
 
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
 from ravenpy.utilities import gis
@@ -124,7 +124,7 @@ class TerrainAnalysisProcess(Process):
 
         # Reproject raster
         # ----------------
-        if ras_crs != projection.to_proj4():
+        if ras_crs != projection.to_epsg():
             msg = "CRS for {} is not {}. Reprojecting raster...".format(
                 raster_file, projection
             )
@@ -143,7 +143,7 @@ class TerrainAnalysisProcess(Process):
             prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
         ).name
         generic_vector_reproject(
-            vector_file, rpj, source_crs=vec_crs, target_crs=projection
+            vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_epsg()
         )
         with open(rpj) as src:
             geo = json.load(src)

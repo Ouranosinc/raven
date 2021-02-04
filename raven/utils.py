@@ -6,7 +6,6 @@ import shutil
 import tarfile
 import tempfile
 import zipfile
-from functools import partial
 from pathlib import Path
 from random import choice
 from re import search
@@ -16,16 +15,15 @@ from typing import Any, List, Optional, Sequence, Tuple, Union
 import fiona
 import fiona.crs
 import numpy as np
-import pyproj
 import rasterio
 import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
 from affine import Affine
 from osgeo.gdal import DEMProcessing
-from rasterio.crs import CRS
+from pyproj.crs import CRS
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, mapping, shape
-from shapely.ops import transform
+from shapely.ops import transform as shapely_transform
 
 LOGGER = logging.getLogger("RAVEN")
 
@@ -33,8 +31,7 @@ LOGGER = logging.getLogger("RAVEN")
 GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"  # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
 RASTERIO_TIFF_COMPRESSION = "lzw"
 
-WGS84 = "4326"
-WGS84_PROJ4 = "+proj=longlat +datum=WGS84 +no_defs"
+WGS84 = 4326
 LAEA = "+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 WORLDMOLL = "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
 ALBERS_NAM = "+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
@@ -66,8 +63,7 @@ def address_append(address: Union[str, Path]) -> str:
             LOGGER.info("No changes made to address.")
             return address
     except Exception as e:
-        msg = "Failed to prefix or parse URL {}: {}".format(address, e)
-        LOGGER.error(msg)
+        LOGGER.error("Failed to prefix or parse URL %s: %s." % (address, e))
 
 
 def generic_extract_archive(
@@ -118,13 +114,13 @@ def generic_extract_archive(
                             [str(Path(output_dir).joinpath(f)) for f in zf.namelist()]
                         )
                 elif file.endswith(".7z"):
-                    msg = "7z file extraction is not supported at this time"
+                    msg = "7z file extraction is not supported at this time."
                     LOGGER.warning(msg)
                     raise UserWarning(msg)
                 else:
-                    LOGGER.debug('File extension "{}" unknown'.format(file))
+                    LOGGER.debug('File extension "%s" unknown' % file)
             except Exception as e:
-                LOGGER.error("Failed to extract sub archive {}: {}".format(arch, e))
+                LOGGER.error("Failed to extract sub archive {%s}: {%s}" % (arch, e))
         else:
             LOGGER.warning("No archives found. Continuing...")
             return resources
@@ -153,7 +149,7 @@ def archive_sniffer(
     List[Union[str, Path]]
       List of files with matching accepted extensions
     """
-    potential_files = []
+    potential_files = list()
 
     if not extensions:
         extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
@@ -165,7 +161,7 @@ def archive_sniffer(
     return potential_files
 
 
-def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[str], str]:
+def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[Union[str, int]], str, int]:
     """Return the list of CRS found in files.
 
     Parameters
@@ -178,7 +174,7 @@ def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[str], str]:
     Union[List[str], str]
       Returns either a list of CRSes or a single CRS definition, depending on the number of instances found.
     """
-    crs_list = []
+    crs_list = list()
     vectors = (".gml", ".shp", ".geojson", ".gpkg", ".json")
     rasters = (".tif", ".tiff")
 
@@ -190,18 +186,18 @@ def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[str], str]:
                     if len(fiona.listlayers(file)) > 1:
                         raise NotImplementedError
                 with fiona.open(file, "r") as src:
-                    found_crs = fiona.crs.to_string(src.crs)
+                    found_crs = CRS.from_wkt(src.crs_wkt).to_epsg()
             elif str(file).lower().endswith(rasters):
                 with rasterio.open(file, "r") as src:
-                    found_crs = CRS(src.crs).to_proj4()
+                    found_crs = CRS.from_user_input(src.crs).to_epsg()
             else:
                 raise FileNotFoundError("Invalid filename suffix")
         except FileNotFoundError as e:
-            msg = "{}: Unable to open file {}".format(e, args)
+            msg = f"{e}: Unable to open file {args}"
             LOGGER.warning(msg)
             raise Exception(msg)
         except NotImplementedError as e:
-            msg = "{}: Multilayer GeoPackages are currently unsupported".format(e)
+            msg = f"{e}: Multilayer GeoPackages are currently unsupported"
             LOGGER.error(msg)
             raise Exception(msg)
         except RuntimeError:
@@ -210,14 +206,14 @@ def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[str], str]:
         crs_list.append(found_crs)
 
     if crs_list is None:
-        msg = "No CRS definitions found in {}.".format(args)
+        msg = f"No CRS definitions found in {args}."
         raise FileNotFoundError(msg)
 
     if len(crs_list) == 1:
-        if crs_list[0] == "":
-            msg = "No CRS definitions found in {}. Using {}".format(args, WGS84_PROJ4)
+        if crs_list[0] == "" or crs_list[0] is None:
+            msg = f"No CRS definitions found in {args}. Assuming {WGS84}."
             LOGGER.warning(msg)
-            return WGS84_PROJ4
+            return WGS84
         return crs_list[0]
     return crs_list
 
@@ -385,12 +381,16 @@ def geom_transform(
       Reprojected geometry.
     """
     try:
-        # reprojected = transform(
+        from pyproj import Transformer
+        # reprojected = shapely_transform(
         #     partial(pyproj.transform, pyproj.Proj(source_crs), pyproj.Proj(target_crs)),
         #     geom,
         # )
-        from pyproj import Transformer
-        reprojected = transform(Transformer.from_crs(source_crs, target_crs), geom)
+        source = CRS(source_crs)
+        target = CRS(target_crs)
+
+        transform_func = Transformer.from_crs(source, target)
+        reprojected = shapely_transform(transform_func, geom)
 
         return reprojected
     except Exception as e:
@@ -736,7 +736,7 @@ def generic_raster_warp(
 def generic_vector_reproject(
     vector: Union[str, Path],
     projected: Union[str, Path],
-    source_crs: Union[str, CRS] = WGS84_PROJ4,
+    source_crs: Union[str, CRS] = WGS84,
     target_crs: Union[str, CRS] = None,
 ) -> None:
     """Reproject all features and layers within a vector file and return a GeoJSON
@@ -758,13 +758,12 @@ def generic_vector_reproject(
     """
 
     if target_crs is None:
-        msg = "No target CRS is defined."
-        raise ValueError(msg)
+        raise ValueError("No target CRS is defined.")
 
     output = {"type": "FeatureCollection", "features": []}
 
     if isinstance(vector, Path):
-        vector = str(vector)
+        vector = vector.as_posix()
 
     for i, layer_name in enumerate(fiona.listlayers(vector)):
         with fiona.open(vector, "r", layer=i) as src:
@@ -777,10 +776,9 @@ def generic_vector_reproject(
                         feature["geometry"] = mapping(transformed)
                         output["features"].append(feature)
                     except Exception as e:
-                        msg = "{}: Unable to reproject feature {}".format(e, feature)
-                        LOGGER.exception(msg)
+                        LOGGER.exception("%s: Unable to reproject feature %s" % (e, feature))
 
-                sink.write("{}".format(json.dumps(output)))
+                sink.write(f"{json.dumps(output)}")
     return
 
 
@@ -816,7 +814,7 @@ def zonalstats_raster_file(
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
-    crs = CRS().from_user_input(crs).to_proj4()
+    crs = CRS().from_user_input(crs).to_wkt()
 
     for i in range(len(stats)):
 
@@ -866,6 +864,6 @@ def zonalstats_raster_file(
         foldername = f"subset_{''.join(choice(ascii_letters) for _ in range(10))}"
         out_fn = Path(working_dir).joinpath(foldername)
         shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)
-        return "{}.zip".format(out_fn)
+        return f"{out_fn}.zip"
     else:
         return [f for f in out_dir.glob("*")]
