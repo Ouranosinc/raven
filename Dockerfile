@@ -1,7 +1,7 @@
 # vim:set ft=dockerfile:
 FROM continuumio/miniconda3
 MAINTAINER https://github.com/huard/raven
-LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.11.0"
+LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.11.1"
 
 # Update Debian system
 RUN apt-get update && apt-get install -y \
@@ -22,7 +22,9 @@ WORKDIR /opt/wps
 
 # (1) Install RavenPy: note that this also installs the Raven and Ostrich binaries in the wps conda env's bin
 # (2) Install RavenWPS in editable mode
-RUN ["/bin/bash", "-c", "source activate wps && pip install ravenpy --install-option=\"--with-binaries\" && pip install -e ."]
+# Have to uninstall the ravenpy installed by conda so the re-install with
+# binaries work.  Same problem as in the Makefile.
+RUN ["/bin/bash", "-c", "source activate wps && pip uninstall --yes ravenpy && pip install ravenpy --install-option=\"--with-binaries\" && pip install -e ."]
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
