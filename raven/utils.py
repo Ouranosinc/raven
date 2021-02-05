@@ -20,7 +20,7 @@ import rasterio.mask
 import rasterio.vrt
 import rasterio.warp
 from affine import Affine
-from osgeo.gdal import DEMProcessing
+from osgeo.gdal import DEMProcessing # noqa
 from pyproj.crs import CRS
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, mapping, shape
 from shapely.ops import transform as shapely_transform
@@ -210,7 +210,7 @@ def crs_sniffer(*args: Sequence[Union[str, Path]]) -> Union[List[Union[str, int]
         raise FileNotFoundError(msg)
 
     if len(crs_list) == 1:
-        if crs_list[0] == "" or crs_list[0] is None:
+        if not crs_list[0]:
             msg = f"No CRS definitions found in {args}. Assuming {WGS84}."
             LOGGER.warning(msg)
             return WGS84
@@ -282,8 +282,8 @@ def single_file_check(file_list: List[Union[str, Path]]) -> Any:
             raise FileNotFoundError(msg)
         return file_list[0]
     except Exception as e:
-        msg = "{}: Unspecified error. Exiting,"
-        LOGGER.error(msg.format(e))
+        msg = f"{e}: Unspecified error. Exiting,"
+        LOGGER.error(msg)
         raise Exception(msg)
 
 
@@ -349,7 +349,7 @@ def multipolygon_check(geom: GeometryCollection) -> None:
             geom = shape(geom)
         except Exception as e:
             LOGGER.error(
-                "{}: Unable to load vector as shapely.geometry.shape().".format(e)
+                f"{e}: Unable to load vector as shapely.geometry.shape()."
             )
 
     if isinstance(type(geom), MultiPolygon):
@@ -358,9 +358,9 @@ def multipolygon_check(geom: GeometryCollection) -> None:
 
 
 def geom_transform(
-    geom: GeometryCollection,
-    source_crs: Union[str, CRS] = WGS84,
-    target_crs: Union[str, CRS] = None,
+    geom: Union[GeometryCollection, shape],
+    source_crs: Union[str, int, CRS] = WGS84,
+    target_crs: Union[str, int, CRS] = None,
 ) -> GeometryCollection:
     """Change the projection of a geometry.
 
@@ -368,11 +368,11 @@ def geom_transform(
 
     Parameters
     ----------
-    geom : GeometryCollection
+    geom : Union[GeometryCollection, shape]
       Source geometry.
-    source_crs : Union[str, CRS]
+    source_crs : Union[str, int, CRS]
       Projection identifier (proj4) for the source geometry, e.g. '+proj=longlat +datum=WGS84 +no_defs'.
-    target_crs : Union[str, CRS]
+    target_crs : Union[str, int, CRS]
       Projection identifier (proj4) for the target geometry.
 
     Returns
@@ -382,19 +382,17 @@ def geom_transform(
     """
     try:
         from pyproj import Transformer
-        # reprojected = shapely_transform(
-        #     partial(pyproj.transform, pyproj.Proj(source_crs), pyproj.Proj(target_crs)),
-        #     geom,
-        # )
-        source = CRS(source_crs)
-        target = CRS(target_crs)
+        from functools import partial
 
-        transform_func = Transformer.from_crs(source, target)
-        reprojected = shapely_transform(transform_func, geom)
+        source = CRS.from_epsg(source_crs)
+        target = CRS.from_epsg(target_crs)
+
+        transform_func = Transformer.from_crs(source, target, always_xy=True)
+        reprojected = shapely_transform(transform_func.transform, geom)
 
         return reprojected
-    except Exception as e:
-        msg = f"{e}: Failed to reproject geometry"
+    except Exception as err:
+        msg = f"{err}: Failed to reproject geometry"
         LOGGER.error(msg)
         raise Exception(msg)
 
@@ -777,6 +775,7 @@ def generic_vector_reproject(
                         output["features"].append(feature)
                     except Exception as e:
                         LOGGER.exception("%s: Unable to reproject feature %s" % (e, feature))
+                        raise
 
                 sink.write(f"{json.dumps(output)}")
     return
