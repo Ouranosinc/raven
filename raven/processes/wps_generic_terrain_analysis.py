@@ -125,9 +125,7 @@ class TerrainAnalysisProcess(Process):
         # Reproject raster
         # ----------------
         if ras_crs != projection.to_epsg():
-            msg = "CRS for {} is not {}. Reprojecting raster...".format(
-                raster_file, projection
-            )
+            msg = f"CRS for {raster_file} is not {projection}. Reprojecting raster..."
             LOGGER.warning(msg)
             warped_fn = tempfile.NamedTemporaryFile(
                 prefix="warped_", suffix=".tiff", delete=False, dir=self.workdir
