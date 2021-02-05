@@ -813,7 +813,7 @@ def zonalstats_raster_file(
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
-    crs = CRS().from_user_input(crs).to_wkt()
+    crs = CRS(crs)
 
     for i in range(len(stats)):
 
