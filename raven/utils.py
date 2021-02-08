@@ -384,8 +384,8 @@ def geom_transform(
         from pyproj import Transformer
         from functools import partial
 
-        source = CRS.from_epsg(source_crs)
-        target = CRS.from_epsg(target_crs)
+        source = CRS.from_epsg(source_crs) if isinstance(source_crs, int or str) else source_crs
+        target = CRS.from_epsg(target_crs) if isinstance(target_crs, int or str) else target_crs
 
         transform_func = Transformer.from_crs(source, target, always_xy=True)
         reprojected = shapely_transform(transform_func.transform, geom)
@@ -787,7 +787,7 @@ def zonalstats_raster_file(
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
     data_type: str = None,
     crs: str = None,
-    zip: bool = False,
+    zip_archive: bool = False,
 ) -> Union[str, List[Path]]:
     """
     Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected to the proper CRS.
@@ -804,7 +804,7 @@ def zonalstats_raster_file(
       The data encoding of the raster used to write the grid (e.g. 'int16').
     crs : str
       The coordinate reference system.
-    zip: bool
+    zip_archive: bool
       Return the files as a zipped archive (default: False).
 
     Returns
@@ -859,7 +859,7 @@ def zonalstats_raster_file(
             raise Exception(msg)
 
     # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
-    if zip:
+    if zip_archive:
         foldername = f"subset_{''.join(choice(ascii_letters) for _ in range(10))}"
         out_fn = Path(working_dir).joinpath(foldername)
         shutil.make_archive(base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER)

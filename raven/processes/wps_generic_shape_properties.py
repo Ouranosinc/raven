@@ -4,7 +4,7 @@ import logging
 import fiona
 from pywps import LiteralInput, ComplexInput, ComplexOutput
 from pywps import Process, FORMATS
-from rasterio.crs import CRS
+from pyproj.crs import CRS
 from shapely.geometry import shape
 
 from raven.utils import archive_sniffer, crs_sniffer, single_file_check
@@ -61,15 +61,15 @@ class ShapePropertiesProcess(Process):
         try:
             projection = CRS.from_epsg(projected_crs)
             if projection.is_geographic:
-                msg = 'Desired CRS {} is geographic. ' \
-                      'Areal analysis values will be in decimal-degree units.'.format(projection.to_epsg())
+                msg = f'Desired CRS {projection.to_epsg()} is geographic. ' \
+                      'Areal analysis values will be in decimal-degree units.'
                 LOGGER.warning(msg)
         except Exception as e:
-            msg = '{}: Failed to parse CRS definition. Exiting.'.format(e)
+            msg = f'{e}: Failed to parse CRS definition. Exiting.'
             LOGGER.error(msg)
             raise Exception(msg)
 
-        properties = []
+        properties = list()
         try:
             for i, layer_name in enumerate(fiona.listlayers(vector_file)):
                 with fiona.open(vector_file, 'r', crs=shape_crs, layer=i) as src:
@@ -89,7 +89,7 @@ class ShapePropertiesProcess(Process):
                         properties.append(prop)
 
         except Exception as e:
-            msg = '{}: Failed to extract features from shape {}'.format(e, vector_file)
+            msg = f'{e}: Failed to extract features from shape {vector_file}.'
             LOGGER.error(msg)
             raise Exception(msg)
 

@@ -217,7 +217,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 working_dir=self.workdir,
                 data_type=data_type,
                 crs=NALCMS_PROJ4,
-                zip=False
+                zip_archive=False
             )
 
             ml = MetaLink4("rasters_out", "Metalink to series of GeoTIFF raster files", workdir=self.workdir)
