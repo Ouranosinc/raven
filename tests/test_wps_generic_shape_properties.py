@@ -62,7 +62,7 @@ class TestGenericShapePropertiesProcess:
             "projected_crs={projected_crs}",
         ]
         datainputs = ";".join(fields).format(
-            file=shape.name, crs=4326, projected_crs=32198
+            file=shape.name, crs=4326, projected_crs=6622
         )
 
         resp = client.get(
@@ -142,7 +142,7 @@ class TestGenericShapePropertiesProcess:
         datainputs = ";".join(fields).format(
             file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
             crs=4326,
-            projected_crs=32198,
+            projected_crs=6622,
         )
 
         resp = client.get(
@@ -192,7 +192,7 @@ class TestGenericShapePropertiesProcess:
         datainputs = ";".join(fields).format(
             file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.zip"),
             crs=4326,
-            projected_crs=32198,
+            projected_crs=6622,
         )
 
         resp = client.get(
