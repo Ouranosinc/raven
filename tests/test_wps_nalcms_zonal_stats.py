@@ -1,12 +1,12 @@
 import json
 
+import pytest
+from metalink import download as md
+from ravenpy.utilities.testdata import get_local_testdata
 from shapely.geometry import MultiPolygon
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
-from shapely.geometry import MultiPolygon
-
 from raven.processes import NALCMSZonalStatisticsProcess, NALCMSZonalStatisticsRasterProcess
 
 from .common import CFG_FILE, client_for, count_pixels, get_output
@@ -190,6 +190,7 @@ class TestNALCMSZonalStatsProcess:
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
 
+@pytest.mark.online
 class TestNALCMSZonalStatsWithRasterProcess:
     def test_wcs_simplified_categories(self):
         client = client_for(
@@ -229,3 +230,4 @@ class TestNALCMSZonalStatsWithRasterProcess:
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
         assert {"raster"}.issubset([*out])
+        d = md.get(out['raster'], path='/tmp',)
