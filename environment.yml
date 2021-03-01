@@ -49,3 +49,4 @@ dependencies:
   - ravenpy >= 0.2.3
   - spotpy
   - urlpath
+  - pymetalink
