@@ -1,20 +1,20 @@
 import logging
 import tempfile
 
-from pywps import ComplexOutput
-from pywps import Process, FORMATS
+from pywps import FORMATS, ComplexOutput, Process
 from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
-
-from ravenpy.utilities import gis
-from raven.utils import (
+from ravenpy.utilities import geoserver
+from ravenpy.utils import (
     archive_sniffer,
     crs_sniffer,
-    single_file_check,
-    raster_datatype_sniffer,
     generic_raster_warp,
-    zonalstats_raster_file,
+    get_bbox,
+    raster_datatype_sniffer,
+    single_file_check,
 )
+
+from ..utils import zonalstats_raster_file
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
@@ -74,9 +74,11 @@ class RasterSubsetProcess(Process):
                 )
             )
         else:
-            bbox = gis.get_bbox(vector_file)
+            bbox = get_bbox(vector_file)
             raster_url = "public:EarthEnv_DEM90_NorthAmerica"
-            raster_bytes = gis.get_raster_wcs(bbox, geographic=True, layer=raster_url)
+            raster_bytes = geoserver.get_raster_wcs(
+                bbox, geographic=True, layer=raster_url
+            )
             raster_file = tempfile.NamedTemporaryFile(
                 prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
@@ -114,11 +116,19 @@ class RasterSubsetProcess(Process):
             )
 
             if len(raster_files) > 1:
-                ml = MetaLink4('test-ml-1', 'MetaLink with links to raster files.', workdir=self.workdir)
+                ml = MetaLink4(
+                    "test-ml-1",
+                    "MetaLink with links to raster files.",
+                    workdir=self.workdir,
+                )
                 for i, file in enumerate(raster_files):
                     # Create a MetaFile instance, which instantiates a ComplexOutput object.
-                    mf = MetaFile(file.name, description="Raster file", fmt=FORMATS.GEOTIFF)
-                    mf.file = file.as_posix()  # or mf.file = <path to file> or mf.url = <url>
+                    mf = MetaFile(
+                        file.name, description="Raster file", fmt=FORMATS.GEOTIFF
+                    )
+                    mf.file = (
+                        file.as_posix()
+                    )  # or mf.file = <path to file> or mf.url = <url>
                     ml.append(mf)
 
                 response.outputs["raster"].data = ml.xml

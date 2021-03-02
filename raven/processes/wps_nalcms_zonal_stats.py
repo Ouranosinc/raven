@@ -6,11 +6,12 @@ from collections import defaultdict
 from pywps import Process
 from rasterstats import zonal_stats
 
-from ravenpy.utilities import gis
-from raven.utils import (
+from ravenpy.utilities import geoserver
+from ravenpy.utils import (
     archive_sniffer,
     crs_sniffer,
     generic_vector_reproject,
+    get_bbox,
     single_file_check,
 )
 from . import wpsio as wio
@@ -139,9 +140,9 @@ class NALCMSZonalStatisticsProcess(Process):
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
 
-            bbox = gis.get_bbox(projected)
+            bbox = get_bbox(projected)
             raster_url = "public:CEC_NALCMS_LandUse_2010"
-            raster_bytes = gis.get_raster_wcs(bbox, geographic=False, layer=raster_url)
+            raster_bytes = geoserver.get_raster_wcs(bbox, geographic=False, layer=raster_url)
             raster_file = tempfile.NamedTemporaryFile(
                 prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
             ).name

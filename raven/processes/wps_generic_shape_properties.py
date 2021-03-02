@@ -7,8 +7,8 @@ from pywps import Process, FORMATS
 from pyproj.crs import CRS
 from shapely.geometry import shape
 
-from raven.utils import archive_sniffer, crs_sniffer, single_file_check
-from raven.utils import geom_transform, geom_prop, multipolygon_check
+from ravenpy.utils import archive_sniffer, crs_sniffer, single_file_check
+from ravenpy.utils import geom_transform, geom_prop, multipolygon_check
 
 LOGGER = logging.getLogger("PYWPS")
 
