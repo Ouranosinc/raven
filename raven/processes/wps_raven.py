@@ -6,7 +6,7 @@ from pathlib import Path
 from pywps import Format, LiteralOutput, Process
 from ravenpy.models import Raven
 
-from raven.utils import archive_sniffer, single_file_check
+from ravenpy.utils import archive_sniffer, single_file_check
 
 from . import wpsio as wio
 
