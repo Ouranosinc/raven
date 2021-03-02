@@ -9,9 +9,8 @@ from pywps import LiteralInput, ComplexOutput
 from pywps import Process, FORMATS
 from pywps.exceptions import InvalidParameterValue
 
-from ravenpy.utilities import gis
-from raven.utils import archive_sniffer, single_file_check, parse_lonlat
-from raven.utils import crs_sniffer
+from ravenpy.utilities import geoserver
+from ravenpy.utils import archive_sniffer, single_file_check, parse_lonlat, crs_sniffer
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -81,8 +80,8 @@ class HydroBasinsSelectionProcess(Process):
         shape_url = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.gml', delete=False,
                                                 dir=self.workdir).name
 
-        domain = gis.select_hybas_domain(bbox)
-        hybas_gml = gis.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
+        domain = geoserver.select_hybas_domain(bbox)
+        hybas_gml = geoserver.get_hydrobasins_location_wfs(bbox, lakes=lakes, level=level, domain=domain)
 
         if isinstance(hybas_gml, str):
             write_flags = "w"
@@ -115,22 +114,22 @@ class HydroBasinsSelectionProcess(Process):
             # Collect features from GeoServer
             response.update_status('Collecting relevant features', status_percentage=70)
 
-            region_url = gis.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
-                                                            lakes=lakes, level=level, domain=domain)
+            region_url = geoserver.get_hydrobasins_attributes_wfs(attribute='MAIN_BAS', value=main_bas,
+                                                                  lakes=lakes, level=level, domain=domain)
 
             # Read table of relevant features sharing main basin
             df = gpd.read_file(region_url)
 
             # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
             # Identify upstream sub-basins and write to a new file
-            up = gis.hydrobasins_upstream_ids(hybas_id, df)
+            up = geoserver.hydrobasins_upstream_ids(hybas_id, df)
             upfile = tempfile.NamedTemporaryFile(prefix='hybas_', suffix='.json', delete=False,
                                                  dir=self.workdir).name
             up.to_file(upfile, driver='GeoJSON')
 
             # Aggregate upstream features into a single geometry.
             gdf = gpd.read_file(upfile)
-            agg = gis.hydrobasins_aggregate(gdf)
+            agg = geoserver.hydrobasins_aggregate(gdf)
 
             # The aggregation returns a FeatureCollection with one feature. We select the first feature so that the
             # output is a Feature whether aggregate is True or False.
