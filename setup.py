@@ -23,6 +23,7 @@ docs_reqs = [
     "sphinx>=1.7",
     "sphinx-autoapi",
     "nbsphinx",
+    "sphinx_rtd_theme"
 ]
 
 classifiers = [
