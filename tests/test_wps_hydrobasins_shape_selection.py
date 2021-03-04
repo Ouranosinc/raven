@@ -1,11 +1,26 @@
 import json
 
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 
 from raven.processes import HydroBasinsSelectionProcess
+from raven.utils import parse_lonlat
 
 from .common import CFG_FILE, client_for, get_output
+
+
+class TestParser:
+    def test_parse_lonlat(self):
+        lonlats = ["123,345", "122233344.11111 34554554.2", "1111,2222"]
+        for ll in lonlats:
+            lonlat = parse_lonlat(ll)
+            assert len(lonlat) == 2
+            assert isinstance(lonlat[0], float)
+            assert isinstance(lonlat[1], float)
+
+        with pytest.raises(Exception):
+            parse_lonlat("This isn't a number, 333.444")
 
 
 class TestShapeSelectionProcess:

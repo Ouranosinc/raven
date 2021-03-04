@@ -4,22 +4,21 @@ import tempfile
 from collections import defaultdict
 from pathlib import Path
 
-from pywps import ComplexOutput
-from pywps import Process, FORMATS
-from pywps.inout.outputs import MetaLink4, MetaFile
+from pywps import FORMATS, ComplexOutput, Process
+from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
-
 from ravenpy.utilities import geoserver
-from ravenpy.utils import (
+from ravenpy.utilities.checks import single_file_check
+from ravenpy.utilities.geo import generic_vector_reproject
+from ravenpy.utilities.io import (
     archive_sniffer,
     crs_sniffer,
-    generic_vector_reproject,
     get_bbox,
     raster_datatype_sniffer,
-    single_file_check,
 )
-from . import wpsio as wio
+
 from ..utils import zonalstats_raster_file
+from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -130,9 +129,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             ras_crs = crs_sniffer(raster_file)
 
             if vec_crs != ras_crs:
-                msg = (
-                    f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting..."
-                )
+                msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting..."
                 LOGGER.warning(msg)
 
                 # Reproject full vector to preserve feature attributes
@@ -158,7 +155,9 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
             bbox = get_bbox(projected)
             raster_url = "public:CEC_NALCMS_LandUse_2010"
-            raster_bytes = geoserver.get_raster_wcs(bbox, geographic=False, layer=raster_url)
+            raster_bytes = geoserver.get_raster_wcs(
+                bbox, geographic=False, layer=raster_url
+            )
             raster_file = tempfile.NamedTemporaryFile(
                 prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
@@ -218,10 +217,14 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 working_dir=self.workdir,
                 data_type=data_type,
                 crs=NALCMS_PROJ4,
-                zip_archive=False
+                zip_archive=False,
             )
 
-            ml = MetaLink4("rasters_out", "Metalink to series of GeoTIFF raster files", workdir=self.workdir)
+            ml = MetaLink4(
+                "rasters_out",
+                "Metalink to series of GeoTIFF raster files",
+                workdir=self.workdir,
+            )
             for r in raster_out:
                 mf = MetaFile(Path(r).name, "Raster subset", fmt=FORMATS.GEOTIFF)
                 mf.file = r

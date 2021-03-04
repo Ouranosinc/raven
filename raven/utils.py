@@ -1,9 +1,10 @@
 import logging
+import re
 import shutil
 from pathlib import Path
 from random import choice
 from string import ascii_letters
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 import rasterio
@@ -16,6 +17,31 @@ from pyproj.crs import CRS
 LOGGER = logging.getLogger("RAVEN")
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
+
+
+def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:
+    """Return longitude and latitude from a string.
+
+    Parameters
+    ----------
+    lonlat : Union[str, Tuple[str, str]]
+      A tuple or a str of lon and lat coordinates.
+
+    Returns
+    -------
+    Tuple[float, float]
+    """
+    try:
+        if isinstance(lonlat, str):
+            lon, lat = tuple(map(float, re.findall(r"[-+]?[0-9]*\.?[0-9]+", lonlat)))
+        elif isinstance(lonlat, tuple):
+            lon, lat = map(float, lonlat)
+        else:
+            raise ValueError
+        return lon, lat
+    except Exception as e:
+        msg = "Failed to parse longitude, latitude coordinates {}".format(lonlat)
+        raise Exception(msg) from e
 
 
 def zonalstats_raster_file(

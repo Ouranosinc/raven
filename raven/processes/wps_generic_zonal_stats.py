@@ -2,17 +2,13 @@ import json
 import logging
 import tempfile
 
-from rasterstats import zonal_stats
-
 from pywps import LiteralInput, Process
+from rasterstats import zonal_stats
 from ravenpy.utilities import geoserver
-from ravenpy.utils import (
-    archive_sniffer,
-    crs_sniffer,
-    generic_vector_reproject,
-    get_bbox,
-    single_file_check,
-)
+from ravenpy.utilities.checks import single_file_check
+from ravenpy.utilities.geo import generic_vector_reproject
+from ravenpy.utilities.io import archive_sniffer, crs_sniffer, get_bbox
+
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
@@ -78,7 +74,9 @@ class ZonalStatisticsProcess(Process):
         else:
             bbox = get_bbox(vector_file)
             raster_url = "public:EarthEnv_DEM90_NorthAmerica"
-            raster_bytes = geoserver.get_raster_wcs(bbox, geographic=True, layer=raster_url)
+            raster_bytes = geoserver.get_raster_wcs(
+                bbox, geographic=True, layer=raster_url
+            )
             raster_file = tempfile.NamedTemporaryFile(
                 prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
