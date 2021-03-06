@@ -48,6 +48,9 @@ class ClimatologyEspProcess(Process):
             wio.model_name,
             wio.area,
             wio.elevation,
+            wio.nc_spec,
+            wio.rvc,
+            wio.rain_snow_fraction
         ]
 
         outputs = [
@@ -76,13 +79,14 @@ class ClimatologyEspProcess(Process):
             kwds[key] = request.inputs[key][0].data
 
         kwds["ts"] = request.inputs["ts"][0].file
-
+        if "rvc" in request.inputs:
+            kwds["rvc"]=request.inputs["rvc"][0].file
         # Get info from kwds but remove the ones that are not understood by RAVEN.
         # Have to delete these because or else I get an error: no config key named model_name
         forecast_date = kwds.pop("forecast_date")
         forecast_duration = kwds.pop("forecast_duration")
         model_name = kwds.pop("model_name")
-
+        
         # Get the model parameters, transform them to a list of floats and write them back to the kwds config.
         params = kwds["params"]
         csv = params.replace("(", "").replace(")", "")
