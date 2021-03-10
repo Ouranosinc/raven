@@ -45,8 +45,8 @@ dependencies:
 - psycopg2
 - xskillscore
 - tbb
+- pymetalink
 - pip:
   - ravenpy >= 0.3.0
   - spotpy
   - urlpath
-  - pymetalink
