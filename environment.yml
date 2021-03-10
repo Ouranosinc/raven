@@ -46,7 +46,7 @@ dependencies:
 - xskillscore
 - tbb
 - pip:
-  - ravenpy >= 0.2.3
+  - ravenpy >= 0.3.0
   - spotpy
   - urlpath
   - pymetalink
