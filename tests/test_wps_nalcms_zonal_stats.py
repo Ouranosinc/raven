@@ -230,4 +230,5 @@ class TestNALCMSZonalStatsWithRasterProcess:
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
         assert {"raster"}.issubset([*out])
-        d = md.get(out['raster'], path='/tmp',)
+        d = md.get(out['raster'], path='/tmp',)  # This doesn't work at all for some reason
+
