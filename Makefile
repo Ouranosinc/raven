@@ -107,13 +107,14 @@ install_ravenpy_with_binaries:
 	# without option "--with-binaries" so it won't re-install again, even
 	# with "pip install --upgrade" because same version.
 	bash -c 'pip uninstall --yes ravenpy'
+	bash -c 'pip install ravenpy[gis]'
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
 
 .PHONY: install
 install: install_ravenpy_with_binaries
 	@echo "Installing application ..."
 	@-bash -c 'pip install -e .'
-	@echo "\nStart service with \`make start'"
+	@echo "Start service with \`make start\`"
 
 .PHONY: develop
 develop: install_ravenpy_with_binaries
