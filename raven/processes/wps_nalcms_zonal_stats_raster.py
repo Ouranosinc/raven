@@ -83,6 +83,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 "raster",
                 "DEM grid subset by the requested shape.",
                 abstract="Zipped raster grid(s) of land-use using either standard or simplified UNFAO categories.",
+                as_reference=True,
                 supported_formats=[FORMATS.META4],
             ),
         ]
