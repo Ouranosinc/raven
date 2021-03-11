@@ -61,6 +61,7 @@ class TestShapeSelectionProcess:
 
         assert {"feature", "upstream_ids"}.issubset([*out])
 
+    @pytest.mark.skip("slow")
     def test_lac_saint_jean(self):
         client = client_for(
             Service(
@@ -118,6 +119,7 @@ class TestShapeSelectionProcess:
         assert json.loads(out_subbasin["feature"])["type"] == "Feature"
         assert json.loads(out_upstream["feature"])["type"] == "Feature"
 
+    @pytest.mark.skip("slow")
     def test_smallwood_reservoir(self):
         client = client_for(
             Service(
@@ -155,6 +157,7 @@ class TestShapeSelectionProcess:
 
         assert {"feature", "upstream_ids"}.issubset([*out])
 
+    @pytest.mark.skip("slow")
     def test_great_slave_lake(self):
         client = client_for(
             Service(
