@@ -109,6 +109,8 @@ install_ravenpy_with_binaries:
 	bash -c 'pip uninstall --yes ravenpy'
 	bash -c 'pip install ravenpy[gis]'
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
+	export RAVENPY_RAVEN_BINARY_PATH=$(pwd)/bin/raven
+    export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
 
 .PHONY: install
 install: install_ravenpy_with_binaries
