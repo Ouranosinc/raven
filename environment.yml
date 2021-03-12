@@ -27,8 +27,7 @@ dependencies:
 - libnetcdf #==4.6.2  # Avoid core dump with 4.7.1. Can be unpinned when 4.7.1 is not the latest anymore.
 - gdal
 - fiona
-- proj<7.0
-- pyproj<3.0
+- pyproj
 - descartes
 - cartopy
 - affine
