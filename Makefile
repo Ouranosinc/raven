@@ -3,6 +3,8 @@ APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
 WPS_URL = http://localhost:9099
+RAVENPY_RAVEN_BINARY_PATH := $(shell pwd)/bin/raven
+RAVENPY_OSTRICH_BINARY_PATH := $(shell pwd)/bin/ostrich
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
@@ -110,7 +112,7 @@ install_ravenpy_with_binaries:
 	bash -c 'pip install ravenpy[gis]'
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
 	export RAVENPY_RAVEN_BINARY_PATH=$(pwd)/bin/raven
-    export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
+	export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
 
 .PHONY: install
 install: install_ravenpy_with_binaries
@@ -126,7 +128,7 @@ develop: install_ravenpy_with_binaries
 .PHONY: start
 start:
 	@echo "Starting application ..."
-	@-bash -c "$(APP_NAME) start -d"
+	@-bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) $(APP_NAME) start -d"
 
 .PHONY: stop
 stop:
@@ -181,12 +183,12 @@ clean-dist: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
-	@bash -c 'pytest -v -m "not slow and not online" tests/'
+	@bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) pytest -v -m 'not slow and not online' tests/"
 
 .PHONY: test-all
 test-all:
 	@echo "Running all tests (including slow and online tests) ..."
-	@bash -c 'pytest -v tests/'
+	@bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) pytest -v tests/"
 
 .PHONY: notebook-sanitizer
 notebook-sanitizer:
