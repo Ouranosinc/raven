@@ -2,7 +2,7 @@
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
-WPS_URL = http://localhost:9099
+WPS_URL := http://localhost:9099
 RAVENPY_RAVEN_BINARY_PATH := $(shell pwd)/bin/raven
 RAVENPY_OSTRICH_BINARY_PATH := $(shell pwd)/bin/ostrich
 
