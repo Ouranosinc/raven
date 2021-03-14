@@ -61,6 +61,13 @@ class HindcastingProcess(RavenProcess):
         params = self.parse_tuple(request.inputs.pop(name)[0])
         model = get_model(name)(workdir=self.workdir)
         model.assign("params", params)
+     
+        
+        """ if we have a hotstart file"""
+        if "rvc" in request.inputs:
+            rvc=request.inputs.pop('rvc')[0].file
+            model.resume(rvc)
+            
         return model
 
     def meteo(self, request):
@@ -88,16 +95,14 @@ class HindcastingProcess(RavenProcess):
         # To speed-up testing, copy this file and return it instead of recomputing every time.
         fn = Path(self.workdir) / "fcstfile.nc"
         fcst.to_netcdf(fn)
-
         return [fn]
 
     def run(self, model, ts, kwds):
         """Initialize the model with the RVC file, then run it with the forecast data."""
         # Open forecast file and set some attributes.
-
+        
         fcst = xr.open_dataset(ts[0])
         kwds["nc_index"] = range(fcst.dims.get("member"))
-
         model(ts=ts, **kwds)
 
         fcst.close()
