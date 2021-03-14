@@ -44,7 +44,7 @@ class TestHindcasting:
             }
         )
         tas = json.dumps({"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}})
-        rvc = (get_local_testdata("gr4j_cemaneige/solution.rvc"),)
+        rvc = "/home/ets/src/raven-testdata/gr4j_cemaneige/solution.rvc" #(get_local_testdata("gr4j_cemaneige/solution.rvc"),)
         hdate = dt.datetime(2018, 6, 1)
 
         # Date of the forecast that will be used to determine the members of the climatology-based ESP
@@ -69,7 +69,7 @@ class TestHindcasting:
                 longitude=-123.3659,
                 name="Salmon",
                 area="4250.6",
-                duration=3,
+                duration=8,
                 elevation="843.0",
                 forecast_model=forecast_model,
                 region_vector=region_vector,
@@ -88,15 +88,15 @@ class TestHindcasting:
             identifier="hindcasting",
             datainputs=datainputs,
         )
-
+        
         assert_response_success(resp)
         out = get_output(resp.xml)
         assert "hydrograph" in out
 
         # Display forecast to show it works
 
-        forecast, _ = urlretrieve(out["hydrograph"])
-        # tmp = xr.open_dataset(forecast)
-        # qfcst = tmp["q_sim"][:].data.transpose()
+        #forecast, _ = urlretrieve(out["hydrograph"])
+        #tmp = xr.open_dataset(forecast)
+        #qfcst = tmp["q_sim"][:].data.transpose()
         # plt.plot(qfcst)
         # plt.show()
