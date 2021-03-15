@@ -34,17 +34,18 @@ repos:
         language_version: python3
         args: ["--target-version", "py36"]
 -   repo: https://github.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.0
     hooks:
     -   id: flake8
         language_version: python3
         args: ['--config=setup.cfg']
--   repo: https://github.com/timothycrosley/isort
-    rev: 5.7.0
-    hooks:
-    -   id: isort
-        language_version: python3
-        args: ['--profile', 'black', '--filter-files']
+# isort and profile for setup.cdg are not compatible?
+# -   repo: https://github.com/timothycrosley/isort
+#     rev: 5.7.0
+#     hooks:
+#     -   id: isort
+#         language_version: python3
+#         args: ['--filter-files', '--wl', '88', '--multi-line', 'VERTICAL_HANGING_INDENT']
 -   repo: https://github.com/pycqa/pydocstyle
     rev: 5.1.1
     hooks:
