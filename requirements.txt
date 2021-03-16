@@ -28,8 +28,9 @@ pyproj>=2.5.0
 rasterio
 rasterstats
 shapely
-unidecode
 geojson
+# DOCS and other utilities
+unidecode
 pandoc
 ipyleaflet
 ipython # needed for the parsing of Jupyter Notebooks
