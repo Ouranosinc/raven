@@ -28,7 +28,6 @@ dependencies:
 - gdal
 - fiona
 - pyproj
-- descartes
 - cartopy
 - affine
 - rasterio
