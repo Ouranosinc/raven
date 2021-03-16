@@ -18,3 +18,4 @@ sphinx-autoapi
 urlpath
 black
 nc-time-axis
+pre-commit
