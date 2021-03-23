@@ -119,7 +119,12 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             generic_vector_reproject(
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
-            raster_file = gather_dem_tile(vector_file, self.workdir, geographic=False, raster="public:CEC_NALCMS_LandUse_2010")
+            raster_file = gather_dem_tile(
+                vector_file,
+                self.workdir,
+                geographic=False,
+                raster="public:CEC_NALCMS_LandUse_2010",
+            )
 
         data_type = raster_datatype_sniffer(raster_file)
         response.update_status("Accessed raster", status_percentage=10)
