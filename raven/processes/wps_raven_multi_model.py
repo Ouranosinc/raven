@@ -1,5 +1,4 @@
 from raven.processes import RavenProcess
-from pywps import LiteralInput
 from ravenpy.models import HMETS, GR4JCN, HBVEC, MOHYSE, RavenMultiModel
 from . import wpsio as wio
 

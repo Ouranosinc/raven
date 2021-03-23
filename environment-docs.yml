@@ -12,8 +12,8 @@ dependencies:
 - xskillscore
 - xclim
 - sphinx_rtd_theme
-- rioxarray
-- gdal
+#- rioxarray
+#- gdal
 - pip
-- pip:
-  - ravenpy
+#- pip:
+#  - ravenpy

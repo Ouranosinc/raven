@@ -67,7 +67,7 @@ autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
                         "numba", "parse", "siphon", "sklearn", "cftime",
                         "netCDF4", "bottleneck", "ocgis", "geotiff", "geos",
                         "hdf4", "hdf5", "zlib", "pyproj", "proj", "cartopy",
-                        "scikit-learn", "cairo"]
+                        "scikit-learn", "cairo", "ravenpy", "rioxarray"]
 
 # Monkeypatch constant because the following are mock imports.
 # Only works if numpy is actually installed and at the same time being mocked.
