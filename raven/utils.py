@@ -18,6 +18,47 @@ LOGGER = logging.getLogger("RAVEN")
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
 
+TRUE_CATEGORIES = {
+    0: "Ocean",
+    1: "Temperate or sub-polar needleleaf forest",
+    2: "Sub-polar taiga needleleaf forest",
+    3: "Tropical or sub-tropical broadleaf evergreen forest",
+    4: "Tropical or sub-tropical broadleaf deciduous forest",
+    5: "Temperate or sub-polar broadleaf deciduous forest",
+    6: "Mixed forest",
+    7: "Tropical or sub-tropical shrubland",
+    8: "Temperate or sub-polar shrubland",
+    9: "Tropical or sub-tropical grassland",
+    10: "Temperate or sub-polar grassland",
+    11: "Sub-polar or polar shrubland-lichen-moss",
+    12: "Sub-polar or polar grassland-lichen-moss",
+    13: "Sub-polar or polar barren-lichen-moss",
+    14: "Wetland",
+    15: "Cropland",
+    16: "Barren lands",
+    17: "Urban",
+    18: "Water",
+    19: "Snow and Ice",
+}
+
+simplified = {
+    "Ocean": [0],
+    "Forest": [1, 2, 3, 4, 5, 6],
+    "Shrubs": [7, 8, 11],
+    "Grass": [9, 10, 12, 13, 16],
+    "Wetland": [14],
+    "Crops": [15],
+    "Urban": [17],
+    "Water": [18],
+    "SnowIce": [19],
+}
+SIMPLE_CATEGORIES = {i: cat for (cat, ids) in simplified.items() for i in ids}
+
+SUMMARY_ZONAL_STATS = ["count", "nodata", "nan"]
+NALCMS_PROJ4 = (
+    "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs=True"
+)
+
 
 def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:
     """Return longitude and latitude from a string.
