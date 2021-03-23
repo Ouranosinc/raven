@@ -62,7 +62,7 @@ autoapi_options = ['members', 'undoc-members', 'private-members']
 # inherit without having to test which work which do not.
 autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
                         "osgeo", "geopandas", "pandas", "statsmodels", "xclim",
-                        "affine", "rasterstats", "spotpy", "matplotlib",
+                        "affine", "rasterstats", "spotpy", "matplotlib", "xskillscore",
                         "scipy", "unidecode", "gdal", "sentry_sdk", "dask",
                         "numba", "parse", "siphon", "sklearn", "cftime", "clisops",
                         "netCDF4", "bottleneck", "ocgis", "geotiff", "geos",
