@@ -6,7 +6,6 @@ import shapely.geometry as sgeo
 import shapely.ops as ops
 from pyproj.crs import CRS
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-from ravenpy.utilities import geoserver
 from ravenpy.utilities.analysis import dem_prop
 from ravenpy.utilities.checks import boundary_check, single_file_check
 from ravenpy.utilities.geo import (
@@ -14,8 +13,9 @@ from ravenpy.utilities.geo import (
     generic_raster_warp,
     generic_vector_reproject,
 )
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer, get_bbox
+from ravenpy.utilities.io import archive_sniffer, crs_sniffer
 
+from ..utils import gather_dem_tile
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
@@ -108,16 +108,7 @@ class TerrainAnalysisProcess(Process):
 
         else:
             # Assuming that the shape coordinate are in WGS84
-            bbox = get_bbox(vector_file)
-            raster_url = "public:EarthEnv_DEM90_NorthAmerica"
-            raster_bytes = geoserver.get_raster_wcs(
-                bbox, geographic=True, layer=raster_url
-            )
-            raster_file = tempfile.NamedTemporaryFile(
-                prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
-            ).name
-            with open(raster_file, "wb") as f:
-                f.write(raster_bytes)
+            raster_file = gather_dem_tile(vector_file, self.workdir)
 
         ras_crs = crs_sniffer(raster_file)
 
