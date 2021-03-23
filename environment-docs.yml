@@ -9,11 +9,11 @@ dependencies:
 - sphinx
 - nbsphinx
 - ipython
-- xskillscore
-- xclim
+#- xskillscore
+#- xclim
 - sphinx_rtd_theme
 #- rioxarray
 #- gdal
-- pip
+#- pip
 #- pip:
 #  - ravenpy
