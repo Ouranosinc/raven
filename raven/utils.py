@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 from random import choice
 from string import ascii_letters
+from tempfile import NamedTemporaryFile
 from typing import List, Tuple, Union
 
 import numpy as np
@@ -13,6 +14,8 @@ import rasterio.vrt
 import rasterio.warp
 from affine import Affine
 from pyproj.crs import CRS
+from ravenpy.utilities.io import get_bbox
+from ravenpy.utilities.geoserver import get_raster_wcs
 
 LOGGER = logging.getLogger("RAVEN")
 
@@ -58,6 +61,42 @@ SUMMARY_ZONAL_STATS = ["count", "nodata", "nan"]
 NALCMS_PROJ4 = (
     "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs=True"
 )
+EARTH_ENV_DEM = "public:EarthEnv_DEM90_NorthAmerica"
+
+
+def gather_dem_tile(
+    vector_file: Union[str, Path],
+    work_dir: Union[str, Path],
+    geographic: bool = True,
+    raster: str = EARTH_ENV_DEM,
+) -> Path:
+    """Return a raster coverage for
+
+    Parameters
+    ----------
+    vector_file:
+      Shape whose bounds will be used to collect a raster coverage.
+    work_dir:
+      Folder where the file will be written.
+    geographic: bool
+      Use geographic units (degree-decimal) or projected units (metres/feet).
+    raster: str
+      Layer name on GeoServer.
+
+    Returns
+    -------
+    Path
+      Path to raster file.
+    """
+    bbox = get_bbox(vector_file)
+    raster_layer = raster
+    raster_bytes = get_raster_wcs(bbox, geographic=geographic, layer=raster_layer)
+    raster_file = NamedTemporaryFile(
+        prefix="wcs_", suffix=".tiff", delete=False, dir=work_dir
+    ).name
+    with open(raster_file, "wb") as f:
+        f.write(raster_bytes)
+    return Path(raster_file)
 
 
 def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:

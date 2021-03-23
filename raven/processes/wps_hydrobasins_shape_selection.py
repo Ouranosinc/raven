@@ -162,11 +162,7 @@ class HydroBasinsSelectionProcess(Process):
 
         else:
             response.outputs["feature"].data = json.dumps(feat)
-            response.outputs["upstream_ids"].data = json.dumps(
-                [
-                    gml_id,
-                ]
-            )
+            response.outputs["upstream_ids"].data = json.dumps([gml_id])
 
         src.close()
 

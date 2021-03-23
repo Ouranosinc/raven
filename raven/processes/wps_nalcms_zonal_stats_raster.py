@@ -7,13 +7,11 @@ from pathlib import Path
 from pywps import FORMATS, ComplexOutput, Process
 from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
-from ravenpy.utilities import geoserver
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.geo import generic_vector_reproject
 from ravenpy.utilities.io import (
     archive_sniffer,
     crs_sniffer,
-    get_bbox,
     raster_datatype_sniffer,
 )
 
@@ -22,6 +20,7 @@ from ..utils import (
     SIMPLE_CATEGORIES,
     SUMMARY_ZONAL_STATS,
     TRUE_CATEGORIES,
+    gather_dem_tile,
     zonalstats_raster_file,
 )
 from . import wpsio as wio
@@ -111,24 +110,16 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             else:
                 projected = vector_file
 
-        else:  # using the NALCMS data from GeoServer
+        else:
+            raster_url = None
+            # using the NALCMS data from GeoServer
             projected = tempfile.NamedTemporaryFile(
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
             generic_vector_reproject(
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
-
-            bbox = get_bbox(projected)
-            raster_url = "public:CEC_NALCMS_LandUse_2010"
-            raster_bytes = geoserver.get_raster_wcs(
-                bbox, geographic=False, layer=raster_url
-            )
-            raster_file = tempfile.NamedTemporaryFile(
-                prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
-            ).name
-            with open(raster_file, "wb") as f:
-                f.write(raster_bytes)
+            raster_file = gather_dem_tile(vector_file, self.workdir, geographic=False, raster="public:CEC_NALCMS_LandUse_2010")
 
         data_type = raster_datatype_sniffer(raster_file)
         response.update_status("Accessed raster", status_percentage=10)
@@ -202,7 +193,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             response.outputs["raster"].data = ml.xml
 
         except Exception as e:
-            msg = f"Failed to perform zonal statistics using {shape_url} and {raster_url}: {e}"
+            msg = f"Failed to perform zonal statistics using {shape_url}{f'and {raster_url} ' if not None else ''}: {e}"
             LOGGER.error(msg)
             raise Exception(msg) from e
 

@@ -4,17 +4,15 @@ import tempfile
 from pywps import FORMATS, ComplexOutput, Process
 from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
-from ravenpy.utilities import geoserver
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.geo import generic_raster_warp
 from ravenpy.utilities.io import (
     archive_sniffer,
     crs_sniffer,
-    get_bbox,
     raster_datatype_sniffer,
 )
 
-from ..utils import zonalstats_raster_file
+from ..utils import zonalstats_raster_file, gather_dem_tile
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
@@ -74,16 +72,9 @@ class RasterSubsetProcess(Process):
                 )
             )
         else:
-            bbox = get_bbox(vector_file)
-            raster_url = "public:EarthEnv_DEM90_NorthAmerica"
-            raster_bytes = geoserver.get_raster_wcs(
-                bbox, geographic=True, layer=raster_url
-            )
-            raster_file = tempfile.NamedTemporaryFile(
-                prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
-            ).name
-            with open(raster_file, "wb") as f:
-                f.write(raster_bytes)
+            raster_url = None
+            # Assuming that the shape coordinate are in WGS84
+            raster_file = gather_dem_tile(vector_file, self.workdir, geographic=True)
 
         vec_crs, ras_crs = crs_sniffer(vector_file), crs_sniffer(raster_file)
 
@@ -136,7 +127,7 @@ class RasterSubsetProcess(Process):
                 response.outputs["raster"].file = raster_files[0]
 
         except Exception as e:
-            msg = f"Failed to perform raster subset using {shape_url} and {raster_url}: {e}"
+            msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if not None else ''}: {e}"
             LOGGER.error(msg)
             raise Exception(msg)
 
