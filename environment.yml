@@ -5,7 +5,7 @@ channels:
 dependencies:
 - pip
 - six
-- pywps==4.4.0
+- pywps==4.4.1
 - unidecode
 - birdy
 - owslib==0.21
@@ -46,6 +46,6 @@ dependencies:
 - tbb
 - pymetalink
 - pip:
-  - ravenpy >= 0.3.0
+  - ravenpy==0.3.0
   - spotpy
   - urlpath
