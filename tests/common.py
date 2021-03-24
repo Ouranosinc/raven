@@ -1,5 +1,4 @@
 from pathlib import Path
-from urllib.request import urlretrieve
 
 import numpy as np
 import pandas as pd
@@ -102,13 +101,7 @@ def _convert_2d(fn):
 
     # Add geometry feature variables
     for key, val in features.items():
-        ds[key] = xr.DataArray(
-            name=key,
-            data=[
-                val,
-            ],
-            dims=("region",),
-        )
+        ds[key] = xr.DataArray(name=key, data=[val], dims=("region",))
 
     return ds
 
@@ -128,18 +121,8 @@ def _convert_3d(fn):
 
     out = xr.Dataset(
         coords={
-            "lon": (
-                [
-                    "lon",
-                ],
-                lon,
-            ),
-            "lat": (
-                [
-                    "lat",
-                ],
-                lat,
-            ),
+            "lon": (["lon"], lon),
+            "lat": (["lat"], lat),
             "time": ds.time,
         }
     )
