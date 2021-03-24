@@ -6,7 +6,8 @@ from pathlib import Path
 from pywps import Format, LiteralOutput, Process
 from ravenpy.models import Raven
 
-from raven.utils import archive_sniffer, single_file_check
+from ravenpy.utilities.checks import single_file_check
+from ravenpy.utilities.io import archive_sniffer
 
 from . import wpsio as wio
 
@@ -22,7 +23,7 @@ class RavenProcess(Process):
     )
     version = "0.1"
 
-    tuple_inputs = {}
+    tuple_inputs = dict()
     inputs = [wio.ts, wio.nc_spec, wio.conf]
     outputs = [
         wio.hydrograph,
@@ -112,7 +113,7 @@ class RavenProcess(Process):
             model.resume(rvc)
 
     def _handler(self, request, response):
-        response.update_status("PyWPS process {} started.".format(self.identifier), 0)
+        response.update_status(f"PyWPS process {self.identifier} started.", 0)
 
         model = self.model(request)
 

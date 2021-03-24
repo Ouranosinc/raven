@@ -5,7 +5,7 @@ channels:
 dependencies:
 - pip
 - six
-- pywps==4.2.9
+- pywps==4.4.1
 - unidecode
 - birdy
 - owslib==0.21
@@ -27,8 +27,8 @@ dependencies:
 - libnetcdf #==4.6.2  # Avoid core dump with 4.7.1. Can be unpinned when 4.7.1 is not the latest anymore.
 - gdal
 - fiona
+- proj<8.0.0
 - pyproj
-- descartes
 - cartopy
 - affine
 - rasterio
@@ -44,7 +44,8 @@ dependencies:
 - psycopg2
 - xskillscore
 - tbb
+- pymetalink
 - pip:
-  - ravenpy >= 0.2.3
+  - ravenpy==0.3.0
   - spotpy
   - urlpath
