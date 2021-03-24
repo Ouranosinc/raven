@@ -12,5 +12,5 @@ def test_describe():
 
     wps = WebProcessingService(URL, skip_caps=True)
     client = client_for(Service(processes=processes))
-    resp = client.get(service='wps', request='getcapabilities', version='1.0.0')
+    resp = client.get(service="wps", request="getcapabilities", version="1.0.0")
     wps.describeprocess("all", xml=resp.data)

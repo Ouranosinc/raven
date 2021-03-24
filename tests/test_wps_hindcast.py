@@ -30,7 +30,7 @@ class TestHindcasting:
         # params = '9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, ' \
         #         '2.6851, 0.3740, 1.0000, 0.4739, 0.0114, 0.0243, 0.0069, 310.7211, 916.1947'
 
-        model = "GR4JCN"
+        _ = "GR4JCN"
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"
         forecast_model = "GEPS"
         region_vector = get_local_testdata("watershed_vector/LSJ_LL.zip")

@@ -19,12 +19,7 @@ with open(os.path.join(here, "raven", "__version__.py"), "r") as f:
 reqs = [line.strip() for line in open("requirements.txt")]
 dev_reqs = [line.strip() for line in open("requirements_dev.txt")]
 
-docs_reqs = [
-    "sphinx>=1.7",
-    "sphinx-autoapi",
-    "nbsphinx",
-    "sphinx_rtd_theme"
-]
+docs_reqs = ["sphinx>=1.7", "sphinx-autoapi", "nbsphinx", "sphinx_rtd_theme"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",

@@ -8,20 +8,23 @@ from string import digits, ascii_uppercase, ascii_lowercase
 import constants
 from gevent import joinall
 from pssh.clients import ParallelSSHClient
-from pssh.exceptions import AuthenticationException, UnknownHostException, \
-    ConnectionErrorException, SCPError
+from pssh.exceptions import (
+    AuthenticationException,
+    UnknownHostException,
+    ConnectionErrorException,
+    SCPError,
+)
 
 
 def rand_fname(length=8):
     chars = ascii_lowercase + ascii_uppercase + digits
 
-    fname = 'tmp-' + ''.join(sample(chars, length))
+    fname = "tmp-" + "".join(sample(chars, length))
 
     return fname
 
 
 class HPCConnection(object):
-
     def __init__(self, external_init_dict=None):
 
         self.logger = logging.getLogger(constants.logging_name)
@@ -38,10 +41,13 @@ class HPCConnection(object):
         self.home_dir = os.path.join(constants.cc_working_dir, self.user)
         self.src_data_path = init_dict.get("src_data_path", "./data")
         self.template_path = constants.template_path
-        self.logger.debug("Host being used is {}, under username {}".format(self.hostname, self.user))
+        self.logger.debug(
+            "Host being used is {}, under username {}".format(self.hostname, self.user)
+        )
         self.keypath = init_dict.get("ssh_key_filename", constants.ssh_key_filename)
-        self.client = ParallelSSHClient([self.hostname], pkey=self.keypath,
-                                        user=self.user, keepalive_seconds=300)
+        self.client = ParallelSSHClient(
+            [self.hostname], pkey=self.keypath, user=self.user, keepalive_seconds=300
+        )
         self.remote_abs_working_folder = None
         self.remote_working_folder = None
         self.active_dataset_name = None
@@ -55,7 +61,11 @@ class HPCConnection(object):
         try:
             self.client.run_command("ls")
             self.logger.debug("... ok")
-        except (AuthenticationException, UnknownHostException, ConnectionErrorException) as e:
+        except (
+            AuthenticationException,
+            UnknownHostException,
+            ConnectionErrorException,
+        ) as e:
             status = False
             msg = str(e)
             self.logger.debug("... failed ({})".format(msg))
@@ -67,7 +77,11 @@ class HPCConnection(object):
         Copies data contained in a local directory over to a remote destination
         """
 
-        self.logger.debug("Copying data to remote location (from {} to {})".format(self.src_data_path, self.home_dir))
+        self.logger.debug(
+            "Copying data to remote location (from {} to {})".format(
+                self.src_data_path, self.home_dir
+            )
+        )
         remote_base_path = self.home_dir
         local_datapath = self.src_data_path
         if remote_temp_folder is None:
@@ -88,10 +102,19 @@ class HPCConnection(object):
 
         # self.logger.debug("system cmd: " + "tar cvf /tmp/" + remote_temp_folder + ".tar -C "
         #                   + os.path.join(local_datapath, df_basename) + " .")
-        self.logger.debug("system cmd: tar cvf /tmp/{0}.tar -C {1} .".format(remote_temp_folder,
-                                                                             os.path.join(local_datapath, df_basename)))
+        self.logger.debug(
+            "system cmd: tar cvf /tmp/{}.tar -C {} .".format(
+                remote_temp_folder, os.path.join(local_datapath, df_basename)
+            )
+        )
 
-        os.system("tar cf /tmp/" + remote_temp_folder + ".tar -C " + os.path.join(local_datapath, df_basename) + " .")
+        os.system(
+            "tar cf /tmp/"
+            + remote_temp_folder
+            + ".tar -C "
+            + os.path.join(local_datapath, df_basename)
+            + " ."
+        )
         try:
             self.logger.debug("Copying data tar file")
             g = self.client.scp_send("/tmp/" + remote_temp_folder + ".tar", remote_tar)
@@ -117,27 +140,43 @@ class HPCConnection(object):
         if errmsg is not None:
             self.logger.debug("stdout: " + errmsg)
 
-        self.logger.debug("Remove remote temp tar file " + "/tmp/" + remote_temp_folder + ".tar")
+        self.logger.debug(
+            "Remove remote temp tar file " + "/tmp/" + remote_temp_folder + ".tar"
+        )
         os.remove("/tmp/" + remote_temp_folder + ".tar")
 
     # output files in base_dir/jobname/out
     def copy_data_from_remote(self, jobid, absolute_local_out_dir, cleanup_temp=True):
 
         self.logger.debug("Copying data from remote")
-        absolute_tar_fname = os.path.join(self.remote_abs_working_folder, self.remote_working_folder + "_out.tar")
+        absolute_tar_fname = os.path.join(
+            self.remote_abs_working_folder, self.remote_working_folder + "_out.tar"
+        )
 
         absolute_output_data_path = os.path.join(self.remote_abs_working_folder, "out")
         stdout_file = os.path.join(self.home_dir, "slurm-" + jobid + ".out")
-        self.logger.debug("  Remote data is located in {}".format(absolute_output_data_path))
+        self.logger.debug(
+            "  Remote data is located in {}".format(absolute_output_data_path)
+        )
         self.logger.debug("  Slurm output file is {}".format(stdout_file))
 
         try:
-            self.logger.debug("  Copying slurm file to {}".format(absolute_output_data_path))
-            output = self.client.run_command("cp " + stdout_file + " " + absolute_output_data_path)
+            self.logger.debug(
+                "  Copying slurm file to {}".format(absolute_output_data_path)
+            )
+            output = self.client.run_command(
+                "cp " + stdout_file + " " + absolute_output_data_path
+            )
             self.client.join(output)
             self.logger.debug(output)
             self.logger.debug("  Tarring remote folder")
-            output = self.client.run_command("tar cf " + absolute_tar_fname + " -C " + absolute_output_data_path + " .")
+            output = self.client.run_command(
+                "tar cf "
+                + absolute_tar_fname
+                + " -C "
+                + absolute_output_data_path
+                + " ."
+            )
             self.client.join(output)
             self.logger.debug(output)
             # time.sleep(30)  # patch since run_command sems non-blocking
@@ -159,11 +198,15 @@ class HPCConnection(object):
             tries = 0
             while tries < 3:
                 self.logger.debug("Copying tar file to /tmp")
-                g = self.client.copy_remote_file(absolute_tar_fname, local_tar)  # scp_recv
+                g = self.client.copy_remote_file(
+                    absolute_tar_fname, local_tar
+                )  # scp_recv
                 joinall(g, raise_error=True)
 
-                output = subprocess.check_output("du -sb " + local_tar + "_" + self.hostname, shell=True)
-                recv_tar_size = int(re.match("[0-9]*", output.decode('utf-8')).group(0))
+                output = subprocess.check_output(
+                    "du -sb " + local_tar + "_" + self.hostname, shell=True
+                )
+                recv_tar_size = int(re.match("[0-9]*", output.decode("utf-8")).group(0))
 
                 self.logger.debug("Received: {} bytes".format(recv_tar_size))
                 if recv_tar_size == tar_size:
@@ -175,22 +218,43 @@ class HPCConnection(object):
 
             if not os.path.exists(absolute_local_out_dir):
                 # shutil.rmtree(absolute_local_out_dir)
-                self.logger.debug("Local destination folder {} does not exist, creating".format(absolute_local_out_dir))
+                self.logger.debug(
+                    "Local destination folder {} does not exist, creating".format(
+                        absolute_local_out_dir
+                    )
+                )
                 os.mkdir(absolute_local_out_dir)
 
             # os.mkdir(path.join(absolute_local_out_dir,jobname)
-            self.logger.debug("Untarring received file to {}".format(absolute_local_out_dir))
-            os.system("tar xf " + local_tar + "_" + self.hostname + " -C " + absolute_local_out_dir)
+            self.logger.debug(
+                "Untarring received file to {}".format(absolute_local_out_dir)
+            )
+            os.system(
+                "tar xf "
+                + local_tar
+                + "_"
+                + self.hostname
+                + " -C "
+                + absolute_local_out_dir
+            )
             if cleanup_temp:
                 # print("todo: cleanup tmp file")
                 os.remove(local_tar + "_" + self.hostname)
 
         except Exception as e:
-            self.logger.error("Exception during file transfer from remote: {}".format(e))
+            self.logger.error(
+                "Exception during file transfer from remote: {}".format(e)
+            )
 
-    def copy_singlefile_to_remote(self, local_filename, remote_path=".", is_executable=False):
+    def copy_singlefile_to_remote(
+        self, local_filename, remote_path=".", is_executable=False
+    ):
 
-        r = os.path.join(self.remote_abs_working_folder, remote_path, os.path.basename(local_filename))
+        r = os.path.join(
+            self.remote_abs_working_folder,
+            remote_path,
+            os.path.basename(local_filename),
+        )
         g = self.client.copy_file(local_filename, r)
         joinall(g, raise_error=True)
         if is_executable:
@@ -198,12 +262,23 @@ class HPCConnection(object):
 
     def create_remote_subdir(self, remote_subdir):
 
-        self.client.run_command("mkdir -p " + os.path.join(self.remote_abs_working_folder, remote_subdir))
-        self.client.run_command("chmod 777 " + os.path.join(self.remote_abs_working_folder, remote_subdir))
+        self.client.run_command(
+            "mkdir -p " + os.path.join(self.remote_abs_working_folder, remote_subdir)
+        )
+        self.client.run_command(
+            "chmod 777 " + os.path.join(self.remote_abs_working_folder, remote_subdir)
+        )
 
     # executable_ is either raven or ostrich
 
-    def copy_batchscript(self, executable_, guessed_duration, datafile_basename, batch_tmplt_fname, shub_hostname):
+    def copy_batchscript(
+        self,
+        executable_,
+        guessed_duration,
+        datafile_basename,
+        batch_tmplt_fname,
+        shub_hostname,
+    ):
 
         template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
@@ -219,16 +294,21 @@ class HPCConnection(object):
 
         # subst_template_file, subst_fname = tempfile.mkstemp(suffix=".sh")
         subst_fname = self.remote_working_folder + ".sh"
-        file = open("/tmp/" + subst_fname, 'w')
+        file = open("/tmp/" + subst_fname, "w")
         file.write(tmplt)
         file.close()
 
         self.client.run_command("mkdir " + abs_remote_output_dir)
         self.client.run_command("chmod 777 " + self.remote_abs_working_folder)
         self.client.run_command("chmod 777 " + abs_remote_output_dir)
-        g = self.client.copy_file("/tmp/" + subst_fname, os.path.join(self.remote_abs_working_folder, subst_fname))
+        g = self.client.copy_file(
+            "/tmp/" + subst_fname,
+            os.path.join(self.remote_abs_working_folder, subst_fname),
+        )
         joinall(g, raise_error=True)
-        self.client.run_command("chmod ugo+x " + os.path.join(self.remote_abs_working_folder, subst_fname))
+        self.client.run_command(
+            "chmod ugo+x " + os.path.join(self.remote_abs_working_folder, subst_fname)
+        )
         os.remove("/tmp/" + subst_fname)
 
         return os.path.join(self.remote_abs_working_folder, subst_fname)
@@ -239,7 +319,10 @@ class HPCConnection(object):
         # output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd +
         #                                  " --parsable " + script_fname)
         output = self.client.run_command(
-            "cd {}; {} --parsable {}".format(self.home_dir, constants.sbatch_cmd, script_fname))
+            "cd {}; {} --parsable {}".format(
+                self.home_dir, constants.sbatch_cmd, script_fname
+            )
+        )
         self.client.join(output)
         errmsg = next(output[self.hostname]["stderr"], None)
 
@@ -263,9 +346,13 @@ class HPCConnection(object):
         # maybe remote file is being overwritten, try again if remote copy fails
         while True:
             try:
-                local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
-                g = self.client.copy_remote_file(os.path.join(self.remote_abs_working_folder, remote_filename),
-                                                 local_filename)
+                local_filename = os.path.join(
+                    "/tmp", self.remote_working_folder + "_progress.json"
+                )
+                g = self.client.copy_remote_file(
+                    os.path.join(self.remote_abs_working_folder, remote_filename),
+                    local_filename,
+                )
                 joinall(g, raise_error=True)
                 suffixed_local_filename = local_filename + "_" + self.hostname
                 self.logger.debug("  Opening copied file")
@@ -281,7 +368,8 @@ class HPCConnection(object):
 
                 if retry:
                     self.logger.debug(
-                        "exception {}, retrying".format(e))  # pass # e.g. missing progress file as execution starts
+                        "exception {}, retrying".format(e)
+                    )  # pass # e.g. missing progress file as execution starts
                     retry = False
                 else:
                     break
@@ -312,7 +400,7 @@ class HPCConnection(object):
         stdout_str = ""
         for line in output[self.hostname]["stdout"]:  # errmsg is None
             stdout_str += line + "\n"
-            fields = line.split('|')
+            fields = line.split("|")
             if len(fields) >= 2:
                 if fields[0] == jobid:
                     status_output = fields[1].split()[0]
@@ -320,7 +408,13 @@ class HPCConnection(object):
         if status_output is None:
             raise Exception("Error parsing sacct output: {}".format(stdout_str))
 
-        if status_output not in ["COMPLETED", "PENDING", "RUNNING", "TIMEOUT", "CANCELLED"]:
+        if status_output not in [
+            "COMPLETED",
+            "PENDING",
+            "RUNNING",
+            "TIMEOUT",
+            "CANCELLED",
+        ]:
             raise Exception("Status error: state {} unknown".format(status_output))
 
         return status_output
@@ -350,8 +444,9 @@ class HPCConnection(object):
 
     def reconnect(self):
 
-        self.client = ParallelSSHClient([self.hostname], pkey=self.keypath,
-                                        user=self.user, keepalive_seconds=300)
+        self.client = ParallelSSHClient(
+            [self.hostname], pkey=self.keypath, user=self.user, keepalive_seconds=300
+        )
 
     """
     def check_slurmoutput_for(self, substr, jobid):
@@ -387,13 +482,18 @@ class HPCConnection(object):
 
         try:
             self.logger.debug("Deleting the remote folder")
-            output1 = self.client.run_command("rm -rf {}".format(os.path.join(self.home_dir,
-                                                                              self.remote_abs_working_folder)))
+            output1 = self.client.run_command(
+                "rm -rf {}".format(
+                    os.path.join(self.home_dir, self.remote_abs_working_folder)
+                )
+            )
             self.logger.debug("Deleting the slurm log file")
             logfilepath = os.path.join(self.home_dir, "slurm-{}.out".format(jobid))
             output2 = self.client.run_command("rm {}".format(logfilepath))
             self.logger.debug("Deleting the local progress file")
-            local_filename = os.path.join("/tmp", self.remote_working_folder + "_progress.json")
+            local_filename = os.path.join(
+                "/tmp", self.remote_working_folder + "_progress.json"
+            )
             suffixed_local_filename = local_filename + "_" + self.hostname
             os.remove(suffixed_local_filename)
 

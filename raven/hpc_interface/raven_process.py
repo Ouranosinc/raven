@@ -8,7 +8,6 @@ from pssh.exceptions import SessionError
 
 
 class RavenHPCProcess(object):
-
     def __init__(self, process_name, connection_cfg_dict=None):
         """
         :param process_name: 'raven' or 'ostrich'
@@ -48,19 +47,30 @@ class RavenHPCProcess(object):
         :param dataset: name of the dataset used in the experiment, e.g. 'mohyse-salmon', 'hmets-salmon', etc.
         :param est_duration: estimated job duration, in format hh:mm:ss
         """
-        self.logger.debug("Submitting a job (dataset {}, duration {}".format(dataset, est_duration))
+        self.logger.debug(
+            "Submitting a job (dataset {}, duration {}".format(dataset, est_duration)
+        )
         self.logger.debug("Copy data to hpc")
         self.live_job_id = 0
         try:
             self.hpc_connection.copy_data_to_remote(dataset)
-            self.logger.debug("Copy batch script (exec {} selected)".format(self.process_name))
-            remote_abs_script_fname = self.hpc_connection.copy_batchscript(self.process_name, est_duration, dataset,
-                                                                           "batch_template.txt", self.shub_hostname)
+            self.logger.debug(
+                "Copy batch script (exec {} selected)".format(self.process_name)
+            )
+            remote_abs_script_fname = self.hpc_connection.copy_batchscript(
+                self.process_name,
+                est_duration,
+                dataset,
+                "batch_template.txt",
+                self.shub_hostname,
+            )
             if self.process_name == "ostrich":
                 # In addition, copy  raven script
 
                 srcfilee = os.path.join(self.template_path, "Ost-RAVEN.sh")
-                self.hpc_connection.copy_singlefile_to_remote(srcfilee, is_executable=True)
+                self.hpc_connection.copy_singlefile_to_remote(
+                    srcfilee, is_executable=True
+                )
                 self.hpc_connection.create_remote_subdir("model/output")
             self.logger.debug("Submit the job")
             jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
@@ -105,10 +115,10 @@ class RavenHPCProcess(object):
 
         # job_status, progressfilecontent
         progressfile = None
-        if self.process_name == 'raven':
-            progressfile = 'out/Raven_progress.txt'
-        if self.process_name == 'ostrich':
-            progressfile = 'OstProgress0.txt'
+        if self.process_name == "raven":
+            progressfile = "out/Raven_progress.txt"
+        if self.process_name == "ostrich":
+            progressfile = "OstProgress0.txt"
         s = None
         reconnect = False
         while True:
@@ -119,10 +129,14 @@ class RavenHPCProcess(object):
 
                     if progressfile is not None:
 
-                        progressfile_content = self.hpc_connection.read_from_remote(progressfile)
+                        progressfile_content = self.hpc_connection.read_from_remote(
+                            progressfile
+                        )
                         for line in progressfile_content:
 
-                            match_obj = re.search(r'progress\": (\d*)', line, re.M | re.I)
+                            match_obj = re.search(
+                                r"progress\": (\d*)", line, re.M | re.I
+                            )
                             if match_obj:
                                 progress = match_obj.group(1)
                                 self.last_progress = progress

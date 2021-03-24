@@ -17,21 +17,21 @@ Test using a Raven dataset
 	./data/Irond.rvi
 	./data/Irond.rvp
 	...
-	
-* Create an output folder, e.g. 
+
+* Create an output folder, e.g.
 
 	$ mkdir data_out
-	
+
 * Set an environment variable, i.e. (for bash):
 
 	$ export SINGULARITY_NOHTTPS=true
-	
+
 * Invoke singularity as follows:
 
 	$ singularity run --bind ./data:/data  --bind ./data_out:/data_out:rw shub://132.217.141.54/hydro/raven:latest <dataset_name>
 	where <dataset_name> may be e.g. Irond.
-	
-A progress bar appears and indicates that the raven singularity image is being downloaded. When download is complete, the raven 
+
+A progress bar appears and indicates that the raven singularity image is being downloaded. When download is complete, the raven
 application executes and generates its results inside the data_out folder.
 
 
@@ -45,8 +45,7 @@ Get Raven source code (v2.8.1):
 Build singularity image and push it to registry (needs sudo):
 ./prepare_simg.sh
 
-In order to be able to push images to the registry (located at http://132.217.141.54/), one must 
+In order to be able to push images to the registry (located at http://132.217.141.54/), one must
 1- log in to the registry via github
 2- go to the user menu (right to the menu 'Tools')
 3- select the menu item 'Token' and follow the instructions
- 

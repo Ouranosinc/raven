@@ -27,8 +27,8 @@ import sys
 sys.path.insert(0, os.path.abspath("../../"))
 
 # Set flag to not fail doc build.
-if 'DO_NOT_CHECK_EXECUTABLE_EXISTENCE' not in os.environ:
-    os.environ['DO_NOT_CHECK_EXECUTABLE_EXISTENCE'] = "1"
+if "DO_NOT_CHECK_EXECUTABLE_EXISTENCE" not in os.environ:
+    os.environ["DO_NOT_CHECK_EXECUTABLE_EXISTENCE"] = "1"
 
 
 # -- General configuration ---------------------------------------------
@@ -52,30 +52,65 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
 ]
 
-autoapi_type = 'python'
-autoapi_dirs = ['../../raven']
-autoapi_file_pattern = '*.py'
-autoapi_options = ['members', 'undoc-members', 'private-members']
+autoapi_type = "python"
+autoapi_dirs = ["../../raven"]
+autoapi_file_pattern = "*.py"
+autoapi_options = ["members", "undoc-members", "private-members"]
 
 # To avoid having to install these and burst memory limit on ReadTheDocs.
 # List of all tested working mock imports from all birds so new birds can
 # inherit without having to test which work which do not.
-autodoc_mock_imports = ["numpy", "xarray", "fiona", "rasterio", "shapely",
-                        "osgeo", "geopandas", "pandas", "statsmodels", "xclim",
-                        "affine", "rasterstats", "spotpy", "matplotlib",
-                        "scipy", "unidecode", "gdal", "sentry_sdk", "dask",
-                        "numba", "parse", "siphon", "sklearn", "cftime", "clisops",
-                        "netCDF4", "bottleneck", "ocgis", "geotiff", "geos",
-                        "hdf4", "hdf5", "zlib", "pyproj", "proj", "cartopy",
-                        "scikit-learn", "cairo", "ravenpy", "rioxarray"]
+autodoc_mock_imports = [
+    "numpy",
+    "xarray",
+    "fiona",
+    "rasterio",
+    "shapely",
+    "osgeo",
+    "geopandas",
+    "pandas",
+    "statsmodels",
+    "xclim",
+    "affine",
+    "rasterstats",
+    "spotpy",
+    "matplotlib",
+    "scipy",
+    "unidecode",
+    "gdal",
+    "sentry_sdk",
+    "dask",
+    "numba",
+    "parse",
+    "siphon",
+    "sklearn",
+    "cftime",
+    "clisops",
+    "netCDF4",
+    "bottleneck",
+    "ocgis",
+    "geotiff",
+    "geos",
+    "hdf4",
+    "hdf5",
+    "zlib",
+    "pyproj",
+    "proj",
+    "cartopy",
+    "scikit-learn",
+    "cairo",
+    "ravenpy",
+    "rioxarray",
+]
 
 # Monkeypatch constant because the following are mock imports.
 # Only works if numpy is actually installed and at the same time being mocked.
 import numpy
+
 numpy.pi = 3.1416
 
 # We are using mock imports in readthedocs, so probably safer to not run the notebooks
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -122,7 +157,7 @@ pygments_style = "sphinx"
 todo_include_todos = False
 
 # Suppress "WARNING: unknown mimetype for ..." when building EPUB.
-suppress_warnings = ['epub.unknown_project_files']
+suppress_warnings = ["epub.unknown_project_files"]
 
 # Avoid "configuration.rst:4:duplicate label configuration, other instance in configuration.rst"
 autosectionlabel_prefix_document = True
