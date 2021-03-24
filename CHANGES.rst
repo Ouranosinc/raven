@@ -8,15 +8,19 @@ Changes
 * Add process to create forecast graphic
 * Add first basic data assimilation utilities
 * Factor out extra project RavenPy (at version 0.2.2), using Raven 3.0.1
-* Upgrade to xclim 0.23.0
-* Upgrade to xarray 0.16.2
+* Upgrade to xclim +0.23.0
+* Upgrade to xarray +0.16.2
 * Add configuration options: `deaccumulate`
 * Clean notebooks
-* Pin RavenPy to 0.2.3
+* Pin RavenPy to 0.3.0
 * Pin owslib to 0.21
 * Fix RavenC binaries installation for deployment
 * Move some tests to RavenPy
 * Regionalization data is now bundled with RavenPy
+* Upgrade and pin PyWPS to 4.4.1
+* Factor out most GIS functions to RavenPy (0.3.0)
+* Add ``nalcms-zonal-stats-raster`` process using `pymetalink`
+* Simplify documentation build environment.
 
 
 0.10.x (2020-03-09) Oxford

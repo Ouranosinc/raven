@@ -25,6 +25,7 @@ def test_wps_caps():
         "hydrobasins-select",
         "terrain-analysis",
         "nalcms-zonal-stats",
+        "nalcms-zonal-stats-raster",
         "zonal-stats",
         "ostrich-gr4j-cemaneige",
         "ostrich-mohyse",

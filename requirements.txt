@@ -1,7 +1,7 @@
-ravenpy >= 0.2.3
+ravenpy>=0.3.0
 six
-pywps==4.2.9
-owslib
+pywps==4.4.1
+owslib==0.21
 lxml
 jinja2
 click
@@ -23,14 +23,14 @@ pysheds
 affine
 rtree
 fiona
-descartes
 geopandas
 pyproj>=2.5.0
 rasterio
 rasterstats
 shapely
-unidecode
 geojson
+# DOCS and other utilities
+unidecode
 pandoc
 ipyleaflet
 ipython # needed for the parsing of Jupyter Notebooks
@@ -41,3 +41,4 @@ distributed
 partd
 fsspec
 gdal
+pymetalink

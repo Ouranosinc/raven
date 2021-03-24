@@ -1,10 +1,10 @@
 import json
 
 import pytest
-from pywps import Service
-from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
 
+from pywps import Service
+from pywps.tests import assert_response_success
 from raven.processes import TerrainAnalysisProcess
 
 from .common import CFG_FILE, client_for, get_output
@@ -13,12 +13,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestGenericTerrainAnalysisProcess:
     def test_shape_subset(self):
         client = client_for(
-            Service(
-                processes=[
-                    TerrainAnalysisProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
         fields = [
             "raster=file@xlink:href=file://{raster}",
@@ -54,12 +49,7 @@ class TestGenericTerrainAnalysisProcess:
     @pytest.mark.skip("slow")
     def test_shape_subset_wcs(self):
         client = client_for(
-            Service(
-                processes=[
-                    TerrainAnalysisProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
         fields = [
             "shape=file@xlink:href=file://{shape}",
@@ -91,12 +81,7 @@ class TestGenericTerrainAnalysisProcess:
     @pytest.mark.online
     def test_single_polygon(self):
         client = client_for(
-            Service(
-                processes=[
-                    TerrainAnalysisProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
         fields = [
             "shape=file@xlink:href=file://{shape}",
