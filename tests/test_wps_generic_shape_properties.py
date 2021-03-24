@@ -3,7 +3,6 @@ import tempfile
 
 import geojson
 import numpy as np
-import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
@@ -53,12 +52,7 @@ class TestGenericShapePropertiesProcess:
     def test_simple(self):
         shape = self.make_shape()
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -67,7 +61,7 @@ class TestGenericShapePropertiesProcess:
             "projected_crs={projected_crs}",
         ]
         datainputs = ";".join(fields).format(
-            file=shape.name, crs=4326, projected_crs=32198
+            file=shape.name, crs=4326, projected_crs=6622
         )
 
         resp = client.get(
@@ -86,23 +80,18 @@ class TestGenericShapePropertiesProcess:
         props = json.loads(out["properties"])
         assert {"centroid", "area", "perimeter", "gravelius"}.issubset(props[0].keys())
 
-        # np.testing.assert_approx_equal(props[0]['area'], 24804229364.)
-        # np.testing.assert_approx_equal(props[0]['centroid'][0], -73.58396746)
-        # np.testing.assert_approx_equal(props[0]['centroid'][1], 46.88002938)
-        # np.testing.assert_approx_equal(props[0]['perimeter'], 1520538.80767662)
-        # np.testing.assert_approx_equal(props[0]['gravelius'], 2.7235145984)
+        np.testing.assert_approx_equal(props[0]['area'], 6258366698.5253, 4)
+        np.testing.assert_approx_equal(props[0]['centroid'][0], -73.41117680)
+        np.testing.assert_approx_equal(props[0]['centroid'][1], 46.46286765)
+        np.testing.assert_approx_equal(props[0]['perimeter'], 673430.9089454)
+        np.testing.assert_approx_equal(props[0]['gravelius'], 2.4013618703)
 
     def test_geographic_epsg(self):
         """Calculate the geometric properties using degree-length units"""
 
         shape = self.make_shape()
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -130,23 +119,17 @@ class TestGenericShapePropertiesProcess:
         props = json.loads(out["properties"])
         assert {"centroid", "area", "perimeter", "gravelius"}.issubset(props[0].keys())
 
-        # np.testing.assert_approx_equal(props[0]['area'], 2.9369078)
-        # np.testing.assert_approx_equal(props[0]['centroid'][0], -73.58396746)
-        # np.testing.assert_approx_equal(props[0]['centroid'][1], 46.88002938)
-        # np.testing.assert_approx_equal(props[0]['perimeter'], 18.405642329)
-        # np.testing.assert_approx_equal(props[0]['gravelius'], 3.02970880)
+        np.testing.assert_approx_equal(props[0]['area'], 0.7342578)
+        np.testing.assert_approx_equal(props[0]['centroid'][0], -73.41117680)
+        np.testing.assert_approx_equal(props[0]['centroid'][1], 46.46286765)
+        np.testing.assert_approx_equal(props[0]['perimeter'], 8.14412255)
+        np.testing.assert_approx_equal(props[0]['gravelius'], 2.68111268)
 
-    @pytest.mark.xfail(reason="to investigate (ask Trevor)")
     def test_multifeature_geojson(self):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -157,7 +140,7 @@ class TestGenericShapePropertiesProcess:
         datainputs = ";".join(fields).format(
             file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
             crs=4326,
-            projected_crs=32198,
+            projected_crs=6622,
         )
 
         resp = client.get(
@@ -185,23 +168,17 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
         np.testing.assert_approx_equal(props[0]["gravelius"], 1.2387344)
 
-        np.testing.assert_approx_equal(props[-1]["area"], 334136220.2845515)
+        np.testing.assert_approx_equal(props[-1]["area"], 334136117.9693527)
         np.testing.assert_approx_equal(props[-1]["centroid"][0], -72.6117018)
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
-        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.3057504)
+        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
 
-    @pytest.mark.xfail(reason="to investigate (ask Trevor)")
     def test_multifeature_zipped_shapefile(self):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
-            Service(
-                processes=[
-                    ShapePropertiesProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[ShapePropertiesProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -212,7 +189,7 @@ class TestGenericShapePropertiesProcess:
         datainputs = ";".join(fields).format(
             file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.zip"),
             crs=4326,
-            projected_crs=32198,
+            projected_crs=6622,
         )
 
         resp = client.get(
@@ -240,8 +217,8 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
         np.testing.assert_approx_equal(props[0]["gravelius"], 1.2387344)
 
-        np.testing.assert_approx_equal(props[-1]["area"], 334136220.2845515)
+        np.testing.assert_approx_equal(props[-1]["area"], 334136117.9693527)
         np.testing.assert_approx_equal(props[-1]["centroid"][0], -72.6117018)
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
-        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.3057504)
+        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)

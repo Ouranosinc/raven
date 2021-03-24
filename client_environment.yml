@@ -10,9 +10,9 @@ dependencies:
   - numpy
   - netcdf4
   - pydap
+  - proj<8.0.0
   - cartopy
   - rioxarray
-  - descartes
   - xclim
   # to edit .ipynb
   - jupyter

@@ -2,26 +2,33 @@ import json
 import logging
 import tempfile
 from collections import defaultdict
+from pathlib import Path
 
-from pywps import Process
+from pywps import FORMATS, ComplexOutput, Process
+from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
-from ravenpy.utilities import geoserver
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.geo import generic_vector_reproject
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer, get_bbox
+from ravenpy.utilities.io import (
+    archive_sniffer,
+    crs_sniffer,
+    raster_datatype_sniffer,
+)
 
 from ..utils import (
     NALCMS_PROJ4,
     SIMPLE_CATEGORIES,
     SUMMARY_ZONAL_STATS,
     TRUE_CATEGORIES,
+    gather_dem_tile,
+    zonalstats_raster_file,
 )
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
 
-class NALCMSZonalStatisticsProcess(Process):
+class NALCMSZonalStatisticsRasterProcess(Process):
     """Given files containing vector data and raster data, perform zonal statistics of the overlapping regions"""
 
     def __init__(self):
@@ -33,15 +40,25 @@ class NALCMSZonalStatisticsProcess(Process):
             wio.select_all_touching,
         ]
 
-        outputs = [wio.features, wio.statistics]
+        outputs = [
+            wio.features,
+            wio.statistics,
+            ComplexOutput(
+                "raster",
+                "DEM grid subset by the requested shape.",
+                abstract="Zipped raster grid(s) of land-use using either standard or simplified UNFAO categories.",
+                as_reference=True,
+                supported_formats=[FORMATS.META4],
+            ),
+        ]
 
-        super(NALCMSZonalStatisticsProcess, self).__init__(
+        super(NALCMSZonalStatisticsRasterProcess, self).__init__(
             self._handler,
-            identifier="nalcms-zonal-stats",
-            title="NALCMS Land Use Zonal Statistics",
+            identifier="nalcms-zonal-stats-raster",
+            title="NALCMS Land Use Zonal Statistics with raster output",
             version="1.0",
-            abstract="Return zonal statistics and land-use cover for the CEC NALCMS based on the boundaries of a "
-            "vector file.",
+            abstract="Return zonal statistics, land-use cover, and raster grid for the CEC NALCMS based "
+            "on the boundaries of a vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -64,9 +81,8 @@ class NALCMSZonalStatisticsProcess(Process):
 
         response.update_status("Accessed vector", status_percentage=5)
 
-        if (
-            "raster" in request.inputs
-        ):  # For raster files using the UNFAO Land Cover Classification System (19 types)
+        # For raster files using the UNFAO Land Cover Classification System (19 types)
+        if "raster" in request.inputs:
             rasters = [".tiff", ".tif"]
             raster_url = request.inputs["raster"][0].file
             raster_file = single_file_check(
@@ -93,31 +109,31 @@ class NALCMSZonalStatisticsProcess(Process):
             else:
                 projected = vector_file
 
-        else:  # using the NALCMS data from GeoServer
+        else:
+            raster_url = None
+            # using the NALCMS data from GeoServer
             projected = tempfile.NamedTemporaryFile(
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
             generic_vector_reproject(
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
-
-            bbox = get_bbox(projected)
-            raster_url = "public:CEC_NALCMS_LandUse_2010"
-            raster_bytes = geoserver.get_raster_wcs(
-                bbox, geographic=False, layer=raster_url
+            raster_file = gather_dem_tile(
+                vector_file,
+                self.workdir,
+                geographic=False,
+                raster="public:CEC_NALCMS_LandUse_2010",
             )
-            raster_file = tempfile.NamedTemporaryFile(
-                prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
-            ).name
-            with open(raster_file, "wb") as f:
-                f.write(raster_bytes)
 
+        data_type = raster_datatype_sniffer(raster_file)
         response.update_status("Accessed raster", status_percentage=10)
 
         categories = SIMPLE_CATEGORIES if simple_categories else TRUE_CATEGORIES
         summary_stats = SUMMARY_ZONAL_STATS
 
         try:
+
+            # Use zonalstats to produce a GeoJSON
             stats = zonal_stats(
                 projected,
                 raster_file,
@@ -142,12 +158,43 @@ class NALCMSZonalStatisticsProcess(Process):
                 land_use.append(lu)
                 # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
+            # Use zonalstats to produce sets of raster grids
+            raster_subset = zonal_stats(
+                projected,
+                raster_file,
+                stats=summary_stats,
+                band=band,
+                categorical=True,
+                all_touched=touches,
+                geojson_out=False,
+                raster_out=True,
+            )
+
+            raster_out = zonalstats_raster_file(
+                raster_subset,
+                working_dir=self.workdir,
+                data_type=data_type,
+                crs=NALCMS_PROJ4,
+                zip_archive=False,
+            )
+
+            ml = MetaLink4(
+                "rasters_out",
+                "Metalink to series of GeoTIFF raster files",
+                workdir=self.workdir,
+            )
+            for r in raster_out:
+                mf = MetaFile(Path(r).name, "Raster subset", fmt=FORMATS.GEOTIFF)
+                mf.file = r
+                ml.append(mf)
+
             feature_collect = {"type": "FeatureCollection", "features": stats}
             response.outputs["features"].data = json.dumps(feature_collect)
             response.outputs["statistics"].data = json.dumps(land_use)
+            response.outputs["raster"].data = ml.xml
 
         except Exception as e:
-            msg = f"Failed to perform zonal statistics using {shape_url} and {raster_url}: {e}"
+            msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
             LOGGER.error(msg)
             raise Exception(msg) from e
 

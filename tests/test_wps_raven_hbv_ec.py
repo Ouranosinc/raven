@@ -74,7 +74,7 @@ class TestRavenHBVECProcess:
         # checking correctness of NSE (full period 1954-2011 would be NSE=0.591707 as template in Wiki)
         assert "DIAG_NASH_SUTCLIFFE" in tmp_content[0]
         idx_diag = tmp_content[0].split(",").index("DIAG_NASH_SUTCLIFFE")
-        diag = np.float(tmp_content[1].split(",")[idx_diag])
+        diag = float(tmp_content[1].split(",")[idx_diag])
         np.testing.assert_almost_equal(
             diag, 0.0186633, 4, err_msg="NSE is not matching expected value"
         )
@@ -82,7 +82,7 @@ class TestRavenHBVECProcess:
         # checking correctness of RMSE (full period 1954-2011 would be RMSE=30.0535 as template in Wiki)
         assert "DIAG_RMSE" in tmp_content[0]
         idx_diag = tmp_content[0].split(",").index("DIAG_RMSE")
-        diag = np.float(tmp_content[1].split(",")[idx_diag])
+        diag = float(tmp_content[1].split(",")[idx_diag])
         np.testing.assert_almost_equal(
             diag, 35.5654, 3, err_msg="RMSE is not matching expected value"
         )
