@@ -13,22 +13,29 @@ src_data_dir/datasetname/datasetname.rv?
 
 
 def newmainfct(argv):
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG, filename="hpclog.txt", filemode='w')
+    logging.basicConfig(
+        format="%(asctime)s %(message)s",
+        level=logging.DEBUG,
+        filename="hpclog.txt",
+        filemode="w",
+    )
 
     try:
         opts, args = getopt.getopt(argv, "e:d:i:o:t:n")
     except getopt.GetoptError:
 
-        print('main.py -e executable (raven|ostrich) -d workingdir -i dataset -o outdir -t template_dir -n (nocleanup)')
+        print(
+            "main.py -e executable (raven|ostrich) -d workingdir -i dataset -o outdir -t template_dir -n (nocleanup)"
+        )
         sys.exit(2)
 
     src_data_dir = "./"
     out_dir = "./"
     dataset = executable = template_dir = None
     for opt, arg in opts:
-        if opt == '-d':
+        if opt == "-d":
             src_data_dir = arg
-        elif opt == '-e':
+        elif opt == "-e":
             if arg == "raven":
                 executable = "raven"
             elif arg == "ostrich":
@@ -52,8 +59,9 @@ def newmainfct(argv):
 
     # src_data_path = src_data_dir
     print("(Hit <Return> to kill job)")
-    raven_proc = raven_process.RavenHPCProcess(executable, {"src_data_path": src_data_dir,
-                                                            "template_path": template_dir})
+    raven_proc = raven_process.RavenHPCProcess(
+        executable, {"src_data_path": src_data_dir, "template_path": template_dir}
+    )
 
     status, msg = raven_proc.check_connection()
     if status:
@@ -105,5 +113,5 @@ def newmainfct(argv):
 
 
 # -d workingdir -i rootdatafile -o outdir
-if __name__ == '__main__':
+if __name__ == "__main__":
     newmainfct(sys.argv[1:])

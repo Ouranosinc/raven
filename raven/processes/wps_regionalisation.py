@@ -11,6 +11,7 @@ from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
+
 class RegionalisationProcess(RavenProcess):
     """
     Notes
@@ -50,13 +51,16 @@ class RegionalisationProcess(RavenProcess):
             is higher than 0.5 are replaced by the MLR-estimated value.
 
     """
+
     identifier = "regionalisation"
     title = "Simulate streamflow at an ungauged site based on surrounding or similar gauged catchments."
     abstract = "Compute the hydrograph for an ungauged catchment using a regionalization method."
-    version = '0.1'
+    version = "0.1"
 
-    method = LiteralInput('method', 'Regionalisation method',
-                          abstract="""
+    method = LiteralInput(
+        "method",
+        "Regionalisation method",
+        abstract="""
     Regionalisation method to use, one of MLR, SP, PS, SP_IDW,
     PS_IDW, SP_IDW_RA, PS_IDW_RA.
 
@@ -93,79 +97,119 @@ class RegionalisationProcess(RavenProcess):
             is higher than 0.5 are replaced by the MLR-estimated value.
 
     """,
-                          data_type='string',
-                          allowed_values=(
-                              'MLR', 'SP', 'PS', 'SP_IDW', 'PS_IDW', 'SP_IDW_RA', 'PS_IDW_RA'),
-                          default='SP_IDW',
-                          min_occurs=0)
+        data_type="string",
+        allowed_values=(
+            "MLR",
+            "SP",
+            "PS",
+            "SP_IDW",
+            "PS_IDW",
+            "SP_IDW_RA",
+            "PS_IDW_RA",
+        ),
+        default="SP_IDW",
+        min_occurs=0,
+    )
 
-    ndonors = LiteralInput('ndonors', 'Number of gauged catchments to use for the regionalizaion.',
-                           abstract="Number of close or similar catchments to use to generate the representative "
-                                    "hydrograph at the ungauged site.",
-                           data_type='integer',
-                           default=5,
-                           min_occurs=0)
+    ndonors = LiteralInput(
+        "ndonors",
+        "Number of gauged catchments to use for the regionalizaion.",
+        abstract="Number of close or similar catchments to use to generate the representative "
+        "hydrograph at the ungauged site.",
+        data_type="integer",
+        default=5,
+        min_occurs=0,
+    )
 
-    min_NSE = LiteralInput('min_NSE', 'NSE Score (unitless)',
-                           abstract="Minimum calibration NSE value required to be considered in the regionalization.",
-                           data_type='float',
-                           default=0.6,
-                           min_occurs=0)
+    min_NSE = LiteralInput(
+        "min_NSE",
+        "NSE Score (unitless)",
+        abstract="Minimum calibration NSE value required to be considered in the regionalization.",
+        data_type="float",
+        default=0.6,
+        min_occurs=0,
+    )
 
-    properties = ComplexInput('properties', 'Regionalization properties',
-                              abstract="json string storing dictionary of properties. The available properties are: "
-                              "area (km2), longitude (dec.degrees), latitude (dec. degrees), gravelius, perimeter (m), "
-                              "elevation (m), slope(%), aspect, forest (%), grass (%), wetland (%), water (%), "
-                              "urban (%), shrubs (%), crops (%) and snowIce (%).",
-                              min_occurs=1,
-                              max_occurs=1,
-                              supported_formats=[FORMATS.JSON, ])
+    properties = ComplexInput(
+        "properties",
+        "Regionalization properties",
+        abstract="json string storing dictionary of properties. The available properties are: "
+        "area (km2), longitude (dec.degrees), latitude (dec. degrees), gravelius, perimeter (m), "
+        "elevation (m), slope(%), aspect, forest (%), grass (%), wetland (%), water (%), "
+        "urban (%), shrubs (%), crops (%) and snowIce (%).",
+        min_occurs=1,
+        max_occurs=1,
+        supported_formats=[
+            FORMATS.JSON,
+        ],
+    )
 
-    inputs = [wio.ts, wio.start_date, wio.end_date, wio.latitude, wio.longitude, wio.name, wio.rain_snow_fraction, wio.nc_spec,
-              wio.model_name, ndonors, min_NSE, method, properties, wio.area, wio.elevation]
+    inputs = [
+        wio.ts,
+        wio.start_date,
+        wio.end_date,
+        wio.latitude,
+        wio.longitude,
+        wio.name,
+        wio.rain_snow_fraction,
+        wio.nc_spec,
+        wio.model_name,
+        ndonors,
+        min_NSE,
+        method,
+        properties,
+        wio.area,
+        wio.elevation,
+    ]
 
     outputs = [wio.hydrograph, wio.ensemble]
 
     def _handler(self, request, response):
-        
-        ts = [e.file for e in request.inputs.pop('ts')]
-        model_name = request.inputs.pop('model_name')[0].data
-        method = request.inputs.pop('method')[0].data
-        ndonors = request.inputs.pop('ndonors')[0].data
-        min_NSE = request.inputs.pop('min_NSE')[0].data
-        properties = request.inputs.pop('properties')[0].data
+
+        ts = [e.file for e in request.inputs.pop("ts")]
+        model_name = request.inputs.pop("model_name")[0].data
+        method = request.inputs.pop("method")[0].data
+        ndonors = request.inputs.pop("ndonors")[0].data
+        min_NSE = request.inputs.pop("min_NSE")[0].data
+        properties = request.inputs.pop("properties")[0].data
         properties = json.loads(properties)
         # TODO: lat and lon from properties could be confused with lat and lon to run model. Should they be the same ?
-        
+
         kwds = {}
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 
-        response.update_status('Inputs are read', 1)
+        response.update_status("Inputs are read", 1)
 
         nash, params = read_gauged_params(model_name)
-        response.update_status('Gauged params are read', 2)
+        response.update_status("Gauged params are read", 2)
 
         props = read_gauged_properties(properties.keys())
         ungauged_props = {key: properties[key] for key in properties}
-        response.update_status('Gauged properties are read', 3)
+        response.update_status("Gauged properties are read", 3)
 
-        qsim, ensemble = regionalize(method, model_name, nash, params,
-                                     props, ungauged_props,
-                                     size=ndonors,
-                                     min_NSE=min_NSE,
-                                     ts=ts,
-                                     **kwds)
-        response.update_status('Computed regionalization', 99)
+        qsim, ensemble = regionalize(
+            method,
+            model_name,
+            nash,
+            params,
+            props,
+            ungauged_props,
+            size=ndonors,
+            min_NSE=min_NSE,
+            ts=ts,
+            **kwds,
+        )
+        response.update_status("Computed regionalization", 99)
 
         # Write output
-        nc_qsim = Path(self.workdir) / 'qsim.nc'
+        nc_qsim = Path(self.workdir) / "qsim.nc"
         qsim.to_netcdf(nc_qsim)
-        response.outputs['hydrograph'].file = str(nc_qsim)
+        response.outputs["hydrograph"].file = str(nc_qsim)
 
         # TODO: Complete attributes
-        nc_ensemble = Path(self.workdir) / 'ensemble.nc'
+        nc_ensemble = Path(self.workdir) / "ensemble.nc"
         ensemble.to_netcdf(nc_ensemble)
-        response.outputs['ensemble'].file = str(nc_ensemble)
+        response.outputs["ensemble"].file = str(nc_ensemble)
 
         return response

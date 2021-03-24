@@ -1,5 +1,4 @@
 import logging
-import pdb
 from pathlib import Path
 
 import fiona

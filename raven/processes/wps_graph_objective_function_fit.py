@@ -19,21 +19,30 @@ from ravenpy.utilities.graphs import mean_annual_hydrograph, hydrograph
 
 class GraphObjectiveFunctionFitProcess(Process):
     def __init__(self):
-        inputs = [ComplexInput('sims', 'NetCDF containing q_sim and q_obs for model calibration fit check.',
-                               abstract='Stream flow simulation time series',
-                               supported_formats=[FORMATS.NETCDF]),
-                  ]
+        inputs = [
+            ComplexInput(
+                "sims",
+                "NetCDF containing q_sim and q_obs for model calibration fit check.",
+                abstract="Stream flow simulation time series",
+                supported_formats=[FORMATS.NETCDF],
+            ),
+        ]
 
         outputs = [
-            ComplexOutput('graph_objfun_fit', 'Figure showing the observed and simulated streamflows',
-                          abstract="",
-                          as_reference=True,
-                          supported_formats=(Format(mime_type='image/png'),)),
-
-            ComplexOutput('graph_objfun_annual_fit', 'Figure showing the fit on the mean annual hydrograph.',
-                          abstract="",
-                          as_reference=True,
-                          supported_formats=(Format(mime_type='image/png'),)),
+            ComplexOutput(
+                "graph_objfun_fit",
+                "Figure showing the observed and simulated streamflows",
+                abstract="",
+                as_reference=True,
+                supported_formats=(Format(mime_type="image/png"),),
+            ),
+            ComplexOutput(
+                "graph_objfun_annual_fit",
+                "Figure showing the fit on the mean annual hydrograph.",
+                abstract="",
+                as_reference=True,
+                supported_formats=(Format(mime_type="image/png"),),
+            ),
         ]
 
         super(GraphObjectiveFunctionFitProcess, self).__init__(
@@ -47,23 +56,24 @@ class GraphObjectiveFunctionFitProcess(Process):
             outputs=outputs,
             keywords=[],
             status_supported=True,
-            store_supported=True)
+            store_supported=True,
+        )
 
     def _handler(self, request, response):
-        sim_fn = request.inputs['sims'][0].file
+        sim_fn = request.inputs["sims"][0].file
 
         # Create and save graphic
         fig = mean_annual_hydrograph([sim_fn])
-        fig_fn_annual = Path(self.workdir) / 'graph_objfun_annual_fit.png'
+        fig_fn_annual = Path(self.workdir) / "graph_objfun_annual_fit.png"
         fig.savefig(fig_fn_annual)
         plt.close(fig)
 
         fig = hydrograph([sim_fn])
-        fig_fn_simple = Path(self.workdir) / 'graph_objfun_fit.png'
+        fig_fn_simple = Path(self.workdir) / "graph_objfun_fit.png"
         fig.savefig(fig_fn_simple)
         plt.close(fig)
 
-        response.outputs['graph_objfun_fit'].file = str(fig_fn_simple)
-        response.outputs['graph_objfun_annual_fit'].file = str(fig_fn_annual)
+        response.outputs["graph_objfun_fit"].file = str(fig_fn_simple)
+        response.outputs["graph_objfun_annual_fit"].file = str(fig_fn_annual)
 
         return response

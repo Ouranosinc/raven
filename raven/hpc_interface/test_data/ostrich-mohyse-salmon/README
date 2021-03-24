@@ -39,5 +39,3 @@ Setup this example on new system
     If you switch between Windows and a Unix system you have to change the file endings
     in the OSTRICH setup file. The example comes with two setup files- one for Windows and
     one for Unix.
-
-    	
