@@ -47,6 +47,18 @@ For development you can use this command:
   OR
   $ make develop
 
+Then clone the Raven Test Data repo somewhere on your disk:
+
+.. code-block:: console
+
+   (ravenpy-env) $ git clone https://github.com/Ouranosinc/raven-testdata.git
+
+You can then run the test suite by doing:
+
+.. code-block:: console
+
+   (ravenpy-env) $ RAVENPY_TESTDATA_PATH=/path/to/raven-testdata pytest
+
 Start Raven PyWPS service
 -------------------------
 
@@ -54,12 +66,12 @@ After successful installation you can start the service using the ``raven`` comm
 
 .. code-block:: console
 
-   $ raven --help # show help
-   $ raven start  # start service with default configuration
+   $ raven-wps --help # show help
+   $ raven-wps start  # start service with default configuration
 
    OR
 
-   $ raven start --daemon # start service as daemon
+   $ raven-wps start --daemon # start service as daemon
    loading configuration
    forked process id: 42
 

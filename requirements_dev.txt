@@ -16,5 +16,6 @@ pytest-dependency
 pytest-notebook
 sphinx-autoapi
 urlpath
+pymetalink
 black
 nc-time-axis

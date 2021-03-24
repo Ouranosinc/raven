@@ -78,7 +78,7 @@ class TestOstrichMOHYSEProcess:
         # checking correctness of NSE (full period 1954-2010 with budget 50 would be NSE=0.5779910)
         assert "DIAG_NASH_SUTCLIFFE" in tmp_content[0]
         idx_diag = tmp_content[0].split(",").index("DIAG_NASH_SUTCLIFFE")
-        diag = np.float(tmp_content[1].split(",")[idx_diag])
+        diag = float(tmp_content[1].split(",")[idx_diag])
         np.testing.assert_almost_equal(
             diag, 0.3826810, 4, err_msg="NSE is not matching expected value"
         )
@@ -86,7 +86,7 @@ class TestOstrichMOHYSEProcess:
         # checking correctness of RMSE (full period 1954-2010 would be RMSE=????)
         assert "DIAG_RMSE" in tmp_content[0]
         idx_diag = tmp_content[0].split(",").index("DIAG_RMSE")
-        diag = np.float(tmp_content[1].split(",")[idx_diag])
+        diag = float(tmp_content[1].split(",")[idx_diag])
         np.testing.assert_almost_equal(
             diag, 40.7086, 4, err_msg="RMSE is not matching expected value"
         )
