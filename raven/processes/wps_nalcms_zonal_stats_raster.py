@@ -81,9 +81,8 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
         response.update_status("Accessed vector", status_percentage=5)
 
-        if (
-            "raster" in request.inputs
-        ):  # For raster files using the UNFAO Land Cover Classification System (19 types)
+        # For raster files using the UNFAO Land Cover Classification System (19 types)
+        if "raster" in request.inputs:
             rasters = [".tiff", ".tif"]
             raster_url = request.inputs["raster"][0].file
             raster_file = single_file_check(
@@ -129,10 +128,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
         data_type = raster_datatype_sniffer(raster_file)
         response.update_status("Accessed raster", status_percentage=10)
 
-        if simple_categories:
-            categories = SIMPLE_CATEGORIES
-        else:
-            categories = TRUE_CATEGORIES
+        categories = SIMPLE_CATEGORIES if simple_categories else TRUE_CATEGORIES
         summary_stats = SUMMARY_ZONAL_STATS
 
         try:
@@ -198,7 +194,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             response.outputs["raster"].data = ml.xml
 
         except Exception as e:
-            msg = f"Failed to perform zonal statistics using {shape_url}{f'and {raster_url} ' if not None else ''}: {e}"
+            msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
             LOGGER.error(msg)
             raise Exception(msg) from e
 
