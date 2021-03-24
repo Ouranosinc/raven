@@ -10,10 +10,10 @@ dependencies:
 - nbsphinx
 - ipython
 - xskillscore
-- xclim
+- numpy
 - sphinx_rtd_theme
-- rioxarray
-- gdal
-- pip
-- pip:
-  - ravenpy
+#- xclim
+#- rioxarray
+#- pip
+#- pip:
+#  - ravenpy

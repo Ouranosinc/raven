@@ -10,7 +10,7 @@ from setuptools import find_packages, setup
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, "README.rst")).read()
 CHANGES = open(os.path.join(here, "CHANGES.rst")).read()
-REQUIRES_PYTHON = ">=3.5.0"
+REQUIRES_PYTHON = ">=3.6.0"
 
 about = {}
 with open(os.path.join(here, "raven", "__version__.py"), "r") as f:
@@ -23,6 +23,7 @@ docs_reqs = [
     "sphinx>=1.7",
     "sphinx-autoapi",
     "nbsphinx",
+    "sphinx_rtd_theme"
 ]
 
 classifiers = [
@@ -34,9 +35,9 @@ classifiers = [
     "Programming Language :: Python",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
     "Topic :: Scientific/Engineering :: Atmospheric Science",
     "License :: OSI Approved :: MIT License",
 ]
