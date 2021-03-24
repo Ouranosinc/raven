@@ -127,7 +127,7 @@ class RasterSubsetProcess(Process):
                 response.outputs["raster"].file = raster_files[0]
 
         except Exception as e:
-            msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if not None else ''}: {e}"
+            msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
             LOGGER.error(msg)
             raise Exception(msg)
 

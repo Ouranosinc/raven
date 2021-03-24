@@ -114,10 +114,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
         response.update_status("Accessed raster", status_percentage=10)
 
-        if simple_categories:
-            categories = SIMPLE_CATEGORIES
-        else:
-            categories = TRUE_CATEGORIES
+        categories = SIMPLE_CATEGORIES if simple_categories else TRUE_CATEGORIES
         summary_stats = SUMMARY_ZONAL_STATS
 
         try:
