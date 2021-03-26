@@ -69,10 +69,11 @@ class ClimatologyEspProcess(RavenProcess):
 
         # Initial state
         if "rvc" in request.inputs:
-            rvc=request.inputs.pop("rvc")[0].file
+            rvc = request.inputs.pop("rvc")[0].file
         else:
-            rvc= self.get_config(request, ids=("rvc",))["rvc"]
- 
+            solution = self.get_config(request, ids=("rvc",))
+            rvc = list(solution.values()).pop()["rvc"]
+
         # Model options
         kwds = self.options(request)
         kwds["params"] = self.parse_tuple(params, kwds["model_name"].lower())
