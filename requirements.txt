@@ -40,5 +40,4 @@ bokeh
 distributed
 partd
 fsspec
-gdal
 pymetalink
