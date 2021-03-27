@@ -48,7 +48,9 @@ class TestClimatologyESP:
             "elevation={elevation};"
             "forecast_date={forecast_date};"
             "forecast_duration={forecast_duration};"
-            "model_name={model_name};".format(
+            "model_name={model_name};"
+            "rvc=files@xlink:href=file://{rvc};"
+            .format(
                 ts=get_local_testdata(
                     "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
                 ),
@@ -63,8 +65,11 @@ class TestClimatologyESP:
                 forecast_date=forecast_date,
                 forecast_duration=forecast_duration,
                 model_name=model,
-            )
+                rvc=get_local_testdata("gr4j_cemaneige/solution.rvc",),
+                )
+              
         )
+        
 
         resp = client.get(
             service="WPS",
@@ -73,15 +78,15 @@ class TestClimatologyESP:
             identifier="climatology_esp",
             datainputs=datainputs,
         )
-
+        
         assert_response_success(resp)
         out = get_output(resp.xml)
         assert "forecast" in out
 
         # Display forecast to show it works
 
-        # forecast, _ = urlretrieve(out["forecast"])
-        # tmp = xr.open_dataset(forecast)
-        # qfcst = tmp["q_sim"][:].data.transpose()
+        #forecast, _ = urlretrieve(out["forecast"])
+        #tmp = xr.open_dataset(forecast)
+        #qfcst = tmp["q_sim"][:].data.transpose()
         # plt.plot(qfcst)
         # plt.show()

@@ -88,7 +88,6 @@ class HindcastingProcess(RavenProcess):
         # To speed-up testing, copy this file and return it instead of recomputing every time.
         fn = Path(self.workdir) / "fcstfile.nc"
         fcst.to_netcdf(fn)
-
         return [fn]
 
     def run(self, model, ts, kwds):
@@ -97,7 +96,16 @@ class HindcastingProcess(RavenProcess):
 
         fcst = xr.open_dataset(ts[0])
         kwds["nc_index"] = range(fcst.dims.get("member"))
-
         model(ts=ts, **kwds)
+        rename_dim(model)
 
         fcst.close()
+
+
+def rename_dim(model):
+    """Rename the nbasins dimension to `members`, which is more descriptive in the context of hindcasting."""
+    import netCDF4 as nc
+    ds = nc.Dataset(model.outputs["hydrograph"], "a")
+    ds.setncattr("history", "Rename `nbasins` dimension to `member`.")
+    ds.renameDimension("nbasins", "member")
+    ds.close()
