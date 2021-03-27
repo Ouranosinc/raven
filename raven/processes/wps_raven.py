@@ -108,8 +108,12 @@ class RavenProcess(Process):
 
         This is used by emulators.
         """
-        rvc = self.get_config(request, ids=("rvc",))["rvc"]
-        if rvc:
+        solution = self.get_config(request, ids=("rvc",))
+        if len(solution) > 1:
+            raise ValueError("Multiple initial conditions are not supported.")
+
+        if solution:
+            rvc = list(solution.values()).pop()["rvc"]
             model.resume(rvc)
 
     def _handler(self, request, response):

@@ -44,4 +44,5 @@ def test_wps_caps():
         "forecast-floodrisk",
         "hindcasting",
         "realtime-forecast",
+        "climpred_hindcast_verification",
     }

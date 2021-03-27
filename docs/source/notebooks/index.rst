@@ -42,6 +42,7 @@ Forecasting
    Hydrological_hindcasting.ipynb
    Climatological_ESP_forecasting.ipynb
    Assess_probabilisitc_flood_risk.ipynb
+   Comparing_hindcasts_and_ESP_forecasts.ipynb
 
 
 Parallel simulations
