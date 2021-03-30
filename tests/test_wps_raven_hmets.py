@@ -14,14 +14,7 @@ from .common import CFG_FILE, client_for, get_output
 
 class TestRavenHMETSProcess:
     def test_simple(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenHMETSProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenHMETSProcess()], cfgfiles=CFG_FILE))
 
         params = (
             "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, "
@@ -87,14 +80,7 @@ class TestRavenHMETSProcess:
         )
 
     def test_parallel(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenHMETSProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenHMETSProcess()], cfgfiles=CFG_FILE))
 
         params1 = (
             "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998, 0.0222, -1.0919, "

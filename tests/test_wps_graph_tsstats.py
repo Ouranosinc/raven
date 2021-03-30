@@ -17,12 +17,7 @@ from .common import CFG_FILE, client_for, get_output
 
 def test_graph_timeseries_stats(request):
     client = client_for(
-        Service(
-            processes=[
-                GraphIndicatorAnalysis()
-            ],
-            cfgfiles=CFG_FILE
-        )
+        Service(processes=[GraphIndicatorAnalysis()], cfgfiles=CFG_FILE)
     )
 
     datainputs = (

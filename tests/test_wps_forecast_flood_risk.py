@@ -14,12 +14,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestForecastEvaluationProcess:
     def test_forecast_floodrisk_deterministic(self):
         client = client_for(
-            Service(
-                processes=[
-                    ForecastFloodRiskProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[ForecastFloodRiskProcess()], cfgfiles=CFG_FILE)
         )
 
         datainputs = (

@@ -50,12 +50,7 @@ class TestRegionalisation:
     )
     def testRegionalisationHMETS(self, method):
         client = client_for(
-            Service(
-                processes=[
-                    RegionalisationProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[RegionalisationProcess()], cfgfiles=CFG_FILE)
         )
 
         inp = inputs.copy()
@@ -88,12 +83,7 @@ class TestRegionalisation:
 
     def test_notebook(self):
         client = client_for(
-            Service(
-                processes=[
-                    RegionalisationProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[RegionalisationProcess()], cfgfiles=CFG_FILE)
         )
 
         inp = inputs.copy()

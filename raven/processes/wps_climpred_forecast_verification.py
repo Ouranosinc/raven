@@ -1,9 +1,8 @@
-import logging
-
 from pywps import ComplexInput, LiteralInput, ComplexOutput, Process, FORMATS
 from ravenpy.utilities.forecasting import make_climpred_hindcast_object
 import xarray as xr
 from pathlib import Path
+
 
 class ClimpredHindcastVerificationProcess(Process):
     def __init__(self):
@@ -25,26 +24,26 @@ class ClimpredHindcastVerificationProcess(Process):
             min_occurs=1,
             max_occurs=1,
         )
-        
+
         metric = LiteralInput(
-            'metric', 
+            "metric",
             'Verification metric. Can be ["rank_histogram","crps" or "reliability"]',
-            data_type='string',
+            data_type="string",
             abstract='Name of the verification metric. Can be ["rank_histogram","crps" or "reliability"]',
-            min_occurs = 1,
-            max_occurs = 1,
+            min_occurs=1,
+            max_occurs=1,
         )
 
+        inputs = [hindcasts, observations, metric]
 
-
-        inputs = [hindcasts,observations, metric]
-
-        outputs = [ComplexOutput(
-            'verification_metrics',
-            'The verification_metrics dataset as computed by climpred, ready to plot.',
-            supported_formats=[FORMATS.NETCDF],
-            abstract='Netcdf file including the verification metrics that can be used for plotting hindcast performance. Contents vary according to input metric',
-            as_reference=True)
+        outputs = [
+            ComplexOutput(
+                "verification_metrics",
+                "The verification_metrics dataset as computed by climpred, ready to plot.",
+                supported_formats=[FORMATS.NETCDF],
+                abstract="Netcdf file including the verification metrics that can be used for plotting hindcast performance. Contents vary according to input metric",
+                as_reference=True,
+            )
         ]
 
         super(ClimpredHindcastVerificationProcess, self).__init__(
@@ -62,38 +61,56 @@ class ClimpredHindcastVerificationProcess(Process):
         )
 
     def _handler(self, request, response):
-        
-        hindcasts=xr.open_dataset(request.inputs['hindcasts'][0].file)
-        qobs=xr.open_dataset(request.inputs['observations'][0].file)
-        metric=request.inputs['metric'][0].data
 
-        #Here units are days and always will be!
-        hindcasts["lead"]=list(range(1, len(hindcasts.lead)+1))
-        hindcasts["lead"].attrs["units"]="days" # Note that this should be done in the make_climpred function but does not follow after to_netcdf.
-        
-        # Once we have the correctly formatted datasets, Make the hindcast object for climpred        
+        hindcasts = xr.open_dataset(request.inputs["hindcasts"][0].file)
+        qobs = xr.open_dataset(request.inputs["observations"][0].file)
+        metric = request.inputs["metric"][0].data
+
+        # Here units are days and always will be!
+        hindcasts["lead"] = list(range(1, len(hindcasts.lead) + 1))
+        hindcasts["lead"].attrs[
+            "units"
+        ] = "days"  # Note that this should be done in the make_climpred function but does not follow after to_netcdf.
+
+        # Once we have the correctly formatted datasets, Make the hindcast object for climpred
         hindcast_object = make_climpred_hindcast_object(hindcasts, qobs)
 
         # This function is used to convert to binary to see if yes/no forecast is larger than obs
-        def pos(x):return x > 0 # Check for binary outcome
-        
-        # These three functions respectively compute the rank histogram, 
-        # the crps and the reliability for the set of initialized dates 
+        def pos(x):
+            return x > 0  # Check for binary outcome
+
+        # These three functions respectively compute the rank histogram,
+        # the crps and the reliability for the set of initialized dates
         # (i.e. forecast issue dates, here 1 day per year at the same calendar day).
         if metric == "rank_histogram":
-            verification_metrics=hindcast_object.verify(metric='rank_histogram', comparison='m2o', dim=['member','init'], alignment='same_inits')         
+            verification_metrics = hindcast_object.verify(
+                metric="rank_histogram",
+                comparison="m2o",
+                dim=["member", "init"],
+                alignment="same_inits",
+            )
         if metric == "crps":
-            verification_metrics=hindcast_object.verify(metric='crps', comparison='m2o', dim=['member','init'], alignment='same_inits')
+            verification_metrics = hindcast_object.verify(
+                metric="crps",
+                comparison="m2o",
+                dim=["member", "init"],
+                alignment="same_inits",
+            )
         if metric == "reliability":
-            verification_metrics=hindcast_object.verify(metric='reliability', comparison='m2o', dim=['member','init'], alignment='same_inits', logical=pos)
+            verification_metrics = hindcast_object.verify(
+                metric="reliability",
+                comparison="m2o",
+                dim=["member", "init"],
+                alignment="same_inits",
+                logical=pos,
+            )
 
-     
-        assert 'flow' in verification_metrics
-        
-        assert verification_metrics.flow.shape[0]==hindcasts.lead.shape[0]
-        
-        verif_metrics_file = Path(self.workdir) / 'verification_metrics.nc'
+        assert "flow" in verification_metrics
+
+        assert verification_metrics.flow.shape[0] == hindcasts.lead.shape[0]
+
+        verif_metrics_file = Path(self.workdir) / "verification_metrics.nc"
         verification_metrics.to_netcdf(verif_metrics_file)
-        response.outputs['verification_metrics'].file = str(verif_metrics_file)
-        
+        response.outputs["verification_metrics"].file = str(verif_metrics_file)
+
         return response

@@ -29,12 +29,7 @@ def gr4j():
 class TestObjectiveFunctionProcess:
     def test_all_gr4j(self, gr4j):
         client = client_for(
-            Service(
-                processes=[
-                    ObjectiveFunctionProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[ObjectiveFunctionProcess()], cfgfiles=CFG_FILE)
         )
 
         kwds = dict(hydrograph=gr4j.outputs["hydrograph"])

@@ -1,5 +1,3 @@
-import logging
-
 from pywps import LiteralInput
 from raven.processes import RavenProcess
 from ravenpy.utilities import forecasting
@@ -41,9 +39,21 @@ class ClimatologyEspProcess(RavenProcess):
     title = "Climatological Ensemble Streamflow Prediction"
     version = "0.1"
 
-    inputs = [fdate, duration, wio.ts, wio.model_name, params,
-              wio.name, wio.area, wio.latitude, wio.longitude, wio.elevation,
-              wio.nc_spec, wio.rvc, wio.rain_snow_fraction]
+    inputs = [
+        fdate,
+        duration,
+        wio.ts,
+        wio.model_name,
+        params,
+        wio.name,
+        wio.area,
+        wio.latitude,
+        wio.longitude,
+        wio.elevation,
+        wio.nc_spec,
+        wio.rvc,
+        wio.rain_snow_fraction,
+    ]
 
     outputs = [wio.forecast]
     tuple_inputs = {

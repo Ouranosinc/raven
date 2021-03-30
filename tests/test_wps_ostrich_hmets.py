@@ -14,12 +14,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestOstrichHMETSProcess:
     def test_simple(self):
         client = client_for(
-            Service(
-                processes=[
-                    OstrichHMETSProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[OstrichHMETSProcess()], cfgfiles=CFG_FILE)
         )
 
         params = "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998,  \
@@ -99,12 +94,7 @@ class TestOstrichHMETSProcess:
 
     def test_no_test(self):
         client = client_for(
-            Service(
-                processes=[
-                    OstrichHMETSProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[OstrichHMETSProcess()], cfgfiles=CFG_FILE)
         )
 
         params = "9.5019, 0.2774, 6.3942, 0.6884, 1.2875, 5.4134, 2.3641, 0.0973, 0.0464, 0.1998,  \

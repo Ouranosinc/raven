@@ -16,12 +16,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestRavenGR4JCemaNeigeProcess:
     def test_simple(self):
         client = client_for(
-            Service(
-                processes=[
-                    RavenGR4JCemaNeigeProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
 
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"
@@ -94,12 +89,7 @@ class TestRavenGR4JCemaNeigeProcess:
 
     def test_parallel(self):
         client = client_for(
-            Service(
-                processes=[
-                    RavenGR4JCemaNeigeProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
 
         params1 = "0.529, -3.396, 407.29, 1.072, 16.9, 0.947"

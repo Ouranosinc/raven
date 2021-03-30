@@ -11,12 +11,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestForecastGraphProcess:
     def test_forecast_graph(self):
         client = client_for(
-            Service(
-                processes=[
-                    GraphFcstUncertaintyProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[GraphFcstUncertaintyProcess()], cfgfiles=CFG_FILE)
         )
 
         datainputs = (

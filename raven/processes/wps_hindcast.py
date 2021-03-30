@@ -105,6 +105,7 @@ class HindcastingProcess(RavenProcess):
 def rename_dim(model):
     """Rename the nbasins dimension to `members`, which is more descriptive in the context of hindcasting."""
     import netCDF4 as nc
+
     ds = nc.Dataset(model.outputs["hydrograph"], "a")
     ds.setncattr("history", "Rename `nbasins` dimension to `member`.")
     ds.renameDimension("nbasins", "member")

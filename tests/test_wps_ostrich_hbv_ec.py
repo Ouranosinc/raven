@@ -14,12 +14,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestOstrichHBVECProcess:
     def test_simple(self):
         client = client_for(
-            Service(
-                processes=[
-                    OstrichHBVECProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[OstrichHBVECProcess()], cfgfiles=CFG_FILE)
         )
 
         params = "0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.5060520, 3.438486, \

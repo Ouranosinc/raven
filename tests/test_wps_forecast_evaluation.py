@@ -13,12 +13,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestForecastEvaluationProcess:
     def test_forecast_evaluation_deterministic(self):
         client = client_for(
-            Service(
-                processes=[
-                    HindcastEvaluationProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[HindcastEvaluationProcess()], cfgfiles=CFG_FILE)
         )
 
         obs = get_local_testdata("XSS_forecast_data/XSS_obs.nc")
@@ -43,12 +38,7 @@ class TestForecastEvaluationProcess:
 
     def test_forecast_evaluation_ensemble(self):
         client = client_for(
-            Service(
-                processes=[
-                    HindcastEvaluationProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[HindcastEvaluationProcess()], cfgfiles=CFG_FILE)
         )
 
         obs = get_local_testdata("XSS_forecast_data/XSS_obs.nc")
