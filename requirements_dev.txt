@@ -19,3 +19,4 @@ urlpath
 pymetalink
 black
 nc-time-axis
+pre-commit

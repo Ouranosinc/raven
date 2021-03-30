@@ -5,7 +5,6 @@ if [ -d "src" ]; then
 fi
 mkdir src
 cd src
-wget http://www.eng.buffalo.edu/~lsmatott/Ostrich/Ostrich_v17.12.19.zip 
+wget http://www.eng.buffalo.edu/~lsmatott/Ostrich/Ostrich_v17.12.19.zip
 unzip Ostrich_v17.12.19.zip
 cd ..
-

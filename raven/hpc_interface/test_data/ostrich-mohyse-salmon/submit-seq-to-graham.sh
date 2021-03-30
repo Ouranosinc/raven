@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # submit with:
-#       sbatch submit-seq-to-graham.sh     
+#       sbatch submit-seq-to-graham.sh
 
 #SBATCH --account=def-btolson
 #SBATCH --mem-per-cpu=1024M                        # memory; default unit is megabytes

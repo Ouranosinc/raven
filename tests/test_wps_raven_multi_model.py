@@ -5,7 +5,11 @@ from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
 
-from raven.processes import GraphEnsUncertaintyProcess, GraphSingleHydrographProcess, RavenMultiModelProcess
+from raven.processes import (
+    GraphEnsUncertaintyProcess,
+    GraphSingleHydrographProcess,
+    RavenMultiModelProcess,
+)
 
 from .common import CFG_FILE, client_for, get_output
 

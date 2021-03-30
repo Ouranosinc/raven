@@ -17,6 +17,5 @@ AUTHOR marc.lalonde@crim.ca
 apt-get update && apt-get -y install wget vim make build-essential libnetcdf-dev
 mkdir /data
 mkdir /data_out
-chmod 777 /data_out 
+chmod 777 /data_out
 cd /opt/Raven_rev157 && make
-
