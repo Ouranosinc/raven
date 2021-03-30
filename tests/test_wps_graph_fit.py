@@ -12,7 +12,7 @@ def test_graph_fit(ts_stats, params):
             processes=[
                 GraphFitProcess(),
             ],
-            cfgfiles=CFG_FILE,
+            cfgfiles=CFG_FILE
         )
     )
 

@@ -14,7 +14,6 @@ from raven.processes import (
 from .common import CFG_FILE, client_for, get_output
 
 
-# @pytest.mark.dependency()
 def test_raven_multi_model_process(request):
     client = client_for(
         Service(

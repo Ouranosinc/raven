@@ -13,9 +13,9 @@ class TestForecastGraphProcess:
         client = client_for(
             Service(
                 processes=[
-                    GraphFcstUncertaintyProcess(),
+                    GraphFcstUncertaintyProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

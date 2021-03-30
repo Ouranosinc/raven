@@ -31,9 +31,9 @@ class TestObjectiveFunctionProcess:
         client = client_for(
             Service(
                 processes=[
-                    ObjectiveFunctionProcess(),
+                    ObjectiveFunctionProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

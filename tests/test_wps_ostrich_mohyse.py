@@ -1,26 +1,24 @@
 import datetime as dt
-import os
+from urllib.request import urlretrieve
 
 import numpy as np
-import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import OstrichMOHYSEProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
-# @pytest.mark.skip
 class TestOstrichMOHYSEProcess:
     def test_simple(self):
         client = client_for(
             Service(
                 processes=[
-                    OstrichMOHYSEProcess(),
+                    OstrichMOHYSEProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

@@ -39,9 +39,9 @@ class TestRavenERA5Process:
         client = client_for(
             Service(
                 processes=[
-                    RavenHMETSProcess(),
+                    RavenHMETSProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

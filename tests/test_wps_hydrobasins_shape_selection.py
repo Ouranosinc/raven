@@ -28,9 +28,9 @@ class TestShapeSelectionProcess:
         client = client_for(
             Service(
                 processes=[
-                    HydroBasinsSelectionProcess(),
+                    HydroBasinsSelectionProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

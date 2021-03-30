@@ -9,7 +9,7 @@ from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ClimatologyEspProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
 class TestClimatologyESP:

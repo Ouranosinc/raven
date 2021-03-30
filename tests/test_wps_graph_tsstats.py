@@ -19,9 +19,9 @@ def test_graph_timeseries_stats(request):
     client = client_for(
         Service(
             processes=[
-                GraphIndicatorAnalysis(),
+                GraphIndicatorAnalysis()
             ],
-            cfgfiles=CFG_FILE,
+            cfgfiles=CFG_FILE
         )
     )
 

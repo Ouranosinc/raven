@@ -20,9 +20,9 @@ class TestNALCMSZonalStatsProcess:
         client = client_for(
             Service(
                 processes=[
-                    NALCMSZonalStatisticsProcess(),
+                    NALCMSZonalStatisticsProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -112,9 +112,9 @@ class TestNALCMSZonalStatsProcess:
         client = client_for(
             Service(
                 processes=[
-                    NALCMSZonalStatisticsProcess(),
+                    NALCMSZonalStatisticsProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
         fields = [
@@ -154,9 +154,9 @@ class TestNALCMSZonalStatsProcess:
         client = client_for(
             Service(
                 processes=[
-                    NALCMSZonalStatisticsProcess(),
+                    NALCMSZonalStatisticsProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
         fields = [

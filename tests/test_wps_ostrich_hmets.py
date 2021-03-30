@@ -1,15 +1,14 @@
 import datetime as dt
-import os
+from urllib.request import urlretrieve
 
 import numpy as np
-import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import OstrichHMETSProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
 class TestOstrichHMETSProcess:
@@ -17,9 +16,9 @@ class TestOstrichHMETSProcess:
         client = client_for(
             Service(
                 processes=[
-                    OstrichHMETSProcess(),
+                    OstrichHMETSProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -102,9 +101,9 @@ class TestOstrichHMETSProcess:
         client = client_for(
             Service(
                 processes=[
-                    OstrichHMETSProcess(),
+                    OstrichHMETSProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

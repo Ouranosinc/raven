@@ -1,7 +1,7 @@
 import datetime as dt
+from urllib.request import urlretrieve
 
 import numpy as np
-import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
@@ -9,7 +9,7 @@ from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHBVECProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
 class TestRavenHBVECProcess:
@@ -17,9 +17,9 @@ class TestRavenHBVECProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenHBVECProcess(),
+                    RavenHBVECProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -91,9 +91,9 @@ class TestRavenHBVECProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenHBVECProcess(),
+                    RavenHBVECProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

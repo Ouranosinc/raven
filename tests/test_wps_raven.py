@@ -14,9 +14,9 @@ class TestRavenProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenProcess(),
+                    RavenProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -45,9 +45,9 @@ class TestRavenProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenProcess(),
+                    RavenProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -74,9 +74,9 @@ class TestRavenProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenProcess(),
+                    RavenProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -103,9 +103,9 @@ class TestRavenProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenProcess(),
+                    RavenProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
