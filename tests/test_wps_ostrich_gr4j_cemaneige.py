@@ -1,16 +1,15 @@
 import datetime as dt
-import os
 import zipfile
+from urllib.request import urlretrieve
 
 import numpy as np
-import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import OstrichGR4JCemaNeigeProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
 class TestOstrichGR4JCemaNeigeProcess:
@@ -18,9 +17,9 @@ class TestOstrichGR4JCemaNeigeProcess:
         client = client_for(
             Service(
                 processes=[
-                    OstrichGR4JCemaNeigeProcess(),
+                    OstrichGR4JCemaNeigeProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

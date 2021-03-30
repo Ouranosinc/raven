@@ -21,9 +21,9 @@ class TestHindcasting:
         client = client_for(
             Service(
                 processes=[
-                    HindcastingProcess(),
+                    HindcastingProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
         #
@@ -99,4 +99,3 @@ class TestHindcasting:
         assert "member" in q_sim.dims
         # To display the forecast
         # q_sim.plot(); plt.show()
-

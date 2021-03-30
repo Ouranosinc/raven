@@ -1,7 +1,6 @@
 import json
 
 import numpy as np
-import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
@@ -16,9 +15,9 @@ class TestForecastEvaluationProcess:
         client = client_for(
             Service(
                 processes=[
-                    HindcastEvaluationProcess(),
+                    HindcastEvaluationProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

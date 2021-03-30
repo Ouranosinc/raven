@@ -1,8 +1,8 @@
 import datetime as dt
 import zipfile
+from urllib.request import urlretrieve
 
 import numpy as np
-import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
@@ -10,7 +10,7 @@ from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenGR4JCemaNeigeProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
 class TestRavenGR4JCemaNeigeProcess:
@@ -18,9 +18,9 @@ class TestRavenGR4JCemaNeigeProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenGR4JCemaNeigeProcess(),
+                    RavenGR4JCemaNeigeProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -96,9 +96,9 @@ class TestRavenGR4JCemaNeigeProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenGR4JCemaNeigeProcess(),
+                    RavenGR4JCemaNeigeProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

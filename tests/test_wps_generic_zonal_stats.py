@@ -17,7 +17,7 @@ class TestGenericZonalStatsProcess:
                 processes=[
                     ZonalStatisticsProcess(),
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

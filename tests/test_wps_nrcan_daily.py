@@ -16,9 +16,9 @@ class TestRavenNRCANProcess:
         client = client_for(
             Service(
                 processes=[
-                    RavenHMETSProcess(),
+                    RavenHMETSProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 

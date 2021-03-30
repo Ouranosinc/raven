@@ -2,6 +2,7 @@
 
 import datetime as dt
 import json
+from urllib.request import urlretrieve
 
 import pytest
 import xarray as xr
@@ -11,7 +12,7 @@ from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RegionalisationProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 datainputs = (
     "ts=files@xlink:href=file://{ts};"
@@ -51,9 +52,9 @@ class TestRegionalisation:
         client = client_for(
             Service(
                 processes=[
-                    RegionalisationProcess(),
+                    RegionalisationProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
@@ -89,9 +90,9 @@ class TestRegionalisation:
         client = client_for(
             Service(
                 processes=[
-                    RegionalisationProcess(),
+                    RegionalisationProcess()
                 ],
-                cfgfiles=CFG_FILE,
+                cfgfiles=CFG_FILE
             )
         )
 
