@@ -15,12 +15,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestOstrichGR4JCemaNeigeProcess:
     def test_simple(self):
         client = client_for(
-            Service(
-                processes=[
-                    OstrichGR4JCemaNeigeProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[OstrichGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
 
         params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.053"

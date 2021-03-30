@@ -14,12 +14,7 @@ from .common import CFG_FILE, client_for, get_output
 class TestOstrichMOHYSEProcess:
     def test_simple(self):
         client = client_for(
-            Service(
-                processes=[
-                    OstrichMOHYSEProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[OstrichMOHYSEProcess()], cfgfiles=CFG_FILE)
         )
 
         low_p = "0.01, 0.01, 0.01, -5.00, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01"

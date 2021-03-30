@@ -7,14 +7,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 def test_graph_fit(ts_stats, params):
-    client = client_for(
-        Service(
-            processes=[
-                GraphFitProcess(),
-            ],
-            cfgfiles=CFG_FILE
-        )
-    )
+    client = client_for(Service(processes=[GraphFitProcess()], cfgfiles=CFG_FILE))
 
     datainputs = (
         "ts=files@xlink:href=file://{ts};"

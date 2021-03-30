@@ -26,12 +26,7 @@ class TestParser:
 class TestShapeSelectionProcess:
     def test_manicouagan(self):
         client = client_for(
-            Service(
-                processes=[
-                    HydroBasinsSelectionProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
+            Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [

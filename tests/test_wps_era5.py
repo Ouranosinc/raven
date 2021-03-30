@@ -36,14 +36,7 @@ params = (
 
 class TestRavenERA5Process:
     def test_simple(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenHMETSProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenHMETSProcess()], cfgfiles=CFG_FILE))
 
         ts = get_local_testdata("era5/tas_pr_20180101-20180108.nc")
 

@@ -11,14 +11,7 @@ cf = ["rvi", "rvp", "rvc", "rvh", "rvt"]
 
 class TestRavenProcess:
     def test_gr4j_salmon_nc(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-gr4j-cemaneige/raven-gr4j-salmon.rv?")
         ts = get_local_testdata(
@@ -42,14 +35,7 @@ class TestRavenProcess:
         assert_response_success(resp)
 
     def test_hmets(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-hmets/raven-hmets-salmon.rv?")
         ts = get_local_testdata("raven-hmets/Salmon-River-Near-Prince-George_*.rvt")
@@ -71,14 +57,7 @@ class TestRavenProcess:
         assert_response_success(resp)
 
     def test_mohyse(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-mohyse/raven-mohyse-salmon.rv?")
         ts = get_local_testdata("raven-mohyse/Salmon-River-Near-Prince-George_*.rvt")
@@ -100,14 +79,7 @@ class TestRavenProcess:
         assert_response_success(resp)
 
     def test_hbv_ec(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-hbv-ec/raven-hbv-ec-salmon.rv?")
         ts = get_local_testdata("raven-hbv-ec/Salmon-River-Near-Prince-George_*.rvt")

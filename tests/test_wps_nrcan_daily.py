@@ -13,14 +13,7 @@ from .common import CFG_FILE, client_for
 
 class TestRavenNRCANProcess:
     def test_simple(self):
-        client = client_for(
-            Service(
-                processes=[
-                    RavenHMETSProcess()
-                ],
-                cfgfiles=CFG_FILE
-            )
-        )
+        client = client_for(Service(processes=[RavenHMETSProcess()], cfgfiles=CFG_FILE))
 
         salmon = get_local_testdata(
             "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
