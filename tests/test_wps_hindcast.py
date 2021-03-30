@@ -1,8 +1,7 @@
 import datetime as dt
 import json
-import tempfile
+from urllib.request import urlretrieve
 
-import matplotlib.pyplot as plt
 import pytest
 import xarray as xr
 from pywps import Service
@@ -12,7 +11,7 @@ import numpy as np
 
 from raven.processes import HindcastingProcess
 
-from .common import CFG_FILE, client_for, get_output, urlretrieve
+from .common import CFG_FILE, client_for, get_output
 
 
 @pytest.mark.online
