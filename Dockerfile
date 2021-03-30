@@ -24,7 +24,7 @@ WORKDIR /opt/wps
 # (2) Install RavenWPS in editable mode
 # Have to uninstall the ravenpy installed by conda so the re-install with
 # binaries work.  Same problem as in the Makefile.
-RUN ["/bin/bash", "-c", "source activate wps && pip uninstall --yes ravenpy && pip install ravenpy --install-option=\"--with-binaries\" && pip install -e ."]
+RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099

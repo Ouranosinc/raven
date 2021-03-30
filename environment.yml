@@ -1,10 +1,12 @@
 name: raven
 channels:
+- zeitsperre
 - conda-forge
 - defaults
 dependencies:
 - pip
 - six
+- ravenpy==0.3.0
 - pywps==4.4.1
 - unidecode
 - birdy
@@ -46,6 +48,5 @@ dependencies:
 - tbb
 - pymetalink
 - pip:
-  - ravenpy==0.3.0
   - spotpy
   - urlpath
