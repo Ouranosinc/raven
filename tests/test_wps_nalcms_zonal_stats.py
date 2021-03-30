@@ -7,7 +7,10 @@ from shapely.geometry import MultiPolygon
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from raven.processes import NALCMSZonalStatisticsProcess, NALCMSZonalStatisticsRasterProcess
+from raven.processes import (
+    NALCMSZonalStatisticsProcess,
+    NALCMSZonalStatisticsRasterProcess,
+)
 
 from .common import CFG_FILE, client_for, count_pixels, get_output
 
@@ -230,5 +233,5 @@ class TestNALCMSZonalStatsWithRasterProcess:
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
         assert {"raster"}.issubset([*out])
-        d = md.get(out['raster'], path='/tmp', segmented=False)
+        d = md.get(out["raster"], path="/tmp", segmented=False)
         assert d[0] == "/tmp/subset_1.tiff"

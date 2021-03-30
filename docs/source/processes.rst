@@ -37,4 +37,3 @@ Diagnostics functions
 .. autoprocess:: raven.processes.ObjectiveFunctionProcess
    :docstring:
    :skiplines: 1
-

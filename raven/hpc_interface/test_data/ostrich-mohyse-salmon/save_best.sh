@@ -10,8 +10,7 @@ fi
 
 cp model/raven-mohyse-salmon.rvp  best/raven-mohyse-salmon.rvp
 cp model/raven-mohyse-salmon.rvh  best/raven-mohyse-salmon.rvh
-cp model/output/Diagnostics.csv best/Diagnostics.csv 
+cp model/output/Diagnostics.csv best/Diagnostics.csv
 cp model/output/Hydrographs.csv best/Hydrographs.csv
 
 exit 0
-

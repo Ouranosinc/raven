@@ -80,11 +80,11 @@ class TestGenericShapePropertiesProcess:
         props = json.loads(out["properties"])
         assert {"centroid", "area", "perimeter", "gravelius"}.issubset(props[0].keys())
 
-        np.testing.assert_approx_equal(props[0]['area'], 6258366698.5253, 4)
-        np.testing.assert_approx_equal(props[0]['centroid'][0], -73.41117680)
-        np.testing.assert_approx_equal(props[0]['centroid'][1], 46.46286765)
-        np.testing.assert_approx_equal(props[0]['perimeter'], 673430.9089454)
-        np.testing.assert_approx_equal(props[0]['gravelius'], 2.4013618703)
+        np.testing.assert_approx_equal(props[0]["area"], 6258366698.5253, 4)
+        np.testing.assert_approx_equal(props[0]["centroid"][0], -73.41117680)
+        np.testing.assert_approx_equal(props[0]["centroid"][1], 46.46286765)
+        np.testing.assert_approx_equal(props[0]["perimeter"], 673430.9089454)
+        np.testing.assert_approx_equal(props[0]["gravelius"], 2.4013618703)
 
     def test_geographic_epsg(self):
         """Calculate the geometric properties using degree-length units"""
@@ -119,11 +119,11 @@ class TestGenericShapePropertiesProcess:
         props = json.loads(out["properties"])
         assert {"centroid", "area", "perimeter", "gravelius"}.issubset(props[0].keys())
 
-        np.testing.assert_approx_equal(props[0]['area'], 0.7342578)
-        np.testing.assert_approx_equal(props[0]['centroid'][0], -73.41117680)
-        np.testing.assert_approx_equal(props[0]['centroid'][1], 46.46286765)
-        np.testing.assert_approx_equal(props[0]['perimeter'], 8.14412255)
-        np.testing.assert_approx_equal(props[0]['gravelius'], 2.68111268)
+        np.testing.assert_approx_equal(props[0]["area"], 0.7342578)
+        np.testing.assert_approx_equal(props[0]["centroid"][0], -73.41117680)
+        np.testing.assert_approx_equal(props[0]["centroid"][1], 46.46286765)
+        np.testing.assert_approx_equal(props[0]["perimeter"], 8.14412255)
+        np.testing.assert_approx_equal(props[0]["gravelius"], 2.68111268)
 
     def test_multifeature_geojson(self):
         """Calculate shape properties for multiple features in a shape"""
