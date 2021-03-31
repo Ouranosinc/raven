@@ -5,13 +5,15 @@ from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
 from ravenpy.models import Raven
-
+from ravenpy.models.commands import HRUsCommand
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.io import archive_sniffer
 
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
+
+HRU = HRUsCommand.Record
 
 
 class RavenProcess(Process):
@@ -72,6 +74,16 @@ class RavenProcess(Process):
         kwds = defaultdict(list)
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
+
+        # for spec in request.inputs.pop("hrus", []):
+        #     kwds.update(json.loads(spec.data))
+        # kwds['hrus'] = json.loads(request.inputs['hrus'])
+        print(">>>>>>>>>>>>>>>>>>>>>>>")
+        # print(type(json.loads(request.inputs['hrus'][0].data)))
+        for hrus in request.inputs.pop("hrus", []):
+            kwds["hrus"] = [HRU(**attrs) for attrs in json.loads(hrus.data)]
+        # print(kwds['hrus'])
+        print(">>>>>>>>>>>>>>>>>>>>>>>")
 
         # Parse all other input parameters
         for name, objs in request.inputs.items():

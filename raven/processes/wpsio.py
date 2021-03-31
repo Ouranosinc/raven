@@ -142,6 +142,19 @@ run_name = LiteralInput(
     max_occurs=config.max_parallel_processes,
 )
 
+hrus = ComplexInput(
+    "hrus",
+    "HRUs",
+    # abstract="The name given to the simulation, for example <watershed>_<experiment>",
+    # ata_type="json input",
+    supported_formats=[
+        FORMATS.JSON,
+    ],
+    # default="bla",
+    # min_occurs=0,
+    # max_occurs=config.max_parallel_processes,
+)
+
 name = LiteralInput(
     "name",
     "Watershed name",
