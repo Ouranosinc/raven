@@ -1,11 +1,14 @@
 import datetime as dt
+import json
 import zipfile
+from dataclasses import asdict
 from urllib.request import urlretrieve
 
 import numpy as np
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
+from ravenpy.models import GR4JCN
 from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenGR4JCemaNeigeProcess
@@ -25,6 +28,11 @@ class TestRavenGR4JCemaNeigeProcess:
         # pdefaults.update({'GR4J_X1_hlf':            pdefaults['GR4J_X1']*1000./2.0})    --> x1 * 1000. / 2.0
         # pdefaults.update({'one_minus_CEMANEIGE_X2': 1.0 - pdefaults['CEMANEIGE_X2']})   --> 1.0 - x6
 
+        salmon_land_hru_1 = dict(
+            area=4250.6, elevation=843.0, latitude=54.4848, longitude=-123.3659
+        )
+        hrus = (GR4JCN.LandHRU(**salmon_land_hru_1),)
+
         datainputs = (
             "ts=files@xlink:href=file://{ts};"
             "params={params};"
@@ -32,10 +40,11 @@ class TestRavenGR4JCemaNeigeProcess:
             "end_date={end_date};"
             "name={name};"
             "run_name={run_name};"
-            "area={area};"
-            "latitude={latitude};"
-            "longitude={longitude};"
-            "elevation={elevation};".format(
+            # "area={area};"
+            # "latitude={latitude};"
+            # "longitude={longitude};"
+            # "elevation={elevation};"
+            "hrus={hrus};".format(
                 ts=get_local_testdata(
                     "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
                 ),
@@ -44,10 +53,11 @@ class TestRavenGR4JCemaNeigeProcess:
                 end_date=dt.datetime(2002, 1, 1),
                 name="Salmon",
                 run_name="test",
-                area="4250.6",
-                elevation="843.0",
-                latitude=54.4848,
-                longitude=-123.3659,
+                hrus=json.dumps([asdict(hrus[0])]),
+                # area="4250.6",
+                # elevation="843.0",
+                # latitude=54.4848,
+                # longitude=-123.3659,
             )
         )
 
