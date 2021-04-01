@@ -142,25 +142,23 @@ run_name = LiteralInput(
     max_occurs=config.max_parallel_processes,
 )
 
-hrus = ComplexInput(
-    "hrus",
-    "HRUs",
-    # abstract="The name given to the simulation, for example <watershed>_<experiment>",
-    # ata_type="json input",
-    supported_formats=[
-        FORMATS.JSON,
-    ],
-    # default="bla",
-    # min_occurs=0,
-    # max_occurs=config.max_parallel_processes,
-)
-
 name = LiteralInput(
     "name",
     "Watershed name",
     abstract="The name of the watershed the model is run for.",
     data_type="string",
     default="watershed",
+    min_occurs=0,
+    max_occurs=config.max_parallel_processes,
+)
+
+# Note that this is a newer, alternate interface to the area/latitude/longitude/elevation legacy one for HRUs
+hrus = ComplexInput(
+    "hrus",
+    "JSON-serialized HRUs",
+    supported_formats=[
+        FORMATS.JSON,
+    ],
     min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
@@ -180,7 +178,7 @@ latitude = LiteralInput(
     "Latitude",
     abstract="Watershed's centroid latitude",
     data_type="float",
-    min_occurs=1,
+    min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
 
@@ -189,7 +187,7 @@ longitude = LiteralInput(
     "Longitude",
     abstract="Watershed's centroid longitude",
     data_type="float",
-    min_occurs=1,
+    min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
 
@@ -198,7 +196,7 @@ elevation = LiteralInput(
     "Elevation (m)",
     abstract="Watershed's mean elevation (m)",
     data_type="float",
-    min_occurs=1,
+    min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
 
