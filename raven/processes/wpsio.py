@@ -4,14 +4,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 
 """
 
-from pywps import (
-    FORMATS,
-    ComplexInput,
-    ComplexOutput,
-    Format,
-    LiteralInput,
-    LiteralOutput,
-)
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, LiteralInput, LiteralOutput
 from pywps.app.Common import Metadata
 from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, rv
 
@@ -160,7 +153,7 @@ hrus = ComplexInput(
         FORMATS.JSON,
     ],
     min_occurs=0,
-    max_occurs=config.max_parallel_processes,
+    max_occurs=1,
 )
 
 area = LiteralInput(
