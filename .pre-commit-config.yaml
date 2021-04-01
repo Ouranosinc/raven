@@ -39,12 +39,12 @@ repos:
     -   id: flake8
         language_version: python3
         args: ['--config=setup.cfg']
--   repo: https://github.com/timothycrosley/isort
-    rev: 5.8.0
-    hooks:
-    -   id: isort
-        language_version: python3
-        args: ['--profile', 'black', '--filter-files']
+# -   repo: https://github.com/timothycrosley/isort
+#     rev: 5.8.0
+#     hooks:
+#     -   id: isort
+#         language_version: python3
+#         args: ['--profile', 'black', '--filter-files']
 -   repo: https://github.com/pycqa/pydocstyle
     rev: 6.0.0
     hooks:

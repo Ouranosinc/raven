@@ -1,7 +1,10 @@
-from ravenpy.models import Ostrich
-from raven.processes import RavenProcess
-from . import wpsio as wio
 import logging
+
+from ravenpy.models import Ostrich
+
+from raven.processes import RavenProcess
+
+from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
 
