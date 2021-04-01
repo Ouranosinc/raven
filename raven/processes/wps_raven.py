@@ -75,6 +75,7 @@ class RavenProcess(Process):
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
 
+        # This is an alternate interface to the legacy one, composed of: area/latitude/longitude/elevation
         for hrus in request.inputs.pop("hrus", []):
             kwds["hrus"] = [HRU(**attrs) for attrs in json.loads(hrus.data)]
 
