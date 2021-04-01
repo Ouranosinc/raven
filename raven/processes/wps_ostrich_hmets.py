@@ -1,9 +1,10 @@
-from .wps_ostrich import OstrichProcess
-from ravenpy.models import HMETS_OST
-from . import wpsio as wio
 import logging
-from pywps import FORMATS, LiteralInput, ComplexOutput
-from pathlib import Path
+
+from pywps import LiteralInput
+from ravenpy.models import HMETS_OST
+
+from . import wpsio as wio
+from .wps_ostrich import OstrichProcess
 
 LOGGER = logging.getLogger("PYWPS")
 

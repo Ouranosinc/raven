@@ -1,11 +1,7 @@
 from pathlib import Path
 
 from matplotlib import pyplot as plt
-from pywps import ComplexInput, ComplexOutput, LiteralInput
-from pywps import FORMATS
-from pywps import Format
-from pywps import Process
-
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, LiteralInput, Process
 from ravenpy.utilities.graphs import ts_graphs
 
 

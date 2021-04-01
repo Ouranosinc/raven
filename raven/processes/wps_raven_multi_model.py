@@ -1,5 +1,7 @@
+from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, RavenMultiModel
+
 from raven.processes import RavenProcess
-from ravenpy.models import HMETS, GR4JCN, HBVEC, MOHYSE, RavenMultiModel
+
 from . import wpsio as wio
 
 
