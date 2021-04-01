@@ -36,7 +36,7 @@ params = LiteralInput(
 class ClimatologyEspProcess(RavenProcess):
     identifier = "climatology_esp"
     abstract = "Forecast based on observed climatology"
-    title = "Climatological Ensemble Streamflow Prediction"
+    title = "Climatological Extended Streamflow Prediction"
     version = "0.1"
 
     inputs = [
