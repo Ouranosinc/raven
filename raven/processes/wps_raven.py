@@ -6,14 +6,13 @@ from pathlib import Path
 from pywps import Format, LiteralOutput, Process
 from ravenpy.models import Raven
 from ravenpy.models.commands import HRUsCommand
+from ravenpy.models.rv import HRU
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.io import archive_sniffer
 
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
-
-HRU = HRUsCommand.Record
 
 
 class RavenProcess(Process):
