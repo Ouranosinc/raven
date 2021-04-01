@@ -75,15 +75,8 @@ class RavenProcess(Process):
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
 
-        # for spec in request.inputs.pop("hrus", []):
-        #     kwds.update(json.loads(spec.data))
-        # kwds['hrus'] = json.loads(request.inputs['hrus'])
-        print(">>>>>>>>>>>>>>>>>>>>>>>")
-        # print(type(json.loads(request.inputs['hrus'][0].data)))
         for hrus in request.inputs.pop("hrus", []):
             kwds["hrus"] = [HRU(**attrs) for attrs in json.loads(hrus.data)]
-        # print(kwds['hrus'])
-        print(">>>>>>>>>>>>>>>>>>>>>>>")
 
         # Parse all other input parameters
         for name, objs in request.inputs.items():
