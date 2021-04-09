@@ -1,9 +1,12 @@
-from raven import config
-from .wps_raven import RavenProcess
-from ravenpy.models import GR4JCN
-from . import wpsio as wio
 import logging
+
 from pywps import LiteralInput
+from ravenpy.models import GR4JCN
+
+from raven import config
+
+from . import wpsio as wio
+from .wps_raven import RavenProcess
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -64,6 +67,7 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
         wio.duration,
         wio.run_name,
         wio.name,
+        wio.hrus,
         wio.area,
         wio.latitude,
         wio.longitude,

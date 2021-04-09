@@ -4,14 +4,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 
 """
 
-from pywps import (
-    FORMATS,
-    ComplexInput,
-    ComplexOutput,
-    Format,
-    LiteralInput,
-    LiteralOutput,
-)
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, LiteralInput, LiteralOutput
 from pywps.app.Common import Metadata
 from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, rv
 
@@ -152,6 +145,17 @@ name = LiteralInput(
     max_occurs=config.max_parallel_processes,
 )
 
+# Note that this is a newer, alternate interface to the area/latitude/longitude/elevation legacy one for HRUs
+hrus = ComplexInput(
+    "hrus",
+    "JSON-serialized HRUs",
+    supported_formats=[
+        FORMATS.JSON,
+    ],
+    min_occurs=0,
+    max_occurs=1,
+)
+
 area = LiteralInput(
     "area",
     "Watershed area (km2)",
@@ -167,7 +171,7 @@ latitude = LiteralInput(
     "Latitude",
     abstract="Watershed's centroid latitude",
     data_type="float",
-    min_occurs=1,
+    min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
 
@@ -176,7 +180,7 @@ longitude = LiteralInput(
     "Longitude",
     abstract="Watershed's centroid longitude",
     data_type="float",
-    min_occurs=1,
+    min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
 
@@ -185,7 +189,7 @@ elevation = LiteralInput(
     "Elevation (m)",
     abstract="Watershed's mean elevation (m)",
     data_type="float",
-    min_occurs=1,
+    min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
 
