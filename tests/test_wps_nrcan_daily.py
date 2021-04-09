@@ -60,9 +60,9 @@ class TestRavenNRCANProcess:
                 latitude=lat,
                 longitude=lon,
                 rain_snow_fraction="RAINSNOW_DINGMAN",
-                tasmax=json.dumps({"tasmax": {"linear_transform": (1.0, -273.15)}}),
-                tasmin=json.dumps({"tasmin": {"linear_transform": (1.0, -273.15)}}),
-                pr=json.dumps({"pr": {"linear_transform": (86400.0, 0.0)}}),
+                tasmax=json.dumps({"tasmax": {"scale": 1.0, "offset": -273.15}}),
+                tasmin=json.dumps({"tasmin": {"scale": 1.0, "offset": -273.15}}),
+                pr=json.dumps({"pr": {"scale": 86400.0, "offset": 0.0}}),
             )
         )
 
