@@ -1,7 +1,8 @@
-from pywps import ComplexInput, LiteralInput, ComplexOutput, Process, FORMATS
-from ravenpy.utilities.forecasting import make_climpred_hindcast_object
-import xarray as xr
 from pathlib import Path
+
+import xarray as xr
+from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
+from ravenpy.utilities.forecasting import make_climpred_hindcast_object
 
 
 class ClimpredHindcastVerificationProcess(Process):

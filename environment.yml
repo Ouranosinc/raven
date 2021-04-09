@@ -6,8 +6,8 @@ channels:
 dependencies:
 - pip
 - six
-#- ravenpy==0.4.0
-- pywps==4.4.1
+- ravenpy>=0.4.0
+- pywps==4.4.2
 - unidecode
 - birdy
 - owslib
@@ -29,7 +29,7 @@ dependencies:
 - libnetcdf
 - gdal
 - fiona
-- proj<8.0.0
+- proj
 - pyproj
 - cartopy
 - affine

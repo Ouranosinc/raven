@@ -1,7 +1,8 @@
 from pywps import Service
-from .common import client_for
+
 from raven.processes import processes
 
+from .common import client_for
 
 URL = "http://localhost:9099"
 

@@ -1,7 +1,9 @@
 from pywps import LiteralInput
-from raven.processes import RavenProcess
+from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE
 from ravenpy.utilities import forecasting
-from ravenpy.models import HMETS, GR4JCN, HBVEC, MOHYSE
+
+from raven.processes import RavenProcess
+
 from . import wpsio as wio
 
 fdate = LiteralInput(

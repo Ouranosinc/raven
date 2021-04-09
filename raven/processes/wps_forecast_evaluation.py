@@ -1,13 +1,9 @@
 import json
 
-from pywps import ComplexInput, ComplexOutput
-from pywps import FORMATS
-from pywps import LiteralInput
-from pywps import Process
-from pywps.app.Common import Metadata
-
-import xskillscore as xs
 import xarray as xr
+import xskillscore as xs
+from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
+from pywps.app.Common import Metadata
 
 # Name of all available metrics
 all_metrics = xs.core.deterministic.__all__ + xs.core.probabilistic.__all__

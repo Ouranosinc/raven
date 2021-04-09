@@ -9,14 +9,10 @@ Created on Tue Mar 26 14:31:29 2019
 from pathlib import Path
 
 from matplotlib import pyplot as plt
-from pywps import ComplexInput, ComplexOutput
-from pywps import FORMATS
-from pywps import Format
-from pywps import Process
-
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, Process
 from ravenpy.utilities.graphs import (
-    mean_annual_hydrograph,
     hydrograph,
+    mean_annual_hydrograph,
     spaghetti_annual_hydrograph,
 )
 

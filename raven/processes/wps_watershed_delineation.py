@@ -1,10 +1,7 @@
 import json
 
 from pysheds.grid import Grid
-from pywps import ComplexInput, ComplexOutput
-from pywps import FORMATS
-from pywps import LiteralInput
-from pywps import Process
+from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
 from pywps.app.Common import Metadata
 from shapely import geometry
 
