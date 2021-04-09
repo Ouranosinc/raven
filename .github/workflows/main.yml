@@ -1,0 +1,42 @@
+name: raven-wps
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  black:
+    name: Code linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run linting suite
+        run: pre-commit run --all-files
+
+  conda:
+    name: Conda
+    needs: black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+      - name: Conda version
+        run: conda --version
+      - name: Create raven-wps environment
+        run: conda env create -n raven-wps -f environment.yml
+      - name: Install and test raven-wps
+        run: |
+          source activate raven-wps
+          pip install -e ".[dev]"
+          git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
+          env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest tests
