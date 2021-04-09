@@ -1,3 +1,5 @@
+from .wps_raven import RavenProcess  # isort: skip
+
 from .wps_climatology_esp import ClimatologyEspProcess
 from .wps_climpred_forecast_verification import ClimpredHindcastVerificationProcess
 from .wps_forecast_evaluation import HindcastEvaluationProcess
@@ -21,7 +23,6 @@ from .wps_ostrich_gr4j_cemaneige import OstrichGR4JCemaNeigeProcess
 from .wps_ostrich_hbv_ec import OstrichHBVECProcess
 from .wps_ostrich_hmets import OstrichHMETSProcess
 from .wps_ostrich_mohyse import OstrichMOHYSEProcess
-from .wps_raven import RavenProcess
 from .wps_raven_gr4j_cemaneige import RavenGR4JCemaNeigeProcess
 from .wps_raven_hbv_ec import RavenHBVECProcess
 from .wps_raven_hmets import RavenHMETSProcess
