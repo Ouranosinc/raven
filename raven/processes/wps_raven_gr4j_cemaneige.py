@@ -67,6 +67,7 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
         wio.duration,
         wio.run_name,
         wio.name,
+        wio.hrus,
         wio.area,
         wio.latitude,
         wio.longitude,
