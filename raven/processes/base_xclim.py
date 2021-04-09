@@ -1,15 +1,14 @@
-import os
 import logging
+import os
 from functools import reduce
-from operator import mul
 from itertools import cycle
+from operator import mul
 
-from pywps import Process
-from pywps import ComplexInput, ComplexOutput, FORMATS, LiteralInput
-from pywps.app.Common import Metadata
-from unidecode import unidecode
 import requests
 import xarray as xr
+from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
+from pywps.app.Common import Metadata
+from unidecode import unidecode
 
 LOGGER = logging.getLogger("PYWPS")
 

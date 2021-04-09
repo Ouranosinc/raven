@@ -3,16 +3,16 @@ import os
 import re
 import subprocess
 from random import sample
-from string import digits, ascii_uppercase, ascii_lowercase
+from string import ascii_lowercase, ascii_uppercase, digits
 
 import constants
 from gevent import joinall
 from pssh.clients import ParallelSSHClient
 from pssh.exceptions import (
     AuthenticationException,
-    UnknownHostException,
     ConnectionErrorException,
     SCPError,
+    UnknownHostException,
 )
 
 

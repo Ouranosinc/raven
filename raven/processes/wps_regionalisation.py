@@ -2,10 +2,9 @@ import json
 import logging
 from pathlib import Path
 
-from pywps import ComplexInput, FORMATS
-from pywps import LiteralInput
+from pywps import FORMATS, ComplexInput, LiteralInput
+from ravenpy.utilities import read_gauged_params, read_gauged_properties, regionalize
 
-from ravenpy.utilities import regionalize, read_gauged_properties, read_gauged_params
 from . import wpsio as wio
 from .wps_raven import RavenProcess
 

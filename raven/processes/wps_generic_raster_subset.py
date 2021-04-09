@@ -6,13 +6,9 @@ from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.geo import generic_raster_warp
-from ravenpy.utilities.io import (
-    archive_sniffer,
-    crs_sniffer,
-    raster_datatype_sniffer,
-)
+from ravenpy.utilities.io import archive_sniffer, crs_sniffer, raster_datatype_sniffer
 
-from ..utils import zonalstats_raster_file, gather_dem_tile
+from ..utils import gather_dem_tile, zonalstats_raster_file
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
