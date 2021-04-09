@@ -5,15 +5,10 @@ channels:
 - defaults
 dependencies:
 - python>=3.6
-- pywps
+- pywps==4.4.2
 - sphinx
 - nbsphinx
 - ipython
 - xskillscore
 - numpy
 - sphinx_rtd_theme
-#- xclim
-#- rioxarray
-#- pip
-#- pip:
-#  - ravenpy

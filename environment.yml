@@ -6,8 +6,8 @@ channels:
 dependencies:
 - pip
 - six
-- ravenpy==0.4.0
-- pywps
+- ravenpy>=0.4.0
+- pywps==4.4.2
 - unidecode
 - birdy
 - owslib==0.21
