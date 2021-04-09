@@ -1,9 +1,7 @@
-from pywps import ComplexInput, ComplexOutput, LiteralInput
-from pywps import FORMATS, Format
-from pywps import Process
+import tempfile
 
 import xarray as xr
-import tempfile
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, LiteralInput, Process
 
 
 class ForecastFloodRiskProcess(Process):

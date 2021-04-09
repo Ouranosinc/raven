@@ -2,10 +2,10 @@ import tempfile
 
 import rasterio as rio
 from metalink import download as md
-from ravenpy.utilities.testdata import get_local_testdata
-
 from pywps import Service
 from pywps.tests import assert_response_success
+from ravenpy.utilities.testdata import get_local_testdata
+
 from raven.processes import RasterSubsetProcess
 
 from .common import CFG_FILE, client_for, get_output

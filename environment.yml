@@ -6,8 +6,8 @@ channels:
 dependencies:
 - pip
 - six
-- ravenpy==0.3.0
-- pywps==4.4.1
+- ravenpy>=0.4.0
+- pywps==4.4.2
 - unidecode
 - birdy
 - owslib==0.21
@@ -29,7 +29,7 @@ dependencies:
 - libnetcdf #==4.6.2  # Avoid core dump with 4.7.1. Can be unpinned when 4.7.1 is not the latest anymore.
 - gdal
 - fiona
-- proj<8.0.0
+- proj
 - pyproj
 - cartopy
 - affine
