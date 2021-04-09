@@ -1,0 +1,73 @@
+name: raven-wps
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  black:
+    name: Code linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tox-env: [black]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run linting suite
+        run: pre-commit run --all-files
+
+#  pip:
+#    name: Pip with Python${{ matrix.python-version }}
+#    needs: black
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        include:
+#          - tox-env: py37
+#            python-version: 3.7
+#          - tox-env: py38
+#            python-version: 3.8
+#          - tox-env: py39
+#            python-version: 3.9
+#    steps:
+#    - uses: actions/checkout@v2
+#    - name: Set up Python ${{ matrix.python-version }}
+#      uses: actions/setup-python@v2
+#      with:
+#        python-version: ${{ matrix.python-version }}
+#    - name: Install GDAL
+#      run: |
+#        sudo apt-get update
+#        sudo apt-get install libgdal-dev
+#    - name: Install tox
+#      run: pip install tox
+#    - name: Test with tox
+#      run: env GDAL_VERSION="$(gdal-config --version)" tox -e ${{ matrix.tox-env }}
+
+  conda:
+    name: Conda
+    needs: black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+      - name: Conda version
+        run: conda --version
+      - name: Create RavenPy environment
+        run: conda env create -n raven-wps -f environment.yml
+      - name: Install and test raven-wps
+        run: |
+          source activate raven-wps
+          pip install -e ".[dev]"
+          git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
+          env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest --cov raven
