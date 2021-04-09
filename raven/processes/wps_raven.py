@@ -5,6 +5,8 @@ from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
 from ravenpy.models import Raven
+from ravenpy.models.commands import HRUsCommand
+from ravenpy.models.rv import HRU
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.io import archive_sniffer
 
@@ -71,6 +73,10 @@ class RavenProcess(Process):
         kwds = defaultdict(list)
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
+
+        # This is an alternate interface to the legacy one, composed of: area/latitude/longitude/elevation
+        for hrus in request.inputs.pop("hrus", []):
+            kwds["hrus"] = [HRU(**attrs) for attrs in json.loads(hrus.data)]
 
         # Parse all other input parameters
         for name, objs in request.inputs.items():
