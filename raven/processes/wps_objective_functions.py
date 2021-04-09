@@ -1,13 +1,9 @@
 import json
 
-from pywps import ComplexInput, ComplexOutput
-from pywps import FORMATS
-from pywps import LiteralInput
-from pywps import Process
-from pywps.app.Common import Metadata
-
 import spotpy as sp
 import xarray as xr
+from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
+from pywps.app.Common import Metadata
 
 funcs = {f.__name__: f for f in sp.objectivefunctions._all_functions}
 

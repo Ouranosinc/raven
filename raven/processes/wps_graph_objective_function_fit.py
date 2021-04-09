@@ -9,12 +9,8 @@ Created on Wed Jun 12 13:23:00 2019
 from pathlib import Path
 
 from matplotlib import pyplot as plt
-from pywps import ComplexInput, ComplexOutput
-from pywps import FORMATS
-from pywps import Format
-from pywps import Process
-
-from ravenpy.utilities.graphs import mean_annual_hydrograph, hydrograph
+from pywps import FORMATS, ComplexInput, ComplexOutput, Format, Process
+from ravenpy.utilities.graphs import hydrograph, mean_annual_hydrograph
 
 
 class GraphObjectiveFunctionFitProcess(Process):

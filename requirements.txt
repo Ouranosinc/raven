@@ -1,6 +1,6 @@
 ravenpy>=0.3.0
 six
-pywps==4.4.1
+pywps==4.4.2
 owslib==0.21
 lxml
 jinja2

@@ -14,8 +14,8 @@ import rasterio.vrt
 import rasterio.warp
 from affine import Affine
 from pyproj.crs import CRS
-from ravenpy.utilities.io import get_bbox
 from ravenpy.utilities.geoserver import get_raster_wcs
+from ravenpy.utilities.io import get_bbox
 
 LOGGER = logging.getLogger("RAVEN")
 
