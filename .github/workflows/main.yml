@@ -10,9 +10,6 @@ jobs:
   black:
     name: Code linting
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        tox-env: [black]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -35,11 +32,11 @@ jobs:
           update-conda: true
       - name: Conda version
         run: conda --version
-      - name: Create RavenPy environment
+      - name: Create raven-wps environment
         run: conda env create -n raven-wps -f environment.yml
       - name: Install and test raven-wps
         run: |
           source activate raven-wps
           pip install -e ".[dev]"
           git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
-          env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest raven
+          env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest tests
