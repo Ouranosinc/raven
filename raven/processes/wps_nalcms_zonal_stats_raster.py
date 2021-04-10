@@ -115,7 +115,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
             raster_file = gather_dem_tile(
-                vector_file,
+                projected,
                 self.workdir,
                 geographic=False,
                 raster="public:CEC_NALCMS_LandUse_2010",
