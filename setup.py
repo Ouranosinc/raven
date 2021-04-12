@@ -4,6 +4,7 @@
 """The setup script."""
 
 import os
+import subprocess
 
 from setuptools import find_packages, setup
 
@@ -16,7 +17,17 @@ about = {}
 with open(os.path.join(here, "raven", "__version__.py"), "r") as f:
     exec(f.read(), about)
 
-reqs = [line.strip() for line in open("requirements.txt")]
+reqs = list()
+# Special GDAL handling
+try:
+    gdal_version = subprocess.run(
+        ["gdal-config", "--version"], capture_output=True
+    ).stdout.decode("utf-8")
+    reqs.append(f"gdal=={gdal_version}")
+except subprocess.CalledProcessError:
+    pass
+reqs.extend([line.strip() for line in open("requirements.txt")])
+
 dev_reqs = [line.strip() for line in open("requirements_dev.txt")]
 
 docs_reqs = ["sphinx>=1.7", "sphinx-autoapi", "nbsphinx", "sphinx_rtd_theme"]
