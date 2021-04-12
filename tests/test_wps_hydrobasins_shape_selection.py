@@ -38,8 +38,8 @@ class TestShapeSelectionProcess:
 
         datainputs = ";".join(fields).format(
             location="-68.724444, 50.646667",
-            level="12",
-            lakes=True,
+            # level="12",
+            # lakes=True,
             aggregate_upstream=True,
         )
 
@@ -59,12 +59,7 @@ class TestShapeSelectionProcess:
     @pytest.mark.skip("slow")
     def test_lac_saint_jean(self):
         client = client_for(
-            Service(
-                processes=[
-                    HydroBasinsSelectionProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -76,15 +71,15 @@ class TestShapeSelectionProcess:
 
         datainputs_upstream = ";".join(fields).format(
             location="-72.0, 48.5",
-            level="12",
-            lakes=True,
+            # level="12",
+            # lakes=True,
             aggregate_upstream=True,
         )
 
         datainputs_subbasin = ";".join(fields).format(
             location="-72.0, 48.5",
-            level="12",
-            lakes=True,
+            # level="12",
+            # lakes=True,
             aggregate_upstream=False,
         )
 
@@ -117,12 +112,7 @@ class TestShapeSelectionProcess:
     @pytest.mark.skip("slow")
     def test_smallwood_reservoir(self):
         client = client_for(
-            Service(
-                processes=[
-                    HydroBasinsSelectionProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -155,12 +145,7 @@ class TestShapeSelectionProcess:
     @pytest.mark.skip("slow")
     def test_great_slave_lake(self):
         client = client_for(
-            Service(
-                processes=[
-                    HydroBasinsSelectionProcess(),
-                ],
-                cfgfiles=CFG_FILE,
-            )
+            Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
         )
 
         fields = [
@@ -172,8 +157,8 @@ class TestShapeSelectionProcess:
 
         datainputs = ";".join(fields).format(
             location="-114.65, 61.35",
-            level="12",
-            lakes=True,
+            # level="12",
+            # lakes=True,
             aggregate_upstream=True,
         )
 
