@@ -107,6 +107,8 @@ bootstrap_dev:
 
 .PHONY: install_ravenpy_with_binaries
 install_ravenpy_with_binaries:
+	# NOTE: this target should not be needed anymore since ravenpy can be
+	# installed by conda and all the required binaries comes with it.
 	# Have to uninstall first, otherwise ravenpy is already installed
 	# without option "--with-binaries" so it won't re-install again, even
 	# with "pip install --upgrade" because same version.
@@ -117,13 +119,13 @@ install_ravenpy_with_binaries:
 	export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
 
 .PHONY: install
-install: install_ravenpy_with_binaries
+install:
 	@echo "Installing application ..."
 	@-bash -c 'pip install -e .'
 	@echo "Start service with \`make start\`"
 
 .PHONY: develop
-develop: install_ravenpy_with_binaries
+develop:
 	@echo "Installing development requirements for tests and docs ..."
 	@-bash -c 'pip install -e ".[dev]"'
 
