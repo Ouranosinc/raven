@@ -1,4 +1,7 @@
 # Configuration
+# Determine this makefile's path.
+# Be sure to place this BEFORE `include` directives, if any.
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
@@ -199,10 +202,22 @@ notebook-sanitizer:
 	@echo "Copying notebook output sanitizer ..."
 	@-bash -c "curl -L $(SANITIZE_FILE) -o $(CURDIR)/docs/source/output-sanitize.cfg --silent"
 
+# Test all notebooks.
 .PHONY: test-notebooks
 test-notebooks: notebook-sanitizer
 	@echo "Running notebook-based tests"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl
+
+# Test one single notebook (add .run at the end of notebook path).
+# Might require one time `make notebook-sanitizer`.
+%.ipynb.run: %.ipynb
+	@echo "Testing notebook $<"
+	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl NB_FILE="$<"
+
+NB_FILE := $(CURDIR)/docs/source/notebooks/
+.PHONY: test-notebooks-impl
+test-notebooks-impl:
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(NB_FILE) --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: notebook
 notebook:
