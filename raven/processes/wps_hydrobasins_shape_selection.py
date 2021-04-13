@@ -3,7 +3,6 @@ import json
 import logging
 import tempfile
 
-import fiona
 import geopandas as gpd
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
 from pywps.exceptions import InvalidParameterValue
@@ -95,10 +94,8 @@ class HydroBasinsSelectionProcess(Process):
         response.update_status("Found downstream watershed", status_percentage=20)
 
         # Find HYBAS_ID
-        src = fiona.open(hybas_request.decode(), "r")
-        feat = next(iter(src))
-        hybas_feature = feat["properties"]
-        id_number = feat["properties"]["id"]
+        gdf = gpd.read_file(hybas_request.decode())
+        id_number = gdf["id"][0]
 
         if collect_upstream:
 
@@ -106,7 +103,7 @@ class HydroBasinsSelectionProcess(Process):
             response.update_status("Collecting relevant features", status_percentage=50)
 
             # Identify upstream sub-basins and write to a new file
-            upstream = geoserver.hydrobasins_upstream(hybas_feature, domain)
+            upstream = geoserver.hydrobasins_upstream(gdf.loc[0], domain)
 
             # Aggregate upstream features into a single geometry.
             agg = geoserver.hydrobasins_aggregate(upstream)
@@ -119,9 +116,7 @@ class HydroBasinsSelectionProcess(Process):
             response.outputs["upstream_ids"].data = json.dumps(upstream["id"].tolist())
 
         else:
-            response.outputs["feature"].data = json.dumps(feat)
+            response.outputs["feature"].data = gdf.loc[0].to_json()
             response.outputs["upstream_ids"].data = json.dumps([id_number])
-
-        src.close()
 
         return response
