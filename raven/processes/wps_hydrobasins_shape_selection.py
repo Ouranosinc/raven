@@ -116,7 +116,7 @@ class HydroBasinsSelectionProcess(Process):
             response.outputs["upstream_ids"].data = json.dumps(upstream["id"].tolist())
 
         else:
-            response.outputs["feature"].data = gdf.loc[0].to_json()
+            response.outputs["feature"].data = gdf.to_json()
             response.outputs["upstream_ids"].data = json.dumps([id_number])
 
         return response

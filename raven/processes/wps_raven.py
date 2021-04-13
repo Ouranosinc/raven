@@ -71,6 +71,7 @@ class RavenProcess(Process):
         # Input specs dictionary. Could be all given in the same dict or a list of dicts.
         kwds = defaultdict(list)
         for spec in request.inputs.pop("nc_spec", []):
+            print(spec.data)
             kwds.update(json.loads(spec.data))
 
         # This is an alternate interface to the legacy one, composed of: area/latitude/longitude/elevation
