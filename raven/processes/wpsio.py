@@ -260,7 +260,7 @@ ow_evaporation = LiteralInput(
 nc_spec = LiteralInput(
     "nc_spec",
     "NetCDF input file specifications",
-    abstract="Configuration of individual netCDF input files, such as `linear_transform`"
+    abstract="Configuration of individual netCDF input files, such as `scale`, `offset`"
     "and `time_shift`. Should be passed as a dictionary keyed by variable, e.g. `tas` "
     "json-serialized.",
     data_type="string",
