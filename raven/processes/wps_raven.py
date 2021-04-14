@@ -7,7 +7,7 @@ from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
 from pywps.app.exceptions import ProcessError
-from ravenpy.models import Raven, RavenError
+from ravenpy.models import Raven
 from ravenpy.models.rv import HRU
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.io import archive_sniffer
