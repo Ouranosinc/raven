@@ -1,6 +1,22 @@
 Changes
 =======
 
+0.12.0
+------
+* Update RavenPy to 0.4.2
+* Migrate utilities to RavenPy
+* Add notebook for advanced forecasting
+* Add notebook for probabilistic flood assessment
+* Option to skip slow tests
+* Add climpred verification WPS service
+* Pre-commit hooks
+* Install from conda Raven and Ostrich libraries
+* Support passing HRUs
+* Use scale/offset instead of linear_transform
+* Enable GitHub CI
+* Fix broken notebooks
+
+
 0.11.x
 ------
 
