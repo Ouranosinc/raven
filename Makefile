@@ -1,4 +1,7 @@
 # Configuration
+# Determine this makefile's path.
+# Be sure to place this BEFORE `include` directives, if any.
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
@@ -107,23 +110,25 @@ bootstrap_dev:
 
 .PHONY: install_ravenpy_with_binaries
 install_ravenpy_with_binaries:
+	# NOTE: this target should not be needed anymore since ravenpy can be
+	# installed by conda and all the required binaries comes with it.
 	# Have to uninstall first, otherwise ravenpy is already installed
 	# without option "--with-binaries" so it won't re-install again, even
 	# with "pip install --upgrade" because same version.
 	bash -c 'pip uninstall --yes ravenpy'
-	bash -c "pip install ravenpy[gis] gdal==$(GDAL_VERSION)"
+	bash -c "pip install --no-cache-dir ravenpy[gis] gdal==$(GDAL_VERSION)"
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
 	export RAVENPY_RAVEN_BINARY_PATH=$(pwd)/bin/raven
 	export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
 
 .PHONY: install
-install: install_ravenpy_with_binaries
+install:
 	@echo "Installing application ..."
 	@-bash -c 'pip install -e .'
 	@echo "Start service with \`make start\`"
 
 .PHONY: develop
-develop: install_ravenpy_with_binaries
+develop:
 	@echo "Installing development requirements for tests and docs ..."
 	@-bash -c 'pip install -e ".[dev]"'
 
@@ -197,10 +202,22 @@ notebook-sanitizer:
 	@echo "Copying notebook output sanitizer ..."
 	@-bash -c "curl -L $(SANITIZE_FILE) -o $(CURDIR)/docs/source/output-sanitize.cfg --silent"
 
+# Test all notebooks.
 .PHONY: test-notebooks
 test-notebooks: notebook-sanitizer
 	@echo "Running notebook-based tests"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl
+
+# Test one single notebook (add .run at the end of notebook path).
+# Might require one time `make notebook-sanitizer`.
+%.ipynb.run: %.ipynb
+	@echo "Testing notebook $<"
+	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl NB_FILE="$<"
+
+NB_FILE := $(CURDIR)/docs/source/notebooks/
+.PHONY: test-notebooks-impl
+test-notebooks-impl:
+	bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(NB_FILE) --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: notebook
 notebook:
