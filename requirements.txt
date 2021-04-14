@@ -1,4 +1,4 @@
-ravenpy>=0.4.1
+ravenpy>=0.4.2
 six
 pywps==4.4.2
 owslib
