@@ -222,7 +222,7 @@ test-notebooks-impl:
 .PHONY: notebook
 notebook:
 	@echo "Running notebook server"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook $(CURDIR)/docs/source/notebooks/"
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook --ip=`hostname -f` $(CURDIR)/docs/source/notebooks/"
 
 .PHONY: lint
 lint:
