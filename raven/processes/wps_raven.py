@@ -1,10 +1,13 @@
 import json
 import logging
+import string
+import traceback
 from collections import defaultdict
 from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
-from ravenpy.models import Raven
+from pywps.app.exceptions import ProcessError
+from ravenpy.models import Raven, RavenError
 from ravenpy.models.rv import HRU
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.io import archive_sniffer
@@ -144,7 +147,15 @@ class RavenProcess(Process):
         kwds = self.options(request)
 
         # Launch model with input files
-        self.run(model, ts, kwds)
+        try:
+            self.run(model, ts, kwds)
+        except Exception as exc:
+            err_msg = traceback.format_exc()
+            # By default the error message is limited to 300 chars and strips
+            # many special characters
+            raise ProcessError(
+                err_msg, max_length=len(err_msg), allowed_chars=string.printable
+            ) from exc
 
         # Store output files name. If an output counts multiple files, they'll be zipped.
         for key in response.outputs.keys():
