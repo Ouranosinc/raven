@@ -6,50 +6,46 @@ repos:
     rev: v2.12.0
     hooks:
     -   id: pyupgrade
-        language_version: python3
 -   repo: https://github.com/kynan/nbstripout
     rev: 0.3.9
     hooks:
     -   id: nbstripout
-        language_version: python3
         files: ".ipynb"
         args: ["--keep-output"]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
     hooks:
     -   id: trailing-whitespace
-        language_version: python3
         exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt
     -   id: end-of-file-fixer
-        language_version: python3
         exclude: .ipynb|.rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt
     -   id: check-yaml
-        language_version: python3
     -   id: debug-statements
-        language_version: python3
 -   repo: https://github.com/ambv/black
     rev: 20.8b1
     hooks:
     -   id: black
-        language_version: python3
         args: ["--target-version", "py37"]
+# This would be great to apply after the demo.
+# -   repo: https://github.com/tomcatling/black-nb
+#     rev: 0.4.0
+#     hooks:
+#     -   id: black-nb
+#         args: ["--exclude", "raven|tests", "--include", "docs/source/notebooks/"]
 -   repo: https://github.com/pycqa/flake8
     rev: 3.9.0
     hooks:
     -   id: flake8
-        language_version: python3
         args: ['--config=setup.cfg']
 -   repo: https://github.com/timothycrosley/isort
     rev: 5.8.0
     hooks:
     -   id: isort
-        language_version: python3
         args: ['--profile', 'black', '--filter-files', '--py', '37']
 -   repo: https://github.com/pycqa/pydocstyle
     rev: 6.0.0
     hooks:
     -   id: pydocstyle
-        language_version: python3
         args: ['--convention=numpy', '--match="(?!test_).*\.py"']
 -   repo: meta
     hooks:
