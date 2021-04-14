@@ -232,7 +232,17 @@ lint:
 .PHONY: refresh-notebooks
 refresh-notebooks:
 	@echo "Refresh all notebook outputs under docs/source/notebooks"
-	bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$$nb" "$$nb"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$$nb"; done; cd $(APP_ROOT)'
+	bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do $(MAKE) -f $(THIS_FILE) refresh-notebooks-impl NB_REFRESH_FILE="$$nb"; done; cd $(APP_ROOT)'
+
+# refresh one single notebook (add .refresh at the end of notebook path).
+%.ipynb.refresh: %.ipynb
+	@echo "Refreshing notebook $<"
+	@$(MAKE) -f $(THIS_FILE) refresh-notebooks-impl NB_REFRESH_FILE="$<"
+
+NB_REFRESH_FILE := ""
+.PHONY: refresh-notebooks-impl
+refresh-notebooks-impl:
+	bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
 
 .PHONY: test_pdb
 test_pdb:
