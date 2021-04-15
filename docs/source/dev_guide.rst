@@ -87,7 +87,7 @@ Do the same as above using the ``Makefile``.
 Running notebooks tests
 -----------------------
 
-Asume the ``raven`` conda env has already been created and is up-to-date and
+Assuming that the ``raven`` conda env has already been created and is up-to-date and
 raven-wps has been installed with ``make develop``.
 
 .. code-block:: console
@@ -100,7 +100,7 @@ raven-wps has been installed with ``make develop``.
 
     OR
 
-    # to test juste 1 notebook (note the .run at the end of the notebook path)
+    # to test a single notebook (note the .run at the end of the notebook path)
     $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
 
 The notebooks also requires other WPS services (Finch and Flyingpigeon).  By
