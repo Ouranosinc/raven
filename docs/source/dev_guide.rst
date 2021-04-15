@@ -131,8 +131,7 @@ or any other raven-wps servers:
     $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
 
 We can also override all three of the server variables (WPS_URL, FINCH_WPS_URL,
-FLYINGPIGEON_WPS_URL) and be able to choose and pick any servers anywhere we
-want.
+FLYINGPIGEON_WPS_URL) to pick and choose any servers/services from anywhere we want.
 
 
 Starting local Jupyter server to edit/develop notebooks
@@ -152,8 +151,8 @@ raven-wps has been installed with ``make develop``.
     # Can also override all three WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
     # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
 
-    # By overriding these variables at the 'make notebook' step we will not need to
-    # override them one by one in each notebook because each notebook also look
+    # By overriding these variables at the 'make notebook' step, we will not need to
+    # override them one by one in each notebook as each notebook will also look
     # for those variables as environment variables.
 
 
