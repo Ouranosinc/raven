@@ -6,8 +6,6 @@ APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
 WPS_URL := http://localhost:9099
-RAVENPY_RAVEN_BINARY_PATH := $(shell pwd)/bin/raven
-RAVENPY_OSTRICH_BINARY_PATH := $(shell pwd)/bin/ostrich
 
 GDAL_VERSION := $(shell gdal-config --version)
 
@@ -118,8 +116,6 @@ install_ravenpy_with_binaries:
 	bash -c 'pip uninstall --yes ravenpy'
 	bash -c "pip install --no-cache-dir ravenpy[gis] gdal==$(GDAL_VERSION)"
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
-	export RAVENPY_RAVEN_BINARY_PATH=$(pwd)/bin/raven
-	export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
 
 .PHONY: install
 install:
@@ -135,7 +131,7 @@ develop:
 .PHONY: start
 start:
 	@echo "Starting application ..."
-	@-bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) $(APP_NAME) start -d"
+	@-bash -c "$(APP_NAME) start -d"
 
 .PHONY: stop
 stop:
@@ -190,12 +186,12 @@ clean-dist: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
-	@bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) pytest -v -m 'not slow and not online' tests/"
+	@bash -c "pytest -v -m 'not slow and not online' tests/"
 
 .PHONY: test-all
 test-all:
 	@echo "Running all tests (including slow and online tests) ..."
-	@bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) pytest -v tests/"
+	@bash -c "pytest -v tests/"
 
 .PHONY: notebook-sanitizer
 notebook-sanitizer:
