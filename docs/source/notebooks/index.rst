@@ -26,7 +26,6 @@ Typical workflows
    :maxdepth: 1
 
    Running_HMETS_with_CANOPEX_dataset
-   gridded_data_subset
 
    time_series_analysis
    Perform_Regionalization
@@ -41,7 +40,7 @@ Forecasting
    Hydrological_realtime_forecasting.ipynb
    Hydrological_hindcasting.ipynb
    Climatological_ESP_forecasting.ipynb
-   Assess_probabilisitc_flood_risk.ipynb
+   Assess_probabilistic_flood_risk.ipynb
    Comparing_hindcasts_and_ESP_forecasts.ipynb
 
 

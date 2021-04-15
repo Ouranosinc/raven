@@ -72,6 +72,7 @@ class ClimatologyEspProcess(RavenProcess):
 
     def _handler(self, request, response):
         response.update_status("PyWPS process {} started.".format(self.identifier), 0)
+        kwds = {}
 
         # Extract params to skip default processing in `self.options`
         params = request.inputs.pop("params")[0]
@@ -81,15 +82,11 @@ class ClimatologyEspProcess(RavenProcess):
 
         # Initial state
         if "rvc" in request.inputs:
-            rvc = request.inputs.pop("rvc")[0].file
-        else:
-            solution = self.get_config(request, ids=("rvc",))
-            rvc = list(solution.values()).pop()["rvc"]
+            kwds["rvc"] = request.inputs.pop("rvc")[0].file
 
         # Model options
-        kwds = self.options(request)
+        kwds.update(self.options(request))
         kwds["params"] = self.parse_tuple(params, kwds["model_name"].lower())
-        kwds["rvc"] = rvc
         kwds["workdir"] = self.workdir
 
         # Make forecasts. Only support one input file for now.

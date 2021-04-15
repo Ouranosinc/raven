@@ -1,7 +1,7 @@
-ravenpy>=0.3.0
+ravenpy>=0.4.2
 six
 pywps==4.4.2
-owslib==0.21
+owslib
 lxml
 jinja2
 click
