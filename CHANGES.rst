@@ -15,6 +15,7 @@ Changes
 * Use scale/offset instead of linear_transform
 * Enable GitHub CI
 * Fix broken notebooks
+* Improve error reporting by including stack trace in error messages.
 
 
 0.11.x
