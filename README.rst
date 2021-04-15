@@ -5,9 +5,9 @@ Raven : Hydrological modeling and analytics
     :target: https://pavics-raven.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-.. image:: https://travis-ci.com/Ouranosinc/raven.svg?branch=master
-   :target: https://travis-ci.com/Ouranosinc/raven
-   :alt: Travis Build
+.. image:: https://github.com/Ouranosinc/raven/actions/workflows/main.yml/badge.svg
+    :target: https://github.com/Ouranosinc/raven/actions/workflows/main.yml
+    :alt: Build status
 
 .. image:: https://img.shields.io/github/license/Ouranosinc/raven.svg
     :target: https://github.com/Ouranosinc/raven/blob/master/LICENSE.txt
