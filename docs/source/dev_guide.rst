@@ -135,7 +135,7 @@ FLYINGPIGEON_WPS_URL) and be able to choose and pick any servers anywhere we
 want.
 
 
-Starting local jupyter server to edit/develop notebooks
+Starting local Jupyter server to edit/develop notebooks
 -------------------------------------------------------
 
 Asume the ``raven`` conda env has already been created and is up-to-date and
@@ -159,6 +159,10 @@ raven-wps has been installed with ``make develop``.
 
 Bulk refresh all notebooks output
 ---------------------------------
+
+This automated refresh only works for notebooks that passed ``make
+test-notebooks`` above.  For those that failed, manually starting a local
+Jupyter server and refresh them manually.
 
 Asume the ``raven`` conda env has already been created and is up-to-date and
 raven-wps has been installed with ``make develop``.

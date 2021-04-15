@@ -228,6 +228,9 @@ lint:
 	@echo "Running flake8 code style checks ..."
 	@bash -c 'flake8 raven tests'
 
+# Only works for notebooks that passed ``make test-notebooks`` above.  For
+# those that failed, manually starting a local Jupyter server and refresh them
+# manually.
 .PHONY: refresh-notebooks
 refresh-notebooks:
 	@echo "Refresh all notebook outputs under docs/source/notebooks"
