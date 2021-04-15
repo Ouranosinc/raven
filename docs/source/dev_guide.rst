@@ -9,6 +9,20 @@ Developer Guide
 
 .. WARNING:: To create new processes look at examples in Emu_.
 
+
+Re-create a fresh environment
+-----------------------------
+
+.. code-block:: console
+
+  $ make stop  # in case you previously did 'make start'
+  $ conda deactivate  # exit the current 'raven' conda env so we can destroy it
+  $ conda env remove -n raven  # destroy the current conda env to recreate one from scratch
+  $ conda env create -f environment.yml
+  $ conda activate raven
+  $ make develop  # install raven-wps and additional dev tools
+
+
 Building the docs
 -----------------
 
@@ -68,6 +82,58 @@ Do the same as above using the ``Makefile``.
     $ make test
     $ make test-all
     $ make lint
+
+
+Running notebooks tests
+-----------------------
+
+Asume the ``raven`` conda env has already been created and is up-to-date and
+raven-wps has been installed with ``make develop``.
+
+.. code-block:: console
+
+    # start local raven-wps server to test against
+    $ make start  # remember to make stop once done
+
+    # to test all notebooks
+    $ make test-notebooks
+
+    OR
+
+    # to test juste 1 notebook (note the .run at the end of the notebook path)
+    $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
+
+The notebooks also requires other WPS services (Finch and Flyingpigeon).  By
+default these are from the production server but we can point the notebooks to
+local servers if needed for development purposes:
+
+.. code-block:: console
+
+    # to test all notebooks
+    $ make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 test-notebooks
+
+    OR
+
+    # to test juste 1 notebook (note the .run at the end of the notebook path)
+    $ make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
+
+If instead we want to run the notebooks against the production raven-wps server
+or any other raven-wps servers:
+
+.. code-block:: console
+
+    # to test all notebooks
+    $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps test-notebooks
+
+    OR
+
+    # to test juste 1 notebook (note the .run at the end of the notebook path)
+    $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
+
+We can also override all 3 of the server variables (WPS_URL, FINCH_WPS_URL,
+FLYINGPIGEON_WPS_URL) and be able to choose and pick any servers anywhere we
+want.
+
 
 Prepare a release
 -----------------
