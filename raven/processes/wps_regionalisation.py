@@ -172,9 +172,14 @@ class RegionalisationProcess(RavenProcess):
         min_NSE = request.inputs.pop("min_NSE")[0].data
         properties = request.inputs.pop("properties")[0].data
         properties = json.loads(properties)
+
         # TODO: lat and lon from properties could be confused with lat and lon to run model. Should they be the same ?
 
         kwds = {}
+        for spec in request.inputs.pop("nc_spec", []):
+            print(spec.data)
+            kwds.update(json.loads(spec.data))
+
         for key, val in request.inputs.items():
             kwds[key] = request.inputs[key][0].data
 

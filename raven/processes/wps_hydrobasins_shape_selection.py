@@ -3,7 +3,6 @@ import json
 import logging
 import tempfile
 
-import fiona
 import geopandas as gpd
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
 from pywps.exceptions import InvalidParameterValue
@@ -82,88 +81,42 @@ class HydroBasinsSelectionProcess(Process):
 
     def _handler(self, request, response):
 
-        level = 12  # request.inputs['level'][0].data
-        lakes = True  # request.inputs['lakes'][0].data
+        # level = 12  # request.inputs['level'][0].data
+        # lakes = True  # request.inputs['lakes'][0].data
         collect_upstream = request.inputs["aggregate_upstream"][0].data
         lon, lat = parse_lonlat(request.inputs["location"][0].data)
 
         bbox = (lon, lat, lon, lat)
 
-        shape_url = tempfile.NamedTemporaryFile(
-            prefix="hybas_", suffix=".gml", delete=False, dir=self.workdir
-        ).name
-
         domain = geoserver.select_hybas_domain(bbox)
-        hybas_gml = geoserver.get_hydrobasins_location_wfs(
-            bbox, lakes=lakes, level=level, domain=domain
-        )
+        hybas_request = geoserver.get_hydrobasins_location_wfs(bbox, domain=domain)
 
-        if isinstance(hybas_gml, str):
-            write_flags = "w"
-        else:
-            write_flags = "wb"
-
-        with open(shape_url, write_flags) as f:
-            f.write(hybas_gml)
-
-        response.update_status("Found downstream watershed", status_percentage=10)
-
-        extensions = [".gml", ".shp", ".gpkg", ".geojson", ".json"]
-        shp = single_file_check(
-            archive_sniffer(shape_url, working_dir=self.workdir, extensions=extensions)
-        )
-
-        shape_crs = crs_sniffer(shp)
+        response.update_status("Found downstream watershed", status_percentage=20)
 
         # Find HYBAS_ID
-        src = fiona.open(shp, "r", crs=shape_crs)
-        feat = next(iter(src))
-        hybas_id = feat["properties"]["HYBAS_ID"]
-        gml_id = feat["properties"]["gml_id"]
+        gdf = gpd.read_file(hybas_request.decode())
+        id_number = gdf["id"][0]
 
         if collect_upstream:
 
-            main_bas = feat["properties"]["MAIN_BAS"]
-
-            if lakes is False or level != 12:
-                raise InvalidParameterValue("Set lakes to True and level to 12.")
-
             # Collect features from GeoServer
-            response.update_status("Collecting relevant features", status_percentage=70)
+            response.update_status("Collecting relevant features", status_percentage=50)
 
-            region_url = geoserver.get_hydrobasins_attributes_wfs(
-                attribute="MAIN_BAS",
-                value=main_bas,
-                lakes=lakes,
-                level=level,
-                domain=domain,
-            )
-
-            # Read table of relevant features sharing main basin
-            df = gpd.read_file(region_url)
-
-            # TODO: Load and keep this data in memory; Figure out how to better handle encoding and column names.
             # Identify upstream sub-basins and write to a new file
-            up = geoserver.hydrobasins_upstream_ids(hybas_id, df)
-            upfile = tempfile.NamedTemporaryFile(
-                prefix="hybas_", suffix=".json", delete=False, dir=self.workdir
-            ).name
-            up.to_file(upfile, driver="GeoJSON")
+            upstream = geoserver.hydrobasins_upstream(gdf.loc[0], domain)
 
             # Aggregate upstream features into a single geometry.
-            gdf = gpd.read_file(upfile)
-            agg = geoserver.hydrobasins_aggregate(gdf)
+            agg = geoserver.hydrobasins_aggregate(upstream)
 
+            response.update_status("Writing upstream features", status_percentage=70)
             # The aggregation returns a FeatureCollection with one feature. We select the first feature so that the
             # output is a Feature whether aggregate is True or False.
             afeat = json.loads(agg.to_json())["features"][0]
             response.outputs["feature"].data = json.dumps(afeat)
-            response.outputs["upstream_ids"].data = json.dumps(up["id"].tolist())
+            response.outputs["upstream_ids"].data = json.dumps(upstream["id"].tolist())
 
         else:
-            response.outputs["feature"].data = json.dumps(feat)
-            response.outputs["upstream_ids"].data = json.dumps([gml_id])
-
-        src.close()
+            response.outputs["feature"].data = gdf.to_json()
+            response.outputs["upstream_ids"].data = json.dumps([id_number])
 
         return response

@@ -6,11 +6,11 @@ channels:
 dependencies:
 - pip
 - six
-- ravenpy>=0.4.0
+- ravenpy>=0.4.2
 - pywps==4.4.2
 - unidecode
 - birdy
-- owslib==0.21
+- owslib
 - poppler
 - jinja2
 - click
@@ -26,7 +26,7 @@ dependencies:
 - geopandas
 - geojson
 - netcdf4
-- libnetcdf #==4.6.2  # Avoid core dump with 4.7.1. Can be unpinned when 4.7.1 is not the latest anymore.
+- libnetcdf
 - gdal
 - fiona
 - proj

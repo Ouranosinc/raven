@@ -1,10 +1,13 @@
 # Configuration
+# Determine this makefile's path.
+# Be sure to place this BEFORE `include` directives, if any.
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
 WPS_URL := http://localhost:9099
-RAVENPY_RAVEN_BINARY_PATH := $(shell pwd)/bin/raven
-RAVENPY_OSTRICH_BINARY_PATH := $(shell pwd)/bin/ostrich
+
+GDAL_VERSION := $(shell gdal-config --version)
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
@@ -105,30 +108,30 @@ bootstrap_dev:
 
 .PHONY: install_ravenpy_with_binaries
 install_ravenpy_with_binaries:
+	# NOTE: this target should not be needed anymore since ravenpy can be
+	# installed by conda and all the required binaries comes with it.
 	# Have to uninstall first, otherwise ravenpy is already installed
 	# without option "--with-binaries" so it won't re-install again, even
 	# with "pip install --upgrade" because same version.
 	bash -c 'pip uninstall --yes ravenpy'
-	bash -c 'pip install ravenpy[gis]'
+	bash -c "pip install --no-cache-dir ravenpy[gis] gdal==$(GDAL_VERSION)"
 	bash -c 'pip install ravenpy --install-option="--with-binaries"'
-	export RAVENPY_RAVEN_BINARY_PATH=$(pwd)/bin/raven
-	export RAVENPY_OSTRICH_BINARY_PATH=$(pwd)/bin/ostrich
 
 .PHONY: install
-install: install_ravenpy_with_binaries
+install:
 	@echo "Installing application ..."
 	@-bash -c 'pip install -e .'
 	@echo "Start service with \`make start\`"
 
 .PHONY: develop
-develop: install_ravenpy_with_binaries
+develop:
 	@echo "Installing development requirements for tests and docs ..."
 	@-bash -c 'pip install -e ".[dev]"'
 
 .PHONY: start
 start:
 	@echo "Starting application ..."
-	@-bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) $(APP_NAME) start -d"
+	@-bash -c "$(APP_NAME) start -d"
 
 .PHONY: stop
 stop:
@@ -183,27 +186,39 @@ clean-dist: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
-	@bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) pytest -v -m 'not slow and not online' tests/"
+	@bash -c "pytest -v -m 'not slow and not online' tests/"
 
 .PHONY: test-all
 test-all:
 	@echo "Running all tests (including slow and online tests) ..."
-	@bash -c "env RAVENPY_RAVEN_BINARY_PATH=$(RAVENPY_RAVEN_BINARY_PATH) RAVENPY_OSTRICH_BINARY_PATH=$(RAVENPY_OSTRICH_BINARY_PATH) pytest -v tests/"
+	@bash -c "pytest -v tests/"
 
 .PHONY: notebook-sanitizer
 notebook-sanitizer:
 	@echo "Copying notebook output sanitizer ..."
 	@-bash -c "curl -L $(SANITIZE_FILE) -o $(CURDIR)/docs/source/output-sanitize.cfg --silent"
 
+# Test all notebooks.
 .PHONY: test-notebooks
 test-notebooks: notebook-sanitizer
 	@echo "Running notebook-based tests"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl
+
+# Test one single notebook (add .run at the end of notebook path).
+# Might require one time `make notebook-sanitizer`.
+%.ipynb.run: %.ipynb
+	@echo "Testing notebook $<"
+	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl NB_FILE="$<"
+
+NB_FILE := $(CURDIR)/docs/source/notebooks/
+.PHONY: test-notebooks-impl
+test-notebooks-impl:
+	bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(NB_FILE) --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 .PHONY: notebook
 notebook:
 	@echo "Running notebook server"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook $(CURDIR)/docs/source/notebooks/"
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook --ip=`hostname -f` $(CURDIR)/docs/source/notebooks/"
 
 .PHONY: lint
 lint:
@@ -213,7 +228,17 @@ lint:
 .PHONY: refresh-notebooks
 refresh-notebooks:
 	@echo "Refresh all notebook outputs under docs/source/notebooks"
-	@bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output "$$nb" "$$nb"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$$nb"; done; cd $(APP_ROOT)'
+	bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do $(MAKE) -f $(THIS_FILE) refresh-notebooks-impl NB_REFRESH_FILE="$$nb"; done; cd $(APP_ROOT)'
+
+# refresh one single notebook (add .refresh at the end of notebook path).
+%.ipynb.refresh: %.ipynb
+	@echo "Refreshing notebook $<"
+	@$(MAKE) -f $(THIS_FILE) refresh-notebooks-impl NB_REFRESH_FILE="$<"
+
+NB_REFRESH_FILE := ""
+.PHONY: refresh-notebooks-impl
+refresh-notebooks-impl:
+	bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
 
 .PHONY: test_pdb
 test_pdb:
