@@ -215,3 +215,40 @@ class TestRavenGR4JCemaNeigeProcess:
         tmp_file, _ = urlretrieve(get_output(resp.xml)["hydrograph"])
         ds = xr.open_dataset(tmp_file)
         assert ds.variables["q_sim"].shape[0] == 2
+
+    def test_ravenpy_error(self):
+        client = client_for(
+            Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
+        )
+
+        # Deliberate error: no HRUs!
+
+        datainputs = (
+            "ts=files@xlink:href=file://{ts};"
+            "params={params};"
+            "start_date={start_date};"
+            "end_date={end_date};"
+            "name={name};"
+            "run_name={run_name};".format(
+                ts=get_local_testdata(
+                    "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
+                ),
+                params="0.529, -3.396, 407.29, 1.072, 16.9, 0.947",
+                start_date=dt.datetime(2000, 1, 1),
+                end_date=dt.datetime(2002, 1, 1),
+                name="Salmon",
+                run_name="test",
+            )
+        )
+
+        resp = client.get(
+            service="WPS",
+            request="Execute",
+            version="1.0.0",
+            identifier="raven-gr4j-cemaneige",
+            datainputs=datainputs,
+        )
+
+        assert "CHydroUnit constructor:: HRU 1 has a negative or zero area" in str(
+            resp.data
+        )
