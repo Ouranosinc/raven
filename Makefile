@@ -215,10 +215,13 @@ NB_FILE := $(CURDIR)/docs/source/notebooks/
 test-notebooks-impl:
 	bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(NB_FILE) --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
+ifeq "$(JUPYTER_NB_IP)" ""
+JUPYTER_NB_IP := 0.0.0.0
+endif
 .PHONY: notebook
 notebook:
 	@echo "Running notebook server"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook --ip=`hostname -f` $(CURDIR)/docs/source/notebooks/"
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook --ip=$(JUPYTER_NB_IP) $(CURDIR)/docs/source/notebooks/"
 
 .PHONY: lint
 lint:
