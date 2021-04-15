@@ -149,7 +149,12 @@ raven-wps has been installed with ``make develop``.
     # to start local jupyter notebook server listing all current notebooks
     $ make notebook  # Control-C to terminate once done
 
-    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well, just like 'make test-notebooks'.
+    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
+    # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
+
+    # By overridding these variables at 'make notebook' step we will not need to
+    # override them one by one in each notebook because each notebook also look
+    # for those variables as environment variables.
 
 
 Bulk refresh all notebooks output
@@ -171,7 +176,8 @@ raven-wps has been installed with ``make develop``.
     # to refresh juste 1 notebook (note the .refresh at the end of the notebook path)
     $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.refresh
 
-    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well, just like 'make test-notebooks'.
+    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
+    # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
 
 
 Prepare a release
