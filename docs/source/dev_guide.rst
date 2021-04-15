@@ -135,6 +135,45 @@ FLYINGPIGEON_WPS_URL) and be able to choose and pick any servers anywhere we
 want.
 
 
+Starting local jupyter server to edit/develop notebooks
+-------------------------------------------------------
+
+Asume the ``raven`` conda env has already been created and is up-to-date and
+raven-wps has been installed with ``make develop``.
+
+.. code-block:: console
+
+    # start local raven-wps server to test against
+    $ make start  # remember to make stop once done
+
+    # to start local jupyter notebook server listing all current notebooks
+    $ make notebook  # Control-C to terminate once done
+
+    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well, just like 'make test-notebooks'.
+
+
+Bulk refresh all notebooks output
+---------------------------------
+
+Asume the ``raven`` conda env has already been created and is up-to-date and
+raven-wps has been installed with ``make develop``.
+
+.. code-block:: console
+
+    # start local raven-wps server to test against
+    $ make start  # remember to make stop once done
+
+    # to refresh all notebooks
+    $ make refresh-notebooks
+
+    OR
+
+    # to refresh juste 1 notebook (note the .refresh at the end of the notebook path)
+    $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.refresh
+
+    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well, just like 'make test-notebooks'.
+
+
 Prepare a release
 -----------------
 
