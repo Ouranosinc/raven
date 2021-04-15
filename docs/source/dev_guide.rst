@@ -164,7 +164,7 @@ This automated refresh only works for notebooks that passed ``make
 test-notebooks`` above.  For those that failed, manually starting a local
 Jupyter server and refresh them manually.
 
-Asume the ``raven`` conda env has already been created and is up-to-date and
+Assuming that the ``raven`` conda env has already been created and is up-to-date and
 raven-wps has been installed with ``make develop``.
 
 .. code-block:: console
@@ -177,11 +177,11 @@ raven-wps has been installed with ``make develop``.
 
     OR
 
-    # to refresh juste 1 notebook (note the .refresh at the end of the notebook path)
+    # to refresh a single notebook (note the .refresh at the end of the notebook path)
     $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.refresh
 
-    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
-    # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
+    # Can also override all three of the server variables (WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL) here as well,
+    # just like 'make test-notebooks' to be able to pick and choose any servers/services from anywhere we want.
 
 
 Prepare a release
