@@ -138,7 +138,7 @@ want.
 Starting local Jupyter server to edit/develop notebooks
 -------------------------------------------------------
 
-Asume the ``raven`` conda env has already been created and is up-to-date and
+Assuming that the ``raven`` conda env has already been created and is up-to-date and
 raven-wps has been installed with ``make develop``.
 
 .. code-block:: console
@@ -149,10 +149,10 @@ raven-wps has been installed with ``make develop``.
     # to start local jupyter notebook server listing all current notebooks
     $ make notebook  # Control-C to terminate once done
 
-    # Can also override all 3 WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
+    # Can also override all three WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
     # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
 
-    # By overridding these variables at 'make notebook' step we will not need to
+    # By overriding these variables at the 'make notebook' step we will not need to
     # override them one by one in each notebook because each notebook also look
     # for those variables as environment variables.
 
