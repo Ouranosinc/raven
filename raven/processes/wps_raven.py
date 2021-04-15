@@ -150,6 +150,7 @@ class RavenProcess(Process):
         try:
             self.run(model, ts, kwds)
         except Exception as exc:
+            LOGGER.exception(exc)
             err_msg = traceback.format_exc()
             # By default the error message is limited to 300 chars and strips
             # many special characters
