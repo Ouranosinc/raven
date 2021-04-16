@@ -110,35 +110,18 @@ class RavenProcess(Process):
         If keywords contain `rvc`, initialize the model using the initial condition file."""
         model(ts=ts, **kwds)
 
-    def initialize(self, model, request):
-        """Set initial conditions from a solution.rvc file.
-
-        This is used by emulators.
-        """
-        solution = self.get_config(request, ids=("rvc",))
-        if len(solution) > 1:
-            raise ValueError("Multiple initial conditions are not supported.")
-
-        if solution:
-            rvc = list(solution.values()).pop()["rvc"]
-            model.resume(rvc)
-
     def _handler(self, request, response):
         response.update_status(f"PyWPS process {self.identifier} started.", 0)
 
         model = self.model(request)
 
-        # Model configuration (RV files)
-        config = self.get_config(request, ids=("conf",))
-        if config:
-            if len(config) > 1:
-                raise NotImplementedError(
-                    "Multi-model simulations are not yet supported."
-                )
-            conf = list(config.values()).pop()
-            model.configure(conf.values())
+        # Model configuration (zipped RV files in `conf` input)
+        if "conf" in request.inputs:
+            model.configure(self.get_config(request).values())
 
-        self.initialize(model, request)
+        # Initial conditions (`rvc` input)
+        if "rvc" in request.inputs:
+            model.resume(request.inputs.pop("rvc")[0].file)
 
         # Input data files
         ts = self.meteo(request)
@@ -175,14 +158,20 @@ class RavenProcess(Process):
 
         return response
 
-    def get_config(self, request, ids=("conf",)):
+    def get_config(self, request):
         """Return a dictionary storing the configuration files content."""
-        config = defaultdict(dict)
-        for key in ids:
-            if key in request.inputs:
-                conf = request.inputs.pop(key)
-                for obj in conf:
-                    fn = Path(obj.file)
-                    config[fn.stem][fn.suffix[1:]] = fn
+        import zipfile
 
-        return config
+        config = defaultdict(dict)
+        conf = request.inputs.pop("conf")[0].file
+
+        z = zipfile.ZipFile(conf)
+        z.extractall(self.workdir)
+
+        for f in z.namelist():
+            fn = Path(self.workdir) / f
+            config[fn.stem][fn.suffix[1:]] = fn
+
+        if len(config) > 1:
+            raise NotImplementedError("Multi-model simulations are not yet supported.")
+        return list(config.values()).pop()

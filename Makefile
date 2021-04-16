@@ -5,7 +5,7 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
-WPS_URL := http://localhost:9099
+WPS_URL := http://0.0.0.0:9099
 
 GDAL_VERSION := $(shell gdal-config --version)
 
