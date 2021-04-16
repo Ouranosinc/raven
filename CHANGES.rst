@@ -1,6 +1,12 @@
 Changes
 =======
 
+0.12.1
+------
+* Fix bug where the name of configuration files was used, while the client transmission of data does not carry the file name.
+* Update notebooks
+* Move draft notebooks to sandbox
+
 0.12.0
 ------
 * Update RavenPy to 0.4.2
