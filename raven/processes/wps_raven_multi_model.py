@@ -35,7 +35,6 @@ class RavenMultiModelProcess(RavenProcess):
     model_cls = RavenMultiModel
 
     def model(self, request):
-        solution = self.get_config(request, ids=("rvc",))  # noqa
         models = list(set(request.inputs.keys()).intersection(self.tuple_inputs.keys()))
         model = self.model_cls(models=models, workdir=self.workdir)
         return model

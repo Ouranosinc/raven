@@ -37,16 +37,18 @@ ts = ComplexInput(
     supported_formats=[FORMATS.NETCDF, FORMATS.DODS, FORMATS.TEXT, FORMATS.SHP],
 )
 
+
+# This can only be used with zipped file preserving the name and suffix of the individual files.
 conf = ComplexInput(
     "conf",
-    "Raven/Ostrich configuration files",
+    "Zipped Raven/Ostrich configuration files",
     abstract="Model configuration files, including the primary input file (rvi), the parameter "
     "input file (rvp), the basin definition file (rvh), the time series input file "
     "(rvt), the initial conditions file (rvc). For Ostrich, include the Ostrich "
     "calibration config (txt) and templates (tpl).",
-    min_occurs=5,
-    max_occurs=5,
-    supported_formats=[FORMATS.TEXT],
+    min_occurs=1,
+    max_occurs=1,
+    supported_formats=[FORMATS.ZIP],
 )
 
 rvi = ComplexInput(
@@ -97,6 +99,7 @@ rvc = ComplexInput(
     "and there are no required commands in this file (it could even be completely "
     "empty).",
     min_occurs=0,
+    max_occurs=1,
     supported_formats=[FORMATS.TEXT],
 )
 
