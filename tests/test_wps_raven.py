@@ -1,3 +1,5 @@
+import zipfile
+
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.testdata import get_local_testdata
@@ -10,19 +12,21 @@ cf = ["rvi", "rvp", "rvc", "rvh", "rvt"]
 
 
 class TestRavenProcess:
-    def test_gr4j_salmon_nc(self):
+    def test_gr4j_salmon_nc(self, tmp_path):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-gr4j-cemaneige/raven-gr4j-salmon.rv?")
+        conf = tmp_path / "conf.zip"
+        with zipfile.ZipFile(conf, "w") as zip:
+            for rv in rvs:
+                zip.write(rv, arcname=rv.name)
+
         ts = get_local_testdata(
             "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
         )
-        config = {f.suffix[1:]: f for f in rvs}
-
         datainputs = (
-            "ts=files@xlink:href=file://{ts};"
-            + ";".join(["conf=files@xlink:href=file://{%s}" % key for key in cf])
-        ).format(ts=ts, **config)
+            f"ts=files@xlink:href=file://{ts};" f"conf=files@xlink:href=file://{conf}"
+        )
 
         resp = client.get(
             service="WPS",
@@ -34,18 +38,22 @@ class TestRavenProcess:
 
         assert_response_success(resp)
 
-    def test_hmets(self):
+    def test_hmets(self, tmp_path):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-hmets/raven-hmets-salmon.rv?")
+        conf = tmp_path / "conf.zip"
+        with zipfile.ZipFile(conf, "w") as zip:
+            for rv in rvs:
+                zip.write(rv, arcname=rv.name)
+
         ts = get_local_testdata("raven-hmets/Salmon-River-Near-Prince-George_*.rvt")
-        config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
             "ts=files@xlink:href=file://{};"
             "ts=files@xlink:href=file://{};"
-            + ";".join(["conf=files@xlink:href=file://{%s}" % key for key in cf])
-        ).format(*ts, **config)
+            "conf=files@xlink:href=file://{conf}"
+        ).format(*ts, conf=conf)
 
         resp = client.get(
             service="WPS",
@@ -56,18 +64,22 @@ class TestRavenProcess:
         )
         assert_response_success(resp)
 
-    def test_mohyse(self):
+    def test_mohyse(self, tmp_path):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-mohyse/raven-mohyse-salmon.rv?")
+        conf = tmp_path / "conf.zip"
+        with zipfile.ZipFile(conf, "w") as zip:
+            for rv in rvs:
+                zip.write(rv, arcname=rv.name)
+
         ts = get_local_testdata("raven-mohyse/Salmon-River-Near-Prince-George_*.rvt")
-        config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
             "ts=files@xlink:href=file://{};"
             "ts=files@xlink:href=file://{};"
-            + ";".join(["conf=files@xlink:href=file://{%s}" % key for key in cf])
-        ).format(*ts, **config)
+            "conf=files@xlink:href=file://{conf}"
+        ).format(*ts, conf=conf)
 
         resp = client.get(
             service="WPS",
@@ -78,18 +90,22 @@ class TestRavenProcess:
         )
         assert_response_success(resp)
 
-    def test_hbv_ec(self):
+    def test_hbv_ec(self, tmp_path):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-hbv-ec/raven-hbv-ec-salmon.rv?")
+        conf = tmp_path / "conf.zip"
+        with zipfile.ZipFile(conf, "w") as zip:
+            for rv in rvs:
+                zip.write(rv, arcname=rv.name)
+
         ts = get_local_testdata("raven-hbv-ec/Salmon-River-Near-Prince-George_*.rvt")
-        config = {f.suffix[1:]: f for f in rvs}
 
         datainputs = (
             "ts=files@xlink:href=file://{};"
             "ts=files@xlink:href=file://{};"
-            + ";".join(["conf=files@xlink:href=file://{%s}" % key for key in cf])
-        ).format(*ts, **config)
+            "conf=files@xlink:href=file://{conf}"
+        ).format(*ts, conf=conf)
 
         resp = client.get(
             service="WPS",
