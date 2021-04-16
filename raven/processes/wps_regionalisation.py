@@ -177,7 +177,6 @@ class RegionalisationProcess(RavenProcess):
 
         kwds = {}
         for spec in request.inputs.pop("nc_spec", []):
-            print(spec.data)
             kwds.update(json.loads(spec.data))
 
         for key, val in request.inputs.items():
