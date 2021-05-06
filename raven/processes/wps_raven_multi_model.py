@@ -11,10 +11,10 @@ class RavenMultiModelProcess(RavenProcess):
     title = ""
     version = ""
     tuple_inputs = {
-        "hmets": HMETS.params,
-        "gr4jcn": GR4JCN.params,
-        "hbvec": HBVEC.params,
-        "mohyse": MOHYSE.params,
+        "hmets": HMETS.Params,
+        "gr4jcn": GR4JCN.Params,
+        "hbvec": HBVEC.Params,
+        "mohyse": MOHYSE.Params,
     }
 
     inputs = [
@@ -26,7 +26,6 @@ class RavenMultiModelProcess(RavenProcess):
         wio.end_date,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,

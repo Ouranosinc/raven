@@ -17,9 +17,7 @@ from .common import CFG_FILE, client_for, get_output
 def test_raven_multi_model_process(request):
     client = client_for(
         Service(
-            processes=[
-                RavenMultiModelProcess(),
-            ],
+            processes=[RavenMultiModelProcess()],
             cfgfiles=CFG_FILE,
         )
     )

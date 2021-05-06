@@ -1,4 +1,5 @@
 import logging
+from dataclasses import astuple, fields
 
 from pywps import LiteralInput
 from ravenpy.models import HBVEC_OST
@@ -16,7 +17,7 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = HBVEC_OST.params(
+params_defaults = HBVEC_OST.Params(
     par_x01=0.05984519,
     par_x02=4.072232,
     par_x03=2.001574,
@@ -40,7 +41,7 @@ params_defaults = HBVEC_OST.params(
     par_x21=1.024278,
 )
 
-Lparams_defaults = HBVEC_OST.params(
+Lparams_defaults = HBVEC_OST.Params(
     par_x01=-3.0,
     par_x02=0.0,
     par_x03=0.0,
@@ -64,7 +65,7 @@ Lparams_defaults = HBVEC_OST.params(
     par_x21=0.8,
 )
 
-Uparams_defaults = HBVEC_OST.params(
+Uparams_defaults = HBVEC_OST.Params(
     par_x01=3.0,
     par_x02=8.0,
     par_x03=8.0,
@@ -91,18 +92,18 @@ Uparams_defaults = HBVEC_OST.params(
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
-    abstract="UParameters: " + ", ".join(Uparams_defaults._fields),
+    abstract="UParameters: " + ", ".join(f.name for f in fields(Uparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Uparams_defaults)),
+    default=", ".join(map(str, astuple(Uparams_defaults))),
     min_occurs=0,
 )
 
 lowerBounds = LiteralInput(
     "lowerBounds",
     "Comma separated list of model parameters Lower Bounds",
-    abstract="LParameters: " + ", ".join(Lparams_defaults._fields),
+    abstract="LParameters: " + ", ".join(f.name for f in fields(Lparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Lparams_defaults)),
+    default=", ".join(map(str, astuple(Lparams_defaults))),
     min_occurs=0,
 )
 
@@ -122,7 +123,7 @@ class OstrichHBVECProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = HBVEC_OST
-    tuple_inputs = {"lowerBounds": HBVEC_OST.params, "upperBounds": HBVEC_OST.params}
+    tuple_inputs = {"lowerBounds": HBVEC_OST.Params, "upperBounds": HBVEC_OST.Params}
     inputs = [
         wio.ts,
         wio.nc_spec,
@@ -135,12 +136,12 @@ class OstrichHBVECProcess(OstrichProcess):
         wio.end_date,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
         wio.elevation,
         wio.random_seed,
+        wio.random_numbers,
         wio.suppress_output,
         wio.rain_snow_fraction,
         wio.evaporation,
