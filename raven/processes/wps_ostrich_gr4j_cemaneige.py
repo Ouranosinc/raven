@@ -1,4 +1,5 @@
 import logging
+from dataclasses import astuple, fields
 
 from pywps import LiteralInput
 from ravenpy.models import GR4JCN_OST
@@ -16,7 +17,7 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = GR4JCN_OST.params(
+params_defaults = GR4JCN_OST.Params(
     GR4J_X1=0.529,
     GR4J_X2=-3.396,
     GR4J_X3=407.29,
@@ -25,7 +26,7 @@ params_defaults = GR4JCN_OST.params(
     CEMANEIGE_X2=0.947,
 )
 
-Uparams_defaults = GR4JCN_OST.params(
+Uparams_defaults = GR4JCN_OST.Params(
     GR4J_X1=0.9,
     GR4J_X2=0.0,
     GR4J_X3=500.0,
@@ -34,7 +35,7 @@ Uparams_defaults = GR4JCN_OST.params(
     CEMANEIGE_X2=1.0,
 )
 
-Lparams_defaults = GR4JCN_OST.params(
+Lparams_defaults = GR4JCN_OST.Params(
     GR4J_X1=0.1,
     GR4J_X2=-5.0,
     GR4J_X3=100.0,
@@ -46,18 +47,18 @@ Lparams_defaults = GR4JCN_OST.params(
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
-    abstract="UParameters: " + ", ".join(Uparams_defaults._fields),
+    abstract="UParameters: " + ", ".join(f.name for f in fields(Uparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Uparams_defaults)),
+    default=", ".join(map(str, astuple(Uparams_defaults))),
     min_occurs=0,
 )
 
 lowerBounds = LiteralInput(
     "lowerBounds",
     "Comma separated list of model parameters Lower Bounds",
-    abstract="LParameters: " + ", ".join(Lparams_defaults._fields),
+    abstract="LParameters: " + ", ".join(f.name for f in fields(Lparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Lparams_defaults)),
+    default=", ".join(map(str, astuple(Lparams_defaults))),
     min_occurs=0,
 )
 
@@ -77,7 +78,7 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = GR4JCN_OST
-    tuple_inputs = {"lowerBounds": GR4JCN_OST.params, "upperBounds": GR4JCN_OST.params}
+    tuple_inputs = {"lowerBounds": GR4JCN_OST.Params, "upperBounds": GR4JCN_OST.Params}
     inputs = [
         wio.ts,
         wio.nc_spec,
@@ -90,12 +91,12 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
         wio.end_date,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
         wio.elevation,
         wio.random_seed,
+        wio.random_numbers,
         wio.suppress_output,
         wio.evaporation,
         wio.rain_snow_fraction,

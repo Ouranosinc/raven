@@ -1,3 +1,5 @@
+from dataclasses import astuple, fields
+
 from pywps import LiteralInput
 from ravenpy.models import MOHYSE
 
@@ -7,7 +9,7 @@ from raven.processes import RavenProcess
 from . import wpsio as wio
 
 # Defaults for this process
-params_defaults = MOHYSE.params(
+params_defaults = MOHYSE.Params(
     par_x01=1.0000,
     par_x02=0.0468,
     par_x03=4.2952,
@@ -23,9 +25,9 @@ params_defaults = MOHYSE.params(
 params = LiteralInput(
     "params",
     "Comma separated list of model parameters",
-    abstract="Parameters: " + ", ".join(params_defaults._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(params_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(params_defaults)),
+    default=", ".join(map(str, astuple(params_defaults))),
     min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
@@ -37,7 +39,7 @@ class RavenMOHYSEProcess(RavenProcess):
     title = "TODO"
     version = ""
     model_cls = MOHYSE
-    tuple_inputs = {"params": MOHYSE.params}
+    tuple_inputs = {"params": MOHYSE.Params}
 
     inputs = [
         wio.ts,
@@ -48,7 +50,6 @@ class RavenMOHYSEProcess(RavenProcess):
         wio.nc_index,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,

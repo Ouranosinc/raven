@@ -1,3 +1,5 @@
+from dataclasses import astuple, fields
+
 from pywps import LiteralInput
 from ravenpy.models import HBVEC
 
@@ -7,7 +9,7 @@ from raven.processes import RavenProcess
 from . import wpsio as wio
 
 # Defaults for this process
-params_defaults = HBVEC.params(
+params_defaults = HBVEC.Params(
     par_x01=0.05984519,
     par_x02=4.072232,
     par_x03=2.001574,
@@ -35,9 +37,9 @@ params_defaults = HBVEC.params(
 params = LiteralInput(
     "params",
     "Comma separated list of model parameters",
-    abstract="Parameters: " + ", ".join(params_defaults._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(params_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(params_defaults)),
+    default=", ".join(map(str, astuple(params_defaults))),
     min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
@@ -49,7 +51,7 @@ class RavenHBVECProcess(RavenProcess):
     title = ""
     version = ""
     model_cls = HBVEC
-    tuple_inputs = {"params": HBVEC.params}
+    tuple_inputs = {"params": HBVEC.Params}
 
     inputs = [
         wio.ts,
@@ -60,7 +62,6 @@ class RavenHBVECProcess(RavenProcess):
         wio.nc_index,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,

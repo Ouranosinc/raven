@@ -3,12 +3,13 @@ import logging
 import string
 import traceback
 from collections import defaultdict
+from dataclasses import astuple
 from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
 from pywps.app.exceptions import ProcessError
+from ravenpy.config.commands import HRU
 from ravenpy.models import Raven
-from ravenpy.models.rv import HRU
 from ravenpy.utilities.checks import single_file_check
 from ravenpy.utilities.io import archive_sniffer
 
@@ -122,6 +123,9 @@ class RavenProcess(Process):
         # Initial conditions (`rvc` input)
         if "rvc" in request.inputs:
             model.resume(request.inputs.pop("rvc")[0].file)
+
+        if "random_numbers" in request.inputs:
+            model.config.set_rv_file(request.inputs.pop("random_numbers")[0].file)
 
         # Input data files
         ts = self.meteo(request)

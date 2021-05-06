@@ -1,4 +1,5 @@
 import logging
+from dataclasses import astuple, fields
 
 from pywps import LiteralInput
 from ravenpy.models import GR4JCN
@@ -19,7 +20,7 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = GR4JCN.params(
+params_defaults = GR4JCN.Params(
     GR4J_X1=0.529,
     GR4J_X2=-3.396,
     GR4J_X3=407.29,
@@ -31,9 +32,9 @@ params_defaults = GR4JCN.params(
 params = LiteralInput(
     "params",
     "Comma separated list of model parameters",
-    abstract="Parameters: " + ", ".join(params_defaults._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(params_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(params_defaults)),
+    default=", ".join(map(str, astuple(params_defaults))),
     min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
@@ -55,7 +56,7 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
     title = ""
     version = ""
     model_cls = GR4JCN
-    tuple_inputs = {"params": GR4JCN.params}
+    tuple_inputs = {"params": GR4JCN.Params}
 
     inputs = [
         wio.ts,
@@ -66,7 +67,6 @@ class RavenGR4JCemaNeigeProcess(RavenProcess):
         wio.nc_index,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.hrus,
         wio.area,
         wio.latitude,

@@ -6,7 +6,7 @@ channels:
 dependencies:
 - pip
 - six
-- ravenpy>=0.4.2
+- ravenpy>=0.5.0
 - pywps==4.4.2
 - unidecode
 - birdy

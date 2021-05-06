@@ -4,6 +4,8 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 
 """
 
+from dataclasses import fields
+
 from pywps import (
     FORMATS,
     ComplexInput,
@@ -13,7 +15,8 @@ from pywps import (
     LiteralOutput,
 )
 from pywps.app.Common import Metadata
-from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, rv
+from ravenpy.config.rvs import RVI
+from ravenpy.models.emulators import GR4JCN, HBVEC, HMETS, MOHYSE
 
 from raven import config
 
@@ -145,16 +148,6 @@ run_name = LiteralInput(
     max_occurs=config.max_parallel_processes,
 )
 
-name = LiteralInput(
-    "name",
-    "Watershed name",
-    abstract="The name of the watershed the model is run for.",
-    data_type="string",
-    default="watershed",
-    min_occurs=0,
-    max_occurs=config.max_parallel_processes,
-)
-
 # Note that this is a newer, alternate interface to the area/latitude/longitude/elevation legacy one for HRUs
 hrus = ComplexInput(
     "hrus",
@@ -237,7 +230,7 @@ rain_snow_fraction = LiteralInput(
     "Rain snow partitioning",
     abstract="Algorithm used to partition rain and snow from the total precipitions",
     data_type="string",
-    allowed_values=rv.rain_snow_fraction_options,
+    allowed_values=[e.value for e in RVI.RainSnowFractionOptions],
     min_occurs=0,
 )
 
@@ -246,7 +239,7 @@ evaporation = LiteralInput(
     "Evaporation scheme",
     abstract="Algorithm used to compute potential evapotranspiration (PET).",
     data_type="string",
-    allowed_values=rv.evaporation_options,
+    allowed_values=[e.value for e in RVI.EvaporationOptions],
     min_occurs=0,
 )
 
@@ -256,7 +249,7 @@ ow_evaporation = LiteralInput(
     abstract="Algorithm used to compute potential evapotranspiration (PET) over open "
     "water",
     data_type="string",
-    allowed_values=rv.evaporation_options,
+    allowed_values=[e.value for e in RVI.EvaporationOptions],
     min_occurs=0,
 )
 
@@ -295,7 +288,7 @@ hdate = LiteralInput(
 hmets = LiteralInput(
     "hmets",
     "Comma separated list of HMETS parameters",
-    abstract="Parameters: " + ", ".join(HMETS.params._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(HMETS.Params)),
     data_type="string",
     min_occurs=0,
 )
@@ -303,7 +296,7 @@ hmets = LiteralInput(
 gr4jcn = LiteralInput(
     "gr4jcn",
     "Comma separated list of GR4JCN parameters",
-    abstract="Parameters: " + ", ".join(GR4JCN.params._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(GR4JCN.Params)),
     data_type="string",
     min_occurs=0,
 )
@@ -311,7 +304,7 @@ gr4jcn = LiteralInput(
 mohyse = LiteralInput(
     "mohyse",
     "Comma separated list of MOHYSE parameters",
-    abstract="Parameters: " + ", ".join(MOHYSE.params._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(MOHYSE.Params)),
     data_type="string",
     min_occurs=0,
 )
@@ -319,7 +312,7 @@ mohyse = LiteralInput(
 hbvec = LiteralInput(
     "hbvec",
     "Comma separated list of HBV-EC parameters",
-    abstract="Parameters: " + ", ".join(HBVEC.params._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(HBVEC.Params)),
     data_type="string",
     min_occurs=0,
 )
@@ -573,6 +566,15 @@ random_seed = LiteralInput(
     data_type="integer",
     default=-1,
     min_occurs=0,
+)
+
+random_numbers = ComplexInput(
+    "random_numbers",
+    "File containing a list of random numbers (aka. OstRandomNumbers.txt)",
+    abstract="These numbers will be used directly by Ostrich for its randomness (the first line must be the size of the list)",
+    min_occurs=0,
+    max_occurs=1,
+    supported_formats=[FORMATS.TEXT],
 )
 
 calibration = ComplexOutput(

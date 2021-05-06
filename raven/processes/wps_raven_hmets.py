@@ -1,3 +1,5 @@
+from dataclasses import astuple, fields
+
 from pywps import LiteralInput
 from ravenpy.models import HMETS
 
@@ -7,7 +9,7 @@ from raven.processes import RavenProcess
 from . import wpsio as wio
 
 # Defaults for this process
-params_defaults = HMETS.params(
+params_defaults = HMETS.Params(
     GAMMA_SHAPE=9.5019,
     GAMMA_SCALE=0.2774,
     GAMMA_SHAPE2=6.3942,
@@ -35,9 +37,9 @@ params_defaults = HMETS.params(
 params = LiteralInput(
     "params",
     "Comma separated list of model parameters",
-    abstract="Parameters: " + ", ".join(params_defaults._fields),
+    abstract="Parameters: " + ", ".join(f.name for f in fields(params_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(params_defaults)),
+    default=", ".join(map(str, astuple(params_defaults))),
     min_occurs=0,
     max_occurs=config.max_parallel_processes,
 )
@@ -49,7 +51,7 @@ class RavenHMETSProcess(RavenProcess):
     title = ""
     version = ""
     model_cls = HMETS
-    tuple_inputs = {"params": HMETS.params}
+    tuple_inputs = {"params": HMETS.Params}
 
     inputs = [
         wio.ts,
@@ -60,7 +62,6 @@ class RavenHMETSProcess(RavenProcess):
         wio.nc_index,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
