@@ -17,7 +17,7 @@ dependencies:
 - psutil
 - numpy
 - scipy
-- xarray
+- xarray==0.17
 - xclim
 - rioxarray
 - matplotlib
