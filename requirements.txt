@@ -24,11 +24,10 @@ affine
 rtree
 fiona
 geopandas
-pyproj>=2.5.0
+pyproj
 rasterio
 rasterstats
 shapely
-geojson
 # DOCS and other utilities
 unidecode
 pandoc
