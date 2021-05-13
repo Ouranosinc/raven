@@ -1,6 +1,5 @@
 name: raven
 channels:
-- zeitsperre
 - conda-forge
 - defaults
 dependencies:
