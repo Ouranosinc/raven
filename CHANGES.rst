@@ -1,14 +1,24 @@
 Changes
 =======
 
+0.13
+----
+
+* Update RavenPy to 0.5.1
+* Remove the ``name`` (watershed name) from the WPS interface for Raven processes
+* Add ``random_numbers`` WPS param to pass optional ``OstRandomNumbers.txt`` file to Ostrich processes
+* Add error handlers for regionalisation and climatology processes
+
 0.12.1
 ------
+
 * Fix bug where the name of configuration files was used, while the client transmission of data does not carry the file name.
 * Update notebooks
 * Move draft notebooks to sandbox
 
 0.12.0
 ------
+
 * Update RavenPy to 0.4.2
 * Migrate utilities to RavenPy
 * Add notebook for advanced forecasting
@@ -33,7 +43,7 @@ Changes
 * Factor out extra project RavenPy (at version 0.2.2), using Raven 3.0.1
 * Upgrade to xclim +0.23.0
 * Upgrade to xarray +0.16.2
-* Add configuration options: `deaccumulate`
+* Add configuration options: ``deaccumulate``
 * Clean notebooks
 * Pin RavenPy to 0.3.0
 * Pin owslib to 0.21
@@ -42,14 +52,14 @@ Changes
 * Regionalization data is now bundled with RavenPy
 * Upgrade and pin PyWPS to 4.4.1
 * Factor out most GIS functions to RavenPy (0.3.0)
-* Add ``nalcms-zonal-stats-raster`` process using `pymetalink`
+* Add ``nalcms-zonal-stats-raster`` process using ``pymetalink``
 * Simplify documentation build environment.
 
 
 0.10.x (2020-03-09) Oxford
 --------------------------
 
-* `suppress_ouput` also triggers `:DontWriteWatershedStorage`
+* ``suppress_ouput`` also triggers ``:DontWriteWatershedStorage``
 * Added support for ERA5 (hourly), NRCan and CANOPEX datasets
 * Support linear transforms (unit changes)
 * Calibration now uses :SuppressOutput by default
