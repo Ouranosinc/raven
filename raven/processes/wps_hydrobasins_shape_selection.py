@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
-import tempfile
 
 import geopandas as gpd
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-from pywps.exceptions import InvalidParameterValue
 from ravenpy.utilities import geoserver
-from ravenpy.utilities.checks import single_file_check
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer
 
 from raven.utils import parse_lonlat
 
