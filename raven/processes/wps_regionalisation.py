@@ -1,8 +1,11 @@
 import json
 import logging
+import string
+import traceback
 from pathlib import Path
 
 from pywps import FORMATS, ComplexInput, LiteralInput
+from pywps.app.exceptions import ProcessError
 from ravenpy.utilities import read_gauged_params, read_gauged_properties, regionalize
 
 from . import wpsio as wio
@@ -190,18 +193,28 @@ class RegionalisationProcess(RavenProcess):
         ungauged_props = {key: properties[key] for key in properties}
         response.update_status("Gauged properties are read", 3)
 
-        qsim, ensemble = regionalize(
-            method,
-            model_name,
-            nash,
-            params,
-            props,
-            ungauged_props,
-            size=ndonors,
-            min_NSE=min_NSE,
-            ts=ts,
-            **kwds,
-        )
+        try:
+            qsim, ensemble = regionalize(
+                method,
+                model_name,
+                nash,
+                params,
+                props,
+                ungauged_props,
+                size=ndonors,
+                min_NSE=min_NSE,
+                ts=ts,
+                **kwds,
+            )
+        except Exception as exc:
+            LOGGER.exception(exc)
+            err_msg = traceback.format_exc()
+            # By default the error message is limited to 300 chars and strips
+            # many special characters
+            raise ProcessError(
+                err_msg, max_length=len(err_msg), allowed_chars=string.printable
+            ) from exc
+
         response.update_status("Computed regionalization", 99)
 
         # Write output
