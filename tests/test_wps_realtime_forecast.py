@@ -34,13 +34,14 @@ class TestRealtimeForecasts:
         pr = json.dumps(
             {
                 "pr": {
-                    "linear_transform": (1.0, 0.0),
+                    "scale": 1,
+                    "offset": 0,
                     "time_shift": -0.25,
                     "deaccumulate": True,
                 }
             }
         )
-        tas = json.dumps({"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}})
+        tas = json.dumps({"tas": {"scale": 1, "offset": 0, "time_shift": -0.25}})
         rvc = get_local_testdata("gr4j_cemaneige/solution.rvc")
 
         # Date of the forecast that will be used to determine the members of the climatology-based ESP

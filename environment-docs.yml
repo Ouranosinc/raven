@@ -6,7 +6,7 @@ channels:
 dependencies:
 - python>=3.6
 - pywps==4.4.2
-- sphinx
+- sphinx==3.5.4
 - nbsphinx
 - ipython
 - xskillscore

@@ -47,7 +47,6 @@ class ClimatologyEspProcess(RavenProcess):
         wio.ts,
         wio.model_name,
         params,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
@@ -59,10 +58,10 @@ class ClimatologyEspProcess(RavenProcess):
 
     outputs = [wio.forecast]
     tuple_inputs = {
-        "hmets": HMETS.params,
-        "gr4jcn": GR4JCN.params,
-        "hbvec": HBVEC.params,
-        "mohyse": MOHYSE.params,
+        "hmets": HMETS.Params,
+        "gr4jcn": GR4JCN.Params,
+        "hbvec": HBVEC.Params,
+        "mohyse": MOHYSE.Params,
     }
 
     def parse_tuple(self, obj, model_name):

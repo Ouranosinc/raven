@@ -149,7 +149,6 @@ class RegionalisationProcess(RavenProcess):
         wio.end_date,
         wio.latitude,
         wio.longitude,
-        wio.name,
         wio.rain_snow_fraction,
         wio.nc_spec,
         wio.model_name,

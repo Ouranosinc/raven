@@ -34,6 +34,7 @@ class TestOstrichMOHYSEProcess:
             "latitude={latitude};"
             "longitude={longitude};"
             "elevation={elevation};"
+            "random_numbers=file@xlink:href=file://{random_numbers};"
             "random_seed=0".format(
                 ts=get_local_testdata(
                     "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
@@ -50,6 +51,9 @@ class TestOstrichMOHYSEProcess:
                 elevation="843.0",
                 latitude=54.4848,
                 longitude=-123.3659,
+                random_numbers=get_local_testdata(
+                    "ostrich-gr4j-cemaneige/OstRandomNumbers.txt"
+                ),
             )
         )
 
