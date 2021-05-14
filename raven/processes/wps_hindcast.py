@@ -27,10 +27,10 @@ class HindcastingProcess(RavenProcess):
         "ensemble forecasts",
     ]
     tuple_inputs = {
-        "hmets": HMETS.params,
-        "gr4jcn": GR4JCN.params,
-        "hbvec": HBVEC.params,
-        "mohyse": MOHYSE.params,
+        "hmets": HMETS.Params,
+        "gr4jcn": GR4JCN.Params,
+        "hbvec": HBVEC.Params,
+        "mohyse": MOHYSE.Params,
     }
     inputs = [
         wio.forecast_model,
@@ -40,7 +40,6 @@ class HindcastingProcess(RavenProcess):
         wio.hbvec,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
@@ -60,7 +59,7 @@ class HindcastingProcess(RavenProcess):
         name = models.pop()
         params = self.parse_tuple(request.inputs.pop(name)[0])
         model = get_model(name)(workdir=self.workdir)
-        model.assign("params", params)
+        model.config.update("params", params)
         return model
 
     def meteo(self, request):

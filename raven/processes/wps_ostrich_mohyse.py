@@ -1,4 +1,5 @@
 import logging
+from dataclasses import astuple, fields
 
 from pywps import LiteralInput
 from ravenpy.models import MOHYSE_OST
@@ -16,7 +17,7 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = MOHYSE_OST.params(
+params_defaults = MOHYSE_OST.Params(
     par_x01=1.0000,
     par_x02=0.0468,
     par_x03=4.2952,
@@ -29,7 +30,7 @@ params_defaults = MOHYSE_OST.params(
     par_x10=5.6167,
 )
 
-Lparams_defaults = MOHYSE_OST.params(
+Lparams_defaults = MOHYSE_OST.Params(
     par_x01=0.01,
     par_x02=0.01,
     par_x03=0.01,
@@ -41,7 +42,7 @@ Lparams_defaults = MOHYSE_OST.params(
     par_x09=0.01,
     par_x10=0.01,
 )
-Uparams_defaults = MOHYSE_OST.params(
+Uparams_defaults = MOHYSE_OST.Params(
     par_x01=20.0,
     par_x02=1.0,
     par_x03=20.0,
@@ -57,18 +58,18 @@ Uparams_defaults = MOHYSE_OST.params(
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
-    abstract="UParameters: " + ", ".join(Uparams_defaults._fields),
+    abstract="UParameters: " + ", ".join(f.name for f in fields(Uparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Uparams_defaults)),
+    default=", ".join(map(str, astuple(Uparams_defaults))),
     min_occurs=0,
 )
 
 lowerBounds = LiteralInput(
     "lowerBounds",
     "Comma separated list of model parameters Lower Bounds",
-    abstract="LParameters: " + ", ".join(Lparams_defaults._fields),
+    abstract="LParameters: " + ", ".join(f.name for f in fields(Lparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Lparams_defaults)),
+    default=", ".join(map(str, astuple(Lparams_defaults))),
     min_occurs=0,
 )
 
@@ -88,7 +89,7 @@ class OstrichMOHYSEProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = MOHYSE_OST
-    tuple_inputs = {"lowerBounds": MOHYSE_OST.params, "upperBounds": MOHYSE_OST.params}
+    tuple_inputs = {"lowerBounds": MOHYSE_OST.Params, "upperBounds": MOHYSE_OST.Params}
     inputs = [
         wio.ts,
         wio.nc_spec,
@@ -101,12 +102,12 @@ class OstrichMOHYSEProcess(OstrichProcess):
         wio.end_date,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
         wio.elevation,
         wio.random_seed,
+        wio.random_numbers,
         wio.suppress_output,
         wio.rain_snow_fraction,
         wio.evaporation,

@@ -1,4 +1,5 @@
 import logging
+from dataclasses import astuple, fields
 
 from pywps import LiteralInput
 from ravenpy.models import HMETS_OST
@@ -16,7 +17,7 @@ All parameters that could potentially be user-defined are tagged using {}. These
 actual values before the model is launched.
 """
 
-params_defaults = HMETS_OST.params(
+params_defaults = HMETS_OST.Params(
     GAMMA_SHAPE=9.5019,
     GAMMA_SCALE=0.2774,
     GAMMA_SHAPE2=6.3942,
@@ -40,7 +41,7 @@ params_defaults = HMETS_OST.params(
     PHREATIC=916.1947,
 )
 
-Lparams_defaults = HMETS_OST.params(
+Lparams_defaults = HMETS_OST.Params(
     GAMMA_SHAPE=0.3,
     GAMMA_SCALE=0.01,
     GAMMA_SHAPE2=0.5,
@@ -64,7 +65,7 @@ Lparams_defaults = HMETS_OST.params(
     PHREATIC=0.0,
 )
 
-Uparams_defaults = HMETS_OST.params(
+Uparams_defaults = HMETS_OST.Params(
     GAMMA_SHAPE=20.0,
     GAMMA_SCALE=5.0,
     GAMMA_SHAPE2=13.0,
@@ -91,18 +92,18 @@ Uparams_defaults = HMETS_OST.params(
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
-    abstract="UParameters: " + ", ".join(Uparams_defaults._fields),
+    abstract="UParameters: " + ", ".join(f.name for f in fields(Uparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Uparams_defaults)),
+    default=", ".join(map(str, astuple(Uparams_defaults))),
     min_occurs=0,
 )
 
 lowerBounds = LiteralInput(
     "lowerBounds",
     "Comma separated list of model parameters Lower Bounds",
-    abstract="LParameters: " + ", ".join(Lparams_defaults._fields),
+    abstract="LParameters: " + ", ".join(f.name for f in fields(Lparams_defaults)),
     data_type="string",
-    default=", ".join(str(p) for p in list(Lparams_defaults)),
+    default=", ".join(map(str, astuple(Lparams_defaults))),
     min_occurs=0,
 )
 
@@ -122,7 +123,7 @@ class OstrichHMETSProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = HMETS_OST
-    tuple_inputs = {"lowerBounds": HMETS_OST.params, "upperBounds": HMETS_OST.params}
+    tuple_inputs = {"lowerBounds": HMETS_OST.Params, "upperBounds": HMETS_OST.Params}
     inputs = [
         wio.ts,
         wio.nc_spec,
@@ -135,12 +136,12 @@ class OstrichHMETSProcess(OstrichProcess):
         wio.end_date,
         wio.duration,
         wio.run_name,
-        wio.name,
         wio.area,
         wio.latitude,
         wio.longitude,
         wio.elevation,
         wio.random_seed,
+        wio.random_numbers,
         wio.suppress_output,
         wio.rain_snow_fraction,
         wio.evaporation,

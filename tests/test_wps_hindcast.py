@@ -32,13 +32,14 @@ class TestHindcasting:
         pr = json.dumps(
             {
                 "pr": {
-                    "linear_transform": (1.0, 0.0),
+                    "scale": 1,
+                    "offset": 0,
                     "time_shift": -0.25,
                     "deaccumulate": True,
                 }
             }
         )
-        tas = json.dumps({"tas": {"linear_transform": (1.0, 0.0), "time_shift": -0.25}})
+        tas = json.dumps({"tas": {"scale": 1, "offset": 0, "time_shift": -0.25}})
         rvc = get_local_testdata("gr4j_cemaneige/solution.rvc")
         hdate = dt.datetime(2018, 6, 1)
 
@@ -89,7 +90,7 @@ class TestHindcasting:
         assert "hydrograph" in out
         forecast, _ = urlretrieve(out["hydrograph"])
         q_sim = xr.open_dataset(forecast)["q_sim"]
-        np.testing.assert_almost_equal(q_sim.isel(time=-1).mean(), [12.585823219473196])
+        np.testing.assert_almost_equal(q_sim.isel(time=-1).mean(), [12.5856832])
         assert "member" in q_sim.dims
         # To display the forecast
         # q_sim.plot(); plt.show()
