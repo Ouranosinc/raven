@@ -7,6 +7,7 @@ Changes
 * Update RavenPy to 0.5.1
 * Remove the ``name`` (watershed name) from the WPS interface for Raven processes
 * Add ``random_numbers`` WPS param to pass optional ``OstRandomNumbers.txt`` file to Ostrich processes
+* Add error handlers for regionalisation and climatology processes
 
 0.12.1
 ------
