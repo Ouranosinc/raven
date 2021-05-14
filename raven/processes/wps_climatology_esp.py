@@ -1,10 +1,17 @@
+import logging
+import string
+import traceback
+
 from pywps import LiteralInput
+from pywps.app.exceptions import ProcessError
 from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE
 from ravenpy.utilities import forecasting
 
 from raven.processes import RavenProcess
 
 from . import wpsio as wio
+
+LOGGER = logging.getLogger("PYWPS")
 
 fdate = LiteralInput(
     "forecast_date",
@@ -89,7 +96,17 @@ class ClimatologyEspProcess(RavenProcess):
         kwds["workdir"] = self.workdir
 
         # Make forecasts. Only support one input file for now.
-        qsims = forecasting.perform_climatology_esp(ts=ts[0], **kwds)
+        try:
+            qsims = forecasting.perform_climatology_esp(ts=ts[0], **kwds)
+
+        except Exception as exc:
+            LOGGER.exception(exc)
+            err_msg = traceback.format_exc()
+            # By default the error message is limited to 300 chars and strips
+            # many special characters
+            raise ProcessError(
+                err_msg, max_length=len(err_msg), allowed_chars=string.printable
+            ) from exc
 
         # Prepare the forecast netcdf result file and send the path to the results output.
         forecastfile = self.workdir + "/forecast.nc"
