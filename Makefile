@@ -9,7 +9,7 @@ WPS_PORT := 9099
 WPS_URL := http://0.0.0.0:$(WPS_PORT)
 
 # If WPS_URL is overridden, this should also be overridden to match.
-WPS_OUTPUT_URL := http://localhost:$(WPS_PORT)
+WPS_OUTPUT_URL := http://localhost:$(WPS_PORT)/outputs
 
 GDAL_VERSION := $(shell gdal-config --version)
 
@@ -248,7 +248,7 @@ refresh-notebooks:
 NB_REFRESH_FILE := ""
 .PHONY: refresh-notebooks-impl
 refresh-notebooks-impl:
-	bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/outputs/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
+	bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
 
 .PHONY: test_pdb
 test_pdb:
