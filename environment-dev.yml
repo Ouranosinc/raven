@@ -17,6 +17,7 @@ dependencies:
 - bumpversion
 - twine
 - cruft
+- pre-commit
 - pytest-dependency
 - pytest-notebook
 - sphinx-autoapi

@@ -1,7 +1,8 @@
 ravenpy>=0.4.2
 six
 pywps==4.4.2
-owslib
+# owslib
+owslib @ git+https://github.com/geopython/OWSLib.git@master
 lxml
 jinja2
 click

@@ -8,15 +8,15 @@ dependencies:
 - ravenpy>=0.5.1
 - pywps==4.4.2
 - unidecode
-- birdy
-- owslib
+#- birdy
+#- owslib
 - poppler
 - jinja2
 - click
 - psutil
 - numpy
 - scipy
-- xarray==0.17
+- xarray
 - xclim
 - rioxarray
 - matplotlib
@@ -46,3 +46,6 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
+  - owslib @ git+https://github.com/geopython/OWSLib.git@master
+  - birdhouse-birdy
+  - ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@add_point_intersection
