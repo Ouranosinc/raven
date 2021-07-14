@@ -1,4 +1,4 @@
-ravenpy>=0.4.2
+ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@master
 six
 pywps==4.4.2
 # owslib

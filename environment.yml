@@ -5,7 +5,7 @@ channels:
 dependencies:
 - pip
 - six
-- ravenpy>=0.5.1
+- ravenpy>=0.6.0
 - pywps==4.4.2
 - unidecode
 #- birdy
@@ -16,7 +16,7 @@ dependencies:
 - psutil
 - numpy
 - scipy
-- xarray
+- xarray>=0.18
 - xclim
 - rioxarray
 - matplotlib
@@ -24,7 +24,7 @@ dependencies:
 - pandas<1.3
 - geopandas
 - geojson
-- gdal
+- gdal >=3.0
 - fiona
 - pyproj
 - cartopy
@@ -48,4 +48,4 @@ dependencies:
   - urlpath
   - owslib @ git+https://github.com/geopython/OWSLib.git@master
   - birdhouse-birdy
-  - ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@add_point_intersection
+  - ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@master
