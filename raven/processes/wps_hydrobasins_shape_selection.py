@@ -90,7 +90,8 @@ class HydroBasinsSelectionProcess(Process):
         response.update_status("Found downstream watershed", status_percentage=20)
 
         # Find HYBAS_ID
-        # FIXME: This call is causing segfaults. Can't geojson without crashing Python.
+        # TODO: This call causes thread-based segfaults when esmf or xesmf is installed.
+        # This likely points to an incompatibility between those libraries and GeoPandas/GEOS.
         gdf = gpd.GeoDataFrame.from_features(hybas_request)
         id_number = gdf.loc[0]["HYBAS_ID"]
 
