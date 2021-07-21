@@ -17,7 +17,7 @@ dependencies:
 - numpy
 - scipy
 - xarray >=0.18
-- xclim
+#- xclim
 - rioxarray
 - matplotlib
 - dask
@@ -49,3 +49,4 @@ dependencies:
   - owslib @ git+https://github.com/geopython/OWSLib.git@master
   - birdhouse-birdy
   - ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@master
+  - xclim
