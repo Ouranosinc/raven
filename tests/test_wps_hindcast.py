@@ -92,5 +92,6 @@ class TestHindcasting:
         q_sim = xr.open_dataset(forecast)["q_sim"]
         np.testing.assert_almost_equal(q_sim.isel(time=-1).mean(), [12.5856832])
         assert "member" in q_sim.dims
+        assert len(q_sim.time) == 9
         # To display the forecast
         # q_sim.plot(); plt.show()
