@@ -44,6 +44,15 @@ Lparams_defaults = GR4JCN_OST.Params(
     CEMANEIGE_X2=0.1,
 )
 
+params = LiteralInput(
+    "params",
+    "Comma separated list of model parameters",
+    abstract="UParameters: " + ", ".join(f.name for f in fields(params_defaults)),
+    data_type="string",
+    default=", ".join(map(str, astuple(params_defaults))),
+    min_occurs=0,
+)
+
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
@@ -78,11 +87,16 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = GR4JCN_OST
-    tuple_inputs = {"lowerBounds": GR4JCN_OST.Params, "upperBounds": GR4JCN_OST.Params}
+    tuple_inputs = {
+        "params": GR4JCN_OST.Params,
+        "lowerBounds": GR4JCN_OST.Params,
+        "upperBounds": GR4JCN_OST.Params,
+    }
     inputs = [
         wio.ts,
         wio.nc_spec,
         wio.nc_index,
+        params,
         lowerBounds,
         upperBounds,
         wio.algorithm,
