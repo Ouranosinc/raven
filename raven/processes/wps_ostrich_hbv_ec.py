@@ -89,6 +89,15 @@ Uparams_defaults = HBVEC_OST.Params(
     par_x21=1.5,
 )
 
+params = LiteralInput(
+    "params",
+    "Comma separated list of model parameters",
+    abstract="UParameters: " + ", ".join(f.name for f in fields(params_defaults)),
+    data_type="string",
+    default=", ".join(map(str, astuple(params_defaults))),
+    min_occurs=0,
+)
+
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
@@ -123,11 +132,16 @@ class OstrichHBVECProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = HBVEC_OST
-    tuple_inputs = {"lowerBounds": HBVEC_OST.Params, "upperBounds": HBVEC_OST.Params}
+    tuple_inputs = {
+        "params": HBVEC_OST.Params,
+        "lowerBounds": HBVEC_OST.Params,
+        "upperBounds": HBVEC_OST.Params,
+    }
     inputs = [
         wio.ts,
         wio.nc_spec,
         wio.nc_index,
+        params,
         lowerBounds,
         upperBounds,
         wio.algorithm,
