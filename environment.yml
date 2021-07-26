@@ -5,12 +5,12 @@ channels:
 dependencies:
 - pip
 - six
-- raven-hydro
-- ostrich
+- raven-hydro ==3.0.4.322
+- ostrich ==21.03.16
 - pywps ==4.4.2
 - unidecode
-#- birdy
-#- owslib
+- birdy
+- owslib
 - poppler
 - jinja2
 - click
@@ -47,7 +47,5 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
-  - owslib @ git+https://github.com/geopython/OWSLib.git@master
-  - birdhouse-birdy
   - ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@master
   - xclim
