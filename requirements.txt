@@ -2,8 +2,7 @@
 ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@master
 six
 pywps==4.4.2
-# owslib
-owslib @ git+https://github.com/geopython/OWSLib.git@master
+owslib
 lxml
 jinja2
 click
