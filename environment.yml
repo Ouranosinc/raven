@@ -19,7 +19,7 @@ dependencies:
 - numpy
 - scipy
 - xarray >=0.18
-#- xclim
+- xclim
 - rioxarray
 - matplotlib
 - dask
@@ -48,4 +48,3 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
-  - xclim
