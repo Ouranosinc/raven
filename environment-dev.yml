@@ -24,5 +24,5 @@ dependencies:
 - black
 - pip
 - pip:
-    - urlpath
-    - pymetalink
+  - urlpath
+  - pymetalink
