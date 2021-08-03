@@ -56,8 +56,8 @@ The environment can then be activated with:
 
 This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
 
-Environment Setup using System Libraries (Linux)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Environment Setup using System Libraries and Sources (Linux)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning::
     This approach is not formally supported, but is presently working for the time being.
@@ -79,13 +79,19 @@ First we need to install several system libraries that RavenWPS and RavenPy depe
    $ virtualenv ravenwps-env
    $ . ravenwps-env/bin/activate
 
-We then need to install the python RavenPy library from sources:
+We then need to install the `ravenpy` python library from sources:
 
 .. code-block:: console
 
    (ravenwps-env) $ git clone https://github.com/CSHS-CWRA/RavenPy/
    (ravenwps-env) $ pip install RavenPy/.[gis]
    (ravenwps-env) $ pip install RavenPy/. --verbose --install-option="--with-binaries"
+
+If we want to perform an interactive/editable installation for dev purposes, substitute the following for the final installation command:
+
+.. code-block:: console
+
+   (ravenwps-env) $ pip install -e RavenPy/. --verbose --install-option="--with-binaries"
 
 Installing and Launching RavenWPS
 ---------------------------------
