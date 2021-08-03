@@ -77,7 +77,7 @@ First we need to install several system libraries that RavenWPS and RavenPy depe
    $ sudo apt-get install libhdf5-dev netcdf-bin libnetcdf-dev libgdal-dev libproj-dev libgeos-dev libspatialindex-dev python3-dev
    $ pip3 install virtualenv
    $ virtualenv raven-env
-   $ venv/bin/activate
+   $ . venv/bin/activate
 
 We then need to install the python RavenPy library from sources:
 
