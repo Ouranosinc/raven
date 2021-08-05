@@ -1,5 +1,3 @@
-import tempfile
-
 import pytest
 import xarray as xr
 from ravenpy.utilities.testdata import get_local_testdata

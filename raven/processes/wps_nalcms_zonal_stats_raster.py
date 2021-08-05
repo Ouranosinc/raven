@@ -7,11 +7,9 @@ from pathlib import Path
 from pywps import FORMATS, ComplexOutput, Process
 from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
-from ravenpy.utilities.checks import single_file_check
-from ravenpy.utilities.geo import generic_vector_reproject
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer, raster_datatype_sniffer
-
-from ..utils import (
+from ravengis.geo import generic_vector_reproject
+from ravengis.io import archive_sniffer, crs_sniffer, raster_datatype_sniffer
+from ravengis.raster import (
     NALCMS_PROJ4,
     SIMPLE_CATEGORIES,
     SUMMARY_ZONAL_STATS,
@@ -19,6 +17,8 @@ from ..utils import (
     gather_dem_tile,
     zonalstats_raster_file,
 )
+
+from ..utilities import single_file_check
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

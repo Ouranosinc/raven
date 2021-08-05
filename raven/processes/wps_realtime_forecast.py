@@ -3,8 +3,8 @@ from pathlib import Path
 
 import fiona
 import xarray as xr
+from ravengis.forecasting import get_recent_ECCC_forecast
 from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, get_model
-from ravenpy.utilities import forecasting
 
 from . import wpsio as wio
 from .wps_raven import RavenProcess
@@ -78,7 +78,7 @@ class RealtimeForecastProcess(RavenProcess):
         # return [Path("/home/david/src/raven-testdata/eccc_geps/fcstfile.nc"),]
 
         # Fetch data and average over region
-        fcst = forecasting.get_recent_ECCC_forecast(
+        fcst = get_recent_ECCC_forecast(
             fiona.open(vector_file), climate_model=forecast_model
         )
 

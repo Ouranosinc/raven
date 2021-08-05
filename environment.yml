@@ -46,3 +46,4 @@ dependencies:
 - pip:
   - spotpy
   - urlpath
+  - ravengis @ git+https://github.com/Zeitsperre/RavenGIS.git@raven-gis-refactor

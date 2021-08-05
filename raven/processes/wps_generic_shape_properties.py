@@ -4,11 +4,13 @@ import logging
 import fiona
 from pyproj.crs import CRS
 from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
-from ravenpy.utilities.analysis import geom_prop
-from ravenpy.utilities.checks import multipolygon_check, single_file_check
-from ravenpy.utilities.geo import geom_transform
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer
+from ravengis.analysis import geom_prop
+from ravengis.geo import geom_transform
+from ravengis.io import archive_sniffer, crs_sniffer
+from ravengis.utilities.checks import multipolygon_check
 from shapely.geometry import shape
+
+from ..utilities import single_file_check
 
 LOGGER = logging.getLogger("PYWPS")
 

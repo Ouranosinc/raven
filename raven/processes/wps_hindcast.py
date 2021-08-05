@@ -3,8 +3,8 @@ from pathlib import Path
 
 import fiona
 import xarray as xr
+from ravengis.forecasting import get_hindcast_day
 from ravenpy.models import GR4JCN, HBVEC, HMETS, MOHYSE, get_model
-from ravenpy.utilities import forecasting
 
 from . import wpsio as wio
 from .wps_raven import RavenProcess
@@ -79,7 +79,7 @@ class HindcastingProcess(RavenProcess):
         hdate = request.inputs.pop("hdate")[0].data
 
         # Fetch data and average over region
-        fcst = forecasting.get_hindcast_day(
+        fcst = get_hindcast_day(
             fiona.open(vector_file), hdate, climate_model=forecast_model
         )
 
