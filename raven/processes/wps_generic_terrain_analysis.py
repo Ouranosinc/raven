@@ -6,16 +6,13 @@ import shapely.geometry as sgeo
 import shapely.ops as ops
 from pyproj.crs import CRS
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-from ravenpy.utilities.analysis import dem_prop
-from ravenpy.utilities.checks import boundary_check, single_file_check
-from ravenpy.utilities.geo import (
-    generic_raster_clip,
-    generic_raster_warp,
-    generic_vector_reproject,
-)
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer
+from ravengis.analysis import dem_prop
+from ravengis.geo import generic_vector_reproject
+from ravengis.io import archive_sniffer, crs_sniffer
+from ravengis.raster import gather_dem_tile, generic_raster_clip, generic_raster_warp
+from ravengis.utilities.checks import boundary_check
 
-from ..utils import gather_dem_tile
+from ..utilities import single_file_check
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

@@ -5,17 +5,17 @@ from collections import defaultdict
 
 from pywps import Process
 from rasterstats import zonal_stats
-from ravenpy.utilities import geoserver
-from ravenpy.utilities.checks import single_file_check
-from ravenpy.utilities.geo import generic_vector_reproject
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer, get_bbox
-
-from ..utils import (
+from ravengis import geoserver
+from ravengis.geo import generic_vector_reproject
+from ravengis.io import archive_sniffer, crs_sniffer, get_bbox
+from ravengis.raster import (
     NALCMS_PROJ4,
     SIMPLE_CATEGORIES,
     SUMMARY_ZONAL_STATS,
     TRUE_CATEGORIES,
 )
+
+from ..utilities import single_file_check
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

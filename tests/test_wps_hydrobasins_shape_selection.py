@@ -3,9 +3,9 @@ import json
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
+from ravengis.raster import parse_lonlat
 
 from raven.processes import HydroBasinsSelectionProcess
-from raven.utils import parse_lonlat
 
 from .common import CFG_FILE, client_for, get_output
 
