@@ -23,7 +23,7 @@ dependencies:
 - rioxarray
 - matplotlib
 - dask
-- pandas <1.3
+- pandas
 - geopandas
 - geojson
 - gdal >=3.0
