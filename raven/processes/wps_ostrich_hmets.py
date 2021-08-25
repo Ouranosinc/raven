@@ -89,15 +89,6 @@ Uparams_defaults = HMETS_OST.Params(
     PHREATIC=2.0,
 )
 
-params = LiteralInput(
-    "params",
-    "Comma separated list of model parameters",
-    abstract="UParameters: " + ", ".join(f.name for f in fields(params_defaults)),
-    data_type="string",
-    default=", ".join(map(str, astuple(params_defaults))),
-    min_occurs=0,
-)
-
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
@@ -133,7 +124,6 @@ class OstrichHMETSProcess(OstrichProcess):
     version = ""
     model_cls = HMETS_OST
     tuple_inputs = {
-        "params": HMETS_OST.Params,
         "lowerBounds": HMETS_OST.Params,
         "upperBounds": HMETS_OST.Params,
     }
@@ -141,7 +131,6 @@ class OstrichHMETSProcess(OstrichProcess):
         wio.ts,
         wio.nc_spec,
         wio.nc_index,
-        params,
         lowerBounds,
         upperBounds,
         wio.algorithm,

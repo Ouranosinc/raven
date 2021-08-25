@@ -55,15 +55,6 @@ Uparams_defaults = MOHYSE_OST.Params(
     par_x10=15.0,
 )
 
-params = LiteralInput(
-    "params",
-    "Comma separated list of model parameters",
-    abstract="UParameters: " + ", ".join(f.name for f in fields(params_defaults)),
-    data_type="string",
-    default=", ".join(map(str, astuple(params_defaults))),
-    min_occurs=0,
-)
-
 upperBounds = LiteralInput(
     "upperBounds",
     "Comma separated list of model parameters Upper Bounds",
@@ -99,7 +90,6 @@ class OstrichMOHYSEProcess(OstrichProcess):
     version = ""
     model_cls = MOHYSE_OST
     tuple_inputs = {
-        "params": MOHYSE_OST.Params,
         "lowerBounds": MOHYSE_OST.Params,
         "upperBounds": MOHYSE_OST.Params,
     }
@@ -107,7 +97,6 @@ class OstrichMOHYSEProcess(OstrichProcess):
         wio.ts,
         wio.nc_spec,
         wio.nc_index,
-        params,
         lowerBounds,
         upperBounds,
         wio.algorithm,
