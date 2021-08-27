@@ -1,6 +1,6 @@
 ravenpy>=0.7.2
 six
-pywps==4.4.2
+pywps==4.5.0
 owslib
 lxml
 jinja2
@@ -10,7 +10,7 @@ numpy
 scipy
 matplotlib
 xarray
-xclim>=0.23
+xclim>=0.28.1
 pandas
 requests
 netCDF4

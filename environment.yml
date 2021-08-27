@@ -8,7 +8,7 @@ dependencies:
 - raven-hydro ==3.0.4.322
 - ostrich ==21.03.16
 - ravenpy >=0.7.2
-- pywps ==4.4.2
+- pywps ==4.5.0
 - unidecode
 - birdy
 - owslib
