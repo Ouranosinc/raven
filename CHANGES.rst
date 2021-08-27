@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.14
+----
+
+* Update to RavenPy 0.7.1
+* Use new OWSlib WFS topological filters
+
+
 0.13
 ----
 
