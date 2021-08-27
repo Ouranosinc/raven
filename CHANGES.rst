@@ -8,6 +8,7 @@ Changes
 * Use new OWSlib WFS topological filters
 * More informative install documentation
 * Upgrade to PyWPS 4.4.5
+
 0.13
 ----
 
