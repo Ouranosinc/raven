@@ -78,7 +78,10 @@ class OstrichGR4JCemaNeigeProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = GR4JCN_OST
-    tuple_inputs = {"lowerBounds": GR4JCN_OST.Params, "upperBounds": GR4JCN_OST.Params}
+    tuple_inputs = {
+        "lowerBounds": GR4JCN_OST.Params,
+        "upperBounds": GR4JCN_OST.Params,
+    }
     inputs = [
         wio.ts,
         wio.nc_spec,

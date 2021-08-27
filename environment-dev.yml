@@ -17,11 +17,12 @@ dependencies:
 - bumpversion
 - twine
 - cruft
+- pre-commit
 - pytest-dependency
 - pytest-notebook
 - sphinx-autoapi
 - black
 - pip
 - pip:
-    - urlpath
-    - pymetalink
+  - urlpath
+  - pymetalink
