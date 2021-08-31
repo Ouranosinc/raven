@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.14.1
+------
+* Update to RavenPy 0.7.3 (pin xclim version 0.28.1)
+
 0.14
 ----
 
