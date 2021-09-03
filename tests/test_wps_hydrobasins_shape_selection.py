@@ -24,7 +24,8 @@ class TestParser:
 
 
 class TestShapeSelectionProcess:
-    def test_manicouagan(self):
+    @pytest.mark.parametrize("aggregate_upstream,ids", [(True, 551), (False, 1)])
+    def test_manicouagan(self, aggregate_upstream, ids):
         client = client_for(
             Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
         )
@@ -40,7 +41,7 @@ class TestShapeSelectionProcess:
             location="-68.724444, 50.646667",
             # level="12",
             # lakes=True,
-            aggregate_upstream=True,
+            aggregate_upstream=aggregate_upstream,
         )
 
         resp = client.get(
@@ -55,6 +56,7 @@ class TestShapeSelectionProcess:
         out = get_output(resp.xml)
 
         assert {"feature", "upstream_ids"}.issubset([*out])
+        assert len(json.loads(out["upstream_ids"])) == ids
 
     @pytest.mark.skip("slow")
     def test_lac_saint_jean(self):
