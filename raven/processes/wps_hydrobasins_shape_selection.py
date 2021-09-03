@@ -93,7 +93,7 @@ class HydroBasinsSelectionProcess(Process):
         # TODO: This call causes thread-based segfaults when esmf or xesmf is installed.
         # This likely points to an incompatibility between those libraries and GeoPandas/GEOS.
         gdf = gpd.GeoDataFrame.from_features(hybas_request)
-        id_number = gdf.loc[0]["HYBAS_ID"]
+        id_number = int(gdf.loc[0]["HYBAS_ID"])
 
         if collect_upstream:
 
