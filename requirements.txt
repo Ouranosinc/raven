@@ -1,6 +1,6 @@
-ravenpy>=0.4.2
+ravenpy>=0.7.4
 ravengis @ git+https://github.com/Zeitsperre/RavenGIS.git@raven-gis-refactor
-pywps==4.4.2
+pywps==4.4.5
 owslib
 lxml
 jinja2
@@ -10,7 +10,7 @@ numpy
 scipy
 matplotlib
 xarray
-xclim>=0.23
+xclim>=0.28.1,<0.29.0
 pandas
 requests
 netCDF4

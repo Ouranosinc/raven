@@ -17,10 +17,6 @@ class TestOstrichHBVECProcess:
             Service(processes=[OstrichHBVECProcess()], cfgfiles=CFG_FILE)
         )
 
-        params = "0.05984519, 4.072232, 2.001574, 0.03473693, 0.09985144, 0.5060520, 3.438486, \
-                 38.32455, 0.4606565, 0.06303738, 2.277781, 4.873686, 0.5718813, 0.04505643, \
-                 0.877607, 18.94145, 2.036937, 0.4452843, 0.6771759, 1.141608, 1.024278"
-
         lowerBounds = "-3.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.01, 0.05, 0.01, \
                       0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.05, 0.8, 0.8"
         upperBounds = "3.0, 8.0, 8.0, 0.1, 1.0, 1.0, 7.0, 100.0, 1.0, 0.1, 6.0, 5.0, \
@@ -30,7 +26,6 @@ class TestOstrichHBVECProcess:
             "ts=files@xlink:href=file://{ts};"
             "algorithm={algorithm};"
             "max_iterations={max_iterations};"
-            "params={params};"
             "lowerBounds={lowerBounds};"
             "upperBounds={upperBounds};"
             "start_date={start_date};"
@@ -48,7 +43,6 @@ class TestOstrichHBVECProcess:
                 ),
                 algorithm="DDS",
                 max_iterations=10,
-                params=params,
                 lowerBounds=lowerBounds,
                 upperBounds=upperBounds,
                 start_date=dt.datetime(1954, 1, 1),

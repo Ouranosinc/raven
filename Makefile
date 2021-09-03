@@ -28,7 +28,7 @@ endif
 
 CONDA := $(shell command -v conda 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
-PYTHON_VERSION = 3.6
+PYTHON_VERSION = 3.7
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.anaconda.com/miniconda

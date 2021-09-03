@@ -123,7 +123,10 @@ class OstrichHMETSProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = HMETS_OST
-    tuple_inputs = {"lowerBounds": HMETS_OST.Params, "upperBounds": HMETS_OST.Params}
+    tuple_inputs = {
+        "lowerBounds": HMETS_OST.Params,
+        "upperBounds": HMETS_OST.Params,
+    }
     inputs = [
         wio.ts,
         wio.nc_spec,

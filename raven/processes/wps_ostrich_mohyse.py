@@ -89,7 +89,10 @@ class OstrichMOHYSEProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = MOHYSE_OST
-    tuple_inputs = {"lowerBounds": MOHYSE_OST.Params, "upperBounds": MOHYSE_OST.Params}
+    tuple_inputs = {
+        "lowerBounds": MOHYSE_OST.Params,
+        "upperBounds": MOHYSE_OST.Params,
+    }
     inputs = [
         wio.ts,
         wio.nc_spec,
