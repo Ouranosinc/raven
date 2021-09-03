@@ -123,7 +123,10 @@ class OstrichHBVECProcess(OstrichProcess):
     title = ""
     version = ""
     model_cls = HBVEC_OST
-    tuple_inputs = {"lowerBounds": HBVEC_OST.Params, "upperBounds": HBVEC_OST.Params}
+    tuple_inputs = {
+        "lowerBounds": HBVEC_OST.Params,
+        "upperBounds": HBVEC_OST.Params,
+    }
     inputs = [
         wio.ts,
         wio.nc_spec,

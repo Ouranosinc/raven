@@ -23,7 +23,7 @@
             "project_repo_name": "raven",
             "project_readthedocs_name": "pavics-raven",
             "project_short_description": "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
-            "version": "0.13.0",
+            "version": "0.14.2",
             "open_source_license": "MIT license",
             "http_port": "9099",
             "_copy_without_render": [

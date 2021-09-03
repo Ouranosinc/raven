@@ -1,6 +1,23 @@
 Changes
 =======
 
+0.14.2
+------
+* Update to RavenPy 0.7.4 (pin climpred below version 2.1.6)
+* Fixed a process-breaking bug in `wps_hydrobasins_shape_selection`
+
+0.14.1
+------
+* Update to RavenPy 0.7.3 (pin xclim version 0.28.1)
+
+0.14
+----
+
+* Update to RavenPy 0.7.2
+* Use new OWSlib WFS topological filters
+* More informative install documentation
+* Upgrade to PyWPS 4.4.5
+
 0.13
 ----
 

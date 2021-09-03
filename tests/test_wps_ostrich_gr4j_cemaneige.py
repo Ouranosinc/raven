@@ -18,7 +18,6 @@ class TestOstrichGR4JCemaNeigeProcess:
             Service(processes=[OstrichGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
 
-        params = "0.529, -3.396, 407.29, 1.072, 16.9, 0.053"
         lowerBounds = "0.01, -15.0, 10.0, 0.0, 1.0, 0.0"
         upperBounds = "2.5, 10.0, 700.0, 7.0, 30.0, 1."
 
@@ -30,7 +29,6 @@ class TestOstrichGR4JCemaNeigeProcess:
             "ts=files@xlink:href=file://{ts};"
             "algorithm={algorithm};"
             "max_iterations={max_iterations};"
-            "params={params};"
             "lowerBounds={lowerBounds};"
             "upperBounds={upperBounds};"
             "start_date={start_date};"
@@ -48,7 +46,6 @@ class TestOstrichGR4JCemaNeigeProcess:
                 ),
                 algorithm="DDS",
                 max_iterations=10,
-                params=params,
                 lowerBounds=lowerBounds,
                 upperBounds=upperBounds,
                 start_date=dt.datetime(1954, 1, 1),

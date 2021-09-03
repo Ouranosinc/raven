@@ -81,16 +81,18 @@ class HydroBasinsSelectionProcess(Process):
         collect_upstream = request.inputs["aggregate_upstream"][0].data
         lon, lat = parse_lonlat(request.inputs["location"][0].data)
 
-        bbox = (lon, lat, lon, lat)
+        point = (lon, lat)
 
-        domain = geoserver.select_hybas_domain(bbox)
-        hybas_request = geoserver.get_hydrobasins_location_wfs(bbox, domain=domain)
+        domain = geoserver.select_hybas_domain(point=point)
+        hybas_request = geoserver.get_hydrobasins_location_wfs(point, domain=domain)
 
         response.update_status("Found downstream watershed", status_percentage=20)
 
         # Find HYBAS_ID
-        gdf = gpd.read_file(hybas_request.decode())
-        id_number = gdf["id"][0]
+        # TODO: This call causes thread-based segfaults when esmf or xesmf is installed.
+        # This likely points to an incompatibility between those libraries and GeoPandas/GEOS.
+        gdf = gpd.GeoDataFrame.from_features(hybas_request)
+        id_number = int(gdf.loc[0]["HYBAS_ID"])
 
         if collect_upstream:
 
