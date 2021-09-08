@@ -3,15 +3,15 @@ import logging
 import string
 import traceback
 from collections import defaultdict
-from dataclasses import astuple
 from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
 from pywps.app.exceptions import ProcessError
+from ravengis.io import archive_sniffer
 from ravenpy.config.commands import HRU
 from ravenpy.models import Raven
-from ravenpy.utilities.checks import single_file_check
-from ravenpy.utilities.io import archive_sniffer
+
+from raven.utilities import single_file_check
 
 from . import wpsio as wio
 
@@ -85,7 +85,7 @@ class RavenProcess(Process):
         for name, objs in request.inputs.items():
             for obj in objs:
 
-                # Namedtuples
+                # Namedtuple objects
                 if name in self.tuple_inputs:
                     data = self.parse_tuple(obj)
 

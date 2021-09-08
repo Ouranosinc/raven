@@ -5,17 +5,17 @@ from collections import defaultdict
 
 from pywps import Process
 from rasterstats import zonal_stats
-from ravenpy.utilities import geoserver
-from ravenpy.utilities.checks import single_file_check
-from ravenpy.utilities.geo import generic_vector_reproject
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer, get_bbox
-
-from ..utils import (
+from ravengis import geoserver
+from ravengis.io import archive_sniffer, crs_sniffer, get_bbox
+from ravengis.raster import (
     NALCMS_PROJ4,
     SIMPLE_CATEGORIES,
     SUMMARY_ZONAL_STATS,
     TRUE_CATEGORIES,
 )
+from ravenpy.utilities.vector import generic_vector_file_transform
+
+from ..utilities import single_file_check
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
@@ -87,7 +87,7 @@ class NALCMSZonalStatisticsProcess(Process):
                     delete=False,
                     dir=self.workdir,
                 ).name
-                generic_vector_reproject(
+                generic_vector_file_transform(
                     vector_file, projected, source_crs=vec_crs, target_crs=ras_crs
                 )
             else:
@@ -97,7 +97,7 @@ class NALCMSZonalStatisticsProcess(Process):
             projected = tempfile.NamedTemporaryFile(
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
-            generic_vector_reproject(
+            generic_vector_file_transform(
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
 

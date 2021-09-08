@@ -1,5 +1,5 @@
-ravenpy>=0.7.4
-six
+ravenpy @ git+https://github.com/CSHS-CWRA/RavenPy.git@raven-gis-refactor
+ravengis @ git+https://github.com/Zeitsperre/RavenGIS.git@raven-gis-refactor
 pywps==4.4.5
 owslib
 lxml
