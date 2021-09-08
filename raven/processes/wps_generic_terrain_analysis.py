@@ -7,10 +7,10 @@ import shapely.ops as ops
 from pyproj.crs import CRS
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
 from ravengis.analysis import dem_prop
-from ravengis.geo import generic_vector_reproject
 from ravengis.io import archive_sniffer, crs_sniffer
 from ravengis.raster import gather_dem_tile, generic_raster_clip, generic_raster_warp
 from ravengis.utilities.checks import boundary_check
+from ravenpy.utilities.vector import generic_vector_file_transform
 
 from ..utilities import single_file_check
 from . import wpsio as wio
@@ -127,7 +127,7 @@ class TerrainAnalysisProcess(Process):
         rpj = tempfile.NamedTemporaryFile(
             prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
         ).name
-        generic_vector_reproject(
+        generic_vector_file_transform(
             vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_epsg()
         )
         with open(rpj) as src:
