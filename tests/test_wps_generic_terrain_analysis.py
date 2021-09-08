@@ -26,7 +26,7 @@ class TestGenericTerrainAnalysisProcess:
             raster=get_local_testdata(
                 "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
             ),
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset_v32.gml"),
             projected_crs="6622",
             touches=True,
         )
