@@ -99,7 +99,6 @@ autodoc_mock_imports = [
     "cartopy",
     "scikit-learn",
     "cairo",
-    "ravenpy",
     "rioxarray",
 ]
 
