@@ -1,6 +1,11 @@
 Changes
 =======
 
+
+0.14.3
+------
+* Update to RavenPy 0.7.5
+
 0.14.2
 ------
 * Update to RavenPy 0.7.4 (pin climpred below version 2.1.6)
