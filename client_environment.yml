@@ -22,9 +22,11 @@ dependencies:
   - pip
   - nc-time-axis
   - ipyleaflet
+  - hvplot
+  - holoviews
   - pip:
     # visual debugger for Jupyter Notebook, not working with JupyterLab at this moment
-    - owslib<0.22
+    - owslib
     - pixiedust
     - birdhouse-birdy
     - ravenpy
