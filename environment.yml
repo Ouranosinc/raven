@@ -10,7 +10,6 @@ dependencies:
 - ravenpy >=0.7.5
 - pywps ==4.4.5
 - unidecode
-- birdhouse-birdy >= 0.8
 - owslib
 - poppler
 - jinja2
