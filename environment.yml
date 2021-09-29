@@ -10,7 +10,6 @@ dependencies:
 - affine
 - cartopy
 - click
-- climpred >=2.1.0,<=2.1.5
 - dask
 - fiona
 - geopandas
