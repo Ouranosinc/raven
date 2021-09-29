@@ -15,6 +15,7 @@ dependencies:
 - birdy
 - sphinx>=1.7
 - bumpversion
+- bump2version
 - twine
 - cruft
 - pre-commit
