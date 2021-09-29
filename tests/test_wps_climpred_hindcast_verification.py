@@ -2,6 +2,7 @@ import datetime as dt
 import tempfile
 from urllib.request import urlretrieve
 
+import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.forecasting import make_ESP_hindcast_dataset
@@ -12,6 +13,7 @@ from raven.processes import ClimpredHindcastVerificationProcess
 from .common import CFG_FILE, client_for, get_output
 
 
+@pytest.mark.skip
 class TestHindcastEvaluationProcess:
     def test_hindcast_evaluation_rank_histo(self):
         client = client_for(
