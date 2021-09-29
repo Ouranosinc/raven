@@ -3,47 +3,46 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- pip
-- six
 - raven-hydro ==3.0.4.322
 - ostrich ==21.03.16
 - ravenpy >=0.7.5
 - pywps ==4.4.5
-- unidecode
-- owslib
-- poppler
-- jinja2
+- affine
+- cartopy
 - click
-- psutil
-- numpy
-- scipy
-- xarray >=0.18
-- xclim >=0.28.1
-- rioxarray
-- matplotlib
+- climpred >=2.1.0,<=2.1.5
 - dask
-- pandas
+- fiona
 - geopandas
 - geojson
 - gdal >=3.0
-- fiona
+- ipyleaflet
+- jinja2
+- matplotlib
+- nbval
+- numpy
+- owslib
+- pandas
+- pandoc
+- poppler
+- psutil
+- psycopg2
+- pymetalink
 - pyproj
-- cartopy
-- affine
+- pysheds
 - rasterio
 - rasterstats
+- rioxarray
 - rtree
+- scipy
 - shapely
-- bump2version
 - statsmodels
-- pandoc
-- nbval
-- ipyleaflet
-- pysheds
-- psycopg2
-- xskillscore
 - tbb
-- pymetalink
+- unidecode
+- xarray >=0.18
+- xclim >=0.28.1
+- xskillscore
+- pip
 - pip:
   - spotpy
   - urlpath
