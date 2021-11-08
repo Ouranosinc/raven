@@ -36,11 +36,10 @@ UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 
 # Additional servers used by notebooks
-FLYINGPIGEON_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/flyingpigeon/wps
 FINCH_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
 
 # To run tests on local servers, use
-# make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 test-notebooks
+# make FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
 ifeq "$(UNAME_S)" "Linux"
 FN := Miniconda3-latest-Linux-x86_64.sh
@@ -217,7 +216,7 @@ test-notebooks: notebook-sanitizer
 NB_FILE := $(CURDIR)/docs/source/notebooks/
 .PHONY: test-notebooks-impl
 test-notebooks-impl:
-	bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) pytest --nbval-lax --verbose $(NB_FILE) --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) pytest --nbval-lax --verbose $(NB_FILE) --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
 
 ifeq "$(JUPYTER_NB_IP)" ""
 JUPYTER_NB_IP := 0.0.0.0
@@ -225,7 +224,7 @@ endif
 .PHONY: notebook
 notebook:
 	@echo "Running notebook server"
-	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) FLYINGPIGEON_WPS_URL=$(FLYINGPIGEON_WPS_URL) jupyter notebook --ip=$(JUPYTER_NB_IP) $(CURDIR)/docs/source/notebooks/"
+	@bash -c "env WPS_URL=$(WPS_URL) FINCH_WPS_URL=$(FINCH_WPS_URL) jupyter notebook --ip=$(JUPYTER_NB_IP) $(CURDIR)/docs/source/notebooks/"
 
 .PHONY: lint
 lint:
@@ -248,7 +247,7 @@ refresh-notebooks:
 NB_REFRESH_FILE := ""
 .PHONY: refresh-notebooks-impl
 refresh-notebooks-impl:
-	bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" FLYINGPIGEON_WPS_URL="$(FLYINGPIGEON_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
+	bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
 
 .PHONY: test_pdb
 test_pdb:
