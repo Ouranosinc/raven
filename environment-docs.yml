@@ -12,3 +12,4 @@ dependencies:
 - xskillscore
 - numpy
 - sphinx_rtd_theme
+- ravenpy>=0.7.5
