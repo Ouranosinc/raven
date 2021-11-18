@@ -38,7 +38,7 @@ class TestForecastEvaluationProcess:
         out = get_output(resp.xml)
         floodrisk, _ = urlretrieve(out["flood_risk"])
         ds = xr.open_dataset(floodrisk)
-        np.testing.assert_almost_equal(ds["fcst"], [1, 0, 0], 2)
+        np.testing.assert_almost_equal(ds["exceedance_probability"], [1, 0, 0], 2)
 
     def test_forecast_floodrisk_ensemble(self):
         client = client_for(
@@ -70,4 +70,4 @@ class TestForecastEvaluationProcess:
         out = get_output(resp.xml)
         floodrisk, _ = urlretrieve(out["flood_risk"])
         ds = xr.open_dataset(floodrisk)
-        np.testing.assert_almost_equal(ds["fcst"], [0.2, 0.2, 0.8], 2)
+        np.testing.assert_almost_equal(ds["exceedance_probability"], [0.2, 0.2, 0.8], 2)

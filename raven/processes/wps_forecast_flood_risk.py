@@ -99,7 +99,9 @@ class ForecastFloodRiskProcess(Process):
             )  # This is needed to return values instead of floats
 
         # Put in file
+        
         filename = tempfile.mkdtemp() + "/fcst_flood_risk.nc"
+        pct.name = 'exceedance_probability'
         pct.to_netcdf(filename)
 
         # Return the response.
