@@ -63,12 +63,14 @@ Environment Setup using System Libraries and Sources (Linux)
     This approach is not formally supported, but is presently working for the time being.
     It is up to the user to install the `raven` model and `ostrich` model optimization binaries.
     Those can be downloaded from source via the following links:
-        - RAVEN: http://raven.uwaterloo.ca/Downloads.html
-        - OSTRICH: https://github.com/usbr/ostrich/
+
+      - RAVEN: http://raven.uwaterloo.ca/Downloads.html
+      - OSTRICH: https://github.com/usbr/ostrich/
+
 
 .. note::
    While the following shows how to install `raven` for an Deb-based Linux, if the OS-equivalent dependencies
-   are available to Python, `raven` should be able to run on any modern operating system (macOS/Windows/*nix).
+   are available to Python, `raven` should be able to run on any modern operating system (macOS/Windows/\*nix).
 
 First we need to install several system libraries that RavenWPS and RavenPy depend upon and make a virtual environment:
 
@@ -126,7 +128,7 @@ You can then run the test suite by doing:
    (ravenwps-env) $ pytest
 
 Start Raven PyWPS service
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After successful installation you can start the service using the ``raven`` command-line.
 
@@ -157,7 +159,7 @@ Check the log files for errors:
    $ tail -f  pywps.log
 
 ... or do it the lazy way
-+++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can also use the ``Makefile`` to start and stop the service:
 
@@ -176,7 +178,7 @@ You can also use the ``Makefile`` to start and stop the service:
 
 You can also run Raven as a Docker container.
 
-.. warning::
+.. ::
 
   TODO: Describe Docker container support.
 
