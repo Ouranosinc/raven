@@ -101,8 +101,9 @@ class ForecastFloodRiskProcess(Process):
             )  # This is needed to return values instead of floats
 
         # Put in file
-        
+
         filename = tempfile.mkdtemp() + "/fcst_flood_risk.nc"
+
         out=pct.to_dataset(name="exceedance_probability")
         out.attrs['source']="PAVICS-Hydro flood risk forecasting tool, pavics.ouranos.ca"
         out.attrs['history']="File created on " + dt.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') + "UTC on the PAVICS-Hydro service available at pavics.ouranos.ca"
