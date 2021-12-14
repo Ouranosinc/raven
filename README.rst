@@ -1,5 +1,3 @@
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FOuranosinc%2Fraven.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FOuranosinc%2Fraven?ref=badge_shield)
-
 Raven : Hydrological modeling and analytics
 ===========================================
 
@@ -18,10 +16,14 @@ Raven : Hydrological modeling and analytics
 .. image:: https://badges.gitter.im/bird-house/birdhouse.svg
     :target: https://gitter.im/bird-house/birdhouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
     :alt: Join the chat at https://gitter.im/bird-house/birdhouse
+    
+.. image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2FOuranosinc%2Fraven.svg?type=shield
+    :target: https://app.fossa.com/projects/git%2Bgithub.com%2FOuranosinc%2Fraven?ref=badge_shield
+    :alt: FOSSA
 
 .. image:: https://zenodo.org/badge/135511617.svg
-   :target: https://zenodo.org/badge/latestdoi/135511617
-   :alt: DOI
+    :target: https://zenodo.org/badge/latestdoi/135511617
+    :alt: DOI
 
 Raven (the bird)
   *Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.*
@@ -72,6 +74,3 @@ This package was created with Cookiecutter_ and the `bird-house/cookiecutter-bir
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
 .. _`Developer Guide`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html
 .. _bumpversion: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
-
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FOuranosinc%2Fraven.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FOuranosinc%2Fraven?ref=badge_large)
