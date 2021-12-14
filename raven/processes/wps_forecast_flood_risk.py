@@ -1,6 +1,8 @@
 import tempfile
 
 import xarray as xr
+import datetime as dt
+
 from pywps import FORMATS, ComplexInput, ComplexOutput, Format, LiteralInput, Process
 
 
@@ -101,8 +103,11 @@ class ForecastFloodRiskProcess(Process):
         # Put in file
         
         filename = tempfile.mkdtemp() + "/fcst_flood_risk.nc"
-        pct.name = 'exceedance_probability'
-        pct.to_netcdf(filename)
+        out=pct.to_dataset(name="exceedance_probability")
+        out.attrs['source']="PAVICS-Hydro flood risk forecasting tool, pavics.ouranos.ca"
+        out.attrs['history']="File created on " + dt.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') + "UTC on the PAVICS-Hydro service available at pavics.ouranos.ca"
+        out.attrs['title']="Identification of ensemble members that exceed a certain flow threshold."
+        out.to_netcdf(filename)
 
         # Return the response.
         response.outputs["flood_risk"].file = str(filename)
