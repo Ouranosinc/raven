@@ -23,6 +23,7 @@ Getting started - Tutorial
    08_Making_and_using_hotstart_files
    09_Hydrological_impacts_of_climate_change
    11_Climatological_ESP_forecasting
+   12_Performing_hindcasting_experiments
 
 More complex workflows making use of the RavenWPS server on the PAVICS platform
 ===============================================================================
@@ -72,7 +73,6 @@ Advanced workflows
    :maxdepth: 1
 
    Subset_climate_data_over_watershed
-   sandbox/Bias_correcting_climate_data
    Full_process_example_1
 
 .. _OWSLib: https://geopython.github.io/OWSLib/
