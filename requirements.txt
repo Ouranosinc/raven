@@ -1,4 +1,4 @@
-ravenpy>=0.7.5
+ravenpy>=0.7.7
 six
 pywps==4.4.5
 owslib
@@ -9,7 +9,7 @@ psutil
 numpy
 scipy
 matplotlib
-xarray
+xarray>=0.18
 xclim>=0.28.1
 pandas
 requests
