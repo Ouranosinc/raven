@@ -13,8 +13,7 @@ dependencies:
 - nbval
 - nbconvert
 - birdy
-- sphinx>=1.7
-- bumpversion
+- sphinx >=1.7
 - bump2version
 - twine
 - cruft
