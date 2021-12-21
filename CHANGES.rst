@@ -1,10 +1,11 @@
 Changes
 =======
 
-
 0.14.3
 ------
-* Update to RavenPy 0.7.5
+* Update to RavenPy 0.7.7
+* Update required Python consistently to v3.7+
+* Set development status to Beta.
 
 0.14.2
 ------
