@@ -28,6 +28,7 @@ dependencies:
   - psutil
   - psycopg2
   - pymetalink
+  - pypandoc
   - pyproj
   - pysheds
   - rasterio
