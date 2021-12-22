@@ -30,7 +30,6 @@ rasterstats
 shapely
 # DOCS and other utilities
 unidecode
-pandoc
 ipyleaflet
 ipython # needed for the parsing of Jupyter Notebooks
 psycopg2 # to use postgres to log pywps requests like in Prod
