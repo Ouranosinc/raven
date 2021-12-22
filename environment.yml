@@ -1,48 +1,46 @@
 name: raven
 channels:
-- conda-forge
-- defaults
+  - conda-forge
+  - defaults
 dependencies:
-- raven-hydro ==3.0.4.322
-- ostrich ==21.03.16
-- python >=3.7
-- ravenpy >=0.7.7
-- pywps ==4.4.5
-- affine
-- cartopy
-- click
-- dask
-- fiona
-- geopandas
-- geojson
-- gdal >=3.0
-- ipyleaflet
-- jinja2
-- matplotlib
-- nbval
-- numpy
-- owslib
-- pandas
-- pandoc
-- poppler
-- psutil
-- psycopg2
-- pymetalink
-- pyproj
-- pysheds
-- rasterio
-- rasterstats
-- rioxarray
-- rtree
-- scipy
-- shapely
-- statsmodels
-- tbb
-- unidecode
-- xarray >=0.18
-- xclim >=0.28.1
-- xskillscore
-- pip
-- pip:
+  - raven-hydro ==3.0.4.322
+  - ostrich ==21.03.16
+  - python >=3.7
+  - ravenpy >=0.7.7
+  - pywps ==4.4.5
+  - affine
+  - cartopy
+  - click
+  - dask
+  - fiona
+  - geopandas
+  - geojson
+  - gdal >=3.0
+  - ipyleaflet
+  - jinja2
+  - matplotlib
+  - nbval
+  - numpy
+  - owslib
+  - pandas
+  - pandoc
+  - poppler
+  - psutil
+  - psycopg2
+  - pymetalink
+  - pyproj
+  - pysheds
+  - rasterio
+  - rasterstats
+  - rioxarray
+  - rtree
+  - scipy
+  - shapely
   - spotpy
+  - statsmodels
+  - tbb
+  - unidecode
   - urlpath
+  - xarray >=0.18
+  - xclim >=0.28.1
+  - xskillscore

@@ -1,16 +1,17 @@
 # conda env create -f environment-docs.yml
 name: raven-docs
 channels:
-- conda-forge
-- defaults
+  - conda-forge
+  - defaults
 dependencies:
-- python >=3.7
-- pywps ==4.4.5
-- sphinx ==3.5.4
-- nbsphinx
-- ipython
-- xskillscore
-- numpy
-- sphinx_rtd_theme
-- ravenpy >=0.7.7
-- pip
+  - ravenpy >=0.7.7
+  - python >=3.7
+  - pywps ==4.4.5
+  - sphinx ==3.5.4
+  - ipython
+  - nbsphinx
+  - numpy
+  - pip
+  - pypandoc
+  - sphinx_rtd_theme
+  - xskillscore
