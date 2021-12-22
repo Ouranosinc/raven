@@ -10,9 +10,6 @@ Installation
 Install from Conda-Forge (suggested)
 ------------------------------------
 
-.. warning::
-  The Raven-WPS conda package is not yet available on conda-forge. This documentation will be updated when it is.
-
 Create an Anaconda environment named `ravenwps-env`:
 
 .. code-block:: console
