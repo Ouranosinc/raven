@@ -13,3 +13,4 @@ dependencies:
 - numpy
 - sphinx_rtd_theme
 - ravenpy >=0.7.7
+- pip
