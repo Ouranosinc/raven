@@ -19,13 +19,18 @@ with open(os.path.join(here, "raven", "__version__.py"), "r") as f:
 
 # Special GDAL handling
 reqs = []
-try:
-    gdal_version = subprocess.run(
-        ["gdal-config", "--version"], capture_output=True
-    ).stdout.decode("utf-8")
-    reqs.append(f"gdal=={gdal_version}")
-except subprocess.CalledProcessError:
-    pass
+on_conda = os.getenv("CONDA_BUILD")
+if on_conda == "1":
+    reqs.append("gdal")
+else:
+    try:
+        gdal_version = subprocess.run(
+            ["gdal-config", "--version"], capture_output=True
+        ).stdout.decode("utf-8")
+        reqs.append(f"gdal=={gdal_version}")
+    except subprocess.CalledProcessError:
+        pass
+
 reqs.extend([line.strip() for line in open("requirements.txt")])
 
 dev_reqs = [line.strip() for line in open("requirements_dev.txt")]
@@ -67,7 +72,7 @@ setup(
     install_requires=reqs,
     extras_require={
         "dev": dev_reqs,  # pip install ".[dev]"
-        "docs": docs_reqs,
+        "docs": docs_reqs,  # pip install ".[docs]"
     },
     entry_points={
         "console_scripts": [
