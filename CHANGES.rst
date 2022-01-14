@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.15.1 (unreleased)
+-------------------
+* Modified handling for gdal to better support conda-build configuration.
+
 0.15.0
 ------
 * Update to RavenPy 0.7.7
