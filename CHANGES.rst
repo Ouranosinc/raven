@@ -1,9 +1,11 @@
 Changes
 =======
 
-0.15.1 (unreleased)
--------------------
+0.15.1
+------
 * Modified handling for gdal to better support conda-build configuration.
+* Update to RavenPy 0.7.8
+* Upgrade to PyWPS 4.5.1
 
 0.15.0
 ------
