@@ -22,6 +22,7 @@ Getting started - Tutorial
    07_Bias_correction_of_CMIP6_data
    08_Making_and_using_hotstart_files
    09_Hydrological_impacts_of_climate_change
+   10_Data_assimilation
    11_Climatological_ESP_forecasting
    12_Performing_hindcasting_experiments
 
