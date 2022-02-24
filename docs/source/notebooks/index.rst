@@ -13,14 +13,15 @@ Getting started - Tutorial
 .. toctree::
    :maxdepth: 1
 
-   01_Introduction_to_RavenPy
-   02_Emulating_hydrological_models
-   03_Extract_geographical_watershed_properties
-   04_Delineating_watersheds
-   05_Extracting_external_data
+   00_Introduction_to_JupyterLab
+   01_Getting_watershed_boundaries
+   02_Extract_geographical_watershed_properties
+   03_Extracting_forcing_data
+   04_Emulating_hydrological_models
+   05_Advanced_RavenPy_configuration
    06_Raven_calibration
-   07_Bias_correction_of_CMIP6_data
-   08_Making_and_using_hotstart_files
+   07_Making_and_using_hotstart_files
+   08_Getting_and_bias_correcting_CMIP6_data
    09_Hydrological_impacts_of_climate_change
    10_Data_assimilation
    11_Climatological_ESP_forecasting
