@@ -11,8 +11,8 @@ jobs:
     name: Code linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.7
       - name: Install pre-commit
@@ -24,19 +24,28 @@ jobs:
     name: Conda
     needs: black
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.8, 3.9 ]
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup conda
+      - uses: actions/checkout@v3
+      - name: Setup conda with Python ${{ matrix.python-version }}
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: conda-forge, defaults
+      - name: Install mamba
+        run: |
+            conda install -c conda-forge mamba
       - name: Conda version
         run: conda --version
       - name: Create raven-wps environment
-        run: conda env create -n raven-wps -f environment.yml
+        run: |
+          mamba env create -f environment.yml
       - name: Install and test raven-wps
         run: |
-          source activate raven-wps
+          source activate raven
           pip install -e ".[dev]"
           git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
           env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest tests
