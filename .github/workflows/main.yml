@@ -51,6 +51,7 @@ jobs:
           env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest tests
           
   finish:
+    name: Finish
     needs: [ conda ]
     runs-on: ubuntu-latest
     container: python:3-slim
