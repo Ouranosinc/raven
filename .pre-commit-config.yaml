@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.37.1
     hooks:
     -   id: pyupgrade
 -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -15,7 +15,7 @@ repos:
         exclude: .ipynb|.rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt
     -   id: check-yaml
     -   id: debug-statements
--   repo: https://github.com/ambv/black
+-   repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
     -   id: black
@@ -31,7 +31,7 @@ repos:
     hooks:
     -   id: flake8
         args: ['--config=setup.cfg']
--   repo: https://github.com/timothycrosley/isort
+-   repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
     -   id: isort
