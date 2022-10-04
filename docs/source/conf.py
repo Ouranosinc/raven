@@ -21,8 +21,7 @@
 import os
 import sys
 
-# Add raven to sys.path to avoid having to full
-# install raven for autodoc.
+# Add raven to sys.path to avoid having to full install raven for autodoc.
 # Full install of raven will burst memory limit on ReadTheDocs.
 sys.path.insert(0, os.path.abspath("../../"))
 
@@ -147,7 +146,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints", "paper"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"

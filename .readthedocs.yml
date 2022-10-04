@@ -10,7 +10,7 @@ sphinx:
   configuration: docs/source/conf.py
   # fail_on_warning might generate hard to fix error, in this case it can be
   # disabled but this also means those errors will fail silently, choose wisely.
-  fail_on_warning: false
+  fail_on_warning: true
 
 # Build documentation with MkDocs
 #mkdocs:
@@ -27,4 +27,6 @@ conda:
   environment: environment-docs.yml
 
 build:
-  image: stable
+  os: ubuntu-22.04
+  tools:
+    python: "mambaforge-4.10"
