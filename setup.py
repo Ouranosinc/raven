@@ -11,7 +11,7 @@ from setuptools import find_packages, setup
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, "README.rst")).read()
 CHANGES = open(os.path.join(here, "CHANGES.rst")).read()
-REQUIRES_PYTHON = ">=3.7.0"
+REQUIRES_PYTHON = ">=3.8.0"
 
 about = {}
 with open(os.path.join(here, "raven", "__version__.py"), "r") as f:
@@ -46,7 +46,6 @@ classifiers = [
     "Programming Language :: Python",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Topic :: Scientific/Engineering :: Atmospheric Science",
