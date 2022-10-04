@@ -22,3 +22,4 @@ black-nb
 nc-time-axis
 pre-commit
 pandoc
+ipywidgets

@@ -4,11 +4,12 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - ravenpy >=0.7.7
-  - python >=3.7
+  - python >=3.8
+  - ravenpy >=0.8.0
   - pywps ==4.5.1
   - sphinx
   - ipython
+  - ipywidgets
   - nbsphinx
   - numpy
   - pip
