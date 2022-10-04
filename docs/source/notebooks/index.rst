@@ -6,7 +6,6 @@ These notebooks demonstrate a few features of the PAVICS-Hydro service.
 
 If you're unfamiliar with notebooks, note that typing `TAB` after an object will display a drop-down menu of the object's attributes and methods, and that you need to either press the "run" button in the top of the JupyterLab window on the PAVICS server, or "hit `CTRL-Enter` to run a *cell*. You can also type `?` after a function or method to display the corresponding help message.
 
-
 Getting started - Tutorial
 ==========================
 
@@ -44,7 +43,6 @@ General modelling
    Perform_Regionalization
    Region_selection
 
-
 Forecasting
 -----------
 
@@ -56,7 +54,6 @@ Forecasting
    Hydrological_hindcasting
    Assess_probabilistic_flood_risk
    Comparing_hindcasts_and_ESP_forecasts
-
 
 Parallel simulations
 --------------------
