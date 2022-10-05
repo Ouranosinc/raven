@@ -93,6 +93,7 @@ class RavenProcess(Process):
                 else:
                     data = obj.data
 
+                # FIXME: Breaking changes in RavenPy occurred at https://github.com/CSHS-CWRA/RavenPy/commit/8e21efb8e2f0e16a3e1a5fedeec098a4fc3c5d98
                 if name in Raven._parallel_parameters:
                     kwds[name].append(data)
                 else:
@@ -139,7 +140,7 @@ class RavenProcess(Process):
         except Exception as exc:
             LOGGER.exception(exc)
             err_msg = traceback.format_exc()
-            # By default the error message is limited to 300 chars and strips
+            # By default, the error message is limited to 300 chars and strips
             # many special characters
             raise ProcessError(
                 err_msg, max_length=len(err_msg), allowed_chars=string.printable
