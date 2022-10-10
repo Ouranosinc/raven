@@ -45,7 +45,7 @@ class ObjectiveFunctionProcess(Process):
             ),
         ]
 
-        super(ObjectiveFunctionProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="objective-function",
             title="Objective-function process based on SpotPy and its 17 objective functions.",

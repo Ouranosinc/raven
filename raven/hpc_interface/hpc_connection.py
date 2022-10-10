@@ -24,7 +24,7 @@ def rand_fname(length=8):
     return fname
 
 
-class HPCConnection(object):
+class HPCConnection:
     def __init__(self, external_init_dict=None):
 
         self.logger = logging.getLogger(constants.logging_name)
@@ -280,7 +280,7 @@ class HPCConnection(object):
         shub_hostname,
     ):
 
-        template_file = open(os.path.join(self.template_path, batch_tmplt_fname), "r")
+        template_file = open(os.path.join(self.template_path, batch_tmplt_fname))
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
         tmplt = tmplt.replace("ACCOUNT", constants.cc_account_info)

@@ -38,7 +38,7 @@ class ZonalStatisticsProcess(Process):
             wio.statistics,
         ]
 
-        super(ZonalStatisticsProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="zonal-stats",
             title="Raster Zonal Statistics",

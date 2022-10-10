@@ -44,7 +44,7 @@ class GraphIndicatorAnalysis(Process):
             ),
         ]
 
-        super(GraphIndicatorAnalysis, self).__init__(
+        super().__init__(
             self._handler,
             identifier="ts_stats_graph",
             title="",
