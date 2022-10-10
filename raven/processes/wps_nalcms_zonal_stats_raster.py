@@ -48,7 +48,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             ),
         ]
 
-        super(NALCMSZonalStatisticsRasterProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="nalcms-zonal-stats-raster",
             title="NALCMS Land Use Zonal Statistics with raster output",

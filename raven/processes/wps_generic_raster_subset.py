@@ -35,7 +35,7 @@ class RasterSubsetProcess(Process):
             ),
         ]
 
-        super(RasterSubsetProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="raster-subset",
             title="Raster Subset",

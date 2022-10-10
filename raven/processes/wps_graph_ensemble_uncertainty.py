@@ -34,7 +34,7 @@ class GraphEnsUncertaintyProcess(Process):
             ),
         ]
 
-        super(GraphEnsUncertaintyProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="graph_ensemble_uncertainty",
             title="",
