@@ -3,7 +3,6 @@ import logging
 import string
 import traceback
 from collections import defaultdict
-from dataclasses import astuple
 from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
@@ -73,7 +72,21 @@ class RavenProcess(Process):
     def options(self, request):
         """Parse model options."""
         # Input specs dictionary. Could be all given in the same dict or a list of dicts.
+
+        parallel_fields = [
+            "params",
+            "hru_state",
+            "basin_state",
+            "nc_index",
+            "area",
+            "elevation",
+            "latitude",
+            "longitude",
+            "region_id",
+        ]
+
         kwds = defaultdict(list)
+        parallel_params = defaultdict(list)
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
 
@@ -85,7 +98,7 @@ class RavenProcess(Process):
         for name, objs in request.inputs.items():
             for obj in objs:
 
-                # Namedtuples
+                # Named tuples
                 if name in self.tuple_inputs:
                     data = self.parse_tuple(obj)
 
@@ -94,23 +107,29 @@ class RavenProcess(Process):
                     data = obj.data
 
                 # FIXME: Breaking changes in RavenPy occurred at https://github.com/CSHS-CWRA/RavenPy/commit/8e21efb8e2f0e16a3e1a5fedeec098a4fc3c5d98
-                if name in Raven._parallel_parameters:
-                    kwds[name].append(data)
+                if name in parallel_fields:
+                    parallel_params[name].append(data)
+                    print(f"{name}.append({data})")
+                elif hasattr(data, "Params"):
+                    for param in data.Params:
+                        kwds[param] = data.Params[param]
+                        print(f"{param} = {data.Params[param]}")
                 else:
                     kwds[name] = data
+                    print(name)
 
-        return kwds
+        return kwds, parallel_params
 
     def parse_tuple(self, obj):
         csv = obj.data.replace("(", "").replace(")", "")
         arr = map(float, csv.split(","))
         return self.tuple_inputs[obj.identifier](*arr)
 
-    def run(self, model, ts, kwds):
+    def run(self, model, ts, parallel, kwds):
         """Run the model.
 
         If keywords contain `rvc`, initialize the model using the initial condition file."""
-        model(ts=ts, **kwds)
+        model(ts=ts, parallel=parallel, **kwds)
 
     def _handler(self, request, response):
         response.update_status(f"PyWPS process {self.identifier} started.", 0)
@@ -132,11 +151,13 @@ class RavenProcess(Process):
         ts = self.meteo(request)
 
         # Model options
-        kwds = self.options(request)
+        kwds, parallel = self.options(request)
+        print(kwds)
+        print(parallel)
 
         # Launch model with input files
         try:
-            self.run(model, ts, kwds)
+            self.run(model, ts, parallel=parallel, kwds=kwds)
         except Exception as exc:
             LOGGER.exception(exc)
             err_msg = traceback.format_exc()
