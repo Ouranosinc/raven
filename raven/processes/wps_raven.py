@@ -86,7 +86,7 @@ class RavenProcess(Process):
         ]
 
         kwds = defaultdict(list)
-        parallel_params = defaultdict(list)
+        kwds["parallel"] = defaultdict(list)
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
 
@@ -106,30 +106,23 @@ class RavenProcess(Process):
                 else:
                     data = obj.data
 
-                # FIXME: Breaking changes in RavenPy occurred at https://github.com/CSHS-CWRA/RavenPy/commit/8e21efb8e2f0e16a3e1a5fedeec098a4fc3c5d98
-                if name in parallel_fields:
-                    parallel_params[name].append(data)
-                    print(f"{name}.append({data})")
-                elif hasattr(data, "Params"):
-                    for param in data.Params:
-                        kwds[param] = data.Params[param]
-                        print(f"{param} = {data.Params[param]}")
+                if name in parallel_fields and len(objs) > 1:
+                    kwds["parallel"][name].append(data)
                 else:
                     kwds[name] = data
-                    print(name)
 
-        return kwds, parallel_params
+        return kwds
 
     def parse_tuple(self, obj):
         csv = obj.data.replace("(", "").replace(")", "")
         arr = map(float, csv.split(","))
         return self.tuple_inputs[obj.identifier](*arr)
 
-    def run(self, model, ts, parallel, kwds):
+    def run(self, model, ts, kwds):
         """Run the model.
 
         If keywords contain `rvc`, initialize the model using the initial condition file."""
-        model(ts=ts, parallel=parallel, **kwds)
+        model(ts=ts, **kwds)
 
     def _handler(self, request, response):
         response.update_status(f"PyWPS process {self.identifier} started.", 0)
@@ -151,13 +144,11 @@ class RavenProcess(Process):
         ts = self.meteo(request)
 
         # Model options
-        kwds, parallel = self.options(request)
-        print(kwds)
-        print(parallel)
+        kwds = self.options(request)
 
         # Launch model with input files
         try:
-            self.run(model, ts, parallel=parallel, kwds=kwds)
+            self.run(model, ts, kwds=kwds)
         except Exception as exc:
             LOGGER.exception(exc)
             err_msg = traceback.format_exc()
