@@ -5,28 +5,26 @@
 # Required
 version: 2
 
-# Build documentation in the docs/ directory with Sphinx
+# Build documentation in the docs/source/ directory with Sphinx
 sphinx:
   configuration: docs/source/conf.py
   # fail_on_warning might generate hard to fix error, in this case it can be
   # disabled but this also means those errors will fail silently, choose wisely.
   fail_on_warning: true
 
-# Build documentation with MkDocs
-#mkdocs:
-#  configuration: mkdocs.yml
-
-# Optionally build your docs in additional formats such as PDF and ePub
-formats: all
-
-# Optionally set the version of Python and requirements required to build your docs
-#python:
-#  version: 3.6
-
-conda:
-  environment: environment-docs.yml
-
 build:
   os: ubuntu-22.04
   tools:
     python: "mambaforge-4.10"
+
+formats: all
+
+conda:
+  environment: environment-docs.yml
+
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs

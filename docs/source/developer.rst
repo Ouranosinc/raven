@@ -12,12 +12,22 @@ Here is an example of how the GR4J emulator would be called using input test dat
 
 .. code-block:: python
 
-   from raven.models import GR4JCemaneige
-   from tests.common import TESTDATA
+    from raven.models import GR4JCemaneige
+    from tests.common import TESTDATA
 
-   ts = TESTDATA['raven-gr4j-cemaneige-nc-ts']
-   gr4j = GR4JCemaneige(workdir='/tmp/test')
-   params = gr4j.RVP.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
-   gr4j([ts,],  rvp={'params':params}, rvi={'start_date':dt.datetime(2000, 1, 1), 'end_date':dt.datetime(2002, 1, 1)}, rvh={'area':4100})
-   gr4j.diagnostics['DIAG_RMSE']
+    ts = TESTDATA["raven-gr4j-cemaneige-nc-ts"]
+    gr4j = GR4JCemaneige(workdir="/tmp/test")
+    params = gr4j.RVP.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
+    gr4j(
+        [ts],
+        rvp={"params": params},
+        rvi={
+            "start_date": dt.datetime(2000, 1, 1),
+            "end_date": dt.datetime(2002, 1, 1),
+        },
+        rvh={"area": 4100},
+    )
+    gr4j.diagnostics["DIAG_RMSE"]
+
+.. code-block:: console
    >>> 39.701

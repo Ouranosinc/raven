@@ -48,15 +48,13 @@ class RavenHPCProcess:
         :param est_duration: estimated job duration, in format hh:mm:ss
         """
         self.logger.debug(
-            "Submitting a job (dataset {}, duration {}".format(dataset, est_duration)
+            f"Submitting a job (dataset {dataset}, duration {est_duration}"
         )
         self.logger.debug("Copy data to hpc")
         self.live_job_id = 0
         try:
             self.hpc_connection.copy_data_to_remote(dataset)
-            self.logger.debug(
-                "Copy batch script (exec {} selected)".format(self.process_name)
-            )
+            self.logger.debug(f"Copy batch script (exec {self.process_name} selected)")
             remote_abs_script_fname = self.hpc_connection.copy_batchscript(
                 self.process_name,
                 est_duration,
@@ -74,13 +72,13 @@ class RavenHPCProcess:
                 self.hpc_connection.create_remote_subdir("model/output")
             self.logger.debug("Submit the job")
             jobid = self.hpc_connection.submit_job(remote_abs_script_fname)
-            self.logger.debug("Job id = {}".format(jobid))
+            self.logger.debug(f"Job id = {jobid}")
             self.live_job_id = jobid
 
         except Exception as e:
             if re.search("tar", repr(e)) is not None:
                 raise Exception("Unable to submit job: bad input folder?")
-            raise Exception("Unable to submit job: {}".format(e))
+            raise Exception(f"Unable to submit job: {e}")
 
         self.last_progress = 0
 

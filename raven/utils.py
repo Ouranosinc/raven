@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import shutil
 from pathlib import Path
@@ -65,28 +66,28 @@ EARTH_ENV_DEM = "public:EarthEnv_DEM90_NorthAmerica"
 
 
 def gather_dem_tile(
-    vector_file: Union[str, Path],
-    work_dir: Union[str, Path],
+    vector_file: Union[str, os.PathLike],
+    work_dir: Union[str, os.PathLike],
     geographic: bool = True,
     raster: str = EARTH_ENV_DEM,
 ) -> Path:
-    """Return a raster coverage for
+    """Return a raster coverage for a given vector geometry.
 
     Parameters
     ----------
-    vector_file:
-      Shape whose bounds will be used to collect a raster coverage.
-    work_dir:
-      Folder where the file will be written.
-    geographic: bool
-      Use geographic units (degree-decimal) or projected units (metres/feet).
-    raster: str
-      Layer name on GeoServer.
+    vector_file : str or os.PathLike
+        Shape whose bounds will be used to collect a raster coverage.
+    work_dir : str or os.PathLike
+        Folder where the file will be written.
+    geographic : bool
+        Use geographic units (degree-decimal) or projected units (metres/feet).
+    raster : str
+        Layer name on GeoServer.
 
     Returns
     -------
     Path
-      Path to raster file.
+        Path to raster file.
     """
     bbox = get_bbox(vector_file)
     raster_layer = raster
@@ -104,12 +105,12 @@ def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:
 
     Parameters
     ----------
-    lonlat : Union[str, Tuple[str, str]]
+    lonlat : str or Tuple[str, str]
       A tuple or a str of lon and lat coordinates.
 
     Returns
     -------
-    Tuple[float, float]
+    (float, float)
     """
     try:
         if isinstance(lonlat, str):
@@ -120,7 +121,7 @@ def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:
             raise ValueError
         return lon, lat
     except Exception as e:
-        msg = "Failed to parse longitude, latitude coordinates {}".format(lonlat)
+        msg = f"Failed to parse longitude, latitude coordinates {lonlat}"
         raise Exception(msg) from e
 
 
@@ -152,7 +153,7 @@ def zonalstats_raster_file(
 
     Returns
     -------
-    Union[str, List[Path]]
+    str or List[Path]
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
