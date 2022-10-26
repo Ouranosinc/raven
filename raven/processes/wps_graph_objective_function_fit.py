@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
 Created on Wed Jun 12 13:23:00 2019
 
@@ -41,7 +40,7 @@ class GraphObjectiveFunctionFitProcess(Process):
             ),
         ]
 
-        super(GraphObjectiveFunctionFitProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="graph_objective_function_fit",
             title="",

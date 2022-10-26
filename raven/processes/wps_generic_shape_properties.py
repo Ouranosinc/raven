@@ -53,7 +53,7 @@ class ShapePropertiesProcess(Process):
             ),
         ]
 
-        super(ShapePropertiesProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="shape-properties",
             title="Shape Properties",

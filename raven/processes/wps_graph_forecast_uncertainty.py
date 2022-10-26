@@ -52,7 +52,7 @@ class GraphFcstUncertaintyProcess(Process):
             ),
         ]
 
-        super(GraphFcstUncertaintyProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="graph_forecast_uncertainty",
             title="",

@@ -7,7 +7,7 @@ import hpc_connection
 from pssh.exceptions import SessionError
 
 
-class RavenHPCProcess(object):
+class RavenHPCProcess:
     def __init__(self, process_name, connection_cfg_dict=None):
         """
         :param process_name: 'raven' or 'ostrich'
