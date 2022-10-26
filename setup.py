@@ -27,7 +27,7 @@ else:
             ["gdal-config", "--version"], capture_output=True
         ).stdout.decode("utf-8")
         reqs.append(f"gdal=={gdal_version}")
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
 reqs.extend([line.strip() for line in open("requirements.txt")])

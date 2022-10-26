@@ -9,12 +9,16 @@ on:
 jobs:
   black:
     name: Code linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+            access_token: ${{ github.token }}
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: "3.8"
       - name: Install pre-commit
         run: pip install pre-commit
       - name: Run linting suite
@@ -23,37 +27,38 @@ jobs:
   conda:
     name: Conda
     needs: black
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: [ 3.8, 3.9 ]
+        python-version: [ "3.8", "3.9", "3.10" ]
     steps:
       - uses: actions/checkout@v3
-      - name: Setup conda with Python ${{ matrix.python-version }}
-        uses: s-weigand/setup-conda@v1
+      - name: Setup miniconda with mamba
+        uses: conda-incubator/setup-miniconda@v2.1.1
         with:
-          update-conda: true
           python-version: ${{ matrix.python-version }}
-          conda-channels: conda-forge, defaults
-      - name: Install mamba
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: true
+          activate-environment: raven
+          environment-file: environment.yml
+      - name: Conda and mamba versions
         run: |
-            conda install -c conda-forge mamba
-      - name: Conda version
-        run: conda --version
-      - name: Create raven-wps environment
+            mamba --version
+      - name: Install and test RavenWPS
+        shell: bash -l {0}
         run: |
-          mamba env create -f environment.yml
-      - name: Install and test raven-wps
-        run: |
-          source activate raven
           pip install -e ".[dev]"
           git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
-          env RAVENPY_TESTDATA_PATH=$GITHUB_WORKSPACE/raven-testdata pytest tests
+          pytest tests
+        env:
+          RAVENPY_TESTDATA_PATH: ${{ github.workspace }}/raven-testdata
 
   finish:
     name: Finish
-    needs: [ conda ]
-    runs-on: ubuntu-latest
+    needs:
+      - conda
+    runs-on: ubuntu-22.04
     container: python:3-slim
     steps:
       - name: Finished
