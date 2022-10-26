@@ -3,12 +3,14 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python >=3.8
   - birdy
   - black
   - bump2version
   - cruft
   - flake8
   - ipython
+  - ipywidgets
   - nbconvert
   - nbsphinx
   - nbval
@@ -18,7 +20,6 @@ dependencies:
   - pytest-dependency
   - pytest-flake8
   - pytest-notebook
-  - python >=3.7
   - sphinx >=1.7
   - sphinx-autoapi
   - twine
