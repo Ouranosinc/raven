@@ -1,7 +1,14 @@
 include Makefile
 include *.txt
 include *.rst
+include *.json
+include *.yaml
+include *.yml
+
 recursive-include raven *
 recursive-include tests *
+
 global-exclude __pycache__
 global-exclude *.py[co]
+global-exclude docs
+global-exclude etc
