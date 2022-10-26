@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -54,21 +55,22 @@ def synthetic_gr4j_inputs(path):
     evap.to_netcdf(Path(path).joinpath("evap.nc"))
 
 
-def make_bnds(params, delta):
+def make_bnds(
+    params: Sequence[Any], delta: float
+) -> Tuple[Tuple[np.ndarray], Tuple[np.ndarray]]:
     """Return low and high parameter bounds by subtracting and adding delta*params to params.
 
     Parameters
     ----------
-    params : sequence
+    params : Sequence[Any]
         Parameters.
     delta : float
         Relative delta to subtract and add to parameters. Values must be between [0, 1].
 
     Returns
     -------
-    (tuple, tuple)
+    Tuple[Tuple[np.ndarray], Tuple[np.ndarray]]
         Low and high bounds for parameters.
-
     """
     arr = np.asarray(params)
     d = np.abs(arr * delta)
