@@ -6,9 +6,10 @@ Getting started
 
 .. code-block:: python
 
-  from birdy import WPSClient
-  url = "https://pavics.ouranos.ca/twitcher/ows/proxy/raven"
-  wps = WPSClient(url)
+    from birdy import WPSClient
+
+    url = "https://pavics.ouranos.ca/twitcher/ows/proxy/raven"
+    wps = WPSClient(url)
 
 The :class:`wps` object behaves as a module, holding functions that, instead of being executed on your machine, call a remote process on the server. See the notebook tutorials for examples.
 

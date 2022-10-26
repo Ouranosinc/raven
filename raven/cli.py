@@ -35,7 +35,7 @@ def get_host():
     url = configuration.get_config_value("server", "url")
     url = url or "http://localhost:9099/wps"
 
-    click.echo("starting WPS service on {}".format(url))
+    click.echo(f"starting WPS service on {url}")
 
     parsed_url = urlparse(url)
     if ":" in parsed_url.netloc:
@@ -57,7 +57,7 @@ def run_process_action(action=None):
             p = psutil.Process(pid)
             if action == "stop":
                 p.terminate()
-                msg = "pid={}, status=terminated".format(p.pid)
+                msg = f"pid={p.pid}, status=terminated"
             else:
                 from psutil import _pprint_secs
 
@@ -190,7 +190,7 @@ def start(
     This service is by default available at http://localhost:9099/wps
     """
     if os.path.exists(PID_FILE):
-        click.echo('PID file exists: "{}". Service still running?'.format(PID_FILE))
+        click.echo(f'PID file exists: "{PID_FILE}". Service still running?')
         os._exit(0)
     cfgfiles = []
     cfgfiles.append(
@@ -218,9 +218,9 @@ def start(
         try:
             pid = os.fork()
             if pid:
-                click.echo("forked process id: {}".format(pid))
+                click.echo(f"forked process id: {pid}")
                 with open(PID_FILE, "w") as fp:
-                    fp.write("{}".format(pid))
+                    fp.write(f"{pid}")
         except OSError as e:
             raise Exception("%s [%d]" % (e.strerror, e.errno))
 

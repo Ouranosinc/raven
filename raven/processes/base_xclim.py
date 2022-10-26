@@ -124,7 +124,7 @@ class _XclimIndicatorProcess(Process):
                 inputs.extend(make_indexer())
             else:
                 # raise NotImplementedError(name)
-                LOGGER.warning("not implemented: {}".format(name))
+                LOGGER.warning(f"not implemented: {name}")
 
         return inputs
 
@@ -137,10 +137,10 @@ class _XclimIndicatorProcess(Process):
                 ds = xr.open_dataset(url)
                 chunks = chunk_dataset(ds, max_size=1000000)
                 ds = ds.chunk(chunks)
-                self.write_log("Opened dataset as an OPeNDAP url: {}".format(url))
+                self.write_log(f"Opened dataset as an OPeNDAP url: {url}")
                 return ds
 
-        self.write_log("Downloading dataset for url: {}".format(url))
+        self.write_log(f"Downloading dataset for url: {url}")
 
         # accessing the file property loads the data in the data property
         # and writes it to disk
@@ -196,7 +196,7 @@ class _XclimIndicatorProcess(Process):
         self.write_log("Running computation")
         LOGGER.debug(kwds)
         out = self.xci(**kwds)
-        out_fn = os.path.join(self.workdir, "out_{}.nc".format(self.identifier))
+        out_fn = os.path.join(self.workdir, f"out_{self.identifier}.nc")
 
         self.write_log("Writing the output netcdf")
         out.to_netcdf(out_fn)

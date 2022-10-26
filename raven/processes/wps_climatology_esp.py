@@ -77,7 +77,7 @@ class ClimatologyEspProcess(RavenProcess):
         return self.tuple_inputs[model_name.lower()](*arr)
 
     def _handler(self, request, response):
-        response.update_status("PyWPS process {} started.".format(self.identifier), 0)
+        response.update_status(f"PyWPS process {self.identifier} started.", 0)
         kwds = {}
 
         # Extract params to skip default processing in `self.options`
