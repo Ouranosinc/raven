@@ -57,7 +57,7 @@ class TerrainAnalysisProcess(Process):
             ),
         ]
 
-        super(TerrainAnalysisProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="terrain-analysis",
             title="Terrain Analysis",

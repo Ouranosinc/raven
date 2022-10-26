@@ -52,7 +52,7 @@ def run_process_action(action=None):
     and return a status message."""
     action = action or "status"
     try:
-        with open(PID_FILE, "r") as fp:
+        with open(PID_FILE) as fp:
             pid = int(fp.read())
             p = psutil.Process(pid)
             if action == "stop":
@@ -66,7 +66,7 @@ def run_process_action(action=None):
                 )
         if action == "stop":
             os.remove(PID_FILE)
-    except IOError:
+    except OSError:
         msg = 'No PID file found. Service not running? Try "netstat -nlp | grep :5000".'
     except psutil.NoSuchProcess as e:
         msg = e.msg

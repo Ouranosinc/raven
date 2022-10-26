@@ -64,7 +64,7 @@ class _XclimIndicatorProcess(Process):
         ]
 
         identifier = attrs["identifier"]
-        super(_XclimIndicatorProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier=identifier,
             version="0.1",

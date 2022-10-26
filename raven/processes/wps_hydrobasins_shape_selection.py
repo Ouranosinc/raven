@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import logging
 
@@ -62,7 +61,7 @@ class HydroBasinsSelectionProcess(Process):
             ),
         ]
 
-        super(HydroBasinsSelectionProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="hydrobasins-select",
             title="Select a HydroBASINS watershed geometry",

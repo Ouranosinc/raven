@@ -88,7 +88,7 @@ class HindcastEvaluationProcess(Process):
             ),
         ]
 
-        super(HindcastEvaluationProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="hindcast-evaluation",
             title="Hindcast evaluation based on the XSkillScore package for deterministic and ensemble hindcasts.",

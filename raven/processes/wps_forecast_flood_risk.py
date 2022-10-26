@@ -45,7 +45,7 @@ class ForecastFloodRiskProcess(Process):
             )
         ]
 
-        super(ForecastFloodRiskProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="forecast-floodrisk",
             title="Calculate flood risk from a forecast and flood level threshold",
