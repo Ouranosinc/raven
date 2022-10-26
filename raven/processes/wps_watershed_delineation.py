@@ -98,7 +98,7 @@ class WatershedDelineation(Process):
             ),
         ]
 
-        super(WatershedDelineation, self).__init__(
+        super().__init__(
             self._pysheds_handler,
             identifier="watershed_delineation",
             title="Watershed delineation algorithm",

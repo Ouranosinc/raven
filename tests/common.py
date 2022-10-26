@@ -21,7 +21,7 @@ class WpsTestClient(WpsClient):
         query = "?"
         for key, value in kwargs.items():
             query += "{}={}&".format(key, value)
-        return super(WpsTestClient, self).get(query)
+        return super().get(query)
 
 
 def count_pixels(stats, numeric_categories=False):
