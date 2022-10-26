@@ -21,9 +21,7 @@ Here is an example of how the GR4J emulator would be called using input test dat
         gr4j = GR4JCemaneige(workdir="/tmp/test")
         params = gr4j.RVP.params(0.529, -3.396, 407.29, 1.072, 16.9, 0.947)
         gr4j(
-            [
-                ts
-            ],
+            [ts],
             rvp={"params": params},
             rvi={
                 "start_date": dt.datetime(2000, 1, 1),
