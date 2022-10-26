@@ -39,7 +39,7 @@ class RavenProcess(Process):
 
     def __init__(self):
 
-        super(RavenProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier=self.identifier,
             title=self.title,

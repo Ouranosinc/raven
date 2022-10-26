@@ -47,7 +47,7 @@ class ClimpredHindcastVerificationProcess(Process):
             )
         ]
 
-        super(ClimpredHindcastVerificationProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="climpred_hindcast_verification",
             title="",

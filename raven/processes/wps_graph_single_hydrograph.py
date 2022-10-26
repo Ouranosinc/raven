@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Mar 26 14:31:29 2019
 
@@ -52,7 +51,7 @@ class GraphSingleHydrographProcess(Process):
             ),
         ]
 
-        super(GraphSingleHydrographProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="graph_single_hydrograph",
             title="",

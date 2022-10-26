@@ -35,7 +35,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
         outputs = [wio.features, wio.statistics]
 
-        super(NALCMSZonalStatisticsProcess, self).__init__(
+        super().__init__(
             self._handler,
             identifier="nalcms-zonal-stats",
             title="NALCMS Land Use Zonal Statistics",
