@@ -51,11 +51,6 @@ repos:
     hooks:
     -   id: pydocstyle
         args: [ '--convention=numpy', '--match="(?!test_).*\.py"' ]
--   repo: https://github.com/Carreau/velin
-    rev: 0.0.12
-    hooks:
-      - id: velin
-        additional_dependencies: [ 'black==22.10.0' ]
 -   repo: https://github.com/keewis/blackdoc
     rev: v0.3.7
     hooks:
