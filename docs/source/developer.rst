@@ -30,4 +30,5 @@ Here is an example of how the GR4J emulator would be called using input test dat
     gr4j.diagnostics["DIAG_RMSE"]
 
 .. code-block:: console
+
    >>> 39.701
