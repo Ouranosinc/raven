@@ -28,7 +28,7 @@ repos:
     -   id: flake8
         args: [ '--config=setup.cfg' ]
 -   repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 22.10.0
     hooks:
     -   id: black
         args: [ '--target-version=py38' ]
@@ -65,6 +65,11 @@ repos:
     rev: "0.48"
     hooks:
       - id: check-manifest
+-   repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.18.4
+    hooks:
+      - id: check-github-workflows
+      - id: check-readthedocs
 -   repo: meta
     hooks:
     -   id: check-hooks-apply
