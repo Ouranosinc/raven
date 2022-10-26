@@ -39,6 +39,7 @@ docs_reqs = ["sphinx>=1.7", "sphinx-autoapi", "nbsphinx", "sphinx_rtd_theme"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: POSIX",
@@ -49,6 +50,8 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Hydrology",
     "License :: OSI Approved :: MIT License",
 ]
 
