@@ -1,4 +1,4 @@
-ravenpy>=0.7.8
+ravenpy>=0.8.1
 six
 pywps==4.5.1
 owslib
@@ -27,6 +27,7 @@ geopandas
 pyproj
 rasterio
 rasterstats
+rioxarray
 shapely
 # DOCS and other utilities
 unidecode
