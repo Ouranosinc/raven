@@ -19,6 +19,7 @@
 #
 import os
 import sys
+from datetime import date
 
 # Add raven to sys.path to avoid having to full install raven for autodoc.
 # Full install of raven will burst memory limit on ReadTheDocs.
@@ -123,7 +124,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Raven"
-copyright = "2018-2020, David Huard"
+copyright = f"2018-{date.today().year}, David Huard"
 author = "David Huard"
 
 # The version info for the project you're documenting, acts as replacement
