@@ -66,7 +66,7 @@ class RealtimeForecastProcess(RavenProcess):
         Returns
         -------
         list
-          List of input file paths.
+            List of input file paths.
         """
         # Region shapefile from request
         vector_file = self.region(request)

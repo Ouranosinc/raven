@@ -47,7 +47,7 @@ Create Conda environment named `raven`:
 
 The environment can then be activated with:
 
-.. code-block::
+.. code-block:: console
 
    $ source activate ravenwps-env
 

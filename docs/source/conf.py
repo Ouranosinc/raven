@@ -19,9 +19,9 @@
 #
 import os
 import sys
+from datetime import date
 
-# Add raven to sys.path to avoid having to full
-# install raven for autodoc.
+# Add raven to sys.path to avoid having to full install raven for autodoc.
 # Full install of raven will burst memory limit on ReadTheDocs.
 sys.path.insert(0, os.path.abspath("../../"))
 
@@ -124,7 +124,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Raven"
-copyright = "2018-2020, David Huard"
+copyright = f"2018-{date.today().year}, David Huard"
 author = "David Huard"
 
 # The version info for the project you're documenting, acts as replacement
@@ -141,12 +141,18 @@ release = "0.15.1"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "**.ipynb_checkpoints",
+    "notebooks/paper/*.ipynb",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
