@@ -1,53 +1,80 @@
 Changes
 =======
 
-0.15.1
-------
-* Modified handling for gdal to better support conda-build configuration.
+0.16.0 (2022-10-27)
+-------------------
+
+Major Changes
+^^^^^^^^^^^^^
+* Added data assimilation workbook (#421)
+* Overhaul of all existing notebooks within documentation (#424)
+* Added notebooks for case-study paper (#435)
+* Update to RavenPy 0.8.1 (#439)
+* Dropped support for Python3.7 (#439)
+
+Internal Changes
+^^^^^^^^^^^^^^^^
+* Added pre-commit.ci to workflows and updated black formatting (#428 and #429)
+* Adjust documentation to remove sphinx-autoapi artefact files and set ReadTheDocs to fail_on_warning (#439)
+* Set pre-commit to run new correction and verification hooks (#439):
+    - pyupgrade: Ensure that coding style uses Python3.8+ conventions
+    - pygrep: Checks for bare `noqa` comments and malformed code blocks in documentation
+    - nbqa: Black, Isort, PyUpgrade now runs over notebooks
+    - check-manifest: Ensure relevant modules and data are explicitly installed
+    - black + blackdoc + yamllint: Clean up code, code examples within documentation and reformat yaml files for readability
+    - check-jsonschema: Verify that GitHub and ReadTheDocs workflows are valid
+
+0.15.1 (2022-01-14)
+-------------------
+
+* Modified handling for GDAL to better support conda-build configuration
 * Update to RavenPy 0.7.8
 * Upgrade to PyWPS 4.5.1
 
-0.15.0
-------
+0.15.0 (2021-12-22)
+-------------------
+
 * Update to RavenPy 0.7.7
 * Update required Python consistently to v3.7+
 * Set development status to Beta.
 * Replace pip-installed packages with conda-forge equivalents.
 
-0.14.2
-------
+0.14.2 (2021-09-03)
+-------------------
+
 * Update to RavenPy 0.7.4 (pin climpred below version 2.1.6)
 * Fixed a process-breaking bug in `wps_hydrobasins_shape_selection`
 
-0.14.1
-------
+0.14.1 (2021-08-31)
+-------------------
+
 * Update to RavenPy 0.7.3 (pin xclim version 0.28.1)
 
-0.14
-----
+0.14.0 (2021-08-30)
+-------------------
 
 * Update to RavenPy 0.7.2
 * Use new OWSlib WFS topological filters
 * More informative install documentation
 * Upgrade to PyWPS 4.4.5
 
-0.13
-----
+0.13.0 (2021-05-14)
+-------------------
 
 * Update RavenPy to 0.5.1
 * Remove the ``name`` (watershed name) from the WPS interface for Raven processes
 * Add ``random_numbers`` WPS param to pass optional ``OstRandomNumbers.txt`` file to Ostrich processes
 * Add error handlers for regionalisation and climatology processes
 
-0.12.1
-------
+0.12.1 (2021-04-16)
+-------------------
 
 * Fix bug where the name of configuration files was used, while the client transmission of data does not carry the file name.
 * Update notebooks
 * Move draft notebooks to sandbox
 
-0.12.0
-------
+0.12.0 (2021-02-01)
+-------------------
 
 * Update RavenPy to 0.4.2
 * Migrate utilities to RavenPy
@@ -64,8 +91,8 @@ Changes
 * Improve error reporting by including stack trace in error messages.
 
 
-0.11.x
-------
+0.11.x (2021-02-01)
+-------------------
 
 * Add processes to run hydrological simulations on ECCC GEPS forecasts/hindcasts
 * Add process to create forecast graphic
