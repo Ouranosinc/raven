@@ -73,7 +73,7 @@ Internal Changes
 * Update notebooks
 * Move draft notebooks to sandbox
 
-0.12.0 (2021-02-01)
+0.12.0 (2021-04-14)
 -------------------
 
 * Update RavenPy to 0.4.2
