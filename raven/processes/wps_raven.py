@@ -3,7 +3,6 @@ import logging
 import string
 import traceback
 from collections import defaultdict
-from dataclasses import astuple
 from pathlib import Path
 
 from pywps import Format, LiteralOutput, Process
@@ -73,7 +72,21 @@ class RavenProcess(Process):
     def options(self, request):
         """Parse model options."""
         # Input specs dictionary. Could be all given in the same dict or a list of dicts.
+
+        parallel_fields = [
+            "params",
+            "hru_state",
+            "basin_state",
+            "nc_index",
+            "area",
+            "elevation",
+            "latitude",
+            "longitude",
+            "region_id",
+        ]
+
         kwds = defaultdict(list)
+        kwds["parallel"] = defaultdict(list)
         for spec in request.inputs.pop("nc_spec", []):
             kwds.update(json.loads(spec.data))
 
@@ -85,7 +98,7 @@ class RavenProcess(Process):
         for name, objs in request.inputs.items():
             for obj in objs:
 
-                # Namedtuples
+                # Named tuples
                 if name in self.tuple_inputs:
                     data = self.parse_tuple(obj)
 
@@ -93,8 +106,8 @@ class RavenProcess(Process):
                 else:
                     data = obj.data
 
-                if name in Raven._parallel_parameters:
-                    kwds[name].append(data)
+                if name in parallel_fields and len(objs) > 1:
+                    kwds["parallel"][name].append(data)
                 else:
                     kwds[name] = data
 
@@ -135,11 +148,11 @@ class RavenProcess(Process):
 
         # Launch model with input files
         try:
-            self.run(model, ts, kwds)
+            self.run(model, ts, kwds=kwds)
         except Exception as exc:
             LOGGER.exception(exc)
             err_msg = traceback.format_exc()
-            # By default the error message is limited to 300 chars and strips
+            # By default, the error message is limited to 300 chars and strips
             # many special characters
             raise ProcessError(
                 err_msg, max_length=len(err_msg), allowed_chars=string.printable

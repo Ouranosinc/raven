@@ -108,9 +108,7 @@ class GraphFitProcess(Process):
             plt.close(fig)
             response.outputs["graph_fit"].file = str(fig_fn)
             if format in ["png", "jpeg"]:
-                response.outputs["graph_fit"].data_format = Format(
-                    "image/{}".format(format)
-                )
+                response.outputs["graph_fit"].data_format = Format(f"image/{format}")
             elif format == "pdf":
                 response.outputs["graph_fit"].data_format = Format("application/pdf")
 

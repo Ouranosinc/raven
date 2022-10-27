@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -20,7 +21,7 @@ class WpsTestClient(WpsClient):
     def get(self, *args, **kwargs):
         query = "?"
         for key, value in kwargs.items():
-            query += "{}={}&".format(key, value)
+            query += f"{key}={value}&"
         return super().get(query)
 
 
@@ -54,21 +55,22 @@ def synthetic_gr4j_inputs(path):
     evap.to_netcdf(Path(path).joinpath("evap.nc"))
 
 
-def make_bnds(params, delta):
+def make_bnds(
+    params: Sequence[Any], delta: float
+) -> Tuple[Tuple[np.ndarray], Tuple[np.ndarray]]:
     """Return low and high parameter bounds by subtracting and adding delta*params to params.
 
     Parameters
     ----------
-    params : sequence
-      Parameters.
-    delta : float [0,1]
-      Relative delta to subtract and add to parameters.
+    params : Sequence[Any]
+        Parameters.
+    delta : float
+        Relative delta to subtract and add to parameters. Values must be between [0, 1].
 
     Returns
     -------
-    (tuple, tuple)
-      Low and high bounds for parameters.
-
+    Tuple[Tuple[np.ndarray], Tuple[np.ndarray]]
+        Low and high bounds for parameters.
     """
     arr = np.asarray(params)
     d = np.abs(arr * delta)
@@ -82,7 +84,7 @@ def _convert_2d(fn):
     -------
     >>> fn = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
     >>> fn2 = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily_2d.nc"
-    >>> _convert_2d(fn).to_netcdf(fn2, 'w')
+    >>> _convert_2d(fn).to_netcdf(fn2, "w")
     """
 
     features = {
@@ -113,7 +115,7 @@ def _convert_3d(fn):
     -------
     >>> fn = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
     >>> fn3 = "./testdata/raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily_3d.nc"
-    >>> _convert_3d(fn).to_netcdf(fn3, 'w')
+    >>> _convert_3d(fn).to_netcdf(fn3, "w")
     """
     lon = [-123.3659, -120]
     lat = [54.4848, 56]

@@ -10,7 +10,7 @@ from setuptools import find_packages, setup
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, "README.rst")).read()
 CHANGES = open(os.path.join(here, "CHANGES.rst")).read()
-REQUIRES_PYTHON = ">=3.7.0"
+REQUIRES_PYTHON = ">=3.8.0"
 
 about = {}
 with open(os.path.join(here, "raven", "__version__.py")) as f:
@@ -27,7 +27,7 @@ else:
             ["gdal-config", "--version"], capture_output=True
         ).stdout.decode("utf-8")
         reqs.append(f"gdal=={gdal_version}")
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
 reqs.extend([line.strip() for line in open("requirements.txt")])
@@ -39,16 +39,19 @@ docs_reqs = ["sphinx>=1.7", "sphinx-autoapi", "nbsphinx", "sphinx_rtd_theme"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: POSIX",
     "Programming Language :: Python",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Hydrology",
     "License :: OSI Approved :: MIT License",
 ]
 

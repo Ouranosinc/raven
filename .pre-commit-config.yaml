@@ -5,42 +5,71 @@ repos:
 -   repo: https://github.com/asottile/pyupgrade
     rev: v3.1.0
     hooks:
-    -   id: pyupgrade
+      - id: pyupgrade
+        args: [ --py38-plus ]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
     hooks:
     -   id: trailing-whitespace
-        exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt
+        exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt|setup.cfg
     -   id: end-of-file-fixer
         exclude: .ipynb|.rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt
     -   id: check-yaml
+        args: [ '--allow-multiple-documents' ]
     -   id: debug-statements
--   repo: https://github.com/psf/black
-    rev: 22.10.0
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.9.0
     hooks:
-    -   id: black
-        args: ["--target-version", "py37"]
-# This would be great to apply after the demo.
-# -   repo: https://github.com/tomcatling/black-nb
-#     rev: 0.4.0
-#     hooks:
-#     -   id: black-nb
-#         args: ["--exclude", "raven|tests", "--include", "docs/source/notebooks/"]
+      - id: python-check-blanket-noqa
+      - id: rst-inline-touching-normal
 -   repo: https://github.com/pycqa/flake8
     rev: 5.0.4
     hooks:
     -   id: flake8
-        args: ['--config=setup.cfg']
+        args: [ '--config=setup.cfg' ]
+-   repo: https://github.com/psf/black
+    rev: 22.10.0
+    hooks:
+    -   id: black
+        args: [ '--target-version=py38' ]
 -   repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
     -   id: isort
-        args: ['--profile', 'black', '--filter-files', '--py', '37']
+        args: [ '--profile=black', '--filter-files', '--py=38' ]
+-   repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.5.3
+    hooks:
+      - id: nbqa-pyupgrade
+        args: [ "--py38-plus" ]
+      - id: nbqa-black
+        args: [ "--target-version=py38" ]
+      - id: nbqa-isort
+        args: [ "--settings-file=setup.cfg" ]
 -   repo: https://github.com/pycqa/pydocstyle
     rev: 6.1.1
     hooks:
     -   id: pydocstyle
-        args: ['--convention=numpy', '--match="(?!test_).*\.py"']
+        args: [ '--convention=numpy', '--match="(?!test_).*\.py"' ]
+-   repo: https://github.com/keewis/blackdoc
+    rev: v0.3.7
+    hooks:
+      - id: blackdoc
+        additional_dependencies: [ 'black==22.10.0' ]
+-   repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.28.0
+    hooks:
+      - id: yamllint
+        args: [ '--config-file', '.yamllint.yaml' ]
+-   repo: https://github.com/mgedmin/check-manifest
+    rev: "0.48"
+    hooks:
+      - id: check-manifest
+-   repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.18.4
+    hooks:
+      - id: check-github-workflows
+      - id: check-readthedocs
 -   repo: meta
     hooks:
     -   id: check-hooks-apply

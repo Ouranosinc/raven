@@ -89,7 +89,7 @@ def test_graph_ensemble_uncertainty(request):
         request="Execute",
         version="1.0.0",
         identifier="graph_ensemble_uncertainty",
-        datainputs="sims=files@xlink:href=file://{};".format(zipfn),
+        datainputs=f"sims=files@xlink:href=file://{zipfn};",
     )
 
     assert_response_success(resp)
