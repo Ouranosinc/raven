@@ -1,14 +1,28 @@
 {
   "creators": [
     {
+      "name": "Huard, David",
+      "affiliation": "Ouranos",
+      "orcid": "0000-0003-0311-5498"
+    },
+        {
+      "name": "Smith, Trevor James",
+      "affiliation": "Ouranos",
+      "orcid": "0000-0001-5393-8359"
+    },
+        {
       "name": "Arsenault, Richard",
       "affiliation": "École de technologie supérieure",
       "orcid": "0000-0003-2834-2750"
     },
-    {
-      "name": "Huard, David",
-      "affiliation": "Ouranos",
-      "orcid": "0000-0003-0311-5498"
+        {
+      "name": "Mai, Juliane",
+      "affiliation": "University of Waterloo",
+      "orcid": "0000-0002-1132-2342"
+    },
+        {
+      "name": "Vu, Tien Long",
+      "affiliation": "Ouranos"
     },
     {
       "name": "Jauvin, Christian",
@@ -19,21 +33,8 @@
       "name": "Lalonde, Marc",
       "affiliation": "Centre de recherche informatique de Montréal",
       "orcid": "0000-0002-1183-6378"
-    },
-    {
-      "name": "Mai, Juliane",
-      "affiliation": "University of Waterloo",
-      "orcid": "0000-0002-1132-2342"
-    },
-    {
-      "name": "Smith, Trevor James",
-      "affiliation": "Ouranos",
-      "orcid": "0000-0001-5393-8359"
-    },
-    {
-      "name": "Vu, Tien Long",
-      "affiliation": "Ouranos"
     }
+
   ],
   "keywords": [
     "climate change",
