@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.16.0 (2022-10-27)
+0.16.0 (2022-11-01)
 -------------------
 
 Major Changes
@@ -23,6 +23,7 @@ Internal Changes
     - check-manifest: Ensure relevant modules and data are explicitly installed
     - black + blackdoc + yamllint: Clean up code, code examples within documentation and reformat yaml files for readability
     - check-jsonschema: Verify that GitHub and ReadTheDocs workflows are valid
+* Added a Zenodo/DOI configuration
 
 0.15.1 (2022-01-14)
 -------------------
