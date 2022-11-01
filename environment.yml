@@ -42,5 +42,5 @@ dependencies:
   - unidecode
   - urlpath
   - xarray >=0.18
-  - xclim >=0.28.1
+  - xclim >=0.31.0
   - xskillscore
