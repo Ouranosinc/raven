@@ -3,12 +3,12 @@ default_language_version:
 
 repos:
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.0
+    rev: v3.3.0
     hooks:
       - id: pyupgrade
         args: [ --py38-plus ]
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
     -   id: trailing-whitespace
         exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt|setup.cfg
@@ -26,7 +26,7 @@ repos:
       - id: python-check-blanket-noqa
       - id: rst-inline-touching-normal
 -   repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+    rev: 6.0.0
     hooks:
     -   id: flake8
         args: [ '--config=setup.cfg' ]
@@ -65,11 +65,11 @@ repos:
       - id: yamllint
         args: [ '--config-file', '.yamllint.yaml' ]
 -   repo: https://github.com/mgedmin/check-manifest
-    rev: "0.48"
+    rev: "0.49"
     hooks:
       - id: check-manifest
 -   repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.18.4
+    rev: 0.19.2
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
