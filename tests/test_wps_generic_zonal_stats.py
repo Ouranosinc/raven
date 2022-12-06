@@ -3,7 +3,6 @@ import json
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 from shapely.geometry import MultiPolygon, shape
 
 from raven.processes import ZonalStatisticsProcess
@@ -12,7 +11,7 @@ from .common import CFG_FILE, client_for, count_pixels, get_output
 
 
 class TestGenericZonalStatsProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[
@@ -60,7 +59,7 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature["geometry"])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-    def test_categorized(self):
+    def test_categorized(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[
@@ -113,7 +112,7 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
-    def test_geoserver_dem_wcs_simple(self):
+    def test_geoserver_dem_wcs_simple(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[
@@ -156,7 +155,7 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
-    def test_geoserver_dem_wcs_categorized(self):
+    def test_geoserver_dem_wcs_categorized(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[

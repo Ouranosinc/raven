@@ -7,7 +7,6 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import HindcastingProcess
 
@@ -16,7 +15,7 @@ from .common import CFG_FILE, client_for, get_output
 
 @pytest.mark.online
 class TestHindcasting:
-    def test_GEPS(self):
+    def test_GEPS(self, get_local_testdata):
 
         client = client_for(
             Service(processes=[HindcastingProcess()], cfgfiles=CFG_FILE)

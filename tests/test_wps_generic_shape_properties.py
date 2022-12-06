@@ -5,7 +5,6 @@ import geojson
 import numpy as np
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ShapePropertiesProcess
 
@@ -125,7 +124,7 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[0]["perimeter"], 8.14412255)
         np.testing.assert_approx_equal(props[0]["gravelius"], 2.68111268)
 
-    def test_multifeature_geojson(self):
+    def test_multifeature_geojson(self, get_local_testdata):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
@@ -174,7 +173,7 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
 
-    def test_multifeature_zipped_shapefile(self):
+    def test_multifeature_zipped_shapefile(self, get_local_testdata):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
