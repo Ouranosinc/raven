@@ -44,16 +44,14 @@ jobs:
           mamba-version: "*"
           python-version: ${{ matrix.python-version }}
       - name: Conda and mamba versions
+        shell: bash -l {0}
         run: |
             mamba --version
       - name: Install and test RavenWPS
         shell: bash -l {0}
         run: |
           pip install -e ".[dev]"
-          git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
           pytest tests
-        env:
-          RAVENPY_TESTDATA_PATH: ${{ github.workspace }}/raven-testdata
 
   finish:
     name: Finish
