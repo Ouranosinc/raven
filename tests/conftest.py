@@ -72,9 +72,11 @@ def populate_testing_data(
             "gr4j_cemaneige/solution.rvc",
             "hydro_simulations/raven-gr4j-cemaneige-sim_hmets-0_Hydrographs.nc",
             "nrcan/NRCAN_2006-2007_subset.nc",
+            "polygons/Basin_10.zip",
             "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc",
             "ts_stats_outputs/out.nc",
             "watershed_vector/Basin_test.zip",
+            "watershed_vector/LSJ_LL.zip",
         ]
     )
 
