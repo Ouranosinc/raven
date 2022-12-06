@@ -4,7 +4,6 @@ import numpy as np
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ForecastFloodRiskProcess
 
@@ -12,7 +11,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestForecastEvaluationProcess:
-    def test_forecast_floodrisk_deterministic(self):
+    def test_forecast_floodrisk_deterministic(self, get_local_testdata):
         client = client_for(
             Service(processes=[ForecastFloodRiskProcess()], cfgfiles=CFG_FILE)
         )
@@ -40,7 +39,7 @@ class TestForecastEvaluationProcess:
         ds = xr.open_dataset(floodrisk)
         np.testing.assert_almost_equal(ds["exceedance_probability"], [1, 0, 0], 2)
 
-    def test_forecast_floodrisk_ensemble(self):
+    def test_forecast_floodrisk_ensemble(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[

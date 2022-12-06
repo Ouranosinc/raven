@@ -6,7 +6,6 @@ import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.utilities.forecasting import make_ESP_hindcast_dataset
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ClimpredHindcastVerificationProcess
 
@@ -15,7 +14,7 @@ from .common import CFG_FILE, client_for, get_output
 
 @pytest.mark.skip
 class TestHindcastEvaluationProcess:
-    def test_hindcast_evaluation_rank_histo(self):
+    def test_hindcast_evaluation_rank_histo(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[ClimpredHindcastVerificationProcess()], cfgfiles=CFG_FILE
