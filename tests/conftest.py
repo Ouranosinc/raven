@@ -1,15 +1,15 @@
 import os
-import pytest
 import shutil
-from filelock import FileLock
 from pathlib import Path
+from typing import Optional, Union
+
+import pytest
 import xarray as xr
+from filelock import FileLock
 from ravenpy.utilities.testdata import _default_cache_dir
 from ravenpy.utilities.testdata import get_file as _get_file
 from ravenpy.utilities.testdata import get_local_testdata as _get_local_testdata
 from xclim.indicators.land import fit, stats
-
-from typing import Union, Optional
 
 MAIN_TESTDATA_BRANCH = os.getenv("MAIN_TESTDATA_BRANCH", "master")
 SKIP_TEST_DATA = os.getenv("SKIP_TEST_DATA")
