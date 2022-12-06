@@ -6,7 +6,6 @@ import pytest
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RegionalisationProcess
 
@@ -46,7 +45,7 @@ class TestRegionalisation:
     @pytest.mark.parametrize(
         "method", ("MLR", "SP", "PS", "SP_IDW", "PS_IDW", "SP_IDW_RA", "PS_IDW_RA")
     )
-    def testRegionalisationHMETS(self, method):
+    def testRegionalisationHMETS(self, get_local_testdata, method):
         client = client_for(
             Service(processes=[RegionalisationProcess()], cfgfiles=CFG_FILE)
         )
@@ -79,7 +78,7 @@ class TestRegionalisation:
         with xr.open_dataset(ensemble) as ds:
             assert "realization" in ds.q_sim.dims
 
-    def test_notebook(self):
+    def test_notebook(self, get_local_testdata):
         client = client_for(
             Service(processes=[RegionalisationProcess()], cfgfiles=CFG_FILE)
         )

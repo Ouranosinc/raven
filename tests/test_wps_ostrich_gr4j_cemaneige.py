@@ -5,7 +5,6 @@ from urllib.request import urlretrieve
 import numpy as np
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import OstrichGR4JCemaNeigeProcess
 
@@ -13,7 +12,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestOstrichGR4JCemaNeigeProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(processes=[OstrichGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )

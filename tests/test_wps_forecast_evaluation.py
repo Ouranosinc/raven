@@ -3,7 +3,6 @@ import json
 import numpy as np
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import HindcastEvaluationProcess
 
@@ -11,7 +10,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestForecastEvaluationProcess:
-    def test_forecast_evaluation_deterministic(self):
+    def test_forecast_evaluation_deterministic(self, get_local_testdata):
         client = client_for(
             Service(processes=[HindcastEvaluationProcess()], cfgfiles=CFG_FILE)
         )
@@ -36,7 +35,7 @@ class TestForecastEvaluationProcess:
         m = json.loads(out)
         np.testing.assert_almost_equal(m["mse"], 0.0868818, 4)
 
-    def test_forecast_evaluation_ensemble(self):
+    def test_forecast_evaluation_ensemble(self, get_local_testdata):
         client = client_for(
             Service(processes=[HindcastEvaluationProcess()], cfgfiles=CFG_FILE)
         )

@@ -4,7 +4,6 @@ import json
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHMETSProcess
 
@@ -12,7 +11,7 @@ from .common import CFG_FILE, client_for
 
 
 class TestRavenNRCANProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(Service(processes=[RavenHMETSProcess()], cfgfiles=CFG_FILE))
 
         salmon = get_local_testdata(

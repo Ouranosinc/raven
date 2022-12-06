@@ -20,6 +20,7 @@ dependencies:
   - pytest-dependency
   - pytest-flake8
   - pytest-notebook
+  - pytest-xdist
   - sphinx >=1.7
   - sphinx-autoapi
   - twine
