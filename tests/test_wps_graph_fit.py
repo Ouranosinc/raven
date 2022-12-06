@@ -12,7 +12,9 @@ class TestGraphFit:
 
         datainputs = (
             "ts=files@xlink:href=file://{ts};"
-            "params=files@xlink:href=file://{params};".format(ts=ts_stats, params=params)
+            "params=files@xlink:href=file://{params};".format(
+                ts=ts_stats, params=params
+            )
         )
 
         resp = client.get(
