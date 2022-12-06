@@ -9,7 +9,6 @@ import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
 from ravenpy.models import GR4JCN
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenGR4JCemaNeigeProcess
 
@@ -17,7 +16,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestRavenGR4JCemaNeigeProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
@@ -90,7 +89,7 @@ class TestRavenGR4JCemaNeigeProcess:
         z = zipfile.ZipFile(rv_config)
         assert len(z.filelist) == 5
 
-    def test_simple_alternate_hrus_param(self):
+    def test_simple_alternate_hrus_param(self, get_local_testdata):
         client = client_for(
             Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
@@ -163,7 +162,7 @@ class TestRavenGR4JCemaNeigeProcess:
         z = zipfile.ZipFile(rv_config)
         assert len(z.filelist) == 5
 
-    def test_parallel(self):
+    def test_parallel(self, get_local_testdata):
         client = client_for(
             Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )
@@ -216,7 +215,7 @@ class TestRavenGR4JCemaNeigeProcess:
         ds = xr.open_dataset(tmp_file)
         assert ds.variables["q_sim"].shape[0] == 2
 
-    def test_ravenpy_error(self):
+    def test_ravenpy_error(self, get_local_testdata):
         client = client_for(
             Service(processes=[RavenGR4JCemaNeigeProcess()], cfgfiles=CFG_FILE)
         )

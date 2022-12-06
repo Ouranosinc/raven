@@ -4,7 +4,6 @@ import rasterio as rio
 from metalink import download as md
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RasterSubsetProcess
 
@@ -12,7 +11,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestGenericRasterSubsetProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(processes=[RasterSubsetProcess()], cfgfiles=CFG_FILE)
         )
@@ -55,7 +54,7 @@ class TestGenericRasterSubsetProcess:
             bounds.append(raster.bounds)
         assert len(set(bounds)) == len(raster_dir)
 
-    def test_multiple_features_metalink(self):
+    def test_multiple_features_metalink(self, get_local_testdata):
         client = client_for(
             Service(processes=[RasterSubsetProcess()], cfgfiles=CFG_FILE)
         )

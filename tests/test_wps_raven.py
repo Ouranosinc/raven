@@ -2,7 +2,6 @@ import zipfile
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenProcess
 
@@ -12,14 +11,14 @@ cf = ["rvi", "rvp", "rvc", "rvh", "rvt"]
 
 
 class TestRavenProcess:
-    def test_gr4j_salmon_nc(self, tmp_path):
+    def test_gr4j_salmon_nc(self, tmp_path, get_local_testdata):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-gr4j-cemaneige/raven-gr4j-salmon.rv?")
         conf = tmp_path / "conf.zip"
-        with zipfile.ZipFile(conf, "w") as zip:
+        with zipfile.ZipFile(conf, "w") as zf:
             for rv in rvs:
-                zip.write(rv, arcname=rv.name)
+                zf.write(rv, arcname=rv.name)
 
         ts = get_local_testdata(
             "raven-gr4j-cemaneige/Salmon-River-Near-Prince-George_meteo_daily.nc"
@@ -38,14 +37,14 @@ class TestRavenProcess:
 
         assert_response_success(resp)
 
-    def test_hmets(self, tmp_path):
+    def test_hmets(self, tmp_path, get_local_testdata):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-hmets/raven-hmets-salmon.rv?")
         conf = tmp_path / "conf.zip"
-        with zipfile.ZipFile(conf, "w") as zip:
+        with zipfile.ZipFile(conf, "w") as zf:
             for rv in rvs:
-                zip.write(rv, arcname=rv.name)
+                zf.write(rv, arcname=rv.name)
 
         ts = get_local_testdata("raven-hmets/Salmon-River-Near-Prince-George_*.rvt")
 
@@ -64,14 +63,14 @@ class TestRavenProcess:
         )
         assert_response_success(resp)
 
-    def test_mohyse(self, tmp_path):
+    def test_mohyse(self, tmp_path, get_local_testdata):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
         rvs = get_local_testdata("raven-mohyse/raven-mohyse-salmon.rv?")
         conf = tmp_path / "conf.zip"
-        with zipfile.ZipFile(conf, "w") as zip:
+        with zipfile.ZipFile(conf, "w") as zf:
             for rv in rvs:
-                zip.write(rv, arcname=rv.name)
+                zf.write(rv, arcname=rv.name)
 
         ts = get_local_testdata("raven-mohyse/Salmon-River-Near-Prince-George_*.rvt")
 
@@ -90,16 +89,16 @@ class TestRavenProcess:
         )
         assert_response_success(resp)
 
-    def test_hbv_ec(self, tmp_path):
+    def test_hbv_ec(self, tmp_path, get_local_testdata):
         client = client_for(Service(processes=[RavenProcess()], cfgfiles=CFG_FILE))
 
-        rvs = get_local_testdata("raven-hbv-ec/raven-hbv-ec-salmon.rv?")
+        rvs = get_local_testdata("raven-hbvec/raven-hbvec-salmon.rv?")
         conf = tmp_path / "conf.zip"
-        with zipfile.ZipFile(conf, "w") as zip:
+        with zipfile.ZipFile(conf, "w") as zf:
             for rv in rvs:
-                zip.write(rv, arcname=rv.name)
+                zf.write(rv, arcname=rv.name)
 
-        ts = get_local_testdata("raven-hbv-ec/Salmon-River-Near-Prince-George_*.rvt")
+        ts = get_local_testdata("raven-hbvec/Salmon-River-Near-Prince-George_*.rvt")
 
         datainputs = (
             "ts=files@xlink:href=file://{};"
