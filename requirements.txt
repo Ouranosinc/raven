@@ -1,4 +1,4 @@
-ravenpy>=0.8.1
+ravenpy>=0.9.0
 six
 pywps==4.5.1
 owslib
@@ -23,6 +23,7 @@ pysheds
 affine
 rtree
 fiona
+geojson
 geopandas
 pyproj
 rasterio
