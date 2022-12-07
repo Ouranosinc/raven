@@ -4,7 +4,6 @@ from urllib.request import urlretrieve
 import numpy as np
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import OstrichHMETSProcess
 
@@ -12,7 +11,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestOstrichHMETSProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(processes=[OstrichHMETSProcess()], cfgfiles=CFG_FILE)
         )
@@ -92,7 +91,7 @@ class TestOstrichHMETSProcess:
             diag, 80.8459, 4, err_msg="RMSE is not matching expected value"
         )
 
-    def test_no_test(self):
+    def test_no_test(self, get_local_testdata):
         client = client_for(
             Service(processes=[OstrichHMETSProcess()], cfgfiles=CFG_FILE)
         )

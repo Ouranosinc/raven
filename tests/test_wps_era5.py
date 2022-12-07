@@ -3,7 +3,6 @@ import json
 
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenHMETSProcess
 
@@ -35,7 +34,7 @@ params = (
 
 
 class TestRavenERA5Process:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(Service(processes=[RavenHMETSProcess()], cfgfiles=CFG_FILE))
 
         ts = get_local_testdata("era5/tas_pr_20180101-20180108.nc")

@@ -4,7 +4,6 @@ import pytest
 from metalink import download as md
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 from shapely.geometry import MultiPolygon
 
 from raven.processes import (
@@ -16,7 +15,7 @@ from .common import CFG_FILE, client_for, count_pixels, get_output
 
 
 class TestNALCMSZonalStatsProcess:
-    def test_simplified_categories(self):
+    def test_simplified_categories(self, get_local_testdata):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
@@ -57,7 +56,7 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
-    def test_true_categories(self):
+    def test_true_categories(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[
@@ -103,7 +102,7 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
-    def test_wcs_simplified_categories(self):
+    def test_wcs_simplified_categories(self, get_local_testdata):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
@@ -140,7 +139,7 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
-    def test_wcs_true_categories(self):
+    def test_wcs_true_categories(self, get_local_testdata):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
@@ -180,7 +179,7 @@ class TestNALCMSZonalStatsProcess:
 
 @pytest.mark.online
 class TestNALCMSZonalStatsWithRasterProcess:
-    def test_wcs_simplified_categories(self):
+    def test_wcs_simplified_categories(self, get_local_testdata):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)
         )

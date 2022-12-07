@@ -13,6 +13,7 @@ twine
 cruft
 # Changing dependencies above this comment will create merge conflicts when updating the cookiecutter template with cruft. Add extra requirements below this line.
 pytest-dependency
+pytest-xdist
 sphinx-autoapi
 sphinx_rtd_theme
 birdhouse-birdy

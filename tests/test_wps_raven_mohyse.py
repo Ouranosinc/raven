@@ -5,7 +5,6 @@ import numpy as np
 import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import RavenMOHYSEProcess
 
@@ -13,7 +12,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestRavenMOHYSEProcess:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[
@@ -82,7 +81,7 @@ class TestRavenMOHYSEProcess:
             diag, 32.2197, 4, err_msg="RMSE is not matching expected value"
         )
 
-    def test_parallel(self):
+    def test_parallel(self, get_local_testdata):
         client = client_for(
             Service(
                 processes=[
