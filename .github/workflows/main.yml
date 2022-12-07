@@ -34,25 +34,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup miniconda with mamba
-        uses: conda-incubator/setup-miniconda@v2.1.1
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{ matrix.python-version }}
-          mamba-version: "*"
-          channels: conda-forge,defaults
-          channel-priority: true
           activate-environment: raven
+          auto-update-conda: true
+          channel-priority: true
+          channels: conda-forge,defaults
           environment-file: environment.yml
+          mamba-version: "*"
+          python-version: ${{ matrix.python-version }}
       - name: Conda and mamba versions
+        shell: bash -l {0}
         run: |
             mamba --version
       - name: Install and test RavenWPS
         shell: bash -l {0}
         run: |
           pip install -e ".[dev]"
-          git clone https://github.com/Ouranosinc/raven-testdata $GITHUB_WORKSPACE/raven-testdata
           pytest tests
-        env:
-          RAVENPY_TESTDATA_PATH: ${{ github.workspace }}/raven-testdata
 
   finish:
     name: Finish

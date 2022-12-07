@@ -3,7 +3,6 @@ import json
 import pytest
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import TerrainAnalysisProcess
 
@@ -11,7 +10,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestGenericTerrainAnalysisProcess:
-    def test_shape_subset(self):
+    def test_shape_subset(self, get_local_testdata):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
@@ -47,7 +46,7 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.skip("slow")
-    def test_shape_subset_wcs(self):
+    def test_shape_subset_wcs(self, get_local_testdata):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
@@ -79,7 +78,7 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.online
-    def test_single_polygon(self):
+    def test_single_polygon(self, get_local_testdata):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )

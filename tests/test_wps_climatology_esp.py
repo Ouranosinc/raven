@@ -1,11 +1,10 @@
 import datetime as dt
 
-import matplotlib.pyplot as plt
-import pytest
-import xarray as xr
+# import matplotlib.pyplot as plt
+# import pytest
+# import xarray as xr
 from pywps import Service
 from pywps.tests import assert_response_success
-from ravenpy.utilities.testdata import get_local_testdata
 
 from raven.processes import ClimatologyEspProcess
 
@@ -13,7 +12,7 @@ from .common import CFG_FILE, client_for, get_output
 
 
 class TestClimatologyESP:
-    def test_simple(self):
+    def test_simple(self, get_local_testdata):
         client = client_for(
             Service(processes=[ClimatologyEspProcess()], cfgfiles=CFG_FILE)
         )
