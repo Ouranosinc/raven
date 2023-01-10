@@ -20,7 +20,7 @@ dependencies:
   - jinja2
   - matplotlib
   - nbval
-  - numpy
+  - numpy <1.24  # Pinned for numba compatibility. Should be addressed within xclim.
   - owslib
   - pandas
   - pandoc
