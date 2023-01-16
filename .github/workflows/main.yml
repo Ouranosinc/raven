@@ -40,7 +40,7 @@ jobs:
           channel-priority: true
           channels: conda-forge,defaults
           environment-file: environment.yml
-          mamba-version: "*"
+          miniforge-variant: Mambaforge
           python-version: ${{ matrix.python-version }}
       - name: Conda and mamba versions
         shell: bash -l {0}
