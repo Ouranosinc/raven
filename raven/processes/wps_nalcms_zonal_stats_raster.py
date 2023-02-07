@@ -63,7 +63,6 @@ class NALCMSZonalStatisticsRasterProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         simple_categories = request.inputs["simple_categories"][0].data
         band = request.inputs["band"][0].data
@@ -128,7 +127,6 @@ class NALCMSZonalStatisticsRasterProcess(Process):
         summary_stats = SUMMARY_ZONAL_STATS
 
         try:
-
             # Use zonalstats to produce a GeoJSON
             stats = zonal_stats(
                 projected,

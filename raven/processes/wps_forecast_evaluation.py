@@ -111,7 +111,6 @@ class HindcastEvaluationProcess(Process):
         )
 
     def _handler(self, request, response):
-
         # Read inputs from request
         obs_fn = request.inputs["obs"][0].file
         obs_var = request.inputs["obs_var"][0].data
@@ -145,7 +144,6 @@ class HindcastEvaluationProcess(Process):
                 m = func(obs, hcst, dim="time", skipna=skipna)
 
             elif "member" in hcst.dims:
-
                 if metric == "threshold_brier_score":
                     m = func(obs, hcst, threshold=bss_threshold, dim="time")
 

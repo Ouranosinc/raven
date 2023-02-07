@@ -50,7 +50,6 @@ class NALCMSZonalStatisticsProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         simple_categories = request.inputs["simple_categories"][0].data
         band = request.inputs["band"][0].data

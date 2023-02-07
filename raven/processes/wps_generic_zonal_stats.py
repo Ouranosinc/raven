@@ -52,7 +52,6 @@ class ZonalStatisticsProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         band = request.inputs["band"][0].data
         categorical = request.inputs["categorical"][0].data

@@ -71,7 +71,6 @@ class TerrainAnalysisProcess(Process):
         )
 
     def _handler(self, request, response):
-
         # Process inputs
         # ---------------
         shape_url = request.inputs["shape"][0].file

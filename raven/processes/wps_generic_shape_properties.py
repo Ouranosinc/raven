@@ -67,7 +67,6 @@ class ShapePropertiesProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         projected_crs = request.inputs["projected_crs"][0].data
 
