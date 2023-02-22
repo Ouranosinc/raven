@@ -49,7 +49,6 @@ class RasterSubsetProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         band = request.inputs["band"][0].data
         touches = request.inputs["select_all_touching"][0].data

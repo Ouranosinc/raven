@@ -16,7 +16,6 @@ from .common import CFG_FILE, client_for, get_output
 @pytest.mark.online
 class TestHindcasting:
     def test_GEPS(self, get_local_testdata):
-
         client = client_for(
             Service(processes=[HindcastingProcess()], cfgfiles=CFG_FILE)
         )
