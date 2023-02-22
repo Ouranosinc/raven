@@ -12,7 +12,7 @@ dependencies:
   - cartopy
   - click
   - dask
-  - fiona >=1.9
+  - fiona >=1.9,<2.0
   - geopandas
   - geojson
   - gdal >=3.0

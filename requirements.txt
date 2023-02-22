@@ -22,7 +22,7 @@ statsmodels
 pysheds
 affine
 rtree
-fiona>=1.9
+fiona~=1.9.0
 geojson
 geopandas
 pyproj>=3.4
