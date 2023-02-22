@@ -50,7 +50,6 @@ class NALCMSZonalStatisticsProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         simple_categories = request.inputs["simple_categories"][0].data
         band = request.inputs["band"][0].data
@@ -142,7 +141,14 @@ class NALCMSZonalStatisticsProcess(Process):
                 land_use.append(lu)
                 # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
-            feature_collect = {"type": "FeatureCollection", "features": stats}
+            # Workaround needed for fiona v1.9+; this should be fully rewritten
+            from fiona.model import to_dict
+
+            stats_as_dicts = []
+            for s in stats:
+                stats_as_dicts.append(to_dict(s))
+
+            feature_collect = {"type": "FeatureCollection", "features": stats_as_dicts}
             response.outputs["features"].data = json.dumps(feature_collect)
             response.outputs["statistics"].data = json.dumps(land_use)
 

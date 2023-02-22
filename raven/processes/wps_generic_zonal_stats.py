@@ -52,7 +52,6 @@ class ZonalStatisticsProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         band = request.inputs["band"][0].data
         categorical = request.inputs["categorical"][0].data
@@ -105,7 +104,14 @@ class ZonalStatisticsProcess(Process):
                 raster_out=False,
             )
 
-            feature_collect = {"type": "FeatureCollection", "features": stats}
+            # Workaround needed for fiona v1.9+; this should be fully rewritten
+            from fiona.model import to_dict
+
+            stats_as_dicts = []
+            for s in stats:
+                stats_as_dicts.append(to_dict(s))
+
+            feature_collect = {"type": "FeatureCollection", "features": stats_as_dicts}
             response.outputs["statistics"].data = json.dumps(feature_collect)
 
         except Exception as e:
