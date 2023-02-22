@@ -160,7 +160,6 @@ class _XclimIndicatorProcess(Process):
         LOGGER.info(message)
 
     def _handler(self, request, response):
-
         response.outputs["output_log"].file = self.log_file_path()
         self.write_log("Processing started")
 

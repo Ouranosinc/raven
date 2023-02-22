@@ -26,7 +26,6 @@ def rand_fname(length=8):
 
 class HPCConnection:
     def __init__(self, external_init_dict=None):
-
         self.logger = logging.getLogger(constants.logging_name)
         init_dict = {}
         clsname = self.__class__.__name__
@@ -54,7 +53,6 @@ class HPCConnection:
         self.live_job_id = None
 
     def check_connection(self):
-
         status = True
         msg = None
         self.logger.debug("Testing connection...")
@@ -147,7 +145,6 @@ class HPCConnection:
 
     # output files in base_dir/jobname/out
     def copy_data_from_remote(self, jobid, absolute_local_out_dir, cleanup_temp=True):
-
         self.logger.debug("Copying data from remote")
         absolute_tar_fname = os.path.join(
             self.remote_abs_working_folder, self.remote_working_folder + "_out.tar"
@@ -241,7 +238,6 @@ class HPCConnection:
     def copy_singlefile_to_remote(
         self, local_filename, remote_path=".", is_executable=False
     ):
-
         r = os.path.join(
             self.remote_abs_working_folder,
             remote_path,
@@ -253,7 +249,6 @@ class HPCConnection:
             self.client.run_command("chmod ugo+x " + r)
 
     def create_remote_subdir(self, remote_subdir):
-
         self.client.run_command(
             "mkdir -p " + os.path.join(self.remote_abs_working_folder, remote_subdir)
         )
@@ -271,7 +266,6 @@ class HPCConnection:
         batch_tmplt_fname,
         shub_hostname,
     ):
-
         template_file = open(os.path.join(self.template_path, batch_tmplt_fname))
         abs_remote_output_dir = os.path.join(self.remote_abs_working_folder, "out")
         tmplt = template_file.read()
@@ -306,7 +300,6 @@ class HPCConnection:
         return os.path.join(self.remote_abs_working_folder, subst_fname)
 
     def submit_job(self, script_fname):
-
         self.logger.debug(f"Submitting job {script_fname}")
         # output = self.client.run_command("cd {}; ".format(self.home_dir) + constants.sbatch_cmd +
         #                                  " --parsable " + script_fname)
@@ -331,7 +324,6 @@ class HPCConnection:
         return self.live_job_id
 
     def read_from_remote(self, remote_filename):
-
         filecontent = []
         self.logger.debug("read_from_remote")
         retry = True
@@ -357,7 +349,6 @@ class HPCConnection:
             #            print("SFTPIOError")
             #            return False
             except Exception as e:
-
                 if retry:
                     self.logger.debug(
                         f"exception {e}, retrying"
@@ -435,7 +426,6 @@ class HPCConnection:
             raise Exception("Cancel error: " + stdout_str)
 
     def reconnect(self):
-
         self.client = ParallelSSHClient(
             [self.hostname], pkey=self.keypath, user=self.user, keepalive_seconds=300
         )
@@ -471,7 +461,6 @@ class HPCConnection:
     """
 
     def cleanup(self, jobid):
-
         try:
             self.logger.debug("Deleting the remote folder")
             output1 = self.client.run_command(
