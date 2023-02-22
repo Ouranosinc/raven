@@ -218,4 +218,4 @@ class TestNALCMSZonalStatsWithRasterProcess:
 
         assert {"raster"}.issubset([*out])
         d = md.get(out["raster"], path="/tmp", segmented=False)
-        assert d[0] == "/tmp/subset_1.tiff"
+        assert {f"/tmp/subset_{n}.tiff" for n in range(1, 6)}.issubset(set(d))
