@@ -111,7 +111,7 @@ class NALCMSZonalStatisticsProcess(Process):
             with open(raster_file, "wb") as f:
                 f.write(raster_bytes)
 
-        response.update_status("Accessed raster", status_percentage=10)
+        response.update_status("Accessed raster", status_percentage=20)
 
         categories = SIMPLE_CATEGORIES if simple_categories else TRUE_CATEGORIES
         summary_stats = SUMMARY_ZONAL_STATS
@@ -128,6 +128,8 @@ class NALCMSZonalStatisticsProcess(Process):
                 raster_out=False,
             )
 
+            response.update_status("Statistic calculated", status_percentage=70)
+
             land_use = list()
             for stat in stats:
                 lu = defaultdict(lambda: 0)
@@ -135,7 +137,8 @@ class NALCMSZonalStatisticsProcess(Process):
 
                 # Rename/aggregate land-use categories
                 for k, v in categories.items():
-                    lu[v] += prop.get(k, 0)
+                    # Fiona v1.9 API changes; Access to a protected method of class instance - Needs rewrite
+                    lu[v] += prop._data.get(k, 0)
 
                 prop.update(lu)
                 land_use.append(lu)
