@@ -146,7 +146,8 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
                 # Rename/aggregate land-use categories
                 for k, v in categories.items():
-                    lu[v] += prop.get(k, 0)
+                    # Fiona v1.9 API changes; Access to a protected method of class instance - Needs rewrite
+                    lu[v] += prop._data.get(k, 0)
 
                 prop.update(lu)
                 land_use.append(lu)
