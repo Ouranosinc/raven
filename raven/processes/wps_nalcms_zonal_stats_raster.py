@@ -183,7 +183,21 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 mf.file = r
                 ml.append(mf)
 
-            feature_collect = {"type": "FeatureCollection", "features": stats}
+            # Workaround needed for fiona v1.9+; this should be fully rewritten
+            from collections import OrderedDict
+
+            from fiona.model import to_dict
+
+            stats_as_dicts = []
+            for s in stats:
+                fixed_prop = OrderedDict()
+                for k, v in s.properties._data.items():
+                    fixed_prop[str(k)] = v
+                s.properties._data = fixed_prop
+
+                stats_as_dicts.append(to_dict(s))
+
+            feature_collect = {"type": "FeatureCollection", "features": stats_as_dicts}
             response.outputs["features"].data = json.dumps(feature_collect)
             response.outputs["statistics"].data = json.dumps(land_use)
             response.outputs["raster"].data = ml.xml
