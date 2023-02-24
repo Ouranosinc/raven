@@ -67,7 +67,6 @@ class ForecastFloodRiskProcess(Process):
         )
 
     def _handler(self, request, response):
-
         # Read inputs from request
         fcst_fn = request.inputs["fcst"][0].file
         fcst_var = request.inputs["name"][0].data

@@ -11,12 +11,13 @@ WPS_URL := http://0.0.0.0:$(WPS_PORT)
 # If WPS_URL is overridden, this should also be overridden to match.
 WPS_OUTPUT_URL := http://localhost:$(WPS_PORT)/outputs
 
+# This will only work on Linux (not macOS/homebrew GDAL)
 GDAL_VERSION := $(shell gdal-config --version)
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
 # instance so the notebooks can also be used as tutorial notebooks.
-OUTPUT_URL = https://pavics.ouranos.ca/wpsoutputs
+OUTPUT_URL = https://pavics.ouranos.ca/wpsoutputs/raven
 
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
 

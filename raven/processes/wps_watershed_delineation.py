@@ -114,7 +114,6 @@ class WatershedDelineation(Process):
     # TODO: David, let me know if you work on this. I'm curious to throw my hat in the ring here.
     @staticmethod
     def _pysheds_handler(request, response):
-
         # Create pysheds Grid object
         dem_fn = request.inputs["dem"][0].file
         dir_fn = request.inputs["dir"][0].file
@@ -213,7 +212,7 @@ def testing():
     catch = grid.polygonize(grid.catch.astype("int32"), connectivity=8)
     grid.clip_to("catch")
 
-    for (p, v) in catch:
+    for p, v in catch:
         poly = geometry.asShape(p)
         ax1.plot(*poly.exterior.xy, color="white")
     plt.show()
