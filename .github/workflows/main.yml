@@ -6,6 +6,9 @@ on:
       - master
   pull_request:
 
+env:
+  MAIN_TESTDATA_BRANCH: "master"
+
 jobs:
   black:
     name: Code linting
@@ -45,7 +48,7 @@ jobs:
       - name: Conda and mamba versions
         shell: bash -l {0}
         run: |
-            mamba --version
+          mamba --version
       - name: Install and test RavenWPS
         shell: bash -l {0}
         run: |

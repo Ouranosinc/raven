@@ -160,7 +160,6 @@ def zonalstats_raster_file(
     crs = CRS(crs)
 
     for i in range(len(stats)):
-
         fn = f"subset_{i + 1}.tiff"
         raster_subset = Path(out_dir).joinpath(fn)
 

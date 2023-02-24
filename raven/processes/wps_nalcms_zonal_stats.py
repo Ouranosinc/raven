@@ -50,7 +50,6 @@ class NALCMSZonalStatisticsProcess(Process):
         )
 
     def _handler(self, request, response):
-
         shape_url = request.inputs["shape"][0].file
         simple_categories = request.inputs["simple_categories"][0].data
         band = request.inputs["band"][0].data
@@ -112,7 +111,7 @@ class NALCMSZonalStatisticsProcess(Process):
             with open(raster_file, "wb") as f:
                 f.write(raster_bytes)
 
-        response.update_status("Accessed raster", status_percentage=10)
+        response.update_status("Accessed raster", status_percentage=20)
 
         categories = SIMPLE_CATEGORIES if simple_categories else TRUE_CATEGORIES
         summary_stats = SUMMARY_ZONAL_STATS
@@ -129,6 +128,8 @@ class NALCMSZonalStatisticsProcess(Process):
                 raster_out=False,
             )
 
+            response.update_status("Statistic calculated", status_percentage=70)
+
             land_use = list()
             for stat in stats:
                 lu = defaultdict(lambda: 0)
@@ -136,13 +137,28 @@ class NALCMSZonalStatisticsProcess(Process):
 
                 # Rename/aggregate land-use categories
                 for k, v in categories.items():
-                    lu[v] += prop.get(k, 0)
+                    # Fiona v1.9 API changes; Access to a protected method of class instance - Needs rewrite
+                    lu[v] += prop._data.get(k, 0)
 
                 prop.update(lu)
                 land_use.append(lu)
                 # prop['mini_raster_array'] = pickle.dumps(prop['mini_raster_array'], protocol=0).decode()
 
-            feature_collect = {"type": "FeatureCollection", "features": stats}
+            # Workaround needed for fiona v1.9+; this should be fully rewritten
+            from collections import OrderedDict
+
+            from fiona.model import to_dict
+
+            stats_as_dicts = []
+            for s in stats:
+                fixed_prop = OrderedDict()
+                for k, v in s.properties._data.items():
+                    fixed_prop[str(k)] = v
+                s.properties._data = fixed_prop
+
+                stats_as_dicts.append(to_dict(s))
+
+            feature_collect = {"type": "FeatureCollection", "features": stats_as_dicts}
             response.outputs["features"].data = json.dumps(feature_collect)
             response.outputs["statistics"].data = json.dumps(land_use)
 

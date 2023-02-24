@@ -166,7 +166,6 @@ class RegionalisationProcess(RavenProcess):
     outputs = [wio.hydrograph, wio.ensemble]
 
     def _handler(self, request, response):
-
         ts = [e.file for e in request.inputs.pop("ts")]
         model_name = request.inputs.pop("model_name")[0].data
         method = request.inputs.pop("method")[0].data

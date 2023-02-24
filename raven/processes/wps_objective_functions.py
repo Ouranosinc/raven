@@ -67,7 +67,6 @@ class ObjectiveFunctionProcess(Process):
         )
 
     def _handler(self, request, response):
-
         obs_fn = request.inputs["obs"][0].file
         sim_fn = request.inputs["sim"][0].file
         if "name" in request.inputs:
