@@ -7,7 +7,7 @@ on:
   pull_request:
 
 env:
-  MAIN_TESTDATA_BRANCH: "fix_geometrytypes"
+  MAIN_TESTDATA_BRANCH: "master"
 
 jobs:
   black:
