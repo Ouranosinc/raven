@@ -38,7 +38,6 @@ class RavenProcess(Process):
     model_cls = Raven
 
     def __init__(self):
-
         super().__init__(
             self._handler,
             identifier=self.identifier,
@@ -97,7 +96,6 @@ class RavenProcess(Process):
         # Parse all other input parameters
         for name, objs in request.inputs.items():
             for obj in objs:
-
                 # Named tuples
                 if name in self.tuple_inputs:
                     data = self.parse_tuple(obj)
@@ -121,7 +119,8 @@ class RavenProcess(Process):
     def run(self, model, ts, kwds):
         """Run the model.
 
-        If keywords contain `rvc`, initialize the model using the initial condition file."""
+        If keywords contain `rvc`, initialize the model using the initial condition file.
+        """
         model(ts=ts, **kwds)
 
     def _handler(self, request, response):
