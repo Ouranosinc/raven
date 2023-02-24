@@ -28,9 +28,12 @@ jobs:
         run: pre-commit run --all-files
 
   conda:
-    name: Conda
+    name: Conda (Python${{ matrix.python-version }})
     needs: black
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
         python-version: [ "3.8", "3.9", "3.10" ]
@@ -42,12 +45,11 @@ jobs:
           cache-downloads: true
           environment-file: environment.yml
           extra-specs: |
-            mamba
             python=${{ matrix.python-version }}
       - name: Conda and Mamba versions
-        shell: bash -l {0}
         run: |
-            mamba --version
+            micromamba --version
+            conda --version
       - name: Install RavenWPS
         run: |
           pip install -e ".[dev]"
