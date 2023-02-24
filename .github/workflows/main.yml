@@ -12,7 +12,7 @@ env:
 jobs:
   black:
     name: Code linting
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.11.0
@@ -28,38 +28,43 @@ jobs:
         run: pre-commit run --all-files
 
   conda:
-    name: Conda
+    name: Conda (Python${{ matrix.python-version }})
     needs: black
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
         python-version: [ "3.8", "3.9", "3.10" ]
     steps:
       - uses: actions/checkout@v3
-      - name: Setup miniconda with mamba
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
+        uses: mamba-org/provision-with-micromamba@main
         with:
-          activate-environment: raven
-          channel-priority: true
-          channels: conda-forge,defaults
+          cache-downloads: true
           environment-file: environment.yml
-          miniforge-variant: Mambaforge
-          python-version: ${{ matrix.python-version }}
-      - name: Conda and mamba versions
-        shell: bash -l {0}
+          extra-specs: |
+            python=${{ matrix.python-version }}
+      - name: Conda and Mamba versions
         run: |
-          mamba --version
-      - name: Install and test RavenWPS
-        shell: bash -l {0}
+            micromamba --version
+            conda --version
+      - name: Install RavenWPS
         run: |
           pip install -e ".[dev]"
+      - name: List installed packages
+        run: |
+          conda list
+      - name: Test RavenPy
+        run: |
           pytest tests
 
   finish:
     name: Finish
     needs:
       - conda
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container: python:3-slim
     steps:
       - name: Finished
