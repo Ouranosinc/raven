@@ -67,7 +67,6 @@ class GraphFcstUncertaintyProcess(Process):
         )
 
     def _handler(self, request, response):
-
         # Handle inputs
         sim_fn = request.inputs["fcst"][0].file
         fcst_var = request.inputs["fcst_var"][0].data
