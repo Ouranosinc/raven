@@ -6,6 +6,9 @@ on:
       - master
   pull_request:
 
+env:
+  MAIN_TESTDATA_BRANCH: "master"
+
 jobs:
   black:
     name: Code linting

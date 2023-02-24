@@ -23,7 +23,6 @@ def newmainfct(argv):
     try:
         opts, args = getopt.getopt(argv, "e:d:i:o:t:n")
     except getopt.GetoptError:
-
         print(
             "main.py -e executable (raven|ostrich) -d workingdir -i dataset -o outdir -t template_dir -n (nocleanup)"
         )
@@ -77,10 +76,8 @@ def newmainfct(argv):
     job_finished = False
     abnormal_ending = False
     while not job_finished:
-
         time.sleep(60)
         try:
-
             out, p = raven_proc.monitor()
             print(out)
             if out == "RUNNING":

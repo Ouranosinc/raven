@@ -75,7 +75,6 @@ class HydroBasinsSelectionProcess(Process):
         )
 
     def _handler(self, request, response):
-
         # level = 12  # request.inputs['level'][0].data
         # lakes = True  # request.inputs['lakes'][0].data
         collect_upstream = request.inputs["aggregate_upstream"][0].data
@@ -95,7 +94,6 @@ class HydroBasinsSelectionProcess(Process):
         id_number = int(gdf.loc[0]["HYBAS_ID"])
 
         if collect_upstream:
-
             # Collect features from GeoServer
             response.update_status("Collecting relevant features", status_percentage=50)
 
