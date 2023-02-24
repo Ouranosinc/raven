@@ -7,7 +7,6 @@ from ravenpy.utilities.forecasting import make_climpred_hindcast_object
 
 class ClimpredHindcastVerificationProcess(Process):
     def __init__(self):
-
         hindcasts = ComplexInput(
             "hindcasts",
             "3-dimensional xarray dataset / netcdf with hindcasts",
@@ -62,7 +61,6 @@ class ClimpredHindcastVerificationProcess(Process):
         )
 
     def _handler(self, request, response):
-
         hindcasts = xr.open_dataset(request.inputs["hindcasts"][0].file)
         qobs = xr.open_dataset(request.inputs["observations"][0].file)
         metric = request.inputs["metric"][0].data

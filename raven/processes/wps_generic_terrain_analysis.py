@@ -71,7 +71,6 @@ class TerrainAnalysisProcess(Process):
         )
 
     def _handler(self, request, response):
-
         # Process inputs
         # ---------------
         shape_url = request.inputs["shape"][0].file
@@ -130,8 +129,10 @@ class TerrainAnalysisProcess(Process):
         rpj = tempfile.NamedTemporaryFile(
             prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
         ).name
+
+        # fiona changes: target_crs.to_dict() needs to be addressed in RavenPy
         generic_vector_reproject(
-            vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_epsg()
+            vector_file, rpj, source_crs=vec_crs, target_crs=projection.to_dict()
         )
         with open(rpj) as src:
             geo = json.load(src)

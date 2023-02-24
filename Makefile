@@ -11,6 +11,7 @@ WPS_URL := http://0.0.0.0:$(WPS_PORT)
 # If WPS_URL is overridden, this should also be overridden to match.
 WPS_OUTPUT_URL := http://localhost:$(WPS_PORT)/outputs
 
+# This will only work on Linux (not macOS/homebrew GDAL)
 GDAL_VERSION := $(shell gdal-config --version)
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
