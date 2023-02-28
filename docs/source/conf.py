@@ -51,6 +51,9 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
 ]
 
+autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 2
+
 autoapi_type = "python"
 autoapi_dirs = ["../../raven"]
 autoapi_file_pattern = "*.py"
