@@ -1,6 +1,22 @@
 Changes
 =======
 
+0.17.0 (2023-02-28)
+-------------------
+
+Major Changes
+^^^^^^^^^^^^^
+* Updated testing ensemble to use `pytest-xdist` (#448)
+* Updated `RavenPy` to v0.11.0, `raven-hydro` to v3.6, and `fiona` to v1.9 (#461)
+* Modified several geospatial processes to adapt to new APIs (#461)
+* Datetime signatures for some models used in notebooks have been adjusted/fixed (#453)
+
+Internal Changes
+^^^^^^^^^^^^^^^^
+* Makefile updates to better perform notebook refresh actions (#459)
+* Pre-commit style updates (#446, #447, #449, #461)
+* Use `provision-with-micromamba` GitHub Action in CI workflows (#462)
+
 0.16.0 (2022-11-01)
 -------------------
 
