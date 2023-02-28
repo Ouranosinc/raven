@@ -9,6 +9,7 @@ Major Changes
 * Updated testing ensemble to use `pytest-xdist` (#448)
 * Updated `RavenPy` to v0.11.0, `raven-hydro` to v3.6, and `fiona` to v1.9 (#461)
 * Modified several geospatial processes to adapt to new APIs (#461)
+* Datetime signatures for some models used in notebooks have been adjusted/fixed (#453)
 
 Internal Changes
 ^^^^^^^^^^^^^^^^
