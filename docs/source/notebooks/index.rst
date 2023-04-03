@@ -2,7 +2,7 @@
 Notebooks
 =========
 
-Most notebooks have now been migrated to the Ravenpy repository available at github.com/CSHS-CWRA/RavenPy.
+Most notebooks have now been migrated to the `RavenPy <https://pypi.org/project/ravenpy/>`_ repository available on `GitHub <https://github.com/CSHS-CWRA/ravenpy>`_.
 
 Those that remain are related to geoprocessing:
 
@@ -14,3 +14,5 @@ Geoprocessing
 
    Region_selection
    Subset_climate_data_over_watershed
+
+
