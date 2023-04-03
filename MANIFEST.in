@@ -15,11 +15,12 @@ exclude .lfsconfig
 exclude Dockerfile
 exclude Makefile
 exclude tests/.coverage
+exclude docs/source/output-sanitize.cfg
 
 global-exclude __pycache__
 global-exclude *.py[co]
 
 recursive-exclude docs/source/notebooks/.ipynb_checkpoints *
 recursive-exclude docs/source/paper *
-recursive-exclude docs/source/_build *
+recursive-exclude docs/build *
 recursive-exclude etc *.cfg
