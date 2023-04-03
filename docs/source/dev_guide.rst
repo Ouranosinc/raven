@@ -1,3 +1,5 @@
+.. highlight:: console
+
 .. _devguide:
 
 Developer Guide
@@ -26,15 +28,11 @@ Re-create a fresh environment
 Building the docs
 -----------------
 
-First install dependencies for the documentation:
-
-.. code-block:: console
+First install dependencies for the documentation::
 
   $ make develop
 
-Run the Sphinx docs generator:
-
-.. code-block:: console
+Run the Sphinx docs generator::
 
   $ make docs
 
@@ -54,21 +52,15 @@ First activate the ``raven`` Conda environment and install ``pytest``.
    OR
    $ make develop
 
-Run quick tests (skip slow and online):
-
-.. code-block:: console
+Run quick tests (skip slow and online)::
 
     $ pytest -m 'not slow and not online'"
 
-Run all tests:
-
-.. code-block:: console
+Run all tests::
 
     $ pytest
 
-Check pep8:
-
-.. code-block:: console
+Check PEP8::
 
     $ flake8
 
@@ -88,9 +80,7 @@ Running notebooks tests
 -----------------------
 
 Assuming that the ``raven`` conda env has already been created and is up-to-date and
-raven-wps has been installed with ``make develop``.
-
-.. code-block:: console
+raven-wps has been installed with ``make develop``::
 
     # start local raven-wps server to test against
     $ make start  # remember to make stop once done
@@ -98,34 +88,30 @@ raven-wps has been installed with ``make develop``.
     # to test all notebooks
     $ make test-notebooks
 
-    OR
+ Or::
 
     # to test a single notebook (note the .run at the end of the notebook path)
     $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
 
 The notebooks may also require other WPS services (Finch and Flyingpigeon).  By
 default these are from the production server but we can point the notebooks to
-local servers if needed for development purposes:
-
-.. code-block:: console
+local servers if needed for development purposes::
 
     # to test all notebooks
     $ make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
-    OR
+Or::
 
     # to test a single notebook (note the .run at the end of the notebook path)
     $ make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
 
 If instead we want to run the notebooks against the production raven-wps server
-or any other raven-wps servers:
-
-.. code-block:: console
+or any other raven-wps servers::
 
     # to test all notebooks
     $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps test-notebooks
 
-    OR
+Or::
 
     # to test juste 1 notebook (note the .run at the end of the notebook path)
     $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
@@ -138,9 +124,7 @@ Starting local Jupyter server to edit/develop notebooks
 -------------------------------------------------------
 
 Assuming that the ``raven`` conda env has already been created and is up-to-date and
-raven-wps has been installed with ``make develop``.
-
-.. code-block:: console
+raven-wps has been installed with ``make develop``::
 
     # start local raven-wps server to test against
     $ make start  # remember to make stop once done
@@ -164,9 +148,7 @@ test-notebooks`` above.  For those that failed, manually starting a local
 Jupyter server and refresh them manually.
 
 Assuming that the ``raven`` conda env has already been created and is up-to-date and
-raven-wps has been installed with ``make develop``.
-
-.. code-block:: console
+raven-wps has been installed with ``make develop``::
 
     # start local raven-wps server to test against
     $ make start  # remember to make stop once done
@@ -174,7 +156,7 @@ raven-wps has been installed with ``make develop``.
     # to refresh all notebooks
     $ make refresh-notebooks
 
-    OR
+Or::
 
     # to refresh a single notebook (note the .refresh at the end of the notebook path)
     $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.refresh

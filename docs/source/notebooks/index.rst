@@ -2,4 +2,4 @@
 Notebooks
 =========
 
-Notebooks have now been migrated to the Ravenpy repository available at github.com/CSHS-CWRA/RavenPy.
+Notebooks have now been migrated to the `RavenPy <https://pypi.org/project/ravenpy/>`_ repository available on `GitHub <https://github.com/CSHS-CWRA/ravenpy>`_.
