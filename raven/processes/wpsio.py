@@ -16,9 +16,6 @@ from pywps import (
 )
 from pywps.app.Common import Metadata
 
-
-
-
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
 # ---------------------------------------- #
@@ -142,7 +139,6 @@ statistics = ComplexOutput(
     abstract="Land-use type pixel counts using either standard or simplified UNFAO categories.",
     supported_formats=[FORMATS.JSON],
 )
-
 
 
 # TODO: Add configuration files to output

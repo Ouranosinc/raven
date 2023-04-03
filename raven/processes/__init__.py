@@ -17,4 +17,4 @@ geo = [
 ]
 
 
-processes =  geo
+processes = geo
