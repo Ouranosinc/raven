@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.18.0 (2023-04-03)
+0.18.0 (2023-04-XX)
 -------------------
 
 Major Changes
@@ -9,6 +9,14 @@ Major Changes
 * Removed Raven WPS capabilities for hydrological modelling, graphing and forecasting (moved to Ravenpy).
 * Removed notebooks and migrated to Ravenpy. Adapted them to the new Ravenpy configuration.
 * Removed all tests related to Raven WPS modelling.
+
+0.17.1 (2023-04-04)
+-------------------
+
+Internal Changes
+^^^^^^^^^^^^^^^^
+* Dockerfile configuration now uses Python3.8 and `condaforge/mambaforge` base image (#466)
+* `pandas` is temporarily pinned below v2.0 (#466)
 
 0.17.0 (2023-02-28)
 -------------------
