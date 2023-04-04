@@ -1,5 +1,6 @@
 # vim:set ft=dockerfile:
-FROM continuumio/miniconda3
+FROM condaforge/mambaforge
+ARG DEBIAN_FRONTEND=noninteractive
 MAINTAINER https://github.com/huard/raven
 LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.17.0"
 
@@ -8,12 +9,12 @@ RUN apt-get update && apt-get install -y \
  build-essential unzip libnetcdf-dev curl \
 && rm -rf /var/lib/apt/lists/*
 
-# Update conda
-RUN conda update -n base conda
+# Update conda and mamba
+RUN mamba update -n base conda mamba
 
 # Create conda environment
 COPY environment.yml /opt/wps/
-RUN conda create --yes -n wps python=3.7 && conda env update -n wps -f /opt/wps/environment.yml
+RUN mamba create --yes -n wps python=3.8 && mamba env update -n wps -f /opt/wps/environment.yml
 
 # Copy WPS project
 COPY . /opt/wps

@@ -22,7 +22,7 @@ dependencies:
   - nbval
   - numpy <1.24  # Pinned for numba compatibility. Should be addressed within xclim.
   - owslib
-  - pandas
+  - pandas <2.0  # Pinned for xarray<=2023.3.0 compatibility.
   - pandoc
   - poppler
   - psutil
