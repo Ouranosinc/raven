@@ -11,7 +11,7 @@ scipy
 matplotlib
 xarray>=0.18
 xclim>=0.31.0
-pandas
+pandas<2.0
 requests
 netCDF4
 dask
