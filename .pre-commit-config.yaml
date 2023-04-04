@@ -31,7 +31,7 @@ repos:
     -   id: flake8
         args: [ '--config=setup.cfg' ]
 -   repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.3.0
     hooks:
     -   id: black
         args: [ '--target-version=py38' ]
@@ -41,7 +41,7 @@ repos:
     -   id: isort
         args: [ '--profile=black', '--filter-files', '--py=38' ]
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.3
+    rev: 1.7.0
     hooks:
       - id: nbqa-pyupgrade
         args: [ "--py38-plus" ]
@@ -60,7 +60,7 @@ repos:
       - id: blackdoc
         additional_dependencies: [ 'black==23.1.0' ]
 -   repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.29.0
+    rev: v1.30.0
     hooks:
       - id: yamllint
         args: [ '--config-file', '.yamllint.yaml' ]
@@ -69,7 +69,7 @@ repos:
     hooks:
       - id: check-manifest
 -   repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.21.0
+    rev: 0.22.0
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
