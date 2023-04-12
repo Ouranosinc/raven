@@ -46,6 +46,11 @@
     "web processing services"
   ],
   "license": "MIT",
+  "communities": [
+    {
+      "identifier": "ouranos"
+    }
+  ],
   "upload_type": "software",
   "access_right": "open"
 }
