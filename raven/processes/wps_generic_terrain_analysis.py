@@ -6,14 +6,15 @@ import shapely.geometry as sgeo
 import shapely.ops as ops
 from pyproj.crs import CRS
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-from ravenpy.utilities.analysis import dem_prop
-from ravenpy.utilities.checks import boundary_check, single_file_check
-from ravenpy.utilities.geo import (
+
+from raven.utilities.analysis import dem_prop
+from raven.utilities.checks import boundary_check, single_file_check
+from raven.utilities.geo import (
     generic_raster_clip,
     generic_raster_warp,
     generic_vector_reproject,
 )
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer
+from raven.utilities.io import archive_sniffer, crs_sniffer
 
 from ..utils import gather_dem_tile
 from . import wpsio as wio

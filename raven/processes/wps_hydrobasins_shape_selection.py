@@ -3,8 +3,8 @@ import logging
 
 import geopandas as gpd
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-from ravenpy.utilities import geoserver
 
+from raven.utilities import geoserver
 from raven.utils import parse_lonlat
 
 LOGGER = logging.getLogger("PYWPS")
