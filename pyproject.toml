@@ -1,0 +1,194 @@
+[build-system]
+requires = ["flit_core >=3.8,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "raven"
+authors = [
+  {name = "David Huard", email = "huard.david@ouranos.ca"}
+]
+maintainers = [
+  {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"},
+  {name = "Tuan Long Vu", email = "vu.long@ouranos.ca"}
+]
+readme = {file = "README.rst", content-type = "text/x-rst"}
+requires-python = ">=3.9.0"
+keywords = ["wps", "pywps", "birdhouse", "raven", "hydrology", "gis", "analysis"]
+license = {file = "LICENSE.txt"}
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "Intended Audience :: Science/Research",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX",
+  "Programming Language :: Python",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Scientific/Engineering :: Atmospheric Science",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Topic :: Scientific/Engineering :: Hydrology",
+  "License :: OSI Approved :: MIT License"
+]
+dynamic = ["description", "version"]
+dependencies = [
+  "click",
+  "jinja2",
+  "matplotlib",
+  "netCDF4",
+  "numpy",
+  "owslib<0.29",
+  "pandas<2.0", # Pinned for xarray<=2023.3.0 compatibility.
+  "psutil",
+  "pywps==4.5.1",
+  "requests",
+  "xarray>=0.18",
+  "xclim>=0.31.0",
+  # GIS libraries
+  "affine",
+  "fiona>=1.9.0,<2.0",
+  "gdal",
+  "geojson",
+  "geopandas",
+  "pyproj>=3.4",
+  "pysheds",
+  "rasterio",
+  "rasterstats",
+  "rioxarray",
+  "shapely",
+  # Docs and other utilities
+  "fsspec",
+  "psycopg2", # to use postgres to log pywps requests like in Prod
+  "pymetalink",
+  "unidecode"
+]
+
+[project.optional-dependencies]
+dev = [
+  # Dev tools and testing
+  "birdhouse-birdy",
+  "black",
+  "black-nb",
+  "bumpversion",
+  "flake8",
+  "ipykernel",
+  "ipywidgets",
+  "nbconvert",
+  "nbsphinx",
+  "nbval",
+  "nc-time-axis",
+  "pandoc",
+  "pre-commit",
+  "pytest",
+  "pytest-dependency",
+  "pytest-flake8",
+  "pytest-notebook",
+  "pytest-xdist>=3.2",
+  "sphinx-autoapi",
+  "sphinx-autodoc-typehints",
+  "sphinx-codeautolink",
+  "sphinx-copybutton",
+  "sphinx>=1.7",
+  "sphinx_rtd_theme>=1.0",
+  "urlpath",
+  "yamllint"
+]
+docs = [
+  "ipython",
+  "ipywidgets",
+  "nbsphinx",
+  "numpy",
+  "pip",
+  "pypandoc",
+  "pywps==4.5.1",
+  "sphinx>=1.7",
+  "sphinx-autodoc-typehints",
+  "sphinx-codeautolink",
+  "sphinx-copybutton",
+  "sphinx_rtd_theme>=1.0"
+]
+
+[project.scripts]
+raven = "raven.cli:cli"
+
+[project.urls]
+"Homepage" = "https://pavics-raven.readthedocs.io/"
+"Source" = "https://github.com/Ouranosinc/raven/"
+"Changelog" = "https://pavics-sdi.readthedocs.io/projects/raven/en/latest/changes.html"
+"Issue tracker" = "https://github.com/Ouranosinc/raven/issues"
+"About Ouranos" = "https://www.ouranos.ca/en/"
+
+[tool]
+
+[tool.black]
+target-version = [
+  "py39"
+]
+
+[tool.coverage.run]
+relative_files = true
+omit = ["tests/*.py"]
+
+[tool.flit.sdist]
+include = [
+  "AUTHORS.rst",
+  "CHANGES.rst",
+  "CONTRIBUTING.rst",
+  "LICENSE.txt",
+  "Makefile",
+  "README.rst",
+  "Dockerfile",
+  "docker-compose.yml",
+  "docs/**/*.ico",
+  "docs/**/*.ipynb",
+  "docs/**/*.svg",
+  "docs/Makefile",
+  "docs/source/conf.py",
+  "environment*.yml",
+  "raven/**/*.py",
+  "raven/data/**/*.zip",
+  "raven/default.cfg",
+  "raven/hpc_interface/**/*",
+  "raven/templates/pywps.cfg",
+  "setup.cfg",
+  "tests/*.py",
+  "tests/test.cfg",
+  "tox.ini"
+]
+exclude = [
+  "**/*.py[co]",
+  "**/__pycache__",
+  ".*",
+  "docs/build",
+  "docs/source/modules.rst",
+  "docs/source/notebooks/.ipynb_checkpoints",
+  "docs/source/output-sanitize.cfg",
+  "docs/source/raven*.rst",
+  "tests/.coverage"
+]
+
+[tool.isort]
+profile = "black"
+py_version = 39
+append_only = true
+
+[tool.pytest.ini_options]
+addopts = [
+  "--verbose",
+  "--color=yes",
+  "--strict-markers",
+  "--tb=native",
+  "--numprocesses=logical",
+  "--maxprocesses=8",
+  "--dist=worksteal"
+]
+python_files = "test_*.py"
+norecursedirs = ["src", ".git", "bin"]
+filterwarnings = ["ignore::UserWarning"]
+testpaths = "tests"
+markers = [
+  "online: mark test to need internet connection (deselect with '-m \"not online\"')",
+  "slow: mark test to be slow (deselect with '-m \"not slow\"')"
+]

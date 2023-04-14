@@ -2,6 +2,6 @@
 # without importing the main package when its dependencies are not installed.
 # See: https://packaging.python.org/guides/single-sourcing-package-version
 
-__author__ = """David Huard"""
+__author__ = "David Huard"
 __email__ = "huard.david@ouranos.ca"
 __version__ = "0.17.1"
