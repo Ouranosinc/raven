@@ -1,6 +1,5 @@
 # https://github.com/computationalmodelling/nbval/issues/139 broken by pytest 6.0.0
 bumpversion
-cruft
 flake8
 ipython
 nbconvert
