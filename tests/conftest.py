@@ -5,9 +5,10 @@ from typing import Optional, Union
 
 import pytest
 from filelock import FileLock
-from ravenpy.utilities.testdata import _default_cache_dir
-from ravenpy.utilities.testdata import get_file as _get_file
-from ravenpy.utilities.testdata import get_local_testdata as _get_local_testdata
+
+from raven.utilities.testdata import _default_cache_dir
+from raven.utilities.testdata import get_file as _get_file
+from raven.utilities.testdata import get_local_testdata as _get_local_testdata
 
 MAIN_TESTDATA_BRANCH = os.getenv("MAIN_TESTDATA_BRANCH", "master")
 SKIP_TEST_DATA = os.getenv("SKIP_TEST_DATA")

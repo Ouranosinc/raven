@@ -1,27 +1,19 @@
-ravenpy>=0.11.0
 six
 pywps==4.5.1
 owslib
-lxml
 jinja2
 click
 psutil
 numpy
-scipy
 matplotlib
 xarray>=0.18
 xclim>=0.31.0
 pandas<2.0
 requests
 netCDF4
-dask
-toolz
-spotpy
-statsmodels
 # GIS LIBRARIES
 pysheds
 affine
-rtree
 fiona~=1.9.0
 geojson
 geopandas
@@ -32,12 +24,6 @@ rioxarray
 shapely
 # DOCS and other utilities
 unidecode
-ipyleaflet
-ipython # needed for the parsing of Jupyter Notebooks
 psycopg2 # to use postgres to log pywps requests like in Prod
-xskillscore
-bokeh
-distributed
-partd
 fsspec
 pymetalink
