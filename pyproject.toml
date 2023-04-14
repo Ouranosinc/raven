@@ -27,6 +27,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
   "Topic :: Scientific/Engineering :: Hydrology",
@@ -124,7 +125,9 @@ raven = "raven.cli:cli"
 
 [tool.black]
 target-version = [
-  "py39"
+  "py39",
+  "3.10",
+  "3.11"
 ]
 
 [tool.coverage.run]
