@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python >=3.9
+  - python >=3.9,<3.11
   - pywps ==4.5.1
   - affine
   - cartopy
