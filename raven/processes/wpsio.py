@@ -6,14 +6,7 @@ This module contains the WPS inputs and outputs that are reused across multiple 
 
 from dataclasses import fields
 
-from pywps import (
-    FORMATS,
-    ComplexInput,
-    ComplexOutput,
-    Format,
-    LiteralInput,
-    LiteralOutput,
-)
+from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput
 from pywps.app.Common import Metadata
 
 # ---------------------------------------- #

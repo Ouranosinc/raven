@@ -10,13 +10,13 @@ from raven.utilities import geoserver
 from raven.utilities.checks import single_file_check
 from raven.utilities.geo import generic_vector_reproject
 from raven.utilities.io import archive_sniffer, crs_sniffer, get_bbox
-
-from ..utils import (
+from raven.utils import (
     NALCMS_PROJ4,
     SIMPLE_CATEGORIES,
     SUMMARY_ZONAL_STATS,
     TRUE_CATEGORIES,
 )
+
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

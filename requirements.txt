@@ -1,16 +1,15 @@
-six
-pywps==4.5.1
-owslib
-jinja2
 click
-psutil
-numpy
+jinja2
 matplotlib
+netCDF4
+numpy
+owslib
+pandas<2.0
+psutil
+pywps==4.5.1
+requests
 xarray>=0.18
 xclim>=0.31.0
-pandas<2.0
-requests
-netCDF4
 # GIS LIBRARIES
 pysheds
 affine
