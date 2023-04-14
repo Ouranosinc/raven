@@ -7,9 +7,8 @@ dependencies:
   - birdy
   - black
   - bump2version
-  - cruft
   - flake8
-  - ipython
+  - ipykernel
   - ipywidgets
   - nbconvert
   - nbsphinx
@@ -22,6 +21,8 @@ dependencies:
   - pytest-notebook
   - pytest-xdist >=3.2
   - sphinx >=1.7
-  - sphinx-autoapi
-  - twine
+  - sphinx-autodoc-typehints
+  - sphinx-codeautolink
+  - sphinx-copybutton
+  - sphinx_rtd_theme >=1.0
   - urlpath
