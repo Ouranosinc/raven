@@ -15,8 +15,8 @@ from raven.utilities.geo import (
     generic_vector_reproject,
 )
 from raven.utilities.io import archive_sniffer, crs_sniffer
+from raven.utils import gather_dem_tile
 
-from ..utils import gather_dem_tile
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

@@ -8,8 +8,8 @@ from rasterstats import zonal_stats
 from raven.utilities.checks import single_file_check
 from raven.utilities.geo import generic_raster_warp
 from raven.utilities.io import archive_sniffer, crs_sniffer, raster_datatype_sniffer
+from raven.utils import gather_dem_tile, zonalstats_raster_file
 
-from ..utils import gather_dem_tile, zonalstats_raster_file
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")
