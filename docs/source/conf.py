@@ -40,15 +40,19 @@ if "DO_NOT_CHECK_EXECUTABLE_EXISTENCE" not in os.environ:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.imgconverter",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
-    "pywps.ext_autodoc",
-    "sphinx.ext.autosectionlabel",
-    "sphinx.ext.imgconverter",
-    "nbsphinx",
+    "sphinx.ext.viewcode",
     "IPython.sphinxext.ipython_console_highlighting",
+    "nbsphinx",
+    "pywps.ext_autodoc",
+    "sphinx_autodoc_typehints",
+    "sphinx_codeautolink",
+    "sphinx_copybutton",
+    "sphinx_rtd_theme",
 ]
 
 autosectionlabel_prefix_document = True
@@ -63,45 +67,45 @@ autoapi_options = ["members", "undoc-members", "private-members"]
 # List of all tested working mock imports from all birds so new birds can
 # inherit without having to test which work which do not.
 autodoc_mock_imports = [
-    "numpy",
-    "xarray",
-    "fiona",
-    "rasterio",
-    "shapely",
-    "osgeo",
-    "geopandas",
-    "pandas",
-    "statsmodels",
-    "xclim",
     "affine",
-    "rasterstats",
-    "spotpy",
-    "matplotlib",
-    "scipy",
-    "unidecode",
-    "gdal",
-    "sentry_sdk",
-    "dask",
-    "numba",
-    "parse",
-    "siphon",
-    "sklearn",
+    "bottleneck",
+    "cairo",
+    "cartopy",
     "cftime",
     "clisops",
-    "netCDF4",
-    "bottleneck",
-    "ocgis",
-    "geotiff",
+    "dask",
+    "fiona",
+    "gdal",
+    "geopandas",
     "geos",
+    "geotiff",
     "hdf4",
     "hdf5",
-    "zlib",
-    "pyproj",
+    "matplotlib",
+    "netCDF4",
+    "numba",
+    "numpy",
+    "ocgis",
+    "osgeo",
+    "pandas",
+    "parse",
     "proj",
-    "cartopy",
-    "scikit-learn",
-    "cairo",
+    "pyproj",
+    "rasterio",
+    "rasterstats",
     "rioxarray",
+    "scikit-learn",
+    "scipy",
+    "sentry_sdk",
+    "shapely",
+    "siphon",
+    "sklearn",
+    "spotpy",
+    "statsmodels",
+    "unidecode",
+    "xarray",
+    "xclim",
+    "zlib",
 ]
 
 # Monkeypatch constant because the following are mock imports.
@@ -184,17 +188,17 @@ html_theme = "sphinx_rtd_theme"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/birdhouse_logo.svg"
+html_logo = "static/birdhouse_logo.svg"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = "_static/favicon.ico"
+html_favicon = "static/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = ["static"]
 
 
 # -- Options for HTMLHelp output ---------------------------------------
