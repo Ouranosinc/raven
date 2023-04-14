@@ -53,7 +53,6 @@ repos:
       - id: nbqa-black
         args: [ "--target-version=py38" ]
       - id: nbqa-isort
-        args: [ "--settings-file=setup.cfg" ]
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:
@@ -68,7 +67,7 @@ repos:
     rev: v1.30.0
     hooks:
       - id: yamllint
-        args: [ '--config-file', '.yamllint.yaml' ]
+        args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.22.0
     hooks:
