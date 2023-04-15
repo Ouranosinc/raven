@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.18.0 (unreleased)
+-------------------
+
+Major Changes
+^^^^^^^^^^^^^
+* `singularity` components have been removed from ``raven`` (#470)
+
 0.17.1 (2023-04-04)
 -------------------
 
