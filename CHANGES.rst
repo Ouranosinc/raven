@@ -1,14 +1,16 @@
 Changes
 =======
 
-0.18.0 (2023-04-XX)
+
+0.18.0 (unreleased)
 -------------------
 
 Major Changes
 ^^^^^^^^^^^^^
-* Removed Raven WPS capabilities for hydrological modelling, graphing and forecasting (moved to Ravenpy).
-* Removed notebooks and migrated to Ravenpy. Adapted them to the new Ravenpy configuration.
-* Removed all tests related to Raven WPS modelling.
+* `singularity` components have been removed from ``raven`` (#470)
+* Removed Raven WPS capabilities for hydrological modelling, graphing and forecasting (moved to RavenPy) (#464)
+* Removed notebooks and migrated to Ravenpy. Adapted them to the new Ravenpy configuration (#464)
+* Removed all tests related to Raven WPS modelling (#464)
 
 0.17.1 (2023-04-04)
 -------------------
