@@ -18,7 +18,7 @@ def populate_testing_data(
     temp_folder: Optional[Path] = None,
     branch: str = MAIN_TESTDATA_BRANCH,
     _local_cache: Path = _default_cache_dir,
-):
+) -> None:
     if _local_cache.joinpath(".data_written").exists():
         # This flag prevents multiple calls from re-attempting to download testing data in the same pytest run
         return
