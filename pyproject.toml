@@ -12,7 +12,7 @@ maintainers = [
   {name = "Tuan Long Vu", email = "vu.long@ouranos.ca"}
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.9.0"
+requires-python = ">=3.8.0"
 keywords = ["wps", "pywps", "birdhouse", "raven", "hydrology", "gis", "analysis"]
 license = {file = "LICENSE.txt"}
 classifiers = [
@@ -25,9 +25,10 @@ classifiers = [
   "Programming Language :: Python",
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
+  # "Programming Language :: Python :: 3.11",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
   "Topic :: Scientific/Engineering :: Hydrology",
@@ -125,9 +126,9 @@ raven = "raven.cli:cli"
 
 [tool.black]
 target-version = [
+  "py38",
   "py39",
-  "3.10",
-  "3.11"
+  "py310"
 ]
 
 [tool.coverage.run]
@@ -174,7 +175,7 @@ exclude = [
 
 [tool.isort]
 profile = "black"
-py_version = 39
+py_version = 38
 append_only = true
 
 [tool.pytest.ini_options]
