@@ -2,81 +2,80 @@ default_language_version:
     python: python3
 
 repos:
--   repo: https://github.com/asottile/pyupgrade
+  - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.1
     hooks:
       - id: pyupgrade
-        args: [ --py38-plus ]
--   repo: https://github.com/pre-commit/pre-commit-hooks
+        args: [ '--py38-plus' ]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    -   id: trailing-whitespace
-        exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt|setup.cfg
-    -   id: end-of-file-fixer
-        exclude: .ipynb|.rvc|.rvh|.rvi|.rvp|.rvt|.tpl|.txt
-    -   id: check-json
-    -   id: check-yaml
+      - id: trailing-whitespace
+        exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl|setup.cfg
+      - id: end-of-file-fixer
+        exclude: .rvc|.rvh|.rvi|.rvp|.rvt|.tpl
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
         args: [ '--allow-multiple-documents' ]
-    -   id: debug-statements
-    -   id: pretty-format-json
+      - id: debug-statements
+      - id: pretty-format-json
         args: [ '--autofix', '--no-ensure-ascii', '--no-sort-keys' ]
--   repo: https://github.com/pre-commit/pygrep-hooks
+  - repo: https://github.com/pappasam/toml-sort
+    rev: v0.23.0
+    hooks:
+      - id: toml-sort-fix
+  - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa
       - id: rst-inline-touching-normal
--   repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
-    hooks:
-    -   id: flake8
-        args: [ '--config=setup.cfg' ]
--   repo: https://github.com/psf/black
+  - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
-    -   id: black
-        args: [ '--target-version=py38' ]
--   repo: https://github.com/PyCQA/isort
+      - id: black
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: [ '--config=setup.cfg' ]
+  - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
-    -   id: isort
-        args: [ '--profile=black', '--filter-files', '--py=38' ]
--   repo: https://github.com/nbQA-dev/nbQA
+      - id: isort
+  - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.7.0
     hooks:
       - id: nbqa-pyupgrade
-        args: [ "--py38-plus" ]
+        args: [ '--py38-plus' ]
       - id: nbqa-black
-        args: [ "--target-version=py38" ]
+        additional_dependencies: [ 'black==23.3.0' ]
       - id: nbqa-isort
-        args: [ "--settings-file=setup.cfg" ]
--   repo: https://github.com/pycqa/pydocstyle
+        additional_dependencies: [ 'isort==5.12.0' ]
+  - repo: https://github.com/pycqa/pydocstyle
     rev: 6.3.0
     hooks:
-    -   id: pydocstyle
+      - id: pydocstyle
         args: [ '--convention=numpy', '--match="(?!test_).*\.py"' ]
--   repo: https://github.com/keewis/blackdoc
+  - repo: https://github.com/keewis/blackdoc
     rev: v0.3.8
     hooks:
       - id: blackdoc
         additional_dependencies: [ 'black==23.3.0' ]
--   repo: https://github.com/adrienverge/yamllint.git
+  - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.30.0
     hooks:
       - id: yamllint
-        args: [ '--config-file', '.yamllint.yaml' ]
--   repo: https://github.com/mgedmin/check-manifest
-    rev: "0.49"
-    hooks:
-      - id: check-manifest
--   repo: https://github.com/python-jsonschema/check-jsonschema
+        args: [ '--config-file=.yamllint.yaml' ]
+  - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.22.0
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
--   repo: meta
+  - repo: meta
     hooks:
-    -   id: check-hooks-apply
-    -   id: check-useless-excludes
+      - id: check-hooks-apply
+      - id: check-useless-excludes
 
 
 ci:

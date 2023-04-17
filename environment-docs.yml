@@ -4,9 +4,8 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python >=3.9
+  - python >=3.8,<3.11
   - pywps ==4.5.1
-  - sphinx
   - ipython
   - ipywidgets
   - nbsphinx
@@ -14,4 +13,8 @@ dependencies:
   - pandas <2.0  # Pinned for xarray<=2023.3.0 compatibility.
   - pip
   - pypandoc
+  - sphinx >=1.7
+  - sphinx-autodoc-typehints
+  - sphinx-codeautolink
+  - sphinx-copybutton
   - sphinx_rtd_theme >=1.0
