@@ -4,11 +4,12 @@ import tempfile
 
 from pywps import LiteralInput, Process
 from rasterstats import zonal_stats
-from ravenpy.utilities.checks import single_file_check
-from ravenpy.utilities.geo import generic_vector_reproject
-from ravenpy.utilities.io import archive_sniffer, crs_sniffer
 
-from ..utils import gather_dem_tile
+from raven.utilities.checks import single_file_check
+from raven.utilities.geo import generic_vector_reproject
+from raven.utilities.io import archive_sniffer, crs_sniffer
+from raven.utils import gather_dem_tile
+
 from . import wpsio as wio
 
 LOGGER = logging.getLogger("PYWPS")

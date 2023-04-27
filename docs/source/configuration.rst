@@ -1,3 +1,5 @@
+.. highlight:: console
+
 .. _configuration:
 
 Configuration
@@ -24,9 +26,7 @@ You can overwrite the default `PyWPS`_ configuration by providing your own
 PyWPS configuration file (just modifiy the options you want to change).
 Use one of the existing ``sample-*.cfg`` files as example and copy them to ``etc/custom.cfg``.
 
-For example change the hostname (*demo.org*) and logging level:
-
-.. code-block:: console
+For example change the hostname (*demo.org*) and logging level::
 
    $ cd raven
    $ vim etc/custom.cfg
@@ -38,12 +38,9 @@ For example change the hostname (*demo.org*) and logging level:
    [logging]
    level = DEBUG
 
-Start the service with your custom configuration:
-
-.. code-block:: console
+Start the service with your custom configuration::
 
    # start the service with this configuration
    $ raven start -c etc/custom.cfg
-
 
 .. _PyWPS: http://pywps.org/

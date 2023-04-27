@@ -5,6 +5,8 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := raven-wps
 
+OS := $(shell uname)
+
 WPS_PORT := 9099
 WPS_URL := http://0.0.0.0:$(WPS_PORT)
 
@@ -29,7 +31,7 @@ endif
 
 CONDA := $(shell command -v conda 2> /dev/null)
 CONDA_ENV ?= $(APP_NAME)
-PYTHON_VERSION = 3.7
+PYTHON_VERSION = 3.9
 
 # Choose Anaconda installer depending on your OS
 ANACONDA_URL = https://repo.anaconda.com/miniconda
@@ -42,12 +44,16 @@ FINCH_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
 # To run tests on local servers, use
 # make FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
-ifeq "$(UNAME_S)" "Linux"
+ifeq ($(OS),"Linux")
 FN := Miniconda3-latest-Linux-x86_64.sh
-else ifeq "$(UNAME_S)" "Darwin"
+GDAL_VERSION := $(shell gdal-config --version)
+else ifeq ($(OS),"Darwin")
 FN := Miniconda3-latest-MacOSX-x86_64.sh
+GDAL_VERSION := $(shell gdalinfo --version | awk '{print $2}' | sed s'/.$//')
 else
-FN := unknown
+# UNTESTED
+FN := Miniconda3-latest-Windows-x86_64.sh
+GDAL_VERSION := $(shell gdalinfo --version | awk '{print $2}' | sed s'/.$//')
 endif
 
 # end of configuration
@@ -108,23 +114,15 @@ bootstrap: anaconda conda_env bootstrap_dev
 .PHONY: bootstrap_dev
 bootstrap_dev:
 	@echo "Installing development requirements for tests and docs ..."
-	bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
-
-.PHONY: install_ravenpy_with_binaries
-install_ravenpy_with_binaries:
-	# NOTE: this target should not be needed anymore since ravenpy can be
-	# installed by conda and all the required binaries comes with it.
-	# Have to uninstall first, otherwise ravenpy is already installed
-	# without option "--with-binaries" so it won't re-install again, even
-	# with "pip install --upgrade" because same version.
-	bash -c 'pip uninstall --yes ravenpy'
-	bash -c "pip install --no-cache-dir ravenpy[gis] gdal==$(GDAL_VERSION)"
-	bash -c 'pip install ravenpy --install-option="--with-binaries"'
+	@bash -c "source $(ANACONDA_HOME)/bin/activate $(CONDA_ENV) && pip install -r requirements_dev.txt"
 
 .PHONY: install
 install:
-	@echo "Installing application ..."
-	@-bash -c 'pip install -e .'
+	@echo "Installing application with GIS..."
+	ifdef GDAL_VERSION
+		@-bash -c "pip install --no-cache-dir gdal==$(GDAL_VERSION)"
+	endif
+	@-bash -c "pip install -e ."
 	@echo "Start service with \`make start\`"
 
 .PHONY: develop
@@ -152,7 +150,7 @@ status:
 	@-bash -c "$(APP_NAME) status"
 
 .PHONY: clean
-clean: clean-build clean-pyc clean-test raven_clean ostrich_clean ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 .PHONY: clean-build
 clean-build:

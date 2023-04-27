@@ -15,6 +15,5 @@ The :class:`wps` object behaves as a module, holding functions that, instead of 
 
 If you don't want to install anything and just try it, go to https://pavics.ouranos.ca/jupyter and login with the `public` account and the `public` password. Note that your notebooks will be publicly visible and modifiable, so don't leave anything valuable there. Also, from time to time we'll reset the public folders, so make sure you keep a local copy of your work.
 
-
 .. _`birdy`: https://birdy.readthedocs.io
 .. _`Ouranos`: https://ouranos.ca
