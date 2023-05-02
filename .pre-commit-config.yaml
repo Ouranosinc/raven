@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.3.2
     hooks:
       - id: pyupgrade
         args: [ '--py38-plus' ]
@@ -63,7 +63,7 @@ repos:
       - id: blackdoc
         additional_dependencies: [ 'black==23.3.0' ]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.30.0
+    rev: v1.31.0
     hooks:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
