@@ -4,6 +4,7 @@ import tempfile
 from collections import defaultdict
 from pathlib import Path
 
+import geopandas as gpd
 from pywps import FORMATS, ComplexOutput, Process
 from pywps.inout.outputs import MetaFile, MetaLink4
 from rasterstats import zonal_stats
@@ -114,6 +115,13 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             generic_vector_reproject(
                 vector_file, projected, source_crs=vec_crs, target_crs=NALCMS_PROJ4
             )
+            gdf = gpd.read_file(projected)
+            if sum(gdf.area) / 1e6 > 1e5:
+                LOGGER.warning(f"Vector shape has area of {sum(gdf.area) / 1E6} km2.")
+                raise Exception(
+                    "NALCMS zonal statistics only supported for areas smaller than 100,000 km2."
+                )
+
             raster_file = gather_dem_tile(
                 projected,
                 self.workdir,
