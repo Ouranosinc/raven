@@ -52,7 +52,7 @@ jobs:
             python=${{ matrix.python-version }}
       - name: Conda and Mamba versions
         run: |
-            micromamba --version
+            echo "mircomamba $(micromamba --version)"
             conda --version
       - name: Install RavenWPS
         run: |
