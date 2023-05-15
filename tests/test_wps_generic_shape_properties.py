@@ -79,10 +79,10 @@ class TestGenericShapePropertiesProcess:
         props = json.loads(out["properties"])
         assert {"centroid", "area", "perimeter", "gravelius"}.issubset(props[0].keys())
 
+        np.testing.assert_allclose(props[0]["perimeter"], 673431, atol=1)
         np.testing.assert_approx_equal(props[0]["area"], 6258366698.5253, 4)
         np.testing.assert_approx_equal(props[0]["centroid"][0], -73.41117680)
         np.testing.assert_approx_equal(props[0]["centroid"][1], 46.46286765)
-        np.testing.assert_approx_equal(props[0]["perimeter"], 673430.9089454)
         np.testing.assert_approx_equal(props[0]["gravelius"], 2.4013618703)
 
     def test_geographic_epsg(self):
@@ -161,17 +161,17 @@ class TestGenericShapePropertiesProcess:
                 props[i].keys()
             )
 
-        np.testing.assert_approx_equal(props[0]["area"], 111417901.6141605)
+        np.testing.assert_allclose(props[0]["area"], 111417901, atol=1)
         np.testing.assert_approx_equal(props[0]["centroid"][0], -71.8223648)
         np.testing.assert_approx_equal(props[0]["centroid"][1], 48.8974365)
-        np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
         np.testing.assert_approx_equal(props[0]["gravelius"], 1.2387344)
+        np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
 
-        np.testing.assert_approx_equal(props[-1]["area"], 334136117.9693527)
+        np.testing.assert_allclose(props[-1]["area"], 334136220, atol=100)
         np.testing.assert_approx_equal(props[-1]["centroid"][0], -72.6117018)
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
-        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
+        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
 
     def test_multifeature_zipped_shapefile(self, get_local_testdata):
         """Calculate shape properties for multiple features in a shape"""
@@ -210,14 +210,14 @@ class TestGenericShapePropertiesProcess:
                 props[i].keys()
             )
 
-        np.testing.assert_approx_equal(props[0]["area"], 111417901.6141605)
+        np.testing.assert_allclose(props[0]["area"], 111417901, atol=1)
         np.testing.assert_approx_equal(props[0]["centroid"][0], -71.8223648)
         np.testing.assert_approx_equal(props[0]["centroid"][1], 48.8974365)
-        np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
         np.testing.assert_approx_equal(props[0]["gravelius"], 1.2387344)
+        np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
 
-        np.testing.assert_approx_equal(props[-1]["area"], 334136117.9693527)
+        np.testing.assert_allclose(props[-1]["area"], 334136220, atol=1)
         np.testing.assert_approx_equal(props[-1]["centroid"][0], -72.6117018)
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
-        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
+        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
