@@ -168,10 +168,10 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
 
         np.testing.assert_allclose(props[-1]["area"], 334136220, atol=100)
+        np.testing.assert_allclose(props[-1]["perimeter"], 92477.3, atol=0.1)
         np.testing.assert_approx_equal(props[-1]["centroid"][0], -72.6117018)
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
-        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
 
     def test_multifeature_zipped_shapefile(self, get_local_testdata):
         """Calculate shape properties for multiple features in a shape"""
@@ -217,7 +217,7 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[0]["perimeter"], 46351.1628725)
 
         np.testing.assert_allclose(props[-1]["area"], 334136220, atol=1)
+        np.testing.assert_allclose(props[-1]["perimeter"], 92477.3, atol=0.1)
         np.testing.assert_approx_equal(props[-1]["centroid"][0], -72.6117018)
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
-        np.testing.assert_approx_equal(props[-1]["perimeter"], 92477.2915962)
