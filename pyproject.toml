@@ -51,9 +51,9 @@ dependencies = [
   # GIS libraries
   "affine",
   "fiona>=1.9.0,<2.0",
-  "gdal",
   "geojson",
   "geopandas",
+  "pyogrio",
   "pyproj>=3.4",
   "pysheds",
   "rasterio",
@@ -113,7 +113,7 @@ docs = [
 ]
 
 [project.scripts]
-raven = "raven.cli:cli"
+raven-wps = "raven.cli:cli"
 
 [project.urls]
 "Homepage" = "https://pavics-raven.readthedocs.io/"
