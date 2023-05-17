@@ -32,6 +32,7 @@ def populate_testing_data(
             "donneesqc_mrc_poly/mrc_subset.zip",
             "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff",
             "polygons/Basin_10.zip",
+            "polygons/mississippi.geojson",
             "watershed_vector/Basin_test.zip",
             "watershed_vector/LSJ_LL.zip",
         ]
