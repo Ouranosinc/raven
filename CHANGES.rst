@@ -11,6 +11,7 @@ Major Changes
 * Removed Raven WPS capabilities for hydrological modelling, graphing and forecasting (moved to RavenPy) (#464)
 * Removed notebooks and migrated to Ravenpy. Adapted them to the new Ravenpy configuration (#464)
 * Removed all tests related to Raven WPS modelling (#464)
+* Raise error message if shape area for NALCMS zonal stats raster is above 100,000 km2. (#473)
 
 0.17.1 (2023-04-04)
 -------------------
