@@ -21,7 +21,6 @@ User documentation
    dev_guide
    processes
    changes
-   developer
 
 Credits
 -------
