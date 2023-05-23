@@ -91,7 +91,7 @@ raven-wps has been installed with ``make develop``::
  Or::
 
     # to test a single notebook (note the .run at the end of the notebook path)
-    $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
+    $ make docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
 The notebooks may also require other WPS services (Finch and Flyingpigeon).  By
 default these are from the production server but we can point the notebooks to
@@ -103,7 +103,7 @@ local servers if needed for development purposes::
 Or::
 
     # to test a single notebook (note the .run at the end of the notebook path)
-    $ make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
+    $ make FLYINGPIGEON_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
 If instead we want to run the notebooks against the production raven-wps server
 or any other raven-wps servers::
@@ -114,7 +114,7 @@ or any other raven-wps servers::
 Or::
 
     # to test juste 1 notebook (note the .run at the end of the notebook path)
-    $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.run
+    $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
 We can also override all three of the server variables (WPS_URL, FINCH_WPS_URL,
 FLYINGPIGEON_WPS_URL) to pick and choose any servers/services from anywhere we want.
