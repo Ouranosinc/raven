@@ -2,7 +2,8 @@ import json
 
 import pytest
 from metalink import download as md
-from pywps import Service
+from pywps import Service, get_ElementMakerForVersion
+from pywps.app.basic import get_xpath_ns
 from pywps.tests import assert_response_success
 from shapely.geometry import MultiPolygon
 
@@ -12,6 +13,10 @@ from raven.processes import (
 )
 
 from .common import CFG_FILE, client_for, count_pixels, get_output
+
+VERSION = "1.0.0"
+WPS, OWS = get_ElementMakerForVersion(VERSION)
+xpath_ns = get_xpath_ns(VERSION)
 
 
 class TestNALCMSZonalStatsProcess:
@@ -219,3 +224,25 @@ class TestNALCMSZonalStatsWithRasterProcess:
         assert {"raster"}.issubset([*out])
         d = md.get(out["raster"], path="/tmp", segmented=False)
         assert {f"/tmp/subset_{n}.tiff" for n in range(1, 6)}.issubset(set(d))
+
+    def test_mississippi(self, get_local_testdata, tmpdir):
+        """Extremely large region testing timeout value for the GeoServer response."""
+        client = client_for(
+            Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)
+        )
+        fields = [
+            "shape=file@xlink:href=file://{shape}",
+        ]
+
+        datainputs = ";".join(fields).format(
+            shape=get_local_testdata("polygons/mississippi.geojson")
+        )
+        resp = client.get(
+            service="WPS",
+            request="Execute",
+            version="1.0.0",
+            identifier="nalcms-zonal-stats-raster",
+            datainputs=datainputs,
+        )
+        el = resp.xpath("//wps:ExceptionReport/ows:Exception/ows:ExceptionText")[0]
+        assert "areas smaller" in el.text
