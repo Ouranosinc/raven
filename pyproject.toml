@@ -4,8 +4,10 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "raven"
+description = "Web Processing Services meant to support hydrological modeling workflows."
 authors = [
-  {name = "David Huard", email = "huard.david@ouranos.ca"}
+  {name = "David Huard", email = "huard.david@ouranos.ca"},
+  {name = "Richard Arsenault", email = "richard.arsenault@etsmtl.ca "}
 ]
 maintainers = [
   {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"},
