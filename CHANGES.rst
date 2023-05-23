@@ -2,7 +2,7 @@ Changes
 =======
 
 
-0.18.0 (unreleased)
+0.18.0 (2023-05-23)
 -------------------
 
 Major Changes
