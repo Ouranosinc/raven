@@ -1,4 +1,4 @@
-name: raven-wps
+name: RavenWPS Testing
 
 on:
   push:
