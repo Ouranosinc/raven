@@ -28,12 +28,11 @@ Raven : Hydrological modeling and analytics
 Raven (the bird)
   *Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modelling framework.*
 
-Raven is an open source server project offering hydrological modeling and analysis capabilities, as well as data collection and preparation, geoprocessing and catchment delineation through the Web Processing Service (WPS) standard. Raven processes can be embedded in a graphical user interface or accessed directly from a programming environment. From Python, birdy_ WPSClient provides a user-friendly python interface to Raven's WPS processes for geospatial processing. It also integrates Ravenpy, a Python package for configuring, running and interacting with the Raven hydrological modelling framework.
+Raven is an open source server project offering data collection and preparation, as well as geoprocessing and catchment delineation through the Web Processing Service (WPS) standard. Raven processes can be embedded in a graphical user interface or accessed directly from a programming environment. From Python, birdy_ WPSClient provides a user-friendly python interface to Raven's WPS processes for geospatial processing.
 
-Raven was made to help scientists run hydrological modeling experiments with climate change projections. It includes eight lumped daily hydrological models (GR4J-CN, HBV-EC, HMETS, MOHYSE, HYPR, CanadianShield, SACSMA and Blended) that can be run in simulation, hindcasting and forecasting modes. Meteorological input variables as well as streamflow and storage outputs use the netCDF format. Raven bundles model calibration processes, time series analysis (with xarray_), hydrological indicators and frequency analysis (using xclim_). On top of this, a database of pre-calibrated model parameters over North America is available to perform model regionalization, allowing simulations in watersheds with no streamflow observations. The properties of custom watersheds can be extracted from a Digital Elevation Model and a land-use database.
+Raven was made to help scientists supplement hydrological modeling experiments with climate change projections. Raven bundles model calibration processes, time series analysis (with xarray_), hydrological indicators and frequency analysis (using xclim_). The properties of custom watersheds can be extracted from a Digital Elevation Model and a land-use database.
 
 Raven can be compiled and installed, or simply deployed using docker. A hosted version is available at  https://pavics.ouranos.ca/twitcher/ows/proxy/raven.
-
 
 Documentation
 -------------
