@@ -17,7 +17,7 @@ dependencies:
   - nbval
   - numpy
   - owslib <0.29
-  - pandas <2.0  # Pinned for xarray<=2023.3.0 compatibility.
+  - pandas
   - pandoc
   - poppler
   - psutil
