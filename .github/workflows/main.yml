@@ -44,12 +44,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@v1
         with:
-          cache-downloads: true
           environment-file: environment.yml
-          extra-specs: |
+          create-args: >-
             python=${{ matrix.python-version }}
+          cache-environment: true
       - name: Conda and Mamba versions
         run: |
             echo "mircomamba $(micromamba --version)"
