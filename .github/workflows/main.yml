@@ -60,7 +60,7 @@ jobs:
       - name: List installed packages
         run: |
           conda list
-      - name: Test RavenPy
+      - name: Test RavenWPS
         run: |
           python3 -m pytest tests
 
