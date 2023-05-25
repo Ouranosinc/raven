@@ -29,7 +29,7 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
-  # "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.11",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
   "Topic :: Scientific/Engineering :: Hydrology",
@@ -43,7 +43,8 @@ dependencies = [
   "netCDF4",
   "numpy",
   "owslib<0.29",
-  "pandas<2.0", # Pinned for xarray<=2023.3.0 compatibility.
+  "pandas<2.0; python_version == '3.8'",
+  "pandas; python_version >= '3.9'",
   "psutil",
   "pywps==4.5.1",
   "requests",

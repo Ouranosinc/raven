@@ -1,4 +1,4 @@
-name: raven-wps
+name: RavenWPS Testing
 
 on:
   push:
@@ -40,16 +40,16 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
-#         - "3.11" - Missing numba and pysheds for Python3.11
+          - "3.11"
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@v1
         with:
-          cache-downloads: true
           environment-file: environment.yml
-          extra-specs: |
+          create-args: >-
             python=${{ matrix.python-version }}
+          cache-environment: true
       - name: Conda and Mamba versions
         run: |
             echo "mircomamba $(micromamba --version)"
@@ -60,7 +60,7 @@ jobs:
       - name: List installed packages
         run: |
           conda list
-      - name: Test RavenPy
+      - name: Test RavenWPS
         run: |
           python3 -m pytest tests
 
