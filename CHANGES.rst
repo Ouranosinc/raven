@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.18.1 (2023-05-23)
+-------------------
+
+* Removed obsolete components related to HPC interfaces (#477)
+* Added Python3.11 to supported versions with a build for Python3.11 in CI (#477)
+* Adjusted ReadMe to reflect recent significant changes (#477)
+* Updated deprecated GitHub Actions (#477)
 
 0.18.0 (2023-05-23)
 -------------------
