@@ -30,7 +30,7 @@ Raven (the bird)
 
 Raven is an open source server project offering data collection and preparation, as well as geoprocessing and catchment delineation through the Web Processing Service (WPS) standard. Raven processes can be embedded in a graphical user interface or accessed directly from a programming environment. From Python, birdy_ WPSClient provides a user-friendly python interface to Raven's WPS processes for geospatial processing.
 
-Raven was made to help scientists supplement hydrological modeling experiments with climate change projections. Raven bundles model calibration processes, time series analysis (with xarray_), hydrological indicators and frequency analysis (using xclim_). The properties of custom watersheds can be extracted from a Digital Elevation Model and a land-use database.
+The properties of custom watersheds can be extracted from a Digital Elevation Model and a land-use database.
 
 Raven can be compiled and installed, or simply deployed using docker. A hosted version is available at  https://pavics.ouranos.ca/twitcher/ows/proxy/raven.
 
