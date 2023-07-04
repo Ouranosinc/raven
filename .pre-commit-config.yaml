@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.2
+    rev: v3.8.0
     hooks:
       - id: pyupgrade
         args: [ '--py38-plus' ]
@@ -21,7 +21,7 @@ repos:
       - id: pretty-format-json
         args: [ '--autofix', '--no-ensure-ascii', '--no-sort-keys' ]
   - repo: https://github.com/pappasam/toml-sort
-    rev: v0.23.0
+    rev: v0.23.1
     hooks:
       - id: toml-sort-fix
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -62,12 +62,12 @@ repos:
       - id: blackdoc
         additional_dependencies: [ 'black==23.3.0' ]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.31.0
+    rev: v1.32.0
     hooks:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.22.0
+    rev: 0.23.2
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
