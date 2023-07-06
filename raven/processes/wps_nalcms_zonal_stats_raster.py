@@ -156,7 +156,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 # Rename/aggregate land-use categories
                 for k, v in categories.items():
                     # Fiona v1.9 API changes; Access to a protected method of class instance - Needs rewrite
-                    lu[v] += prop._data.get(k, 0)
+                    lu[v] += prop.get(k, 0)
 
                 prop.update(lu)
                 land_use.append(lu)
@@ -195,18 +195,13 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             # Workaround needed for fiona v1.9+; this should be fully rewritten
             from collections import OrderedDict
 
-            from fiona.model import to_dict
-
-            stats_as_dicts = []
-            for s in stats:
+            for stat in stats:
                 fixed_prop = OrderedDict()
-                for k, v in s.properties._data.items():
+                for k, v in stat["properties"].items():
                     fixed_prop[str(k)] = v
-                s.properties._data = fixed_prop
+                stat["properties"].update(fixed_prop)
 
-                stats_as_dicts.append(to_dict(s))
-
-            feature_collect = {"type": "FeatureCollection", "features": stats_as_dicts}
+            feature_collect = {"type": "FeatureCollection", "features": stats}
             response.outputs["features"].data = json.dumps(feature_collect)
             response.outputs["statistics"].data = json.dumps(land_use)
             response.outputs["raster"].data = ml.xml
