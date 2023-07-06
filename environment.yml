@@ -16,7 +16,7 @@ dependencies:
   - matplotlib
   - nbval
   - numpy
-  - owslib <0.29
+  - owslib
   - pandas
   - pandoc
   - poppler
