@@ -15,8 +15,9 @@ dependencies:
   - jinja2
   - matplotlib
   - nbval
+  - netcdf4
   - numpy
-  - owslib <0.29
+  - owslib
   - pandas
   - pandoc
   - poppler
@@ -28,6 +29,7 @@ dependencies:
   - pysheds
   - rasterio
   - rasterstats
+  - requests
   - rioxarray
   - shapely
   - tbb

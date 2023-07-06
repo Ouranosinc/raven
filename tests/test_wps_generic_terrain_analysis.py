@@ -45,7 +45,7 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["slope"] > 0
         assert out[0]["aspect"] > 0
 
-    @pytest.mark.skip("slow")
+    @pytest.mark.slow
     def test_shape_subset_wcs(self, get_local_testdata):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
