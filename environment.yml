@@ -29,6 +29,7 @@ dependencies:
   - pysheds
   - rasterio
   - rasterstats
+  - requests
   - rioxarray
   - shapely
   - tbb
