@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.18.2 (unreleased)
+0.18.2 (2023-07-06)
 -------------------
 
 * Removed pin on `owslib` below v0.29 and pin on `fiona` below v2.0.
