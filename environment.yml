@@ -15,6 +15,7 @@ dependencies:
   - jinja2
   - matplotlib
   - nbval
+  - netcdf4
   - numpy
   - owslib
   - pandas
