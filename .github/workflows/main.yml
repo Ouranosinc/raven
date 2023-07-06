@@ -51,23 +51,25 @@ jobs:
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environment.yml
+          cache-downloads: true
           cache-environment: true
+          environment-file: environment.yml
           create-args: >-
             python=${{ matrix.python-version }}
       - name: Conda and Mamba versions
         run: |
-            echo "mircomamba $(micromamba --version)"
             conda --version
+            echo "micromamba: $(micromamba --version)"
       - name: Install RavenWPS
         run: |
-          python3 -m pip install -e ".[dev]"
-      - name: List installed packages
+          python3 -m pip install --no-user --editable ".[dev]"
+      - name: Check versions
         run: |
           conda list
+          pip check
       - name: Test RavenWPS
         run: |
-          python3 -m pytest tests
+          python3 -m pytest -m "not very_slow" tests
 
   finish:
     name: Finish
