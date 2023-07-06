@@ -2,7 +2,7 @@
 FROM condaforge/mambaforge
 ARG DEBIAN_FRONTEND=noninteractive
 MAINTAINER https://github.com/huard/raven
-LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.17.2"
+LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.18.0"
 
 # Update Debian system
 RUN apt-get update && apt-get install -y \
