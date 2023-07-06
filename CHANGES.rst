@@ -1,6 +1,13 @@
 Changes
 =======
 
+0.18.2 (unreleased)
+-------------------
+
+* Removed pin on `owslib` below v0.29 and pin on `fiona` below v2.0.
+* Added a GitHub Workflow to test against macOS builds.
+* Adapted zonal statistics processes to support the latest `fiona` and `zonalstats` API changes.
+
 0.18.1 (2023-05-23)
 -------------------
 
