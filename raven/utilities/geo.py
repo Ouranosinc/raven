@@ -7,6 +7,7 @@ from typing import List, Optional, Union
 
 import geopandas
 import pandas as pd
+from fiona import Feature
 
 from . import gis_import_error_message
 
@@ -27,8 +28,8 @@ try:
     )
     from shapely.ops import transform
 except (ImportError, ModuleNotFoundError) as e:
-    msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(msg) from e
+    gis_msg = gis_import_error_message.format(Path(__file__).stem)
+    raise ImportError(gis_msg) from e
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
 LOGGER = logging.getLogger("RavenPy")
@@ -232,10 +233,10 @@ def generic_vector_reproject(
                     try:
                         geom = shape(feature["geometry"])
                         transformed = geom_transform(geom, source_crs, target_crs)
-                        feature["geometry"] = fiona.Geometry().from_dict(
-                            mapping(transformed)
+                        new_geom = fiona.Geometry().from_dict(mapping(transformed))
+                        sink.write(
+                            Feature(geometry=new_geom, properties=feature.properties)
                         )
-                        sink.write(feature)
                     except Exception as err:
                         LOGGER.exception(
                             f"{err}: Unable to reproject feature {feature}"

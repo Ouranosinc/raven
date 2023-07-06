@@ -7,7 +7,6 @@ Development Lead
 
 * David Huard <huard.david@ouranos.ca> `@huard <https://github.com/huard>`_
 
-
 Co-Developers
 -------------
 * Richard Arsenault `@richardarsenault <https://github.com/richardarsenault>`_
