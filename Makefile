@@ -188,7 +188,12 @@ clean-dist: clean
 .PHONY: test
 test:
 	@echo "Running tests (skip slow and online tests) ..."
-	@bash -c "pytest -v -m 'not slow and not online' tests/"
+	@bash -c "pytest -v -m 'not slow and not online and not very_slow' tests/"
+
+.phony: test-advanced
+test-advanced:
+	@echo "Running advanced tests (skip very_slow tests) ..."
+	@bash -c "pytest -v -m 'not very_slow' tests/"
 
 .PHONY: test-all
 test-all:
