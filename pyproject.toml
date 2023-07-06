@@ -60,6 +60,7 @@ dependencies = [
   "pysheds",
   "rasterio",
   "rasterstats",
+  "requests",
   "rioxarray",
   "shapely",
   # Docs and other utilities
@@ -188,7 +189,7 @@ addopts = [
   "--strict-markers",
   "--tb=native",
   "--numprocesses=logical",
-  "--maxprocesses=8",
+  "--maxprocesses=4",
   "--dist=worksteal"
 ]
 python_files = "test_*.py"
@@ -197,5 +198,6 @@ filterwarnings = ["ignore::UserWarning"]
 testpaths = "tests"
 markers = [
   "online: mark test to need internet connection (deselect with '-m \"not online\"')",
-  "slow: mark test to be slow (deselect with '-m \"not slow\"')"
+  "slow: mark test to be slow (deselect with '-m \"not slow\"')",
+  "very_slow: mark test to be very slow (deselect with '-m \"not very_slow\"')"
 ]

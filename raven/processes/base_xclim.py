@@ -170,9 +170,9 @@ class _XclimIndicatorProcess(Process):
             LOGGER.debug(input_queue)
             values = []
 
-            for input in input_queue:
-                if isinstance(input, ComplexInput):
-                    ds = self.try_opendap(input)
+            for input_var in input_queue:
+                if isinstance(input_var, ComplexInput):
+                    ds = self.try_opendap(input_var)
 
                     if name in ds.data_vars:
                         value = ds.data_vars[name]
@@ -182,10 +182,15 @@ class _XclimIndicatorProcess(Process):
                         for key, val in ds.data_vars.items():
                             value = val
                             break
+                        else:
+                            raise ValueError(f"Input not understood: `{input_var}`.")
 
                 elif isinstance(input, LiteralInput):
-                    LOGGER.debug(input.data)
-                    value = input.data
+                    LOGGER.debug(input_var.data)
+                    value = input_var.data
+
+                else:
+                    raise ValueError(f"Input not understood: `{input}`.")
 
                 values.append(value)
 

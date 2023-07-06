@@ -23,7 +23,9 @@ class TestParser:
             parse_lonlat("This isn't a number, 333.444")
 
 
+@pytest.mark.online
 class TestShapeSelectionProcess:
+    @pytest.mark.very_slow
     @pytest.mark.parametrize("aggregate_upstream,ids", [(True, 551), (False, 1)])
     def test_manicouagan(self, aggregate_upstream, ids):
         client = client_for(
@@ -58,7 +60,7 @@ class TestShapeSelectionProcess:
         assert {"feature", "upstream_ids"}.issubset([*out])
         assert len(json.loads(out["upstream_ids"])) == ids
 
-    @pytest.mark.skip("slow")
+    @pytest.mark.slow
     def test_lac_saint_jean(self):
         client = client_for(
             Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
@@ -108,10 +110,10 @@ class TestShapeSelectionProcess:
         assert {"feature", "upstream_ids"}.issubset([*out_upstream])
         assert {"feature", "upstream_ids"}.issubset([*out_subbasin])
 
-        assert json.loads(out_subbasin["feature"])["type"] == "Feature"
+        assert json.loads(out_subbasin["feature"])["type"] == "FeatureCollection"
         assert json.loads(out_upstream["feature"])["type"] == "Feature"
 
-    @pytest.mark.skip("slow")
+    @pytest.mark.slow
     def test_smallwood_reservoir(self):
         client = client_for(
             Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)
@@ -144,7 +146,7 @@ class TestShapeSelectionProcess:
 
         assert {"feature", "upstream_ids"}.issubset([*out])
 
-    @pytest.mark.skip("slow")
+    @pytest.mark.slow
     def test_great_slave_lake(self):
         client = client_for(
             Service(processes=[HydroBasinsSelectionProcess()], cfgfiles=CFG_FILE)

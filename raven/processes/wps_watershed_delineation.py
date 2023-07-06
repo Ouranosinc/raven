@@ -75,7 +75,7 @@ class WatershedDelineation(Process):
                 "direction are give, the flow direction supercedes the DEM.",
                 # TODO: Include details (resolution, version).
                 metadata=[
-                    Metadata("HydroSheds Database", "http://hydrosheds.org"),
+                    Metadata("HydroSheds Database", "https://www.hydrosheds.org/"),
                     Metadata(
                         "Lehner, B., Verdin, K., Jarvis, A. (2008): New global "
                         "hydrography derived from "

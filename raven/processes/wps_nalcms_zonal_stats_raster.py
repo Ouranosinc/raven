@@ -187,19 +187,10 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 "Metalink to series of GeoTIFF raster files",
                 workdir=self.workdir,
             )
-            for r in raster_out:
-                mf = MetaFile(Path(r).name, "Raster subset", fmt=FORMATS.GEOTIFF)
-                mf.file = r
+            for raster in raster_out:
+                mf = MetaFile(Path(raster).name, "Raster subset", fmt=FORMATS.GEOTIFF)
+                mf.file = raster
                 ml.append(mf)
-
-            # Workaround needed for fiona v1.9+; this should be fully rewritten
-            from collections import OrderedDict
-
-            for stat in stats:
-                fixed_prop = OrderedDict()
-                for k, v in stat["properties"].items():
-                    fixed_prop[str(k)] = v
-                stat["properties"].update(fixed_prop)
 
             feature_collect = {"type": "FeatureCollection", "features": stats}
             response.outputs["features"].data = json.dumps(feature_collect)
