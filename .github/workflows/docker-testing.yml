@@ -15,12 +15,14 @@ jobs:
       - uses: addnab/docker-run-action@v3
         with:
           image: pavics/jupyterhub:latest
+          options: -v ${{ github.workspace }}:/work
           run: |
             echo "Installing GDAL"
-            apt-get update
             apt-get install -y gdal-bin libgdal-dev
             echo "Installing Make"
             apt-get install -y make
+            echo "Descend into the work directory"
+            cd /work
             echo "Installing Dependencies"
             make install
             echo "Running Tests"
