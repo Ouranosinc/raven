@@ -28,7 +28,7 @@ jobs:
           options: -p 9099:9099
           run: |
             exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg -d
-            sleep 2s
+            sleep 10s
             exec raven-wps status
             sleep 2s
             exec raven-wps stop
