@@ -27,9 +27,8 @@ jobs:
           image: localpytest:latest
           options: -p 9099:9099
           run: |
-            source activate wps
-            exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg
+            /bin/bash -c "source activate wps && exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"
             sleep 2s
-            exec raven-wps status
+            /bin/bash -c "source activate wps && exec raven-wps status"
             sleep 2s
-            exec raven-wps stop
+            /bin/bash -c "source activate wps && exec raven-wps stop"
