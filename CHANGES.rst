@@ -1,6 +1,11 @@
 Changes
 =======
 
+0.18.3 (unreleased)
+-------------------
+
+* Added a GitHub Workflow to test the Dockerfile recipe configuration for RavenWPS.
+
 0.18.2 (2023-07-06)
 -------------------
 

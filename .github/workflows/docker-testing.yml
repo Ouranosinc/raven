@@ -1,4 +1,4 @@
-name: Docker-based testing suite
+name: Docker-based Testing Suite
 
 on:
   push:
