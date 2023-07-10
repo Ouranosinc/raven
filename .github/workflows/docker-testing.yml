@@ -1,0 +1,25 @@
+name: Docker-based testing suite
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: pavics/jupyterhub:latest
+          run: |
+            echo "Installing GDAL"
+            apt-get update
+            apt-get install -y gdal-bin libgdal-dev
+            echo "Installing Dependencies"
+            make install
+            echo "Running Tests"
+            make test
