@@ -19,6 +19,8 @@ jobs:
             echo "Installing GDAL"
             apt-get update
             apt-get install -y gdal-bin libgdal-dev
+            echo "Installing Make"
+            apt-get install -y make
             echo "Installing Dependencies"
             make install
             echo "Running Tests"
