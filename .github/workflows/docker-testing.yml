@@ -22,7 +22,7 @@ jobs:
             echo "Installing Make"
             apt-get install -y make
             echo "Descend into the work directory"
-            cd /work
+            cd work
             echo "Installing Dependencies"
             make install
             echo "Running Tests"
