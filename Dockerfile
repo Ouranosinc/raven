@@ -13,12 +13,10 @@ RUN apt-get update
 RUN apt-get install -y build-essential
 RUN rm -rf /var/lib/apt/lists/*
 
-# Update conda and mamba
-RUN mamba update -n base conda mamba
-
 # Create conda environment
 COPY environment.yml .
 RUN mamba env create -n raven -f environment.yml
+# RUN mamba install gunicorn
 RUN mamba clean --all --yes
 
 # Add the raven conda environment to the path
@@ -29,6 +27,8 @@ RUN make install
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
+
+# CMD["gunicorn", "--bind=0.0.0.0:5000", "-t 60", "finch.wsgi:application"]
 CMD ["exec raven-wps start -b 0.0.0.0 -c opt/wps/etc/demo.cfg"]
 
 # docker build -t pavics/raven .
