@@ -1,6 +1,7 @@
 # vim:set ft=dockerfile:
 FROM condaforge/mambaforge
 ARG DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
 MAINTAINER Trevor James Smith <smith.trevorj@ouranos.ca>
 LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.18.2"
 
