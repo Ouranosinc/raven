@@ -25,9 +25,9 @@ jobs:
       - uses: addnab/docker-run-action@v3
         with:
           image: localpytest:latest
-          options: -p 9099:9099 -b 0.0.0.0
+          options: -p 9099:9099
           run: |
-            raven-wps start -c /code/etc/demo.cfg -d
+            raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
             sleep 5s
             raven-wps status
             sleep 2s
