@@ -16,7 +16,7 @@ RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunic
 ENV PATH /opt/conda/envs/raven/bin:$PATH
 
 # Copy finch source code
-COPY . ./
+COPY . /code
 
 # Install RavenWPS
 RUN pip install . --no-deps
@@ -24,8 +24,8 @@ RUN pip install . --no-deps
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
 
-CMD ["gunicorn", "--bind=0.0.0.0", "-t 60", "raven.wsgi:application"]
-#CMD ["exec raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg"]
+CMD ["gunicorn", "--bind=0.0.0.0:9099", "-t 60", "raven.wsgi:application"]
+#CMD ["exec raven-wps start -b '0.0.0.0' -c etc/demo.cfg"]
 
 # docker build -t pavics/raven .
 # docker run -p 9099:9099 pavics/raven
