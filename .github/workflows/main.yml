@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v1
         with:
           cache-downloads: true
           cache-environment: true
