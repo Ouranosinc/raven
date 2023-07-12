@@ -2,19 +2,21 @@
 FROM condaforge/mambaforge
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
-LABEL org.opencontainers.image.authors="smith.trevorj@ouranos.ca"
+LABEL org.opencontainers.image.authors="https://github.com/Ouranosinc/raven"
 LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.18.2"
 
+# Set the working directory to /code
 WORKDIR /code
-COPY . /code
 
 # Create conda environment
-RUN mamba env create -n raven -f environment.yml
-# Remove conda cache
-RUN mamba clean --all --yes
+COPY environment.yml .
+RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunicorn && mamba clean --all --yes
 
 # Add the raven conda environment to the path
 ENV PATH /opt/conda/envs/raven/bin:$PATH
+
+# Copy finch source code
+COPY . ./
 
 # Install RavenWPS
 RUN pip install . --no-deps
@@ -22,8 +24,8 @@ RUN pip install . --no-deps
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
 
-# CMD["gunicorn", "--bind=0.0.0.0:5000", "-t 60", "finch.wsgi:application"]
-CMD ["exec raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg"]
+CMD ["gunicorn", "--bind=0.0.0.0", "-t 60", "raven.wsgi:application"]
+#CMD ["exec raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg"]
 
 # docker build -t pavics/raven .
 # docker run -p 9099:9099 pavics/raven
