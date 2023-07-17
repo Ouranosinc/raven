@@ -1,0 +1,33 @@
+name: Docker-based Testing Suite
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: "Dockerfile"
+          tags: localpytest:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: false
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: localpytest:latest
+          options: -p 9099:9099
+          run: |
+            raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
+            sleep 2s
+            raven-wps status
+            raven-wps stop
