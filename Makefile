@@ -118,10 +118,10 @@ bootstrap_dev:
 
 .PHONY: install
 install:
+ifdef GDAL_VERSION
 	@echo "Installing application with GIS..."
-	ifdef GDAL_VERSION
-		@-bash -c "pip install --no-cache-dir gdal==$(GDAL_VERSION)"
-	endif
+	@-bash -c "pip install --no-cache-dir gdal==$(GDAL_VERSION)"
+endif
 	@-bash -c "pip install -e ."
 	@echo "Start service with \`make start\`"
 

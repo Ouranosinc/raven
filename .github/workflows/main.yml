@@ -1,4 +1,4 @@
-name: RavenWPS Testing
+name: raven-wps Testing
 
 on:
   push:
@@ -53,6 +53,7 @@ jobs:
         with:
           cache-downloads: true
           cache-environment: true
+          activate-environment: raven
           environment-file: environment.yml
           create-args: >-
             python=${{ matrix.python-version }}

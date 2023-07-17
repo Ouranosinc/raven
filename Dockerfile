@@ -1,37 +1,35 @@
 # vim:set ft=dockerfile:
 FROM condaforge/mambaforge
 ARG DEBIAN_FRONTEND=noninteractive
-MAINTAINER https://github.com/huard/raven
+ENV PIP_ROOT_USER_ACTION=ignore
+LABEL org.opencontainers.image.authors="https://github.com/Ouranosinc/raven"
 LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.18.2"
 
-# Update Debian system
-RUN apt-get update && apt-get install -y \
- build-essential unzip libnetcdf-dev curl \
-&& rm -rf /var/lib/apt/lists/*
-
-# Update conda and mamba
-RUN mamba update -n base conda mamba
+# Set the working directory to /code
+WORKDIR /code
 
 # Create conda environment
-COPY environment.yml /opt/wps/
-RUN mamba create --yes -n wps python=3.8 && mamba env update -n wps -f /opt/wps/environment.yml
+COPY environment.yml .
+RUN mamba env create -n raven -f environment.yml \
+    && mamba install -n raven gunicorn \
+    && mamba clean --all --yes
 
-# Copy WPS project
-COPY . /opt/wps
+# Add the raven conda environment to the path
+ENV PATH /opt/conda/envs/raven/bin:$PATH
 
-WORKDIR /opt/wps
+# Copy raven source code
+COPY . /code
 
-# (1) Install RavenPy: note that this also installs the Raven and Ostrich binaries in the wps conda env's bin
-# (2) Install RavenWPS in editable mode
-# Have to uninstall the ravenpy installed by conda so the re-install with
-# binaries work.  Same problem as in the Makefile.
-RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
+# Install raven
+RUN pip install . --no-deps
 
 # Start WPS service on port 9099 on 0.0.0.0
 EXPOSE 9099
-CMD ["/bin/bash", "-c", "source activate wps && exec raven-wps start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
 
-# docker build -t huard/raven .
-# docker run -p 9099:9099 huard/raven
+CMD ["gunicorn", "--bind=0.0.0.0:9099", "raven.wsgi:application"]
+#CMD ["exec raven-wps start -b '0.0.0.0' -c etc/demo.cfg"]
+
+# docker build -t pavics/raven .
+# docker run -p 9099:9099 pavics/raven
 # http://localhost:9099/wps?request=GetCapabilities&service=WPS
 # http://localhost:9099/wps?request=DescribeProcess&service=WPS&identifier=all&version=1.0.0
