@@ -20,12 +20,7 @@ jobs:
             access_token: ${{ github.token }}
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      - name: Install pre-commit
-        run: pip install pre-commit
-      - name: Run linting suite
-        run: pre-commit run --all-files
+      - uses: pre-commit/action@v3.0.0
 
   conda:
     name: Conda (Python${{ matrix.python-version }}; ${{ matrix.os }})
