@@ -20,6 +20,7 @@ repos:
       - id: debug-statements
       - id: pretty-format-json
         args: [ '--autofix', '--no-ensure-ascii', '--no-sort-keys', '--indent=2' ]
+        exclude: .ipynb
   - repo: https://github.com/pappasam/toml-sort
     rev: v0.23.1
     hooks:
