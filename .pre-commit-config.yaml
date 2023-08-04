@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.8.0
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
         args: [ '--py38-plus' ]
@@ -19,7 +19,8 @@ repos:
         args: [ '--allow-multiple-documents' ]
       - id: debug-statements
       - id: pretty-format-json
-        args: [ '--autofix', '--no-ensure-ascii', '--no-sort-keys' ]
+        args: [ '--autofix', '--no-ensure-ascii', '--no-sort-keys', '--indent=2' ]
+        exclude: .ipynb
   - repo: https://github.com/pappasam/toml-sort
     rev: v0.23.1
     hooks:
@@ -30,11 +31,11 @@ repos:
       - id: python-check-blanket-noqa
       - id: rst-inline-touching-normal
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         args: [ '--config=setup.cfg' ]
@@ -67,7 +68,7 @@ repos:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.23.2
+    rev: 0.23.3
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
