@@ -7,19 +7,23 @@ APP_NAME := raven-wps
 
 OS := $(shell uname)
 
-WPS_PORT := 9099
-WPS_URL := http://0.0.0.0:$(WPS_PORT)
+WPS_PORT ?= 9099
+WPS_URL ?= http://0.0.0.0:$(WPS_PORT)
 
 # If WPS_URL is overridden, this should also be overridden to match.
-WPS_OUTPUT_URL := http://localhost:$(WPS_PORT)/outputs
+WPS_OUTPUT_URL ?= http://localhost:$(WPS_PORT)/outputs
 
-# This will only work on Linux (not macOS/homebrew GDAL)
-GDAL_VERSION := $(shell gdal-config --version)
+# This will only work for Linux and macOS/homebrew
+ifeq ($(OS),"Linux")
+	GDAL_VERSION := $(shell gdal-config --version)
+else ifeq ($(OS),"Darwin")
+	GDAL_VERSION := $(shell gdalinfo --version | awk '{print $2}' | sed s'/.$//')
+endif
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
 # instance so the notebooks can also be used as tutorial notebooks.
-OUTPUT_URL = https://pavics.ouranos.ca/wpsoutputs/raven
+OUTPUT_URL ?= https://pavics.ouranos.ca/wpsoutputs/raven
 
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
 
@@ -39,7 +43,7 @@ UNAME_S := $(shell uname -s)
 DOWNLOAD_CACHE = /tmp/
 
 # Additional servers used by notebooks
-FINCH_WPS_URL = https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
+FINCH_WPS_URL ?= https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
 
 # To run tests on local servers, use
 # make FINCH_WPS_URL=http://localhost:5000 test-notebooks
