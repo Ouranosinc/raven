@@ -73,6 +73,7 @@ def _fix_server_url(server_url: str) -> str:
         return f"{server_url}/"
     return server_url
 
+
 def _get_location_wfs(
     bbox: Optional[
         Tuple[
