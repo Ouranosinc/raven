@@ -1,5 +1,3 @@
-.. highlight:: console
-
 .. _devguide:
 
 Developer Guide
@@ -15,7 +13,7 @@ Developer Guide
 Re-create a fresh environment
 -----------------------------
 
-.. code-block:: console
+.. code-block:: shell
 
   $ make stop  # in case you previously did 'make start'
   $ conda deactivate  # exit the current 'raven' conda env so we can destroy it
@@ -28,11 +26,15 @@ Re-create a fresh environment
 Building the docs
 -----------------
 
-First install dependencies for the documentation::
+First install dependencies for the documentation:
+
+.. code-block:: shell
 
   $ make develop
 
-Run the Sphinx docs generator::
+Run the Sphinx docs generator:
+
+.. code-block:: shell
 
   $ make docs
 
@@ -45,22 +47,28 @@ Run tests using pytest_.
 
 First activate the ``raven`` Conda environment and install ``pytest``.
 
-.. code-block:: console
+.. code-block:: shell
 
    $ source activate raven
    $ pip install -r requirements_dev.txt  # if not already installed
-   OR
+   # or
    $ make develop
 
-Run quick tests (skip slow and online)::
+Run quick tests (skip slow and online):
+
+.. code-block:: shell
 
     $ pytest -m 'not slow and not online'"
 
-Run all tests::
+Run all tests:
+
+.. code-block:: shell
 
     $ pytest
 
-Check PEP8::
+Check PEP8:
+
+.. code-block:: shell
 
     $ flake8
 
@@ -69,7 +77,7 @@ Run tests the lazy way
 
 Do the same as above using the ``Makefile``.
 
-.. code-block:: console
+.. code-block:: shell
 
     $ make test
     $ make test-all
@@ -79,7 +87,9 @@ Do the same as above using the ``Makefile``.
 Running notebooks tests
 -----------------------
 
-Assuming that the ``raven`` conda env has already been created and is up-to-date and `raven-wps`` has been installed with ``make develop``::
+Assuming that the ``raven`` conda env has already been created and is up-to-date and `raven-wps`` has been installed with ``make develop``:
+
+.. code-block:: shell
 
     # start local raven-wps server to test against
     $ make start  # remember to make stop once done
@@ -87,27 +97,37 @@ Assuming that the ``raven`` conda env has already been created and is up-to-date
     # to test all notebooks
     $ make test-notebooks
 
- Or::
+ Or:
+
+.. code-block:: shell
 
     # to test a single notebook (note the .run at the end of the notebook path)
     $ make docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
-The notebooks may also require other WPS services (``Finch``).  By default these are from the production server but we can point the notebooks to local servers if needed for development purposes::
+The notebooks may also require other WPS services (``Finch``).  By default these are from the production server but we can point the notebooks to local servers if needed for development purposes:
+
+.. code-block:: shell
 
     # to test all notebooks
     $ make FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
-Or::
+Or:
+
+.. code-block:: shell
 
     # to test a single notebook (note the .run at the end of the notebook path)
     $ make FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
-If instead we want to run the notebooks against the production raven-wps server or any other raven-wps servers::
+If instead we want to run the notebooks against the production raven-wps server or any other raven-wps servers:
+
+.. code-block:: shell
 
     # to test all notebooks
     $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps test-notebooks
 
-Or::
+Or:
+
+.. code-block:: shell
 
     # to test juste 1 notebook (note the .run at the end of the notebook path)
     $ make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
@@ -118,7 +138,9 @@ We can also override all three of the server variables (``WPS_URL``, ``FINCH_WPS
 Starting local Jupyter server to edit/develop notebooks
 -------------------------------------------------------
 
-Assuming that the ``raven`` conda env has already been created and is up-to-date and ``raven-wps`` has been installed with ``make develop``::
+Assuming that the ``raven`` conda env has already been created and is up-to-date and ``raven-wps`` has been installed with ``make develop``:
+
+.. code-block:: shell
 
     # start local raven-wps server to test against
     $ make start  # remember to make stop once done
@@ -139,7 +161,9 @@ Bulk refresh all notebooks output
 
 This automated refresh only works for notebooks that passed ``make test-notebooks`` above.  For those that failed, manually starting a local Jupyter server and refresh them manually.
 
-Assuming that the ``raven`` conda env has already been created and is up-to-date and ``raven-wps`` has been installed with ``make develop``::
+Assuming that the ``raven`` conda env has already been created and is up-to-date and ``raven-wps`` has been installed with ``make develop``:
+
+.. code-block:: shell
 
     # start local raven-wps server to test against
     $ make start  # remember to make stop once done
@@ -147,7 +171,9 @@ Assuming that the ``raven`` conda env has already been created and is up-to-date
     # to refresh all notebooks
     $ make refresh-notebooks
 
-Or::
+Or:
+
+.. code-block:: shell
 
     # to refresh a single notebook (note the .refresh at the end of the notebook path)
     $ make docs/source/notebooks/Assess_probabilistic_flood_risk.ipynb.refresh
@@ -163,7 +189,7 @@ Update the Conda specification file to build identical environments_ on a specif
 
 .. note:: You should run this on your target OS, in our case Linux.
 
-.. code-block:: console
+.. code-block:: shell
 
   $ conda env create -f environment.yml
   $ source activate raven
