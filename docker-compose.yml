@@ -7,6 +7,9 @@ services:
   wps:
     build: .
     image: raven-wps
+    environment:
+      - RAVEN_BIND_ADDRESS=0.0.0.0
+      - RAVEN_BIND_PORT=9099
     volumes:
       - ./:/opt/wps
     ports:

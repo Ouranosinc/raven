@@ -6,6 +6,7 @@ Working assumptions for this module:
 * Shapes (polygons) are passed as shapely.geometry.shape parsable objects.
 * All functions that require a CRS have a CRS argument with a default set to WGS84.
 * GEOSERVER_URL points to the GeoServer instance hosting all files.
+* For legacy reasons, we also accept the `GEO_URL` environment variable.
 
 TODO: Refactor to remove functions that are just 2-lines of code.
 For example, many function's logic essentially consists in creating the layer name.
