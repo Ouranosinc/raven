@@ -3,12 +3,12 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.14.0
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
         args: [ '--py38-plus' ]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
         exclude: setup.cfg
@@ -31,7 +31,7 @@ repos:
       - id: python-check-blanket-noqa
       - id: rst-inline-touching-normal
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.10.1
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
@@ -59,7 +59,7 @@ repos:
       - id: pydocstyle
         args: [ '--convention=numpy', '--match="(?!test_).*\.py"' ]
   - repo: https://github.com/keewis/blackdoc
-    rev: v0.3.8
+    rev: v0.3.9
     hooks:
       - id: blackdoc
         additional_dependencies: [ 'black==23.9.1' ]
@@ -69,7 +69,7 @@ repos:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.27.0
+    rev: 0.27.1
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs

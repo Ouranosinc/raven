@@ -150,7 +150,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
             land_use = list()
             for stat in stats:
-                lu = defaultdict(lambda: 0)
+                lu = defaultdict(int)
                 prop = stat["properties"]
 
                 # Rename/aggregate land-use categories
