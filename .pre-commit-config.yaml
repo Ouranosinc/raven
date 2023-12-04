@@ -30,8 +30,8 @@ repos:
     hooks:
       - id: python-check-blanket-noqa
       - id: rst-inline-touching-normal
-  - repo: https://github.com/psf/black
-    rev: 23.10.1
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 23.11.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
@@ -44,13 +44,13 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
+    rev: 1.7.1
     hooks:
       - id: nbqa-pyupgrade
         args: [ '--py38-plus' ]
-        additional_dependencies: [ 'pyupgrade==v3.14.0' ]
+        additional_dependencies: [ 'pyupgrade==v3.15.0' ]
       - id: nbqa-black
-        additional_dependencies: [ 'black==23.9.1' ]
+        additional_dependencies: [ 'black==23.11.0' ]
       - id: nbqa-isort
         additional_dependencies: [ 'isort==5.12.0' ]
   - repo: https://github.com/pycqa/pydocstyle
@@ -62,14 +62,14 @@ repos:
     rev: v0.3.9
     hooks:
       - id: blackdoc
-        additional_dependencies: [ 'black==23.9.1' ]
+        additional_dependencies: [ 'black==23.11.0' ]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.32.0
+    rev: v1.33.0
     hooks:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.27.1
+    rev: 0.27.2
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
