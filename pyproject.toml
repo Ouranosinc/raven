@@ -74,10 +74,10 @@ dependencies = [
 dev = [
   # Dev tools and testing
   "birdhouse-birdy",
-  "black",
+  "black>=24.1.1",
   "black-nb",
   "bumpversion",
-  "flake8",
+  "flake8>=7.0.0",
   "ipykernel",
   "ipywidgets",
   "nbconvert",
