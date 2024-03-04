@@ -119,7 +119,7 @@ docs = [
 raven-wps = "raven.cli:cli"
 
 [project.urls]
-"Homepage" = "https://pavics-raven.readthedocs.io/"
+"Homepage" = "https://pavics-sdi.readthedocs.io/projects/raven/en/latest/"
 "Source" = "https://github.com/Ouranosinc/raven/"
 "Changelog" = "https://pavics-sdi.readthedocs.io/projects/raven/en/latest/changes.html"
 "Issue tracker" = "https://github.com/Ouranosinc/raven/issues"
