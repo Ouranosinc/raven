@@ -11,9 +11,8 @@ dependencies:
   - nbsphinx
   - numpy
   - pandas
-  - pip
-  - pypandoc
   - sphinx >=1.7
+  - sphinx-autoapi
   - sphinx-autodoc-typehints
   - sphinx-codeautolink
   - sphinx-copybutton
