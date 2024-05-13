@@ -26,7 +26,6 @@ dependencies:
   - pymetalink
   - pyogrio
   - pyproj >=3.4
-  - pysheds
   - rasterio
   - rasterstats
   - requests
