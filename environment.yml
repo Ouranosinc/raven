@@ -9,7 +9,7 @@ dependencies:
   - cartopy
   - click
   - fiona >=1.9
-  - geopandas
+  - geopandas >=0.12.0
   - geojson
   - gdal >=3.0
   - jinja2
@@ -24,7 +24,7 @@ dependencies:
   - psutil
   - psycopg2
   - pymetalink
-  - pyogrio
+  - pyogrio <=0.7.4
   - pyproj >=3.4
   - rasterio
   - rasterstats
