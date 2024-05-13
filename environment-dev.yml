@@ -11,8 +11,8 @@ dependencies:
   - ipykernel
   - ipywidgets
   - nbconvert
-  - nbsphinx
   - nbval
+  - pip
   - pre-commit
   - pymetalink
   - pytest
@@ -20,9 +20,4 @@ dependencies:
   - pytest-flake8
   - pytest-notebook
   - pytest-xdist >=3.2
-  - sphinx >=1.7
-  - sphinx-autodoc-typehints
-  - sphinx-codeautolink
-  - sphinx-copybutton
-  - sphinx-rtd-theme >=1.0
   - urlpath
