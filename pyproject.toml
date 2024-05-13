@@ -44,7 +44,7 @@ dependencies = [
   "netCDF4",
   "numpy",
   "owslib",
-  "pandas <2.0; python_version == '3.8'",
+  "pandas <3.0; python_version == '3.8'",
   "pandas; python_version >= '3.9'",
   "psutil",
   "pywps ==4.5.1",
