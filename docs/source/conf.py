@@ -68,6 +68,7 @@ autoapi_options = ["members", "undoc-members", "private-members"]
 # inherit without having to test which work which do not.
 autodoc_mock_imports = [
     "affine",
+    "anyascii",
     "bottleneck",
     "cairo",
     "cartopy",
@@ -102,7 +103,6 @@ autodoc_mock_imports = [
     "sklearn",
     "spotpy",
     "statsmodels",
-    "unidecode",
     "xarray",
     "xclim",
     "zlib",
