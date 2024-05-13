@@ -6,6 +6,7 @@ Changes
 
 * Added a GitHub Workflow to test the Dockerfile recipe configuration for RavenWPS.
 * Cleaned up the Dockerfile recipe configuration for RavenWPS, now using Gunicorn for service management.
+* Removed `pysheds` and watershed delineation process due to a licensing issue.
 
 0.18.2 (2023-07-06)
 -------------------
