@@ -22,10 +22,10 @@ _default_cache_dir = Path.home() / ".raven_testing_data"
 LOGGER = logging.getLogger("RAVEN")
 
 __all__ = [
+    "get_file",
     "get_local_testdata",
     "open_dataset",
     "query_folder",
-    "get_file",
 ]
 
 
@@ -279,7 +279,7 @@ def open_dataset(
     cache_dir: Path = _default_cache_dir,
     **kwds,
 ) -> Dataset:
-    """Open a dataset from the online GitHub-like repository.
+    r"""Open a dataset from the online GitHub-like repository.
 
     If a local copy is found then always use that to avoid network traffic.
 
@@ -299,7 +299,7 @@ def open_dataset(
         The directory in which to search for and write cached data.
     cache : bool
         If True, then cache data locally for use on subsequent calls.
-    **kwds
+    \*\*kwds
         For NetCDF files, keywords passed to xarray.open_dataset.
 
     Returns

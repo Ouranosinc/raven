@@ -46,7 +46,7 @@ dependencies = [
   "owslib",
   "pandas >=2.0",
   "psutil",
-  "pywps ==4.5.1",
+  "pywps >=4.5.1",
   "requests",
   "xarray >=0.18",
   "xclim >=0.31.0",
@@ -74,9 +74,10 @@ dev = [
   # Dev tools and testing
   "birdhouse-birdy",
   "black >=24.4.2",
-  "black-nb",
-  "bumpversion",
+  "bump-my-version >=0.21.0",
   "flake8 >=7.0.0",
+  "flake8-alphabetize",
+  "flake8-rst-docstrings",
   "ipykernel",
   "isort >=5.13.2",
   "nbconvert",
@@ -85,11 +86,7 @@ dev = [
   "pip",
   "pre-commit",
   "pytest",
-  "pytest-dependency",
-  "pytest-flake8",
-  "pytest-notebook",
   "pytest-xdist >=3.2",
-  "urlpath",
   "yamllint"
 ]
 docs = [
@@ -97,7 +94,7 @@ docs = [
   "ipywidgets",
   "nbsphinx",
   "pywps ==4.5.1",
-  "sphinx >=1.7",
+  "sphinx >=7.0.0",
   "sphinx-autoapi",
   "sphinx-autodoc-typehints",
   "sphinx-codeautolink",
@@ -123,6 +120,28 @@ target-version = [
   "py310",
   "py311"
 ]
+
+[tool.bumpversion]
+current_version = "0.18.2"
+commit = true
+commit_args = ["--no-verify"]
+tag = false
+allow_dirty = true
+
+[[tool.bumpversion.files]]
+filename = "raven/__version__.py"
+search = "__version__ = \"{current_version}\""
+replace = "__version__ = \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "docs/source/conf.py"
+parse = "version|release = {current_version}"
+replace = "{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "Dockerfile"
+search = "Version=\"{current_version}\""
+replace = "Version=\"{new_version}\""
 
 [tool.coverage.run]
 relative_files = true
@@ -151,8 +170,7 @@ include = [
   "raven/templates/pywps.cfg",
   "setup.cfg",
   "tests/*.py",
-  "tests/test.cfg",
-  "tox.ini"
+  "tests/test.cfg"
 ]
 exclude = [
   "**/*.py[co]",
@@ -162,8 +180,7 @@ exclude = [
   "docs/source/modules.rst",
   "docs/source/notebooks/.ipynb_checkpoints",
   "docs/source/output-sanitize.cfg",
-  "docs/source/raven*.rst",
-  "tests/.coverage"
+  "docs/source/raven*.rst"
 ]
 
 [tool.isort]

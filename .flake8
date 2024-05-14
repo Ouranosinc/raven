@@ -1,0 +1,24 @@
+[flake8]
+ignore =
+    AZ100,
+    AZ200,
+    AZ300,
+	C901,
+	E203,
+	E231,
+	E266,
+	E501,
+	F401,
+	F403,
+	W503,
+	W504
+max-line-length = 88
+max-complexity = 12
+exclude =
+	__pycache__,
+	.eggs,
+	.git,
+	build,
+	dist,
+	docs/source/conf.py,
+	src
