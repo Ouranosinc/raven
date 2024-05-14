@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.x"
       - uses: pre-commit/action@v3.0.1
 
   conda:
@@ -36,7 +36,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
@@ -50,7 +49,6 @@ jobs:
         with:
           cache-downloads: true
           cache-environment: true
-          activate-environment: raven
           environment-file: environment.yml
           create-args: >-
             python=${{ matrix.python-version }}
@@ -60,14 +58,14 @@ jobs:
             echo "micromamba: $(micromamba --version)"
       - name: Install RavenWPS
         run: |
-          python3 -m pip install --no-user --editable ".[dev]"
+          python -m pip install --no-user --editable ".[dev]"
       - name: Check versions
         run: |
           conda list
-          pip check
+          python -m pip check
       - name: Test RavenWPS
         run: |
-          python3 -m pytest -m "not very_slow" tests
+          python -m pytest -m "not very_slow" tests
 
   finish:
     name: Finish
