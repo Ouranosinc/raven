@@ -119,7 +119,8 @@ raven-wps = "raven.cli:cli"
 target-version = [
   "py39",
   "py310",
-  "py311"
+  "py311",
+  "py312"
 ]
 
 [tool.bumpversion]

@@ -1,13 +1,12 @@
 import json
 
 import pytest
+from common import CFG_FILE, client_for, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
 
 from raven.processes import HydroBasinsSelectionProcess
 from raven.utils import parse_lonlat
-
-from .common import CFG_FILE, client_for, get_output
 
 
 class TestParser:
