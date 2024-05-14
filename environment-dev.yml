@@ -14,8 +14,8 @@ dependencies:
   - isort >=5.13.2
   - nbconvert
   - nbval
-  - pip
-  - pre-commit
+  - pip >=23.3.0
+  - pre-commit >=3.6.0
   - pymetalink
   - pytest
   - pytest-xdist >=3.2
