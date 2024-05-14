@@ -7,7 +7,7 @@ dependencies:
   - pywps ==4.5.1
   - affine
   - anyascii
-  - cartopy
+  - cartopy >=0.23.0
   - click
   - fiona >=1.9
   - geopandas >=0.12.0

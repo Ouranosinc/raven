@@ -13,7 +13,7 @@ maintainers = [
   {name = "Tuan Long Vu", email = "vu.long@ouranos.ca"}
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.8.0"
+requires-python = ">=3.9.0"
 keywords = ["wps", "pywps", "birdhouse", "raven", "hydrology", "gis", "analysis"]
 license = {file = "LICENSE.txt"}
 classifiers = [
@@ -27,7 +27,6 @@ classifiers = [
   "Programming Language :: Python",
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -45,8 +44,7 @@ dependencies = [
   "netCDF4",
   "numpy",
   "owslib",
-  "pandas <2.0; python_version == '3.8'",
-  "pandas; python_version >= '3.9'",
+  "pandas >=2.0",
   "psutil",
   "pywps ==4.5.1",
   "requests",
@@ -54,6 +52,7 @@ dependencies = [
   "xclim >=0.31.0",
   # GIS libraries
   "affine",
+  "cartopy >=0.23.0",
   "fiona >=1.9.0",
   "geojson",
   "geopandas >=0.12.0",
@@ -74,11 +73,12 @@ dependencies = [
 dev = [
   # Dev tools and testing
   "birdhouse-birdy",
-  "black >=24.1.1",
+  "black >=24.4.2",
   "black-nb",
   "bumpversion",
   "flake8 >=7.0.0",
   "ipykernel",
+  "isort >=5.13.2",
   "nbconvert",
   "nbval",
   "nc-time-axis",
@@ -119,7 +119,6 @@ raven-wps = "raven.cli:cli"
 
 [tool.black]
 target-version = [
-  "py38",
   "py39",
   "py310",
   "py311"
@@ -169,7 +168,7 @@ exclude = [
 
 [tool.isort]
 profile = "black"
-py_version = 38
+py_version = 39
 append_only = true
 
 [tool.pytest.ini_options]
