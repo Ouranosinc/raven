@@ -4,7 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python >=3.8,<3.12
+  - python >=3.9,<3.13
   - pywps >=4.5.1
   - ipython
   - ipywidgets
