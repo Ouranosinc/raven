@@ -101,7 +101,7 @@ def gather_dem_tile(
     return Path(raster_file)
 
 
-def parse_lonlat(lonlat: Union[str, Tuple[str, str]]) -> Tuple[float, float]:
+def parse_lonlat(lonlat: Union[str, tuple[str, str]]) -> tuple[float, float]:
     """Return longitude and latitude from a string.
 
     Parameters
@@ -133,7 +133,7 @@ def zonalstats_raster_file(
     data_type: str = None,
     crs: str = None,
     zip_archive: bool = False,
-) -> Union[str, List[Path]]:
+) -> Union[str, list[Path]]:
     """
     Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected with specified CRS.
 

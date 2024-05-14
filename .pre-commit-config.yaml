@@ -6,7 +6,7 @@ repos:
     rev: v3.15.2
     hooks:
       - id: pyupgrade
-        args: [ '--py38-plus' ]
+        args: [ '--py39-plus' ]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -47,7 +47,7 @@ repos:
     rev: 1.8.5
     hooks:
       - id: nbqa-pyupgrade
-        args: [ '--py38-plus' ]
+        args: [ '--py39-plus' ]
         additional_dependencies: [ 'pyupgrade==v3.15.2' ]
       - id: nbqa-black
         additional_dependencies: [ 'black==24.4.2' ]

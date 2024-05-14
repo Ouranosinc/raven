@@ -233,7 +233,10 @@ notebook:
 .PHONY: lint
 lint:
 	@echo "Running flake8 code style checks ..."
-	@bash -c 'flake8 raven tests'
+	black --check raven tests
+	isort --check raven tests
+	flake8 raven tests
+	yamllint --config-file=.yamllint.yaml raven
 
 # Only works for notebooks that passed ``make test-notebooks`` above.  For
 # those that failed, manually starting a local Jupyter server and refresh them
