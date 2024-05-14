@@ -6,6 +6,7 @@ dependencies:
   - python >=3.8,<3.12
   - pywps ==4.5.1
   - affine
+  - anyascii
   - cartopy
   - click
   - fiona >=1.9
@@ -19,8 +20,6 @@ dependencies:
   - numpy
   - owslib
   - pandas
-  - pandoc
-  - poppler
   - psutil
   - psycopg2
   - pymetalink
@@ -31,8 +30,6 @@ dependencies:
   - requests
   - rioxarray
   - shapely
-  - tbb
-  - unidecode
   - urlpath
   - xarray >=0.18
   - xclim >=0.31.0
