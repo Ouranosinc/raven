@@ -1,8 +1,8 @@
 [flake8]
 ignore =
-    AZ100,
-    AZ200,
-    AZ300,
+	AZ100,
+	AZ200,
+	AZ300,
 	C901,
 	E203,
 	E231,
