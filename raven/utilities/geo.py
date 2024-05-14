@@ -87,7 +87,7 @@ def geom_transform(
 def generic_raster_clip(
     raster: Union[str, Path],
     output: Union[str, Path],
-    geometry: Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]],
+    geometry: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]],
     touches: bool = False,
     fill_with_nodata: bool = True,
     padded: bool = True,

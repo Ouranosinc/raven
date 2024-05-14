@@ -3,8 +3,9 @@
 import collections
 import logging
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, List, Sequence, Tuple, Union
+from typing import Any, List, Tuple, Union
 
 from . import gis_import_error_message
 
@@ -125,8 +126,8 @@ def multipolygon_check(geom: GeometryCollection) -> None:
 
 
 def feature_contains(
-    point: Union[Tuple[Union[int, float, str], Union[str, float, int]], Point],
-    shp: Union[str, Path, List[Union[str, Path]]],
+    point: Union[tuple[Union[int, float, str], Union[str, float, int]], Point],
+    shp: Union[str, Path, list[Union[str, Path]]],
 ) -> Union[dict, bool]:
     """Return the first feature containing a location.
 

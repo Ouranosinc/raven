@@ -61,7 +61,7 @@ def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
 
 def dem_prop(
     dem: Union[str, Path],
-    geom: Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]] = None,
+    geom: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]] = None,
     directory: Union[str, Path] = None,
 ) -> dict:
     """Return raster properties for each geometry.

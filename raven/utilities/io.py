@@ -6,9 +6,10 @@ import tarfile
 import tempfile
 import warnings
 import zipfile
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from re import search
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from . import gis_import_error_message
 
@@ -79,9 +80,9 @@ def address_append(address: Union[str, Path]) -> str:
 
 
 def generic_extract_archive(
-    resources: Union[str, Path, List[Union[bytes, str, Path]]],
+    resources: Union[str, Path, list[Union[bytes, str, Path]]],
     output_dir: Optional[Union[str, Path]] = None,
-) -> List[str]:
+) -> list[str]:
     """Extract archives (tar/zip) to a working directory.
 
     Parameters
@@ -143,10 +144,10 @@ def generic_extract_archive(
 
 
 def archive_sniffer(
-    archives: Union[str, Path, List[Union[str, Path]]],
+    archives: Union[str, Path, list[Union[str, Path]]],
     working_dir: Optional[Union[str, Path]] = None,
     extensions: Optional[Sequence[str]] = None,
-) -> List[Union[str, Path]]:
+) -> list[Union[str, Path]]:
     """Return a list of locally unarchived files that match the desired extensions.
 
     Parameters
@@ -177,7 +178,7 @@ def archive_sniffer(
 
 def crs_sniffer(
     *args: Union[str, Path, Sequence[Union[str, Path]]]
-) -> Union[List[Union[str, int]], str, int]:
+) -> Union[list[Union[str, int]], str, int]:
     """Return the list of CRS found in files.
 
     Parameters
@@ -266,7 +267,7 @@ def raster_datatype_sniffer(file: Union[str, Path]) -> str:
 
 def get_bbox(
     vector: Union[str, Path], all_features: bool = True
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     """Return bounding box of all features or the first feature in file.
 
     Parameters
