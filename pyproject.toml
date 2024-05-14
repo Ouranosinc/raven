@@ -38,6 +38,7 @@ classifiers = [
 ]
 dynamic = ["description", "version"]
 dependencies = [
+  "anyascii",
   "click",
   "jinja2",
   "matplotlib",
@@ -66,8 +67,7 @@ dependencies = [
   # Docs and other utilities
   "fsspec",
   "psycopg2", # to use postgres to log pywps requests like in Prod
-  "pymetalink",
-  "unidecode"
+  "pymetalink"
 ]
 
 [project.optional-dependencies]

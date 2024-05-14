@@ -6,9 +6,9 @@ from operator import mul
 
 import requests
 import xarray as xr
+from anyascii import anyascii
 from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
 from pywps.app.Common import Metadata
-from unidecode import unidecode
 
 LOGGER = logging.getLogger("PYWPS")
 
@@ -68,8 +68,8 @@ class _XclimIndicatorProcess(Process):
             self._handler,
             identifier=identifier,
             version="0.1",
-            title=unidecode(attrs["long_name"]),
-            abstract=unidecode(attrs["abstract"]),
+            title=anyascii(attrs["long_name"]),
+            abstract=anyascii(attrs["abstract"]),
             inputs=self.load_inputs(eval(attrs["parameters"])),
             outputs=outputs,
             status_supported=True,
