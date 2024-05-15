@@ -4,14 +4,14 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python >=3.8,<3.12
-  - pywps ==4.5.1
+  - python >=3.9,<3.13
+  - pywps >=4.5.1
   - ipython
   - ipywidgets
   - nbsphinx
   - numpy
-  - pandas
-  - sphinx >=1.7
+  - pandas >=2.2
+  - sphinx >=7.0.0
   - sphinx-autoapi
   - sphinx-autodoc-typehints
   - sphinx-codeautolink

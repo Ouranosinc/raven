@@ -30,6 +30,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
   "Topic :: Scientific/Engineering :: Hydrology",
@@ -44,12 +45,12 @@ dependencies = [
   "netCDF4",
   "numpy",
   "owslib",
-  "pandas >=2.0",
+  "pandas >=2.2",
   "psutil",
-  "pywps ==4.5.1",
+  "pywps >=4.5.1",
   "requests",
-  "xarray >=0.18",
-  "xclim >=0.31.0",
+  "xarray >=2023.11.0",
+  "xclim >=0.48.2",
   # GIS libraries
   "affine",
   "cartopy >=0.23.0",
@@ -62,7 +63,7 @@ dependencies = [
   "rasterstats",
   "requests",
   "rioxarray",
-  "shapely",
+  "shapely >=1.9",
   # Docs and other utilities
   "fsspec",
   "psycopg2", # to use postgres to log pywps requests like in Prod
@@ -74,30 +75,27 @@ dev = [
   # Dev tools and testing
   "birdhouse-birdy",
   "black >=24.4.2",
-  "black-nb",
-  "bumpversion",
+  "bump-my-version >=0.21.0",
   "flake8 >=7.0.0",
+  "flake8-alphabetize",
+  "flake8-rst-docstrings",
   "ipykernel",
   "isort >=5.13.2",
   "nbconvert",
   "nbval",
   "nc-time-axis",
-  "pip",
-  "pre-commit",
+  "pip >=23.3.0",
+  "pre-commit >=3.6.0",
   "pytest",
-  "pytest-dependency",
-  "pytest-flake8",
-  "pytest-notebook",
   "pytest-xdist >=3.2",
-  "urlpath",
   "yamllint"
 ]
 docs = [
   "ipython",
   "ipywidgets",
   "nbsphinx",
-  "pywps ==4.5.1",
-  "sphinx >=1.7",
+  "pywps >=4.5.1",
+  "sphinx >=7.0.0",
   "sphinx-autoapi",
   "sphinx-autodoc-typehints",
   "sphinx-codeautolink",
@@ -121,8 +119,31 @@ raven-wps = "raven.cli:cli"
 target-version = [
   "py39",
   "py310",
-  "py311"
+  "py311",
+  "py312"
 ]
+
+[tool.bumpversion]
+current_version = "0.18.2"
+commit = true
+commit_args = "--no-verify"
+tag = false
+allow_dirty = true
+
+[[tool.bumpversion.files]]
+filename = "raven/__version__.py"
+search = "__version__ = \"{current_version}\""
+replace = "__version__ = \"{new_version}\""
+
+[[tool.bumpversion.files]]
+filename = "docs/source/conf.py"
+parse = "version|release = {current_version}"
+replace = "{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "Dockerfile"
+search = "Version=\"{current_version}\""
+replace = "Version=\"{new_version}\""
 
 [tool.coverage.run]
 relative_files = true
@@ -151,8 +172,7 @@ include = [
   "raven/templates/pywps.cfg",
   "setup.cfg",
   "tests/*.py",
-  "tests/test.cfg",
-  "tox.ini"
+  "tests/test.cfg"
 ]
 exclude = [
   "**/*.py[co]",
@@ -162,8 +182,7 @@ exclude = [
   "docs/source/modules.rst",
   "docs/source/notebooks/.ipynb_checkpoints",
   "docs/source/output-sanitize.cfg",
-  "docs/source/raven*.rst",
-  "tests/.coverage"
+  "docs/source/raven*.rst"
 ]
 
 [tool.isort]

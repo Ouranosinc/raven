@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from common import CFG_FILE, client_for, count_pixels, get_output
 from metalink import download as md
 from pywps import Service, get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
@@ -11,8 +12,6 @@ from raven.processes import (
     NALCMSZonalStatisticsProcess,
     NALCMSZonalStatisticsRasterProcess,
 )
-
-from .common import CFG_FILE, client_for, count_pixels, get_output
 
 VERSION = "1.0.0"
 WPS, OWS = get_ElementMakerForVersion(VERSION)

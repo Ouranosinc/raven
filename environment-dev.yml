@@ -3,22 +3,22 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python >=3.8,<3.12
+  - python >=3.9,<3.13
   - birdy
   - black >=24.4.2
-  - bump2version
-  - flake8
+  - bump-my-version >=0.21.0
+  - flake8 >=7.0
+  - flake8-rst-docstrings
   - ipykernel
   - ipywidgets
   - isort >=5.13.2
   - nbconvert
   - nbval
-  - pip
-  - pre-commit
+  - pip >=23.3.0
+  - pre-commit >=3.6.0
   - pymetalink
   - pytest
-  - pytest-dependency
-  - pytest-flake8
-  - pytest-notebook
   - pytest-xdist >=3.2
-  - urlpath
+  - pip
+  - pip:
+      - flake8-alphabetize

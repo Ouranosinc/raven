@@ -38,7 +38,10 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
-        args: [ '--config=setup.cfg' ]
+        args: [ '--config=.flake8' ]
+        additional_dependencies:
+          - "flake8-alphabetize==0.0.21"
+          - "flake8-rst-docstrings==0.3.0"
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
