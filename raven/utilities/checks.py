@@ -3,8 +3,9 @@
 import collections
 import logging
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, List, Sequence, Tuple, Union
+from typing import Any, List, Tuple, Union
 
 from . import gis_import_error_message
 
@@ -51,16 +52,16 @@ def boundary_check(
     max_y: Union[int, float] = 60,
     min_y: Union[int, float] = -60,
 ) -> None:
-    """Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Emit a UserWarning if so.
+    r"""Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Emit a UserWarning if so.
 
     Parameters
     ----------
-    *args : Sequence of str or Path
-      str or Path to file(s)
+    \*args : Sequence of str or Path
+        str or Path to file(s)
     max_y : int or float
-      Maximum value allowed for latitude. Default: 60.
+        Maximum value allowed for latitude. Default: 60.
     min_y : int or float
-      Minimum value allowed for latitude. Default: -60.
+        Minimum value allowed for latitude. Default: -60.
     """
     vectors = (".gml", ".shp", ".geojson", ".gpkg", ".json")
     rasters = (".tif", ".tiff")
@@ -125,8 +126,8 @@ def multipolygon_check(geom: GeometryCollection) -> None:
 
 
 def feature_contains(
-    point: Union[Tuple[Union[int, float, str], Union[str, float, int]], Point],
-    shp: Union[str, Path, List[Union[str, Path]]],
+    point: Union[tuple[Union[int, float, str], Union[str, float, int]], Point],
+    shp: Union[str, Path, list[Union[str, Path]]],
 ) -> Union[dict, bool]:
     """Return the first feature containing a location.
 

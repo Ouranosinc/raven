@@ -18,8 +18,9 @@ import json
 import os
 import urllib.request
 import warnings
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, Optional, Sequence, Tuple, Union
+from typing import Optional, Tuple, Union
 from urllib.parse import urljoin
 
 from requests import Request
@@ -78,7 +79,7 @@ def _fix_server_url(server_url: str) -> str:
 
 def _get_location_wfs(
     bbox: Optional[
-        Tuple[
+        tuple[
             Union[str, float, int],
             Union[str, float, int],
             Union[str, float, int],
@@ -86,7 +87,7 @@ def _get_location_wfs(
         ]
     ] = None,
     point: Optional[
-        Tuple[
+        tuple[
             Union[str, float, int],
             Union[str, float, int],
         ]
@@ -372,11 +373,11 @@ def hydrobasins_aggregate(gdf: pd.DataFrame) -> pd.DataFrame:
 
 def select_hybas_domain(
     bbox: Optional[
-        Tuple[
+        tuple[
             Union[int, float], Union[int, float], Union[int, float], Union[int, float]
         ]
     ] = None,
-    point: Optional[Tuple[Union[int, float], Union[int, float]]] = None,
+    point: Optional[tuple[Union[int, float], Union[int, float]]] = None,
 ) -> str:
     """Provided a given coordinate or boundary box, return the domain name of the geographic region the coordinate is located within.
 
@@ -448,7 +449,7 @@ def filter_hydrobasins_attributes_wfs(
 
 
 def get_hydrobasins_location_wfs(
-    coordinates: Tuple[
+    coordinates: tuple[
         Union[str, float, int],
         Union[str, float, int],
     ],
@@ -619,7 +620,7 @@ def filter_hydro_routing_attributes_wfs(
 
 
 def get_hydro_routing_location_wfs(
-    coordinates: Tuple[
+    coordinates: tuple[
         Union[int, float, str],
         Union[str, float, int],
     ],

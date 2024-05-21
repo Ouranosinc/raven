@@ -3,12 +3,11 @@ import tempfile
 
 import geojson
 import numpy as np
+from common import CFG_FILE, client_for, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
 
 from raven.processes import ShapePropertiesProcess
-
-from .common import CFG_FILE, client_for, get_output
 
 
 class TestGenericShapePropertiesProcess:

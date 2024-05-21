@@ -48,16 +48,16 @@ FINCH_WPS_URL ?= https://pavics.ouranos.ca/twitcher/ows/proxy/finch/wps
 # To run tests on local servers, use
 # make FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
-ifeq ($(OS),"Linux")
-FN := Miniconda3-latest-Linux-x86_64.sh
-GDAL_VERSION := $(shell gdal-config --version)
-else ifeq ($(OS),"Darwin")
-FN := Miniconda3-latest-MacOSX-x86_64.sh
-GDAL_VERSION := $(shell gdalinfo --version | awk '{print $2}' | sed s'/.$//')
-else
+FN ?= "Miniconda3-latest-Linux-x86_64.sh"
+GDAL_VERSION = "$(shell gdal-config --version)"
+ifeq ($(OS),"Darwin")
+	FN = "Miniconda3-latest-MacOSX-x86_64.sh"
+	GDAL_VERSION = "$(shell gdalinfo --version | awk '{print $2}' | sed 's/.$//')"
+endif
+ifeq ($(OS),"Windows_NT")
 # UNTESTED
-FN := Miniconda3-latest-Windows-x86_64.sh
-GDAL_VERSION := $(shell gdalinfo --version | awk '{print $2}' | sed s'/.$//')
+	FN = Miniconda3-latest-Windows-x86_64.sh
+	GDAL_VERSION = "$(shell gdalinfo --version)"
 endif
 
 # end of configuration
@@ -237,7 +237,10 @@ notebook:
 .PHONY: lint
 lint:
 	@echo "Running flake8 code style checks ..."
-	@bash -c 'flake8 raven tests'
+	black --check raven tests
+	isort --check raven tests
+	flake8 raven tests
+	yamllint --config-file=.yamllint.yaml raven
 
 # Only works for notebooks that passed ``make test-notebooks`` above.  For
 # those that failed, manually starting a local Jupyter server and refresh them

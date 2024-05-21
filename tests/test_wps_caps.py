@@ -1,8 +1,7 @@
+from common import client_for
 from pywps import Service
 
 from raven.processes import processes
-
-from .common import client_for
 
 
 def test_wps_caps():

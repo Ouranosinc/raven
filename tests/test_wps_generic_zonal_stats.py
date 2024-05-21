@@ -1,13 +1,12 @@
 import json
 
 import pytest
+from common import CFG_FILE, client_for, count_pixels, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
 from shapely.geometry import MultiPolygon, shape
 
 from raven.processes import ZonalStatisticsProcess
-
-from .common import CFG_FILE, client_for, count_pixels, get_output
 
 
 class TestGenericZonalStatsProcess:

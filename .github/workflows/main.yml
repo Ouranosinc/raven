@@ -10,20 +10,24 @@ env:
   MAIN_TESTDATA_BRANCH: "master"
 
 concurrency:
-  # For a given workflow, if we push to the same branch, cancel all previous builds on that branch except on master.
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+  # For a given workflow, if we push to the same branch, cancel all previous builds on that branch except on main.
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   black:
     name: Code linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - name: Harden Runner
+        uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
         with:
-          python-version: "3.11"
-      - uses: pre-commit/action@v3.0.0
+          egress-policy: audit
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - uses: pre-commit/action@v3.0.1
 
   conda:
     name: Conda (Python${{ matrix.python-version }}; ${{ matrix.os }})
@@ -35,23 +39,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: ["ubuntu-latest"]
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
         include:
           - os: macos-latest
             python-version: "3.10"
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
+        with:
+          egress-policy: audit
       - uses: actions/checkout@v4
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
         uses: mamba-org/setup-micromamba@v1
         with:
           cache-downloads: true
           cache-environment: true
-          activate-environment: raven
           environment-file: environment.yml
           create-args: >-
             python=${{ matrix.python-version }}
@@ -61,14 +68,14 @@ jobs:
             echo "micromamba: $(micromamba --version)"
       - name: Install RavenWPS
         run: |
-          python3 -m pip install --no-user --editable ".[dev]"
+          python -m pip install --no-user --editable ".[dev]"
       - name: Check versions
         run: |
           conda list
-          pip check
+          python -m pip check
       - name: Test RavenWPS
         run: |
-          python3 -m pytest -m "not very_slow" tests
+          python -m pytest -m "not very_slow" tests
 
   finish:
     name: Finish
