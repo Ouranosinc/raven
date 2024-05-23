@@ -3,7 +3,7 @@ name: raven-wps Testing
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 env:
@@ -14,6 +14,9 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+permissions:
+    contents: read
+
 jobs:
   black:
     name: Code linting
@@ -22,12 +25,19 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
         with:
-          egress-policy: audit
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
+      - name: Checkout Repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - name: Set up Python${{ matrix.python-version }}
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: "3.x"
-      - uses: pre-commit/action@v3.0.1
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
   conda:
     name: Conda (Python${{ matrix.python-version }}; ${{ matrix.os }})
@@ -46,16 +56,28 @@ jobs:
           - "3.11"
           - "3.12"
         include:
-          - os: macos-latest
+          - os: "macos-latest"
             python-version: "3.10"
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
         with:
-          egress-policy: audit
-      - uses: actions/checkout@v4
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            cdn.proj.org:443
+            conda.anaconda.org:443
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pavics.ouranos.ca:443
+            pypi.org:443
+            raw.githubusercontent.com:443
+            repo.anaconda.com:443
+      - name: Checkout Repository
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7 # v1.8.1
         with:
           cache-downloads: true
           cache-environment: true
@@ -64,8 +86,8 @@ jobs:
             python=${{ matrix.python-version }}
       - name: Conda and Mamba versions
         run: |
-            conda --version
-            echo "micromamba: $(micromamba --version)"
+          conda --version
+          echo "micromamba: $(micromamba --version)"
       - name: Install RavenWPS
         run: |
           python -m pip install --no-user --editable ".[dev]"
