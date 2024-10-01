@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
+    rev: v3.17.0
     hooks:
       - id: pyupgrade
         args: [ '--py39-plus' ]
@@ -31,11 +31,11 @@ repos:
       - id: python-check-blanket-noqa
       - id: rst-inline-touching-normal
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+    rev: 7.1.1
     hooks:
       - id: flake8
         args: [ '--config=.flake8' ]
@@ -47,7 +47,7 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.5
+    rev: 1.8.7
     hooks:
       - id: nbqa-pyupgrade
         args: [ '--py39-plus' ]
@@ -72,7 +72,7 @@ repos:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.28.4
+    rev: 0.29.2
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
