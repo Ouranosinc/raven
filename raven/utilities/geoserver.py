@@ -1,12 +1,12 @@
-"""
-GeoServer interaction operations.
+"""GeoServer interaction operations.
 
 Working assumptions for this module:
 * Point coordinates are passed as shapely.geometry.Point instances.
 * BBox coordinates are passed as (lon1, lat1, lon2, lat2).
 * Shapes (polygons) are passed as shapely.geometry.shape parsable objects.
 * All functions that require a CRS have a CRS argument with a default set to WGS84.
-* GEO_URL points to the GeoServer instance hosting all files.
+* GEOSERVER_URL points to the GeoServer instance hosting all files.
+* For legacy reasons, we also accept the `GEO_URL` environment variable.
 
 TODO: Refactor to remove functions that are just 2-lines of code.
 For example, many function's logic essentially consists in creating the layer name.
@@ -48,17 +48,33 @@ except (ImportError, ModuleNotFoundError):
     Intersects = None
     wfs_Point = None
 
-# Do not remove the trailing / otherwise `urljoin` will remove the geoserver path.
-# Can be set at runtime with `$ env GEO_URL=https://xx.yy.zz/geoserver/ ...`.
-GEO_URL = os.getenv("GEO_URL", "https://pavics.ouranos.ca/geoserver/")
+from .geo import determine_upstream_ids
 
-# We store the contour of different hydrobasins domains
+# Can be set at runtime with `$ env RAVENPY_GEOSERVER_URL=https://xx.yy.zz/geoserver/ ...`.
+# For legacy reasons, we also accept the `GEO_URL` environment variable.
+GEOSERVER_URL = os.getenv(
+    "RAVENPY_GEOSERVER_URL",
+    os.getenv("GEO_URL", "https://pavics.ouranos.ca/geoserver/"),
+)
+if not GEOSERVER_URL.endswith("/"):
+    GEOSERVER_URL = f"{GEOSERVER_URL}/"
+
+# We store the contour of different HydroBASINS domains
 hybas_dir = Path(__file__).parent.parent / "data" / "hydrobasins_domains"
 hybas_pat = "hybas_lake_{domain}_lev01_v1c.zip"
 
 # This could be inferred from existing files in hybas_dir
 hybas_regions = ["na", "ar"]
 hybas_domains = {dom: hybas_dir / hybas_pat.format(domain=dom) for dom in hybas_regions}
+
+
+def _fix_server_url(server_url: str) -> str:
+    if not server_url.endswith("/"):
+        warnings.warn(
+            "The GeoServer url should end with a slash. Appending it to the url."
+        )
+        return f"{server_url}/"
+    return server_url
 
 
 def _get_location_wfs(
@@ -77,7 +93,7 @@ def _get_location_wfs(
         ]
     ] = None,
     layer: str = None,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> dict:
     """Return leveled features from a hosted data set using bounding box coordinates and WFS 1.1.0 protocol.
 
@@ -92,7 +108,7 @@ def _get_location_wfs(
         Geographic coordinates of an intersecting point (lon, lat).
     layer : str
         The WFS/WMS layer name requested.
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
@@ -100,6 +116,8 @@ def _get_location_wfs(
     dict
         A GeoJSON-derived dictionary of vector features (FeatureCollection).
     """
+    geoserver = _fix_server_url(geoserver)
+
     wfs = WebFeatureService(url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30)
 
     if bbox and point:
@@ -135,7 +153,7 @@ def _get_location_wfs(
 def _get_feature_attributes_wfs(
     attribute: Sequence[str],
     layer: str = None,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> str:
     """Return WFS GetFeature URL request for attribute values.
 
@@ -147,7 +165,7 @@ def _get_feature_attributes_wfs(
         Attribute/field names.
     layer : str
         Name of geographic layer queried.
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
@@ -159,6 +177,8 @@ def _get_feature_attributes_wfs(
     -----
     Non-existent attributes will raise a cryptic DriverError from fiona.
     """
+    geoserver = _fix_server_url(geoserver)
+
     params = dict(
         service="WFS",
         version="2.0.0",
@@ -175,7 +195,7 @@ def _filter_feature_attributes_wfs(
     attribute: str,
     value: Union[str, float, int],
     layer: str,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> str:
     """Return WFS GetFeature URL request filtering geographic features based on a property's value.
 
@@ -183,7 +203,7 @@ def _filter_feature_attributes_wfs(
     ----------
     attribute : str
         Attribute/field name.
-    value: Union[str, float, int]
+    value : Union[str, float, int]
         Value for attribute queried.
     layer : str
         Name of geographic layer queried.
@@ -195,6 +215,7 @@ def _filter_feature_attributes_wfs(
     str
       WFS request URL.
     """
+    geoserver = _fix_server_url(geoserver)
 
     try:
         attribute = str(attribute)
@@ -217,71 +238,11 @@ def _filter_feature_attributes_wfs(
     return Request("GET", url=urljoin(geoserver, "wfs"), params=params).prepare().url
 
 
-def _determine_upstream_ids(
-    fid: str,
-    df: pd.DataFrame,
-    *,
-    basin_field: str,
-    downstream_field: str,
-    basin_family: Optional[str] = None,
-) -> pd.DataFrame:
-    """Return a list of upstream features by evaluating the downstream networks.
-
-    Parameters
-    ----------
-    fid : str
-        feature ID of the downstream feature of interest.
-    df : pd.DataFrame
-        A Dataframe comprising the watershed attributes.
-    basin_field : str
-        The field used to determine the id of the basin according to hydro project.
-    downstream_field : str
-        The field identifying the downstream sub-basin for the hydro project.
-    basin_family : str, optional
-        Regional watershed code (For HydroBASINS dataset).
-
-    Returns
-    -------
-    pd.DataFrame
-        Basins ids including `fid` and its upstream contributors.
-    """
-
-    def upstream_ids(bdf, bid):
-        return bdf[bdf[downstream_field] == bid][basin_field]
-
-    # Note: Hydro Routing `SubId` is a float for some reason and Python float != GeoServer double. Cast them to int.
-    if isinstance(fid, float):
-        fid = int(fid)
-        df[basin_field] = df[basin_field].astype(int)
-        df[downstream_field] = df[downstream_field].astype(int)
-
-    # Locate the downstream feature
-    ds = df.set_index(basin_field).loc[fid]
-    if basin_family is not None:
-        # Do a first selection on the main basin ID of the downstream feature.
-        sub = df[df[basin_family] == ds[basin_family]]
-    else:
-        sub = None
-
-    # Find upstream basins
-    up = [fid]
-    for b in up:
-        tmp = upstream_ids(sub if sub is not None else df, b)
-        if len(tmp):
-            up.extend(tmp)
-
-    return (
-        sub[sub[basin_field].isin(up)]
-        if sub is not None
-        else df[df[basin_field].isin(up)]
-    )
-
-
 def get_raster_wcs(
     coordinates: Union[Iterable, Sequence[Union[float, str]]],
     geographic: bool = True,
     layer: str = None,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> bytes:
     """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
@@ -304,6 +265,8 @@ def get_raster_wcs(
     bytes
         A GeoTIFF array.
     """
+    geoserver = _fix_server_url(geoserver)
+
     (left, down, right, up) = coordinates
 
     if geographic:
@@ -371,7 +334,7 @@ def hydrobasins_upstream(feature: dict, domain: str) -> pd.DataFrame:
         df = gpd.read_file(filename=req, engine="pyogrio")
 
     # Filter upstream watersheds
-    return _determine_upstream_ids(
+    return determine_upstream_ids(
         fid=feature[basin_field],
         df=df,
         basin_field=basin_field,
@@ -449,7 +412,7 @@ def filter_hydrobasins_attributes_wfs(
     attribute: str,
     value: Union[str, float, int],
     domain: str,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> str:
     """Return a URL that formats and returns a remote GetFeatures request from the USGS HydroBASINS dataset.
 
@@ -472,6 +435,8 @@ def filter_hydrobasins_attributes_wfs(
     str
         URL to the GeoJSON-encoded WFS response.
     """
+    geoserver = _fix_server_url(geoserver)
+
     lakes = True
     level = 12
 
@@ -489,7 +454,7 @@ def get_hydrobasins_location_wfs(
         Union[str, float, int],
     ],
     domain: str = None,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> str:
     """Return features from the USGS HydroBASINS data set using bounding box coordinates.
 
@@ -509,8 +474,9 @@ def get_hydrobasins_location_wfs(
     -------
     str
         A GeoJSON-encoded vector feature.
-
     """
+    geoserver = _fix_server_url(geoserver)
+
     lakes = True
     level = 12
     layer = f"public:USGS_HydroBASINS_{'lake_' if lakes else ''}{domain}_lev{str(level).zfill(2)}"
@@ -529,7 +495,7 @@ def hydro_routing_upstream(
     fid: Union[str, float, int],
     level: int = 12,
     lakes: str = "1km",
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> pd.Series:
     """Return a list of hydro routing features located upstream.
 
@@ -549,6 +515,8 @@ def hydro_routing_upstream(
     pd.Series
         Basins ids including `fid` and its upstream contributors.
     """
+    geoserver = _fix_server_url(geoserver)
+
     wfs = WebFeatureService(url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30)
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
 
@@ -561,7 +529,7 @@ def hydro_routing_upstream(
     df = gpd.read_file(resp)
 
     # Identify upstream features
-    df_upstream = _determine_upstream_ids(
+    df_upstream = determine_upstream_ids(
         fid=fid,
         df=df,
         basin_field="SubId",
@@ -582,7 +550,7 @@ def get_hydro_routing_attributes_wfs(
     attribute: Sequence[str],
     level: int = 12,
     lakes: str = "1km",
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> str:
     """Return a URL that formats and returns a remote GetFeatures request from hydro routing dataset.
 
@@ -597,15 +565,16 @@ def get_hydro_routing_attributes_wfs(
         Level of granularity requested for the lakes vector (range(7,13)). Default: 12.
     lakes : {"1km", "all"}
         Query the version of dataset with lakes under 1km in width removed ("1km") or return all lakes ("all").
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
     -------
     str
         URL to the GeoJSON-encoded WFS response.
-
     """
+    geoserver = _fix_server_url(geoserver)
+
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
     return _get_feature_attributes_wfs(
         attribute=attribute, layer=layer, geoserver=geoserver
@@ -617,7 +586,7 @@ def filter_hydro_routing_attributes_wfs(
     value: Union[str, float, int] = None,
     level: int = 12,
     lakes: str = "1km",
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> str:
     """Return a URL that formats and returns a remote GetFeatures request from hydro routing dataset.
 
@@ -641,8 +610,9 @@ def filter_hydro_routing_attributes_wfs(
     -------
     str
         URL to the GeoJSON-encoded WFS response.
-
     """
+    geoserver = _fix_server_url(geoserver)
+
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
     return _filter_feature_attributes_wfs(
         attribute=attribute, value=value, layer=layer, geoserver=geoserver
@@ -656,7 +626,7 @@ def get_hydro_routing_location_wfs(
     ],
     lakes: str,
     level: int = 12,
-    geoserver: str = GEO_URL,
+    geoserver: str = GEOSERVER_URL,
 ) -> dict:
     """Return features from the hydro routing data set using bounding box coordinates.
 
@@ -671,15 +641,16 @@ def get_hydro_routing_location_wfs(
         Query the version of dataset with lakes under 1km in width removed ("1km") or return all lakes ("all").
     level : int
         Level of granularity requested for the lakes vector (range(7,13)). Default: 12.
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
     -------
     dict
         A GeoJSON-derived dictionary of vector features (FeatureCollection).
-
     """
+    geoserver = _fix_server_url(geoserver)
+
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
 
     if not wfs_Point and not Intersects:
