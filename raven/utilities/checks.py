@@ -5,7 +5,7 @@ import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any, Union
 
 from . import gis_import_error_message
 
