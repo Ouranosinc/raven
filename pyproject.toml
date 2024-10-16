@@ -63,7 +63,7 @@ dependencies = [
   "rasterstats",
   "requests",
   "rioxarray",
-  "shapely >=1.9",
+  "shapely >=2.0",
   # Docs and other utilities
   "fsspec",
   "psycopg2", # to use postgres to log pywps requests like in Prod
@@ -86,7 +86,7 @@ dev = [
   "nc-time-axis",
   "pip >=23.3.0",
   "pre-commit >=3.6.0",
-  "pytest",
+  "pytest >=8.0.0",
   "pytest-xdist >=3.2",
   "yamllint"
 ]
