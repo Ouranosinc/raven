@@ -10,9 +10,7 @@ WORKDIR /code
 
 # Create conda environment
 COPY environment.yml .
-RUN mamba env create -n raven -f environment.yml \
-    && mamba install -n raven gunicorn \
-    && mamba clean --all --yes
+RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunicorn  && mamba clean --all --yes
 
 # Add the raven conda environment to the path
 ENV PATH /opt/conda/envs/raven/bin:$PATH

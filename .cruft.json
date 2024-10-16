@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/bird-house/cookiecutter-birdhouse",
-  "commit": "b6969697401008114c8e25846ae5801e7e65224d",
+  "commit": "2964f01a05703d88c087bb491811d16c703307b6",
   "skip": [],
   "context": {
     "cookiecutter": {
@@ -15,10 +15,15 @@
       "version": "0.17.1",
       "open_source_license": "MIT license",
       "http_port": "9099",
+      "use_pytest": "y",
+      "use_black": "n",
+      "create_author_file": "y",
       "_copy_without_render": [
         "{{cookiecutter.project_slug}}/templates/*.cfg"
       ],
+      "__gh_slug": "Ouranosinc/raven",
       "_template": "https://github.com/bird-house/cookiecutter-birdhouse"
     }
-  }
+  },
+  "checkout": null
 }

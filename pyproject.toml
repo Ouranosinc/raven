@@ -3,7 +3,7 @@ requires = ["flit_core >=3.8,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "raven"
+name = "birdhouse-raven"
 authors = [
   {name = "David Huard", email = "huard.david@ouranos.ca"},
   {name = "Richard Arsenault", email = "richard.arsenault@etsmtl.ca"}
@@ -39,15 +39,15 @@ classifiers = [
 dynamic = ["description", "version"]
 dependencies = [
   "anyascii",
-  "click",
-  "jinja2",
+  "click >=8.1.7",
+  "jinja2 >=3.1.4",
   "matplotlib",
   "netCDF4",
-  "numpy",
+  "numpy >=1.23.0",
   "owslib",
   "pandas >=2.2",
-  "psutil",
-  "pywps >=4.5.1",
+  "psutil >=6.0.0",
+  "pywps >=4.6",
   "requests",
   "xarray >=2023.11.0",
   "xclim >=0.48.2",
@@ -74,11 +74,13 @@ dependencies = [
 dev = [
   # Dev tools and testing
   "birdhouse-birdy",
-  "black >=24.4.2",
+  "black >=24.10.0",
+  "build",
   "bump-my-version >=0.21.0",
   "flake8 >=7.0.0",
   "flake8-alphabetize",
   "flake8-rst-docstrings",
+  "flit >=3.8,<4.0",
   "ipykernel",
   "isort >=5.13.2",
   "nbconvert",
@@ -91,10 +93,10 @@ dev = [
   "yamllint"
 ]
 docs = [
-  "ipython",
+  "ipyleaflet",
+  "ipython >=8.5.0",
   "ipywidgets",
-  "nbsphinx",
-  "pywps >=4.5.1",
+  "nbsphinx >=0.9.5",
   "sphinx >=7.0.0",
   "sphinx-autoapi",
   "sphinx-autodoc-typehints",
