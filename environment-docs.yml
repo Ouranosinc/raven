@@ -6,6 +6,7 @@ channels:
 dependencies:
   - python >=3.9,<3.13
   - pywps >=4.5.1
+  - ipyleaflet
   - ipython
   - ipywidgets
   - nbsphinx

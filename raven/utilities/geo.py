@@ -225,6 +225,10 @@ def generic_vector_reproject(
 
     for i, layer_name in enumerate(fiona.listlayers(vector)):
         with fiona.open(vector, "r", layer=i) as src:
+            # Increase the size allocation of integer fields
+            for entry, formatting in src.schema["properties"].items():
+                if formatting.startswith("int"):
+                    src.schema["properties"][entry] = "int64"
             with fiona.open(
                 projected, "w", driver="GeoJSON", schema=src.schema, crs=target_crs
             ) as sink:

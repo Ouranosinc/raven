@@ -148,7 +148,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
                 raster_out=False,
             )
 
-            land_use = list()
+            land_use = []
             for stat in stats:
                 lu = defaultdict(int)
                 prop = stat["properties"]
