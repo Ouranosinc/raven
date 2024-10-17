@@ -21,7 +21,7 @@ User documentation
    dev_guide
    processes
    authors
-   changes
+   changelog
 
 Credits
 -------
