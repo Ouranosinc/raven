@@ -4,16 +4,9 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import numpy as np
-
-from . import gis_import_error_message
-
-try:
-    import rasterio
-    from osgeo.gdal import Dataset, DEMProcessing
-    from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
-except (ImportError, ModuleNotFoundError) as e:
-    msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(msg) from e
+import rasterio
+from osgeo.gdal import Dataset, DEMProcessing
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
 
 from raven.utilities.geo import generic_raster_clip
 

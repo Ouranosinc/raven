@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - python >=3.9,<3.13
+  - flit >=3.8,<4.0
   - birdy
   - black >=24.10.0
   - bump-my-version >=0.21.0
@@ -19,6 +20,4 @@ dependencies:
   - pymetalink
   - pytest >=8.0.0
   - pytest-xdist >=3.2
-  - pip
-  - pip:
-      - flake8-alphabetize
+  - python-build

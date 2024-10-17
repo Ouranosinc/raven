@@ -23,22 +23,14 @@ from pathlib import Path
 from typing import Optional, Tuple, Union
 from urllib.parse import urljoin
 
+import fiona
+import geopandas as gpd
+import pandas as pd
+from lxml import etree
+from owslib.fes import PropertyIsLike
+from owslib.wcs import WebCoverageService
+from owslib.wfs import WebFeatureService
 from requests import Request
-
-from . import gis_import_error_message
-
-try:
-    import fiona
-    import geopandas as gpd
-    import pandas as pd
-    from lxml import etree
-    from owslib.fes import PropertyIsEqualTo, PropertyIsLike
-    from owslib.wcs import WebCoverageService
-    from owslib.wfs import WebFeatureService
-    from shapely.geometry import Point, shape
-except (ImportError, ModuleNotFoundError) as e:
-    msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(msg) from e
 
 try:
     from owslib.fes2 import Intersects

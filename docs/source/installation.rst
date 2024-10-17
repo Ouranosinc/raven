@@ -1,5 +1,3 @@
-.. highlight:: console
-
 .. _installation:
 
 Installation
@@ -12,129 +10,119 @@ Installation
 Install from Conda-Forge (suggested)
 ------------------------------------
 
-Create an Anaconda environment named `ravenwps-env`::
+Create an Anaconda environment named `ravenwps-env`:
 
-   $ conda env create -n ravenwps-env python=3.7
-   $ source activate ravenwps-env
+    .. code-block:: bash
+
+        conda env create -n ravenwps-env python=3.9
+        source activate ravenwps-env
 
 This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
-Now install directly from `conda-forge`::
+Now install directly from `conda-forge`:
 
-   (ravenwps-env) $ conda install -c conda-forge raven-wps
+    .. code-block:: bash
+
+        (ravenwps-env) $ conda install -c conda-forge raven-wps
 
 Install from GitHub
 -------------------
 
-Check out code from the Raven GitHub repo and start the installation::
+Check out code from the Raven GitHub repo and start the installation:
 
-   $ git clone https://github.com/Ouranosinc/raven.git
-   $ cd raven
+    .. code-block:: bash
+
+        git clone https://github.com/Ouranosinc/raven.git
+        cd raven
 
 Environment Setup with Anaconda (macOS/Linux)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create Conda environment named `raven`::
+Create Conda environment named `raven`:
 
-   $ conda env create -n ravenwps-env -f environment.yml
-   # or alternatively,
-   $ make conda_env
+    .. code-block:: bash
 
-The environment can then be activated with::
+        conda env create -n ravenwps-env -f environment.yml
 
-   $ source activate ravenwps-env
+The environment can then be activated with:
+
+    .. code-block:: bash
+
+        source activate ravenwps-env
 
 This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
-
-Environment Setup using System Libraries and Sources (Linux)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-    This approach is not formally supported, but is presently working for the time being.
-    It is up to the user to install the `raven` model and `ostrich` model optimization binaries.
-    Those can be downloaded from source via the following links:
-
-      - RAVEN: http://raven.uwaterloo.ca/Downloads.html
-      - OSTRICH: https://github.com/usbr/ostrich/
-
-
-.. note::
-   While the following shows how to install `raven` for an Deb-based Linux, if the OS-equivalent dependencies
-   are available to Python, `raven` should be able to run on any modern operating system (macOS/Windows/\*nix).
-
-First we need to install several system libraries that RavenWPS and RavenPy depend upon and make a virtual environment::
-
-   $ sudo apt-get install libhdf5-dev netcdf-bin libnetcdf-dev libgdal-dev libproj-dev libgeos-dev libspatialindex-dev python3-dev
-   $ pip3 install virtualenv
-   $ virtualenv ravenwps-env
-   $ . ravenwps-env/bin/activate
-
-We then need to install the `ravenpy` python library from sources::
-
-   (ravenwps-env) $ git clone https://github.com/CSHS-CWRA/RavenPy/
-   (ravenwps-env) $ pip install RavenPy/.[gis]
-   (ravenwps-env) $ pip install RavenPy/. --verbose --install-option="--with-binaries"
-
-If we want to perform an interactive/editable installation for dev purposes, substitute the following for the final installation command::
-
-   (ravenwps-env) $ pip install -e RavenPy/. --verbose --install-option="--with-binaries"
 
 Installing and Launching RavenWPS
 ---------------------------------
 
-Now we can install the raven-wps service::
+Now we can install the raven-wps service:
 
-  (ravenwps-env) $ pip install -e .
-  # or alternatively,
-  (ravenwps-env) $ make install
+    .. code-block:: bash
 
-For development you can use this command::
+        pip install -e .
 
-  (ravenwps-env) $ pip install -e .[dev]
-  # or alternatively,
-  (ravenwps-env) $ make develop
+Or alternatively:
 
-Then clone the Raven Test Data repo somewhere on your disk::
+    .. code-block:: bash
 
-   (ravenwps-env) $ git clone https://github.com/Ouranosinc/raven-testdata.git
+        make install
 
-You can then run the test suite by doing::
+For development you can use this command:
 
-   (ravenwps-env) $ export RAVENPY_TESTDATA_PATH=/path/to/raven-testdata
-   (ravenwps-env) $ pytest
+    .. code-block:: bash
+
+        pip install -e .[dev]
+
+Or alternatively:
+
+    .. code-block:: bash
+
+        make develop
 
 Start Raven PyWPS service
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After successful installation you can start the service using the ``raven`` command-line::
+After successful installation you can start the service using the ``raven`` command-line:
 
-   (ravenwps-env) $ raven-wps --help # show help
-   (ravenwps-env) $ raven-wps start  # start service with default configuration
-   # or alternatively,
-   (ravenwps-env) $ raven-wps start --daemon # start service as daemon
-   loading configuration
-   forked process id: 42
+    .. code-block:: bash
+
+        (ravenwps-env) $ raven-wps --help # show help
+        (ravenwps-env) $ raven-wps start  # start service with default configuration
+
+or alternatively,
+
+    .. code-block:: bash
+
+        (ravenwps-env) $ raven-wps start --daemon # start service as daemon
+        loading configuration
+        forked process id: 42
 
 The deployed WPS service is by default available on:
 
 http://localhost:9099/wps?service=WPS&version=1.0.0&request=GetCapabilities.
 
-You can find which process uses a given port using the following command (here for port 5000):::
+You can find which process uses a given port using the following command (here for port 5000):
 
-   $ netstat -nlp | grep :5000
+    .. code-block:: bash
 
-Check the log files for errors::
+        netstat -nlp | grep :5000
 
-   $ tail -f  pywps.log
+Check the log files for errors:
+
+    .. code-block:: bash
+
+        tail -f pywps.log
 
 ... or do it the lazy way
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also use the ``Makefile`` to start and stop the service::
+You can also use the ``Makefile`` to start and stop the service:
 
-  (ravenwps-env) $ make start
-  (ravenwps-env) $ make status
-  (ravenwps-env) $ tail -f pywps.log
-  (ravenwps-env) $ make stop
+    .. code-block:: bash
+
+        (ravenwps-env) $ make start
+        (ravenwps-env) $ make status
+        (ravenwps-env) $ tail -f pywps.log
+        (ravenwps-env) $ make stop
 
 ..
     Run Raven as Docker container
@@ -147,10 +135,3 @@ You can also run Raven as a Docker container.
 .. ::
 
   TODO: Describe Docker container support.
-
-Use Ansible to deploy Raven on your System
-------------------------------------------
-
-Use the `Ansible playbook`_ for PyWPS to deploy Raven on your system.
-
-.. _Ansible playbook: http://ansible-wps-playbook.readthedocs.io/en/latest/index.html

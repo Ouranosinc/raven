@@ -1,5 +1,10 @@
+===========================================
 Raven : Hydrological modeling and analytics
 ===========================================
+
+.. image:: https://img.shields.io/pypi/v/birdhouse-raven.svg
+    :target: https://pypi.python.org/pypi/birdhouse-raven
+    :alt: PyPI
 
 .. image:: https://readthedocs.org/projects/pavics-raven/badge/?version=latest
     :target: https://pavics-raven.readthedocs.io/en/latest/?badge=latest
@@ -10,7 +15,7 @@ Raven : Hydrological modeling and analytics
     :alt: Build status
 
 .. image:: https://img.shields.io/github/license/Ouranosinc/raven.svg
-    :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE.txt
+    :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE
     :alt: GitHub license
 
 .. image:: https://badges.gitter.im/bird-house/birdhouse.svg
@@ -37,23 +42,22 @@ Raven can be compiled and installed, or simply deployed using docker. A hosted v
 Documentation
 -------------
 
-Learn more about Raven in its official documentation at
-https://pavics-raven.readthedocs.io.
+Learn more about Raven in its official documentation at https://pavics-raven.readthedocs.io.
 
-Submit bug reports, questions and feature requests at
-https://github.com/Ouranosinc/raven/issues
+Submit bug reports, questions and feature requests at https://github.com/Ouranosinc/raven/issues
 
 Contributing
 ------------
 
 You can find information about contributing in our `Developer Guide`_.
 
-Please use bumpversion_ to release a new version.
+Please use bump2version_ to release a new version.
 
 License
 -------
 
-Free software: MIT license
+* Free software: MIT license
+* Documentation: https://raven.readthedocs.io.
 
 Credits
 -------
@@ -72,4 +76,4 @@ This package was created with Cookiecutter_ and the `bird-house/cookiecutter-bir
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
 .. _`Developer Guide`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html
-.. _bumpversion: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
+.. _bump2version: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
