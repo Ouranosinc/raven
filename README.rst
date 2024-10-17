@@ -15,7 +15,7 @@ Raven : Hydrological modeling and analytics
     :alt: Build status
 
 .. image:: https://img.shields.io/github/license/Ouranosinc/raven.svg
-    :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE.txt
+    :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE
     :alt: GitHub license
 
 .. image:: https://badges.gitter.im/bird-house/birdhouse.svg

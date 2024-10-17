@@ -3,33 +3,26 @@
 import collections
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
+import fiona
 import geopandas
 import pandas as pd
+import rasterio
+import rasterio.mask
+import rasterio.vrt
+import rasterio.warp
 from fiona import Feature
-
-from . import gis_import_error_message
-
-try:
-    import fiona
-    import rasterio
-    import rasterio.mask
-    import rasterio.vrt
-    import rasterio.warp
-    from pyproj import CRS
-    from shapely.geometry import (
-        GeometryCollection,
-        MultiPolygon,
-        Point,
-        Polygon,
-        mapping,
-        shape,
-    )
-    from shapely.ops import transform
-except (ImportError, ModuleNotFoundError) as e:
-    gis_msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(gis_msg) from e
+from pyproj import CRS
+from shapely.geometry import (
+    GeometryCollection,
+    MultiPolygon,
+    Point,
+    Polygon,
+    mapping,
+    shape,
+)
+from shapely.ops import transform
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
 LOGGER = logging.getLogger("RavenPy")
