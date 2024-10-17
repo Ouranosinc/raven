@@ -151,6 +151,9 @@ replace = "Version=\"{new_version}\""
 relative_files = true
 omit = ["tests/*.py"]
 
+[tool.flit.module]
+name = "raven"
+
 [tool.flit.sdist]
 include = [
   "AUTHORS.rst",
