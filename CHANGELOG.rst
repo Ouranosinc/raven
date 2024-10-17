@@ -239,7 +239,7 @@ v0.3.0 (2019-01-24)
 * Adds process for HBV-EC emulator
 
 v0.2.0 (2018-11-29) Washington
------------------------------
+------------------------------
 
 * Provides generic RAVEN framework configuration
 * Process for GR4J-Cemaneige emulator
