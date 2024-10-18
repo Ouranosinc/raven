@@ -45,12 +45,16 @@ Run tests using pytest_.
 
 First activate the ``raven`` Conda environment and install ``pytest``.
 
-.. code-block:: console
+    .. code-block:: console
 
-    source activate raven
-    pip install -r requirements_dev.txt  # if not already installed
-    # Or
-    make develop
+        source activate raven
+        pip install -r requirements_dev.txt  # if not already installed
+
+    Or, alternatively:
+
+    .. code-block:: console
+
+        make develop
 
 Run quick tests (skip slow and online):
 
@@ -95,7 +99,7 @@ Assuming that the ``raven`` conda env has already been created and is up-to-date
         # to test all notebooks
         make test-notebooks
 
- Or:
+    Or, alternatively:
 
     .. code-block:: console
 
@@ -111,7 +115,7 @@ By default these are from the production server but we can point the notebooks t
         # to test all notebooks
         make FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
-Or:
+    Or, alternatively:
 
     .. code-block:: console
 
@@ -125,7 +129,7 @@ If instead we want to run the notebooks against the production raven-wps server 
         # to test all notebooks
         make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps test-notebooks
 
-Or:
+    Or, alternatively:
 
     .. code-block:: console
 
@@ -169,7 +173,7 @@ Assuming that the ``raven`` conda env has already been created and is up-to-date
         # to refresh all notebooks
         make refresh-notebooks
 
-Or:
+    Or, alternatively:
 
     .. code-block:: console
 
