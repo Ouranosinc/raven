@@ -9,19 +9,17 @@ Developer Guide
 
 .. WARNING:: To create new processes, look at examples in Emu_.
 
-
 Re-create a fresh environment
 -----------------------------
 
 .. code-block:: shell
 
-  make stop  # in case you previously did 'make start'
-  conda deactivate  # exit the current 'raven' conda env so we can destroy it
-  conda env remove -n raven  # destroy the current conda env to recreate one from scratch
-  conda env create -f environment.yml
-  conda activate raven
-  make develop  # install raven-wps and additional dev tools
-
+    make stop  # in case you previously did 'make start'
+    conda deactivate  # exit the current 'raven' conda env so we can destroy it
+    conda env remove -n raven  # destroy the current conda env to recreate one from scratch
+    conda env create -f environment.yml
+    conda activate raven
+    make develop  # install raven-wps and additional dev tools
 
 Building the docs
 -----------------
@@ -47,12 +45,12 @@ Run tests using pytest_.
 
 First activate the ``raven`` Conda environment and install ``pytest``.
 
-.. code-block:: shell
+.. code-block:: console
 
-   $ source activate raven
-   $ pip install -r requirements_dev.txt  # if not already installed
-   # or
-   $ make develop
+    source activate raven
+    pip install -r requirements_dev.txt  # if not already installed
+    # Or
+    make develop
 
 Run quick tests (skip slow and online):
 
@@ -77,7 +75,7 @@ Run tests the lazy way
 
 Do the same as above using the ``Makefile``.
 
-.. code-block:: shell
+.. code-block:: console
 
     make test
     make test-all
@@ -87,8 +85,7 @@ Do the same as above using the ``Makefile``.
 Running notebooks tests
 -----------------------
 
-Assuming that the ``raven`` conda env has already been created and is up-to-date and
-raven-wps has been installed with ``make develop``:
+Assuming that the ``raven`` conda env has already been created and is up-to-date and raven-wps has been installed with ``make develop``:
 
     .. code-block:: console
 
@@ -106,20 +103,20 @@ raven-wps has been installed with ``make develop``:
         make docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
 
-The notebooks may also require other WPS services (Finch and Flyingpigeon).
+The notebooks may also require other WPS services (`finch`).
 By default these are from the production server but we can point the notebooks to local servers if needed for development purposes:
 
     .. code-block:: console
 
         # to test all notebooks
-        make FINCH_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 test-notebooks
+        make FINCH_WPS_URL=http://localhost:5000 test-notebooks
 
 Or:
 
     .. code-block:: console
 
         # to test a single notebook (note the .run at the end of the notebook path)
-        make FINCH_WPS_URL=http://localhost:8093 FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
+        make FINCH_WPS_URL=http://localhost:5000 docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
 If instead we want to run the notebooks against the production raven-wps server or any other raven-wps servers:
 
@@ -157,7 +154,6 @@ Assuming that the ``raven`` conda env has already been created and is up-to-date
     # override them one by one in each notebook as each notebook will also look
     # for those variables as environment variables.
 
-
 Bulk refresh all notebooks output
 ---------------------------------
 
@@ -183,7 +179,6 @@ Or:
         # Can also override the server variables (WPS_URL, FINCH_WPS_URL) here as well,
         # just like 'make test-notebooks' to be able to pick and choose any servers/services from anywhere we want.
 
-
 Prepare a release
 -----------------
 
@@ -200,7 +195,6 @@ Update the Conda specification file to build identical environments_ on a specif
   conda list -n raven --explicit > spec-file.txt
 
 .. _environments: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#building-identical-conda-environments
-
 
 Bump a new version
 ------------------
