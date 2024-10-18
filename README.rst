@@ -31,7 +31,7 @@ Raven : Hydrological modeling and analytics
     :alt: DOI
 
 Raven (the bird)
-  *Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modelling framework.*
+  *A WPS service that offers processes related to hydrological modelling.*
 
 Raven is an open source server project offering data collection and preparation, as well as geoprocessing and catchment delineation through the Web Processing Service (WPS) standard. Raven processes can be embedded in a graphical user interface or accessed directly from a programming environment. From Python, birdy_ WPSClient provides a user-friendly python interface to Raven's WPS processes for geospatial processing.
 
@@ -51,7 +51,7 @@ Contributing
 
 You can find information about contributing in our `Developer Guide`_.
 
-Please use bump2version_ to release a new version.
+Please use bump-my-version_ to release a new version.
 
 License
 -------
@@ -76,4 +76,4 @@ This package was created with Cookiecutter_ and the `bird-house/cookiecutter-bir
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
 .. _`Developer Guide`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html
-.. _bump2version: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
+.. _bump-my-version: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version

@@ -11,7 +11,7 @@
       "project_slug": "raven",
       "project_repo_name": "raven",
       "project_readthedocs_name": "pavics-raven",
-      "project_short_description": "Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework.",
+      "project_short_description": "A WPS service that offers processes related to hydrological modelling.",
       "version": "0.17.1",
       "open_source_license": "MIT license",
       "http_port": "9099",

@@ -76,7 +76,7 @@ dev = [
   "birdhouse-birdy",
   "black >=24.10.0",
   "build",
-  "bump-my-version >=0.21.0",
+  "bump-my-version >=0.26.0",
   "flake8 >=7.0.0",
   "flake8-alphabetize",
   "flake8-rst-docstrings",

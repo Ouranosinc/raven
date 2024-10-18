@@ -1,1 +1,1 @@
-"""Raven WPS """
+"""Raven WPS utility functions."""

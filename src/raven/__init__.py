@@ -1,4 +1,4 @@
-"""Raven offers processes related to hydrological modeling, and in particular, the Raven hydrological modeling framework."""
+"""A WPS service that offers processes related to hydrological modelling."""
 
 ###################################################################################
 # MIT License
