@@ -1,5 +1,5 @@
-Changes
-=======
+Changelog
+=========
 
 v0.18.3 (unreleased)
 --------------------
