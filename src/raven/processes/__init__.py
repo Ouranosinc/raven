@@ -1,3 +1,5 @@
+"""Processes for the Raven WPS server."""
+
 from .wps_generic_raster_subset import RasterSubsetProcess
 from .wps_generic_shape_properties import ShapePropertiesProcess
 from .wps_generic_terrain_analysis import TerrainAnalysisProcess

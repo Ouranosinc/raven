@@ -1,4 +1,7 @@
+"""Web Service Gateway Interface for PyWPS processes."""
+
 import os
+from pathlib import Path
 
 from pywps.app.Service import Service
 
@@ -6,7 +9,8 @@ from .processes import processes
 
 
 def create_app(cfgfiles=None):
-    config_files = [os.path.join(os.path.dirname(__file__), "default.cfg")]
+    """Create PyWPS application."""
+    config_files = [Path(__file__).parent.joinpath("default.cfg")]
     if cfgfiles:
         config_files.extend(cfgfiles)
     if "PYWPS_CFG" in os.environ:

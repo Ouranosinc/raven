@@ -1,6 +1,5 @@
 # vim:set ft=dockerfile:
 FROM condaforge/mambaforge
-ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 LABEL org.opencontainers.image.authors="https://github.com/Ouranosinc/raven"
 LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.18.2"
@@ -10,12 +9,10 @@ WORKDIR /code
 
 # Create conda environment
 COPY environment.yml .
-RUN mamba env create -n raven -f environment.yml \
-    && mamba install -n raven gunicorn \
-    && mamba clean --all --yes
+RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunicorn  && mamba clean --all --yes
 
 # Add the raven conda environment to the path
-ENV PATH /opt/conda/envs/raven/bin:$PATH
+ENV PATH=/opt/conda/envs/raven/bin:$PATH
 
 # Copy raven source code
 COPY . /code
