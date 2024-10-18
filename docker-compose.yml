@@ -1,4 +1,3 @@
-version: '3'
 services:
   # To periodically refresh deps or have weird error: `docker-compose build --no-cache wps`
   # `docker-compose run wps`
@@ -7,9 +6,6 @@ services:
   wps:
     build: .
     image: raven-wps
-    environment:
-      - RAVEN_BIND_ADDRESS=0.0.0.0
-      - RAVEN_BIND_PORT=9099
     volumes:
       - ./:/opt/wps
     ports:
@@ -31,4 +27,4 @@ services:
       - ./:/opt/wps
     environment:
       - RAVENPY_TESTDATA_PATH=/testdata
-    command: bash -c "source activate wps && pytest -x"
+    command: bash -c "python -m pip install pytest && pytest -x"

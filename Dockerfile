@@ -9,14 +9,10 @@ WORKDIR /code
 
 # Create conda environment
 COPY environment.yml .
-RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunicorn  && mamba clean --all --yes
+RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunicorn && mamba clean --all --yes
 
 # Add the raven conda environment to the path
 ENV PATH=/opt/conda/envs/raven/bin:$PATH
-
-# Set bind address and port from env variable of parent system
-ENV RAVEN_BIND_ADDRESS=${RAVEN_BIND_ADDRESS:-0.0.0.0}
-ENV RAVEN_BIND_PORT=${RAVEN_BIND_PORT:-9099}
 
 # Copy raven source code
 COPY . /code
@@ -25,9 +21,9 @@ COPY . /code
 RUN pip install . --no-deps
 
 # Start WPS service on port 9099
-EXPOSE $RAVEN_BIND_PORT
+EXPOSE 9099
 
-CMD gunicorn --bind=$RAVEN_BIND_ADDRESS:$RAVEN_BIND_PORT raven.wsgi:application
+CMD ["gunicorn", "--bind=0.0.0.0:9099", "raven.wsgi:application"]
 #CMD ["exec raven-wps start -b '0.0.0.0' -c etc/demo.cfg"]
 
 # docker build -t pavics/raven .
