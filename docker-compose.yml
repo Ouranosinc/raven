@@ -1,4 +1,3 @@
-version: '3'
 services:
   # To periodically refresh deps or have weird error: `docker-compose build --no-cache wps`
   # `docker-compose run wps`
@@ -28,4 +27,4 @@ services:
       - ./:/opt/wps
     environment:
       - RAVENPY_TESTDATA_PATH=/testdata
-    command: bash -c "source activate wps && pytest -x"
+    command: bash -c "python -m pip install pytest && pytest -x"
