@@ -12,7 +12,7 @@ COPY environment.yml .
 RUN mamba env create -n raven -f environment.yml && mamba install -n raven gunicorn  && mamba clean --all --yes
 
 # Add the raven conda environment to the path
-ENV PATH /opt/conda/envs/raven/bin:$PATH
+ENV PATH=/opt/conda/envs/raven/bin:$PATH
 
 # Copy raven source code
 COPY . /code
