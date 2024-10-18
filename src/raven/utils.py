@@ -72,7 +72,8 @@ def gather_dem_tile(
     geographic: bool = True,
     raster: str = EARTH_ENV_DEM,
 ) -> Path:
-    """Return a raster coverage for a given vector geometry.
+    """
+    Return a raster coverage for a given vector geometry.
 
     Parameters
     ----------
@@ -88,7 +89,7 @@ def gather_dem_tile(
     Returns
     -------
     Path
-        Path to raster file.
+        The path to raster file.
     """
     bbox = get_bbox(vector_file)
     raster_layer = raster
@@ -102,12 +103,13 @@ def gather_dem_tile(
 
 
 def parse_lonlat(lonlat: Union[str, tuple[str, str]]) -> tuple[float, float]:
-    """Return longitude and latitude from a string.
+    """
+    Return longitude and latitude from a string.
 
     Parameters
     ----------
     lonlat : str or Tuple[str, str]
-      A tuple or a str of lon and lat coordinates.
+        A tuple or a str of lon and lat coordinates.
 
     Returns
     -------
@@ -149,7 +151,7 @@ def zonalstats_raster_file(
       The data encoding of the raster used to write the grid (e.g. 'int16').
     crs : str
       The coordinate reference system.
-    zip_archive: bool
+    zip_archive : bool
       Return the files as a zipped archive (default: False).
 
     Returns

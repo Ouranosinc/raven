@@ -18,7 +18,8 @@ LOGGER = logging.getLogger("RavenPy")
 
 
 def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
-    """Return a dictionary of geometry properties.
+    """
+    Return a dictionary of geometry properties.
 
     Parameters
     ----------
@@ -58,7 +59,8 @@ def dem_prop(
     geom: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]] = None,
     directory: Union[str, Path] = None,
 ) -> dict[str, float]:
-    """Return raster properties for each geometry.
+    """
+    Return raster properties for each geometry.
 
     This
 
@@ -120,14 +122,15 @@ def gdal_slope_analysis(
     set_output: Optional[Union[str, Path]] = None,
     units: str = "degree",
 ) -> np.ndarray:
-    """Return the slope of the terrain from the DEM.
+    """
+    Return the slope of the terrain from the DEM.
 
     The slope is the magnitude of the gradient of the elevation.
 
     Parameters
     ----------
     dem : str or Path
-        Path to file storing DEM.
+        The path to file storing DEM.
     set_output : str or Path, optional
         If set to a valid filepath, will write to this path, otherwise will use an in-memory gdal.Dataset.
     units : str
@@ -178,14 +181,15 @@ def gdal_aspect_analysis(
     set_output: Union[str, Path, bool] = False,
     flat_values_are_zero: bool = False,
 ) -> Union[np.ndarray, Dataset]:
-    """Return the aspect of the terrain from the DEM.
+    """
+    Return the aspect of the terrain from the DEM.
 
     The aspect is the compass direction of the steepest slope (0: North, 90: East, 180: South, 270: West).
 
     Parameters
     ----------
     dem : str or Path
-        Path to file storing DEM.
+        The path to file storing DEM.
     set_output : str or Path or bool
         If set to a valid filepath, will write to this path, otherwise will use an in-memory gdal.Dataset.
     flat_values_are_zero : bool
@@ -233,12 +237,13 @@ def gdal_aspect_analysis(
 
 
 def circular_mean_aspect(angles: np.ndarray) -> np.ndarray:
-    """Return the mean angular aspect based on circular arithmetic approach.
+    """
+    Return the mean angular aspect based on circular arithmetic approach.
 
     Parameters
     ----------
-    angles: np.ndarray
-        Array of aspect angles
+    angles : np.ndarray
+        Array of aspect angles.
 
     Returns
     -------

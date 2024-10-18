@@ -34,7 +34,8 @@ def geom_transform(
     source_crs: Union[str, int, CRS] = WGS84,
     target_crs: Union[str, int, CRS] = None,
 ) -> GeometryCollection:
-    """Change the projection of a geometry.
+    """
+    Change the projection of a geometry.
 
     Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
 
@@ -86,7 +87,8 @@ def generic_raster_clip(
     padded: bool = True,
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
 ) -> None:
-    """Crop a raster file to a given geometry.
+    """
+    Crop a raster file to a given geometry.
 
     Parameters
     ----------
@@ -98,9 +100,9 @@ def generic_raster_clip(
         Geometry defining the region to crop.
     touches : bool
         Whether to include cells that intersect the geometry or not. Default: True.
-    fill_with_nodata: bool
+    fill_with_nodata : bool
         Whether to keep pixel values for regions outside of shape or set as nodata or not. Default: True.
-    padded: bool
+    padded : bool
         Whether to add a half-pixel buffer to shape before masking or not. Default: True.
     raster_compression : str
         Level of data compression. Default: 'lzw'.
@@ -153,7 +155,7 @@ def generic_raster_warp(
         Path to output raster.
     target_crs : str or dict
         Target projection identifier.
-    raster_compression: str
+    raster_compression : str
         Level of data compression. Default: 'lzw'.
 
     Returns
@@ -198,7 +200,7 @@ def generic_vector_reproject(
     ----------
     vector : Union[str, Path]
         Path to a file containing a valid vector layer.
-    projected: Union[str, Path]
+    projected : Union[str, Path]
         Path to a file to be written.
     source_crs : Union[str, dict, CRS]
         Projection identifier (proj4) for the source geometry, Default: '+proj=longlat +datum=WGS84 +no_defs'.

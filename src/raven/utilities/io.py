@@ -45,7 +45,8 @@ def safe_extract(
 
 
 def address_append(address: Union[str, Path]) -> str:
-    """Format a URL/URI to be more easily read with libraries such as "rasterstats".
+    """
+    Format a URL/URI to be more easily read with libraries such as "rasterstats".
 
     Parameters
     ----------
