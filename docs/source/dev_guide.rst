@@ -1,5 +1,3 @@
-.. highlight:: console
-
 .. _devguide:
 
 Developer Guide
@@ -9,7 +7,7 @@ Developer Guide
     :local:
     :depth: 1
 
-.. WARNING:: To create new processes look at examples in Emu_.
+.. WARNING:: To create new processes, look at examples in Emu_.
 
 
 Re-create a fresh environment
@@ -30,15 +28,15 @@ Building the docs
 
 First install dependencies for the documentation:
 
-    .. code-block:: console
+.. code-block:: console
 
-        make develop
+    make develop
 
 Run the Sphinx docs generator:
 
-    .. code-block:: console
+.. code-block:: console
 
-        make docs
+    make docs
 
 .. _testing:
 
@@ -58,21 +56,21 @@ First activate the ``raven`` Conda environment and install ``pytest``.
 
 Run quick tests (skip slow and online):
 
-    .. code-block:: console
+.. code-block:: console
 
-        pytest -m 'not slow and not online'
+    pytest -m 'not slow and not online'
 
 Run all tests:
 
-    .. code-block:: console
+.. code-block:: console
 
-        pytest
+    pytest
 
 Check PEP8:
 
-    .. code-block:: console
+.. code-block:: console
 
-        flake8
+    flake8
 
 Run tests the lazy way
 ----------------------
@@ -81,9 +79,9 @@ Do the same as above using the ``Makefile``.
 
 .. code-block:: console
 
-    $ make test
-    $ make test-all
-    $ make lint
+    make test
+    make test-all
+    make lint
 
 
 Running notebooks tests
@@ -145,20 +143,20 @@ Starting local Jupyter server to edit/develop notebooks
 Assuming that the ``raven`` conda env has already been created and is up-to-date and
 raven-wps has been installed with ``make develop``:
 
-    .. code-block:: console
+.. code-block:: console
 
-        # start local raven-wps server to test against
-        make start  # remember to make stop once done
+    # start local raven-wps server to test against
+    make start  # remember to make stop once done
 
-        # to start local jupyter notebook server listing all current notebooks
-        make notebook  # Control-C to terminate once done
+    # to start local jupyter notebook server listing all current notebooks
+    make notebook  # Control-C to terminate once done
 
-        # Can also override all three WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
-        # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
+    # Can also override all three WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL here as well,
+    # just like 'make test-notebooks' to be able to pick and choose any servers anywhere we want.
 
-        # By overriding these variables at the 'make notebook' step, we will not need to
-        # override them one by one in each notebook as each notebook will also look
-        # for those variables as environment variables.
+    # By overriding these variables at the 'make notebook' step, we will not need to
+    # override them one by one in each notebook as each notebook will also look
+    # for those variables as environment variables.
 
 
 Bulk refresh all notebooks output

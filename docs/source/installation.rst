@@ -12,42 +12,42 @@ Install from Conda-Forge (suggested)
 
 Create an Anaconda environment named `ravenwps-env`:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        conda env create -n ravenwps-env python=3.9
-        source activate ravenwps-env
+    conda env create -n ravenwps-env python=3.9
+    source activate ravenwps-env
 
 This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
 Now install directly from `conda-forge`:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        (ravenwps-env) $ conda install -c conda-forge raven-wps
+    (ravenwps-env) conda install -c conda-forge raven-wps
 
 Install from GitHub
 -------------------
 
 Check out code from the Raven GitHub repo and start the installation:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        git clone https://github.com/Ouranosinc/raven.git
-        cd raven
+    git clone https://github.com/Ouranosinc/raven.git
+    cd raven
 
 Environment Setup with Anaconda (macOS/Linux)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create Conda environment named `raven`:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        conda env create -n ravenwps-env -f environment.yml
+    conda env create -n ravenwps-env -f environment.yml
 
 The environment can then be activated with:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        source activate ravenwps-env
+    source activate ravenwps-env
 
 This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
 
@@ -60,7 +60,7 @@ Now we can install the raven-wps service:
 
         pip install -e .
 
-Or alternatively:
+    Or, alternatively:
 
     .. code-block:: bash
 
@@ -70,9 +70,9 @@ For development you can use this command:
 
     .. code-block:: bash
 
-        pip install -e .[dev]
+    pip install -e .[dev]
 
-Or alternatively:
+    Or, alternatively:
 
     .. code-block:: bash
 
@@ -88,7 +88,7 @@ After successful installation you can start the service using the ``raven`` comm
         (ravenwps-env) $ raven-wps --help # show help
         (ravenwps-env) $ raven-wps start  # start service with default configuration
 
-or alternatively,
+    Or, alternatively:
 
     .. code-block:: bash
 
@@ -102,27 +102,27 @@ http://localhost:9099/wps?service=WPS&version=1.0.0&request=GetCapabilities.
 
 You can find which process uses a given port using the following command (here for port 5000):
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        netstat -nlp | grep :5000
+    netstat -nlp | grep :5000
 
 Check the log files for errors:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        tail -f pywps.log
+    tail -f pywps.log
 
 ... or do it the lazy way
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can also use the ``Makefile`` to start and stop the service:
 
-    .. code-block:: bash
+.. code-block:: bash
 
-        (ravenwps-env) $ make start
-        (ravenwps-env) $ make status
-        (ravenwps-env) $ tail -f pywps.log
-        (ravenwps-env) $ make stop
+    (ravenwps-env) make start
+    (ravenwps-env) make status
+    (ravenwps-env) tail -f pywps.log
+    (ravenwps-env) make stop
 
 ..
     Run Raven as Docker container
