@@ -1,19 +1,30 @@
 Changelog
 =========
 
-v0.18.3 (unreleased)
+v0.19.0 (unreleased)
 --------------------
 
-* Added a GitHub Workflow to test the Dockerfile recipe configuration for RavenWPS.
-* Cleaned up the Dockerfile recipe configuration for RavenWPS, now using Gunicorn for service management.
-* Removed `pysheds` and watershed delineation process due to a licensing issue.
+Major Changes
+^^^^^^^^^^^^^
+* The `raven` library is now available for installation on PyPI (under the name `birdhouse-raven`) (#536)
+* Documentation has been overhauled so that WPS processes are listed in a more organized manner (#535)
+* Reimplemented the `cruft` configuration and ported recent changes to ensure that the project is up-to-date (#536)
+* Removed `pysheds` and watershed delineation process due to a licensing issue (#495)
+* Updated several dependencies to ensure that processes emit fewer warnings and notebooks render properly (#535)
+
+Internal Changes
+^^^^^^^^^^^^^^^^
+* Allowed for larger int fields when writing to GeoJSON (#535)
+* Ensured that JSON-serialized output does not include numpy complex types (#535)
+* Added a GitHub Workflow to test the Dockerfile recipe configuration for RavenWPS (#481)
+* Cleaned up the Dockerfile recipe configuration for `raven`. Now using `gunicorn` for service management (#481)
 
 v0.18.2 (2023-07-06)
 --------------------
 
-* Removed pin on `owslib` below v0.29 and pin on `fiona` below v2.0.
-* Added a GitHub Workflow to test against macOS builds.
-* Adapted zonal statistics processes to support the latest `fiona` and `zonalstats` API changes.
+* Removed pin on `owslib` below v0.29 and pin on `fiona` below v2.0 (#480)
+* Added a GitHub Workflow to test against macOS builds (#480)
+* Adapted zonal statistics processes to support the latest `fiona` and `zonalstats` API changes (#480)
 
 v0.18.1 (2023-05-23)
 --------------------
@@ -28,11 +39,11 @@ v0.18.0 (2023-05-23)
 
 Major Changes
 ^^^^^^^^^^^^^
-* `singularity` components have been removed from ``raven`` (#470)
+* `singularity` components have been removed from `raven` (#470)
 * Removed Raven WPS capabilities for hydrological modelling, graphing and forecasting (moved to RavenPy) (#464)
 * Removed notebooks and migrated to Ravenpy. Adapted them to the new Ravenpy configuration (#464)
 * Removed all tests related to Raven WPS modelling (#464)
-* Raise error message if shape area for NALCMS zonal stats raster is above 100,000 km2. (#473)
+* Raise error message if shape area for NALCMS zonal stats raster is above 100,000 km2 (#473)
 
 v0.17.1 (2023-04-04)
 --------------------
