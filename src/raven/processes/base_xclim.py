@@ -128,9 +128,9 @@ class _XclimIndicatorProcess(Process):
 
         return inputs
 
-    def try_opendap(self, input):
+    def try_opendap(self, request):
         """Try to open the file as an OPeNDAP url and chunk it"""
-        url = input.url
+        url = request.url
         if url and not url.startswith("file"):
             r = requests.get(url + ".dds")
             if r.status_code == 200 and r.content.decode().startswith("Dataset"):
@@ -144,11 +144,11 @@ class _XclimIndicatorProcess(Process):
 
         # accessing the file property loads the data in the data property
         # and writes it to disk
-        filename = input.file
-        # we need to cleanup the data property
+        filename = request.file
+        # we need to clean up the data property
         # if we don't do this, it will be written in the database and
         # to the output status xml file and it can get too large
-        input._data = ""
+        request._data = ""
 
         return xr.open_dataset(filename)
 
@@ -164,7 +164,7 @@ class _XclimIndicatorProcess(Process):
         self.write_log("Processing started")
 
         self.write_log("Preparing inputs")
-        kwds = {}
+        keywords = {}
         LOGGER.debug("received inputs: " + ", ".join(request.inputs.keys()))
         for name, input_queue in request.inputs.items():
             LOGGER.debug(input_queue)
@@ -194,12 +194,12 @@ class _XclimIndicatorProcess(Process):
 
                 values.append(value)
 
-            kwds[name] = values.pop() if len(values) == 1 else values
-            kwds.pop("variable", None)
+            keywords[name] = values.pop() if len(values) == 1 else values
+            keywords.pop("variable", None)
 
         self.write_log("Running computation")
-        LOGGER.debug(kwds)
-        out = self.xci(**kwds)
+        LOGGER.debug(keywords)
+        out = self.xci(**keywords)
         out_fn = os.path.join(self.workdir, f"out_{self.identifier}.nc")
 
         self.write_log("Writing the output netcdf")

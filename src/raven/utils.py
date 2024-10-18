@@ -133,7 +133,7 @@ def zonalstats_raster_file(
     data_type: str = None,
     crs: str = None,
     zip_archive: bool = False,
-) -> Union[str, list[Path]]:
+) -> Union[Path, list[Path]]:
     """
     Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected with specified CRS.
 
@@ -154,7 +154,7 @@ def zonalstats_raster_file(
 
     Returns
     -------
-    str or List[Path]
+    Path or List[Path]
     """
     out_dir = Path(working_dir).joinpath("output")
     out_dir.mkdir(exist_ok=True)
@@ -207,8 +207,8 @@ def zonalstats_raster_file(
         foldername = f"subset_{''.join(choice(ascii_letters) for _ in range(10))}"
         out_fn = Path(working_dir).joinpath(foldername)
         shutil.make_archive(
-            base_name=out_fn, format="zip", root_dir=out_dir, logger=LOGGER
+            base_name=out_fn.as_posix(), format="zip", root_dir=out_dir, logger=LOGGER
         )
-        return f"{out_fn}.zip"
+        return Path(f"{out_fn}.zip")
     else:
         return [f for f in out_dir.glob("*")]

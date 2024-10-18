@@ -1,20 +1,12 @@
 import logging
-import math
 import tempfile
 from pathlib import Path
 from typing import List, Optional, Union
 
 import numpy as np
-
-from . import gis_import_error_message
-
-try:
-    import rasterio
-    from osgeo.gdal import Dataset, DEMProcessing
-    from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
-except (ImportError, ModuleNotFoundError) as e:
-    msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(msg) from e
+import rasterio
+from osgeo.gdal import Dataset, DEMProcessing
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
 
 from raven.utilities.geo import generic_raster_clip
 
@@ -49,21 +41,23 @@ def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
         LOGGER.warning("Shape centroid is not in decimal degrees.")
     area = geom.area
     length = geom.length
-    gravelius = length / 2 / math.sqrt(math.pi * area)
-    parameters = {
+    gravelius = length / 2 / np.sqrt(np.pi * area)
+
+    # JSON serializable output
+    properties = {
         "area": area,
         "centroid": (lon, lat),
         "perimeter": length,
-        "gravelius": gravelius,
+        "gravelius": float(gravelius),
     }
-    return parameters
+    return properties
 
 
 def dem_prop(
     dem: Union[str, Path],
     geom: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]] = None,
     directory: Union[str, Path] = None,
-) -> dict:
+) -> dict[str, float]:
     """Return raster properties for each geometry.
 
     This
@@ -80,7 +74,7 @@ def dem_prop(
     Returns
     -------
     dict
-        Dictionary storing mean elevation [m], slope [deg] and aspect [deg].
+        Dictionary storing mean elevation [m], slope [deg] and aspect [deg] as float.
     """
 
     fns = dict()
@@ -112,7 +106,13 @@ def dem_prop(
     aspect = gdal_aspect_analysis(fns["dem"], set_output=fns["aspect"])
     aspect_mean = circular_mean_aspect(aspect)
 
-    return {"elevation": elevation.mean(), "slope": slope.mean(), "aspect": aspect_mean}
+    # JSON serializable output
+    properties = {
+        "elevation": float(elevation.mean()),
+        "slope": float(slope.mean()),
+        "aspect": float(aspect_mean),
+    }
+    return properties
 
 
 def gdal_slope_analysis(

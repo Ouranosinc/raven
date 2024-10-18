@@ -91,7 +91,7 @@ class ShapePropertiesProcess(Process):
             raise Exception(msg)
 
         # TODO: It would be good to one day refactor this to make use of RavenPy utils and gis utilities
-        properties = list()
+        properties = []
         try:
             for i, layer_name in enumerate(fiona.listlayers(vector_file)):
                 with fiona.open(vector_file, "r", crs=shape_crs, layer=i) as src:

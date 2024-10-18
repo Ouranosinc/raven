@@ -20,7 +20,8 @@ User documentation
    notebooks/index
    dev_guide
    processes
-   changes
+   authors
+   changelog
 
 Credits
 -------

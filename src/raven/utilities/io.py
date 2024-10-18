@@ -6,21 +6,15 @@ import tarfile
 import tempfile
 import warnings
 import zipfile
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from re import search
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
-from . import gis_import_error_message
-
-try:
-    import fiona
-    import rasterio
-    from pyproj import CRS
-    from shapely.geometry import shape
-except (ImportError, ModuleNotFoundError) as e:
-    msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(msg) from e
+import fiona
+import rasterio
+from pyproj import CRS
+from shapely.geometry import shape
 
 LOGGER = logging.getLogger("RavenPy")
 WGS84 = 4326

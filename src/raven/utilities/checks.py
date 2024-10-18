@@ -5,19 +5,13 @@ import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any, Union
 
-from . import gis_import_error_message
-
-try:
-    import fiona
-    import rasterio
-    from pyproj import CRS
-    from pyproj.exceptions import CRSError
-    from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
-except (ImportError, ModuleNotFoundError) as e:
-    msg = gis_import_error_message.format(Path(__file__).stem)
-    raise ImportError(msg) from e
+import fiona
+import rasterio
+from pyproj import CRS
+from pyproj.exceptions import CRSError
+from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
 
 import raven.utilities.io as io
 
