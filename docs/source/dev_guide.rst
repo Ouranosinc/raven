@@ -45,16 +45,9 @@ Run tests using pytest_.
 
 First activate the ``raven`` Conda environment and install ``pytest``.
 
-    .. code-block:: console
+.. code-block:: console
 
-        source activate raven
-        pip install -r requirements_dev.txt  # if not already installed
-
-    Or, alternatively:
-
-    .. code-block:: console
-
-        make develop
+    make develop
 
 Run quick tests (skip slow and online):
 
