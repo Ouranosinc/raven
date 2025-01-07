@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.0
+    rev: v3.19.1
     hooks:
       - id: pyupgrade
         args: [ '--py39-plus' ]
@@ -50,7 +50,7 @@ repos:
     hooks:
       - id: nbqa-pyupgrade
         args: [ '--py39-plus' ]
-        additional_dependencies: [ 'pyupgrade==v3.18.0' ]
+        additional_dependencies: [ 'pyupgrade==v3.19.1' ]
       - id: nbqa-black
         additional_dependencies: [ 'black==24.10.0' ]
       - id: nbqa-isort
