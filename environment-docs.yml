@@ -2,7 +2,7 @@
 name: raven-docs
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
   - python >=3.9,<3.13
   - pywps >=4.6

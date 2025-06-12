@@ -1,7 +1,7 @@
 name: raven
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
   - python >=3.9,<3.13
   - pywps >=4.6
@@ -9,6 +9,7 @@ dependencies:
   - anyascii
   - cartopy >=0.23.0
   - click >=8.1.7
+  - filelock >=3.14.0
   - fiona >=1.9
   - geopandas >=0.12.0
   - geojson

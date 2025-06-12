@@ -9,7 +9,7 @@ from raven.processes import TerrainAnalysisProcess
 
 
 class TestGenericTerrainAnalysisProcess:
-    def test_shape_subset(self, get_local_testdata):
+    def test_shape_subset(self, yangtze):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
@@ -21,10 +21,10 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            raster=get_local_testdata(
+            raster=yangtze.fetch(
                 "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
             ),
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
             projected_crs="6622",
             touches=True,
         )
@@ -45,7 +45,7 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.slow
-    def test_shape_subset_wcs(self, get_local_testdata):
+    def test_shape_subset_wcs(self, yangtze):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
@@ -56,7 +56,7 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
             projected_crs="6622",
             touches=True,
         )
@@ -77,7 +77,7 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.online
-    def test_single_polygon(self, get_local_testdata):
+    def test_single_polygon(self, yangtze):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
         )
@@ -88,7 +88,7 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_local_testdata("polygons/Basin_10.zip"),
+            shape=yangtze.fetch("polygons/Basin_10.zip"),
             projected_crs="6622",
             touches=True,
         )

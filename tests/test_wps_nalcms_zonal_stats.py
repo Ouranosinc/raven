@@ -19,7 +19,7 @@ xpath_ns = get_xpath_ns(VERSION)
 
 
 class TestNALCMSZonalStatsProcess:
-    def test_simplified_categories(self, get_local_testdata):
+    def test_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
@@ -36,8 +36,8 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=get_local_testdata("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=yangtze.fetch("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
         )
 
         resp = client.get(
@@ -60,7 +60,7 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
-    def test_true_categories(self, get_local_testdata):
+    def test_true_categories(self, yangtze):
         client = client_for(
             Service(
                 processes=[
@@ -82,8 +82,8 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=False,
             band=1,
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=get_local_testdata("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=yangtze.fetch("cec_nalcms2010_30m/cec_nalcms_subQC.tiff"),
         )
 
         resp = client.get(
@@ -106,7 +106,7 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
-    def test_wcs_simplified_categories(self, get_local_testdata):
+    def test_wcs_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
@@ -121,7 +121,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
+            shape=yangtze.fetch("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",
@@ -143,7 +143,7 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
-    def test_wcs_true_categories(self, get_local_testdata):
+    def test_wcs_true_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
         )
@@ -158,7 +158,7 @@ class TestNALCMSZonalStatsProcess:
             touches=True,
             simple_categories=False,
             band=1,
-            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
+            shape=yangtze.fetch("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",
@@ -183,7 +183,7 @@ class TestNALCMSZonalStatsProcess:
 
 @pytest.mark.online
 class TestNALCMSZonalStatsWithRasterProcess:
-    def test_wcs_simplified_categories(self, get_local_testdata):
+    def test_wcs_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)
         )
@@ -198,7 +198,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
             touches=True,
             simple_categories=True,
             band=1,
-            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
+            shape=yangtze.fetch("watershed_vector/Basin_test.zip"),
         )
         resp = client.get(
             service="WPS",
@@ -224,7 +224,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
         d = md.get(out["raster"], path="/tmp", segmented=False)
         assert {f"/tmp/subset_{n}.tiff" for n in range(1, 6)}.issubset(set(d))
 
-    def test_mississippi(self, get_local_testdata, tmpdir):
+    def test_mississippi(self, yangtze, tmpdir):
         """Extremely large region testing timeout value for the GeoServer response."""
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)
@@ -234,7 +234,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_local_testdata("polygons/mississippi.geojson")
+            shape=yangtze.fetch("polygons/mississippi.geojson")
         )
         resp = client.get(
             service="WPS",

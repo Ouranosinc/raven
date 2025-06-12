@@ -123,7 +123,7 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[0]["perimeter"], 8.14412255)
         np.testing.assert_approx_equal(props[0]["gravelius"], 2.68111268)
 
-    def test_multifeature_geojson(self, get_local_testdata):
+    def test_multifeature_geojson(self, yangtze):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
@@ -136,7 +136,7 @@ class TestGenericShapePropertiesProcess:
             "projected_crs={projected_crs}",
         ]
         datainputs = ";".join(fields).format(
-            file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            file=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
             crs=4326,
             projected_crs=6622,
         )
@@ -172,7 +172,7 @@ class TestGenericShapePropertiesProcess:
         np.testing.assert_approx_equal(props[-1]["centroid"][1], 46.3632907)
         np.testing.assert_approx_equal(props[-1]["gravelius"], 1.4271461)
 
-    def test_multifeature_zipped_shapefile(self, get_local_testdata):
+    def test_multifeature_zipped_shapefile(self, yangtze):
         """Calculate shape properties for multiple features in a shape"""
 
         client = client_for(
@@ -185,7 +185,7 @@ class TestGenericShapePropertiesProcess:
             "projected_crs={projected_crs}",
         ]
         datainputs = ";".join(fields).format(
-            file=get_local_testdata("donneesqc_mrc_poly/mrc_subset.zip"),
+            file=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.zip"),
             crs=4326,
             projected_crs=6622,
         )

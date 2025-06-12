@@ -10,7 +10,7 @@ from raven.processes import ZonalStatisticsProcess
 
 
 class TestGenericZonalStatsProcess:
-    def test_simple(self, get_local_testdata):
+    def test_simple(self, yangtze):
         client = client_for(
             Service(
                 processes=[
@@ -32,8 +32,8 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=False,
             band=1,
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=get_local_testdata(
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=yangtze.fetch(
                 "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
             ),
         )
@@ -58,7 +58,7 @@ class TestGenericZonalStatsProcess:
         geometry = shape(feature["geometry"])
         assert isinstance(type(geometry), type(MultiPolygon))
 
-    def test_categorized(self, get_local_testdata):
+    def test_categorized(self, yangtze):
         client = client_for(
             Service(
                 processes=[
@@ -80,8 +80,8 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=True,
             band=1,
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=get_local_testdata(
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=yangtze.fetch(
                 "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
             ),
         )
@@ -111,7 +111,7 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
-    def test_geoserver_dem_wcs_simple(self, get_local_testdata):
+    def test_geoserver_dem_wcs_simple(self, yangtze):
         client = client_for(
             Service(
                 processes=[
@@ -131,7 +131,7 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=False,
             band=1,
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
         )
         resp = client.get(
             service="WPS",
@@ -154,7 +154,7 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
-    def test_geoserver_dem_wcs_categorized(self, get_local_testdata):
+    def test_geoserver_dem_wcs_categorized(self, yangtze):
         client = client_for(
             Service(
                 processes=[
@@ -174,7 +174,7 @@ class TestGenericZonalStatsProcess:
             touches=True,
             categorical=True,
             band=1,
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
         )
         resp = client.get(
             service="WPS",

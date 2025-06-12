@@ -10,7 +10,7 @@ from raven.processes import RasterSubsetProcess
 
 
 class TestGenericRasterSubsetProcess:
-    def test_simple(self, get_local_testdata):
+    def test_simple(self, yangtze):
         client = client_for(
             Service(processes=[RasterSubsetProcess()], cfgfiles=CFG_FILE)
         )
@@ -23,8 +23,8 @@ class TestGenericRasterSubsetProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_local_testdata("watershed_vector/Basin_test.zip"),
-            raster=get_local_testdata(
+            shape=yangtze.fetch("watershed_vector/Basin_test.zip"),
+            raster=yangtze.fetch(
                 "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
             ),
             band=1,
@@ -54,7 +54,7 @@ class TestGenericRasterSubsetProcess:
             bounds.append(raster.bounds)
         assert len(set(bounds)) == len(raster_dir)
 
-    def test_multiple_features_metalink(self, get_local_testdata):
+    def test_multiple_features_metalink(self, yangtze):
         client = client_for(
             Service(processes=[RasterSubsetProcess()], cfgfiles=CFG_FILE)
         )
@@ -67,8 +67,8 @@ class TestGenericRasterSubsetProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            shape=get_local_testdata("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=get_local_testdata(
+            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
+            raster=yangtze.fetch(
                 "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
             ),
             band=1,
