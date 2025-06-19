@@ -191,11 +191,6 @@ exclude = [
   "docs/source/raven*.rst"
 ]
 
-[tool.isort]
-profile = "black"
-py_version = 39
-append_only = true
-
 [tool.pytest.ini_options]
 addopts = [
   "--verbose",
@@ -215,3 +210,50 @@ markers = [
   "slow: mark test to be slow (deselect with '-m \"not slow\"')",
   "very_slow: mark test to be very slow (deselect with '-m \"not very_slow\"')"
 ]
+
+[tool.ruff]
+src = ["raven"]
+line-length = 150
+target-version = "py39"
+exclude = [
+  ".eggs",
+  ".git",
+  "build",
+  "docs"
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+preview = true
+
+[tool.ruff.lint.flake8-bandit]
+check-typed-exception = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["ravenpy"]
+case-sensitive = true
+detect-same-package = false
+lines-after-imports = 2
+no-lines-before = ["future", "standard-library"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 180
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.vulture]
+exclude = []
+ignore_decorators = ["@pytest.fixture"]
+ignore_names = []
+min_confidence = 90
+paths = ["src/ravenpy", "tests"]
+sort_by_size = true

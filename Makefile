@@ -149,7 +149,7 @@ clean-docs: ## remove documentation artifacts
 lint: ## check code style
 	@echo "Running black, ruff, isort, and yamllint code style checks ..."
 	black --check src/raven tests
-	isort --check src/raven tests
+	ruff check src/raven tests
 	flake8 src/raven tests
 	yamllint --config-file=.yamllint.yaml src/raven
 

@@ -10,6 +10,7 @@ ignore =
 	E501,
 	F401,
 	F403,
+	RST210
 	W503,
 	W504
 max-line-length = 88
