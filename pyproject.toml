@@ -177,7 +177,6 @@ include = [
   "src/raven/data/**/*.zip",
   "src/raven/default.cfg",
   "src/raven/templates/pywps.cfg",
-  "setup.cfg",
   "tests/*.py",
   "tests/test.cfg"
 ]
@@ -245,7 +244,7 @@ markers = [
 
 [tool.ruff]
 src = ["raven"]
-line-length = 150
+line-length = 88
 target-version = "py39"
 exclude = [
   ".eggs",
@@ -277,7 +276,7 @@ no-lines-before = ["future", "standard-library"]
 max-complexity = 15
 
 [tool.ruff.lint.pycodestyle]
-max-doc-length = 180
+max-doc-length = 150
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

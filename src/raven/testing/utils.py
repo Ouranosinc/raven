@@ -33,8 +33,7 @@ try:
     import pooch
 except ImportError:
     warnings.warn(
-        "The `pooch` library is not installed. "
-        "The default cache directory for testing data will not be set."
+        "The `pooch` library is not installed. The default cache directory for testing data will not be set."
     )
     pooch = None
 
@@ -501,8 +500,7 @@ def gather_testing_data(
     """
     if _cache_dir is None:
         raise ValueError(
-            "The cache directory must be set. "
-            "Please set the `cache_dir` parameter or the `RAVEN_TESTDATA_CACHE_DIR` environment variable."
+            "The cache directory must be set. Please set the `cache_dir` parameter or the `RAVEN_TESTDATA_CACHE_DIR` environment variable."
         )
     cache_dir = Path(_cache_dir)
 

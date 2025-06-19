@@ -80,10 +80,7 @@ def boundary_check(
                 geographic = True
             src_min_y, src_max_y = src.bounds[1], src.bounds[3]
             if geographic and (src_max_y > max_y or src_min_y < min_y):
-                msg = (
-                    f"Vector {file} contains geometries in high latitudes."
-                    " Verify choice of projected CRS is appropriate for analysis."
-                )
+                msg = f"Vector {file} contains geometries in high latitudes. Verify choice of projected CRS is appropriate for analysis."
                 LOGGER.warning(msg)
                 warnings.warn(msg, UserWarning)
             if not geographic:

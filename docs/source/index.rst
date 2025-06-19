@@ -7,7 +7,6 @@ Raven is part of the birdhouse_, a community building a suite of WPS servers sup
 
 In this model, scientists need to interact closely with a server to submit requests and poll the server for its response once the job is complete. Because the boilerplate code and formats used to communicate with a server can detract from the science, we've built a generic WPS client interface (see birdy_) that hides the WPS protocol behind a native looking python interface. Remote WPS processes can be called just like a python function, returning an asynchronous response whose progress can be easily monitored.
 
-
 User documentation
 ------------------
 
@@ -29,15 +28,13 @@ This project was funded by the CANARIE_ research software program.
 
 Hydrological models are based on the `Raven`_ modeling framework.
 
-
 Indices and tables
 ------------------
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
 
-
 .. _`birdhouse`: https://birdhouse.readthedocs.io
 .. _`birdy`: https://birdy.readthedocs.io
-.. _`Raven`: http://raven.uwaterloo.ca
+.. _`Raven`: https://raven.uwaterloo.ca
 .. _`CANARIE`: https://www.canarie.ca

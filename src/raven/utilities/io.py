@@ -174,7 +174,7 @@ def archive_sniffer(
 
 
 def crs_sniffer(
-    *args: Union[str, Path, Sequence[Union[str, Path]]]
+    *args: Union[str, Path, Sequence[Union[str, Path]]],
 ) -> Union[list[Union[str, int]], str, int]:
     """Return the list of CRS found in files.
 

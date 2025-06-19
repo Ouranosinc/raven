@@ -49,9 +49,8 @@ land_use_raster = ComplexInput(
     "must use the UN FAO Land Cover Classification System (19 types).",
     metadata=[
         Metadata(
-            "Commission for Environmental Cooperation North American Land Change Monitoring "
-            "System",
-            "http://www.cec.org/tools-and-resources/map-files/land-cover-2010-landsat-30m",
+            "Commission for Environmental Cooperation North American Land Change Monitoring System",
+            "https://www.cec.org/tools-and-resources/map-files/land-cover-2010-landsat-30m",
         ),
         Metadata(
             "Latifovic, R., Homer, C., Ressl, R., Pouliot, D., Hossain, S.N., Colditz, R.R.,"
@@ -86,8 +85,7 @@ dem_raster = ComplexInput(
 
 simple_categories = LiteralInput(
     "simple_categories",
-    "Use simplified land classification categories for hydrological "
-    "modeling purposes.",
+    "Use simplified land classification categories for hydrological modeling purposes.",
     data_type="boolean",
     default="false",
     min_occurs=0,

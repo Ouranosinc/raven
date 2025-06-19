@@ -59,8 +59,7 @@ class HydroBasinsSelectionProcess(Process):
             ComplexOutput(
                 "upstream_ids",
                 "HydroBASINS IDs for all immediate upstream basins",
-                abstract="List of all tributary sub-basins according to their HydroBASINS IDs, "
-                "including the downstream basin.",
+                abstract="List of all tributary sub-basins according to their HydroBASINS IDs, including the downstream basin.",
                 supported_formats=[FORMATS.JSON],
             ),
         ]

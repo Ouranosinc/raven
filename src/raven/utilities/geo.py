@@ -54,7 +54,6 @@ def geom_transform(
         Reprojected geometry.
     """
     try:
-
         from pyproj import Transformer
 
         if isinstance(source_crs, int or str):
