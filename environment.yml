@@ -10,7 +10,7 @@ dependencies:
   - cartopy >=0.23.0
   - click >=8.1.7
   - filelock >=3.14.0
-  - fiona >=2.0
+  - fiona >=1.9.6
   - geopandas >=1.0
   - geojson
   - gdal >=3.0

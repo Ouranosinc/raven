@@ -55,7 +55,7 @@ dependencies = [
   # GIS libraries
   "affine",
   "cartopy >=0.23.0",
-  "fiona >=1.9.0",
+  "fiona >=1.9.6",
   "geojson",
   "geopandas >=1.0",
   "pyogrio >=0.7.2",
