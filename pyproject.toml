@@ -21,20 +21,19 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
   "Operating System :: MacOS :: MacOS X",
   "Operating System :: POSIX :: Linux",
   "Operating System :: Unix",
-  "Programming Language :: Python",
-  "Natural Language :: English",
-  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
-  "Topic :: Scientific/Engineering :: Hydrology",
-  "License :: OSI Approved :: MIT License"
+  "Topic :: Scientific/Engineering :: Hydrology"
 ]
 dynamic = ["description", "version"]
 dependencies = [

@@ -9,7 +9,6 @@ Developer Guide
 
 .. WARNING:: To create new processes, look at examples in Emu_.
 
-
 Re-create a fresh environment
 -----------------------------
 
@@ -21,7 +20,6 @@ Re-create a fresh environment
   conda env create -f environment.yml
   conda activate raven
   make develop  # install raven-wps and additional dev tools
-
 
 Building the docs
 -----------------
@@ -82,7 +80,6 @@ Do the same as above using the ``Makefile``.
     make test
     make test-all
     make lint
-
 
 Running notebooks tests
 -----------------------
@@ -158,7 +155,6 @@ raven-wps has been installed with ``make develop``:
     # override them one by one in each notebook as each notebook will also look
     # for those variables as environment variables.
 
-
 Bulk refresh all notebooks output
 ---------------------------------
 
@@ -187,7 +183,6 @@ Or:
         # Can also override all three of the server variables (WPS_URL, FINCH_WPS_URL and FLYINGPIGEON_WPS_URL) here as well,
         # just like 'make test-notebooks' to be able to pick and choose any servers/services from anywhere we want.
 
-
 Prepare a release
 -----------------
 
@@ -204,7 +199,6 @@ Update the Conda specification file to build identical environments_ on a specif
   conda list -n raven --explicit > spec-file.txt
 
 .. _environments: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#building-identical-conda-environments
-
 
 Bump a new version
 ------------------
