@@ -146,12 +146,17 @@ clean-docs: ## remove documentation artifacts
 	@-rm -f docs/modules.rst
 	$(MAKE) -C docs clean
 
-lint: ## check code style
-	@echo "Running black, ruff, isort, and yamllint code style checks ..."
-	black --check src/raven tests
-	ruff check src/raven tests
-	flake8 src/raven tests
+lint/flake8: ## check style with flake8
+	python -m ruff check src/raven tests
+	python -m flake8 --config=.flake8 src/raven tests
+	python -m numpydoc lint src/raven/**.py
 	yamllint --config-file=.yamllint.yaml src/raven
+
+lint/black: ## check style with black
+	python -m black --check src/raven tests
+	python -m blackdoc --check src/raven docs
+
+lint: lint/flake8 lint/black ## check style
 
 ## Testing targets:
 
@@ -236,7 +241,7 @@ servedocs: docs ## compile the docs watching for changes
 ## Deployment targets:
 
 dist: clean ## build source and wheel package
-	@python -m build --sdist
+	@python -m flit build
 	@bash -c 'ls -l dist/'
 
 release: dist ## upload source and wheel packages
