@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-# import importlib.metadata as ilm
+import importlib.metadata as ilm
 import importlib.resources as ilr
 import logging
 import os
@@ -13,11 +13,10 @@ import warnings
 from collections.abc import Callable
 from datetime import datetime as dt
 from functools import wraps
-# from io import StringIO
+from io import StringIO
 from pathlib import Path
 from shutil import copytree
-from typing import IO, Any
-# from typing import TextIO
+from typing import IO, Any, TextIO
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
@@ -26,6 +25,7 @@ from filelock import FileLock
 from packaging.version import Version
 from xarray import Dataset
 from xarray import open_dataset as _open_dataset
+from xclim.testing.utils import show_versions as _show_versions
 
 import raven
 
@@ -33,7 +33,8 @@ try:
     import pooch
 except ImportError:
     warnings.warn(
-        "The `pooch` library is not installed. The default cache directory for testing data will not be set."
+        "The `pooch` library is not installed. "
+        "The default cache directory for testing data will not be set."
     )
     pooch = None
 
@@ -128,56 +129,50 @@ or setting the variable at runtime:
     $ env RAVEN_TESTDATA_CACHE_DIR="/path/to/my/data" pytest
 """
 
-# TODO: Determine the minimum version of `xclim` that is required for `show_versions` to work.
-# def show_versions(
-#     file: os.PathLike | StringIO | TextIO | None = None,
-#     deps: list | None = None,
-# ) -> str | None:
-#     """
-#     Print the versions of raven and its dependencies.
-#
-#     Parameters
-#     ----------
-#     file : {os.PathLike, StringIO, TextIO}, optional
-#         If provided, prints to the given file-like object. Otherwise, returns a string.
-#     deps : list, optional
-#         A list of dependencies to gather and print version information from.
-#         Otherwise, print `birdhouse-raven` dependencies.
-#
-#     Returns
-#     -------
-#     str or None
-#         The formatted version information if `file` is not provided, otherwise None.
-#     """
-#
-#     def _get_raven_dependencies():
-#         raven_metadata = ilm.metadata("raven")
-#         requires = raven_metadata.get_all("Requires-Dist")
-#         requires = [
-#             req.split("[")[0]
-#             .split(";")[0]
-#             .split(">")[0]
-#             .split("<")[0]
-#             .split("=")[0]
-#             .split("!")[0]
-#             .strip()
-#             for req in requires
-#         ]
-#         sorted_deps = sorted(list(set(requires) - {"birdhouse-raven"}))
-#
-#         return ["birdhouse-raven"] + sorted_deps
-#
-#     if deps is None:
-#         deps = _get_raven_dependencies()
-#
-#     return _show_versions(file=file, deps=deps)
+
+def show_versions(
+    file: os.PathLike | StringIO | TextIO | None = None,
+    deps: list | None = None,
+) -> str | None:
+    """
+    Print the versions of RavenWPS and its dependencies.
+
+    Parameters
+    ----------
+    file : {os.PathLike, StringIO, TextIO}, optional
+        If provided, prints to the given file-like object. Otherwise, returns a string.
+    deps : list, optional
+        A list of dependencies to gather and print version information from. Otherwise, print RavenWPS dependencies.
+
+    Returns
+    -------
+    str or None
+        The formatted version information if `file` is not provided, otherwise None.
+    """
+
+    def _get_raven_dependencies():
+        raven_metadata = ilm.metadata("raven")
+        requires = raven_metadata.get_all("Requires-Dist")
+        requires = [
+            re.match(r"^[A-Za-z0-9_.\-]+", req).group(0)
+            for req in requires
+            if re.match(r"^[A-Za-z0-9_.\-]+", req)
+        ]
+        sorted_deps = sorted(list(set(requires) - {"raven"}))
+
+        return ["raven"] + sorted_deps
+
+    if deps is None:
+        deps = _get_raven_dependencies()
+
+    return _show_versions(file=file, deps=deps)
 
 
 # Test Data Utilities ###
 
 
 def testing_setup_warnings():
-    """Warn users about potential incompatibilities between raven and raven-testdata versions."""
+    """Warn users about potential incompatibilities between RavenWPS and raven-testdata versions."""
     if (
         re.match(r"^\d+\.\d+\.\d+$", raven.__version__)
         and TESTDATA_BRANCH != default_testdata_version
@@ -185,14 +180,14 @@ def testing_setup_warnings():
         # This does not need to be emitted on GitHub Workflows and ReadTheDocs
         if not os.getenv("CI") and not os.getenv("READTHEDOCS"):
             warnings.warn(
-                f"`raven` stable ({raven.__version__}) is running tests against a non-default "
+                f"`birdhouse-raven` stable ({raven.__version__}) is running tests against a non-default "
                 f"branch of the testing data. It is possible that changes to the testing data may "
                 f"be incompatible with some assertions in this version. "
                 f"Please be sure to check {TESTDATA_REPO_URL} for more information.",
             )
 
     if re.match(r"^v\d+\.\d+\.\d+", TESTDATA_BRANCH):
-        # Find the date of the last modification of raven source files to generate a calendar version
+        # Find the date of the last modification of RavenWPS source files to generate a calendar version
         install_date = dt.strptime(
             time.ctime(Path(raven.__file__).stat().st_mtime),
             "%a %b %d %H:%M:%S %Y",
@@ -203,9 +198,9 @@ def testing_setup_warnings():
 
         if Version(TESTDATA_BRANCH) > Version(install_calendar_version):
             warnings.warn(
-                f"The installation date of `raven` ({install_date.ctime()}) "
+                f"The installation date of `birdhouse-raven` ({install_date.ctime()}) "
                 f"predates the last release of testing data ({TESTDATA_BRANCH}). "
-                "It is very likely that the testing data is incompatible with this build of `raven`.",
+                "It is very likely that the testing data is incompatible with this build of RavenWPS.",
             )
 
 
@@ -381,7 +376,7 @@ def yangtze(
             check_only: bool | None = False,
         ) -> None:
             """Download the file from the URL and save it to the save_path."""
-            headers = {"User-Agent": f"Raven ({raven.__version__})"}
+            headers = {"User-Agent": f"RavenWPS ({raven.__version__})"}
             downloader = pooch.HTTPDownloader(headers=headers)
             return downloader(url, output_file, poocher, check_only=check_only)
 
@@ -397,7 +392,7 @@ def yangtze(
 
 def open_dataset(
     name: str,
-    yangtze_kwargs: dict[str, Path | str | bool] | None = None,
+    _yangtze_kwargs: dict[str, Path | str | bool] | None = None,
     **xr_kwargs: Any,
 ) -> Dataset:
     r"""
@@ -409,7 +404,7 @@ def open_dataset(
     ----------
     name : str
         Name of the file containing the dataset.
-    yangtze_kwargs : dict
+    _yangtze_kwargs : dict
         Keyword arguments passed to the yangtze function.
     **xr_kwargs : Any
         Keyword arguments passed to xarray.open_dataset.
@@ -424,9 +419,9 @@ def open_dataset(
     xarray.open_dataset : Open and read a dataset from a file or file-like object.
     yangtze : Pooch wrapper for accessing the RavenWPS testing data.
     """
-    if yangtze_kwargs is None:
-        yangtze_kwargs = {}
-    return _open_dataset(yangtze(**yangtze_kwargs).fetch(name), **xr_kwargs)
+    if _yangtze_kwargs is None:
+        _yangtze_kwargs = {}
+    return _open_dataset(yangtze(**_yangtze_kwargs).fetch(name), **xr_kwargs)
 
 
 def populate_testing_data(
@@ -476,10 +471,8 @@ def populate_testing_data(
             errored_files.append(file)
 
     if errored_files:
-        logging.error(
-            "The following files were unable to be downloaded: %s",
-            errored_files,
-        )
+        msg = f"The following files were unable to be downloaded: {errored_files}"
+        logging.error(msg)
 
 
 def gather_testing_data(

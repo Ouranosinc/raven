@@ -21,9 +21,7 @@ class TestGenericTerrainAnalysisProcess:
         ]
 
         datainputs = ";".join(fields).format(
-            raster=yangtze.fetch(
-                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
-            ),
+            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
             shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
             projected_crs="6622",
             touches=True,

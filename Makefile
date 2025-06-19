@@ -149,7 +149,7 @@ clean-docs: ## remove documentation artifacts
 lint/flake8: ## check style with flake8
 	python -m ruff check src/raven tests
 	python -m flake8 --config=.flake8 src/raven tests
-	python -m numpydoc lint src/raven/**.py
+	python -m numpydoc lint src/raven/*/*.py
 	yamllint --config-file=.yamllint.yaml src/raven
 
 lint/black: ## check style with black

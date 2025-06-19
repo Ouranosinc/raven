@@ -24,9 +24,7 @@ class TestGenericRasterSubsetProcess:
 
         datainputs = ";".join(fields).format(
             shape=yangtze.fetch("watershed_vector/Basin_test.zip"),
-            raster=yangtze.fetch(
-                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
-            ),
+            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
             band=1,
             touches=True,
         )
@@ -68,9 +66,7 @@ class TestGenericRasterSubsetProcess:
 
         datainputs = ";".join(fields).format(
             shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=yangtze.fetch(
-                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
-            ),
+            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
             band=1,
             touches=True,
         )

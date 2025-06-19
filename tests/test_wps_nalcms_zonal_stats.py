@@ -224,7 +224,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
         d = md.get(out["raster"], path="/tmp", segmented=False)
         assert {f"/tmp/subset_{n}.tiff" for n in range(1, 6)}.issubset(set(d))
 
-    def test_mississippi(self, yangtze, tmpdir):
+    def test_mississippi(self, yangtze):
         """Extremely large region testing timeout value for the GeoServer response."""
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)

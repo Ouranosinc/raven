@@ -6,7 +6,7 @@ from pathlib import Path
 from random import choice
 from string import ascii_letters
 from tempfile import NamedTemporaryFile
-from typing import List, Tuple, Union
+from typing import Union
 
 import numpy as np
 import rasterio
@@ -149,8 +149,8 @@ def zonalstats_raster_file(
       The data encoding of the raster used to write the grid (e.g. 'int16').
     crs : str
       The coordinate reference system.
-    zip_archive: bool
-      Return the files as a zipped archive (default: False).
+    zip_archive : bool
+      Whether to return the files as a zipped archive (default: False).
 
     Returns
     -------

@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 
 import pytest
-import xarray as xr
 
 from raven.testing.utils import (
     TESTDATA_BRANCH,
@@ -14,7 +12,6 @@ from raven.testing.utils import (
     default_testdata_cache,
     gather_testing_data,
 )
-from raven.testing.utils import open_dataset as _open_dataset
 from raven.testing.utils import (
     testing_setup_warnings,
 )

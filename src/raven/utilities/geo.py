@@ -34,7 +34,8 @@ def geom_transform(
     source_crs: Union[str, int, CRS] = WGS84,
     target_crs: Union[str, int, CRS] = None,
 ) -> GeometryCollection:
-    """Change the projection of a geometry.
+    """
+    Change the projection of a geometry.
 
     Assuming a geometry's coordinates are in a `source_crs`, compute the new coordinates under the `target_crs`.
 
@@ -53,7 +54,6 @@ def geom_transform(
         Reprojected geometry.
     """
     try:
-        from functools import partial
 
         from pyproj import Transformer
 
@@ -86,7 +86,8 @@ def generic_raster_clip(
     padded: bool = True,
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
 ) -> None:
-    """Crop a raster file to a given geometry.
+    """
+    Crop a raster file to a given geometry.
 
     Parameters
     ----------
@@ -98,16 +99,12 @@ def generic_raster_clip(
         Geometry defining the region to crop.
     touches : bool
         Whether to include cells that intersect the geometry or not. Default: True.
-    fill_with_nodata: bool
-        Whether to keep pixel values for regions outside of shape or set as nodata or not. Default: True.
-    padded: bool
+    fill_with_nodata : bool
+        Whether to keep pixel values for regions outside shape or set as nodata or not. Default: True.
+    padded : bool
         Whether to add a half-pixel buffer to shape before masking or not. Default: True.
     raster_compression : str
         Level of data compression. Default: 'lzw'.
-
-    Returns
-    -------
-    None
     """
     if not isinstance(geometry, collections.abc.Iterable):
         geometry = [geometry]
@@ -143,7 +140,8 @@ def generic_raster_warp(
     target_crs: Union[str, dict, CRS],
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
 ) -> None:
-    """Reproject a raster file.
+    """
+    Reproject a raster file.
 
     Parameters
     ----------
@@ -153,12 +151,8 @@ def generic_raster_warp(
         Path to output raster.
     target_crs : str or dict
         Target projection identifier.
-    raster_compression: str
+    raster_compression : str
         Level of data compression. Default: 'lzw'.
-
-    Returns
-    -------
-    None
     """
     with rasterio.open(raster, "r") as src:
         # Reproject raster using WarpedVRT class
@@ -192,22 +186,19 @@ def generic_vector_reproject(
     source_crs: Union[str, CRS] = WGS84,
     target_crs: Union[str, CRS] = None,
 ) -> None:
-    """Reproject all features and layers within a vector file and return a GeoJSON
+    """
+    Reproject all features and layers within a vector file and return a GeoJSON.
 
     Parameters
     ----------
     vector : Union[str, Path]
         Path to a file containing a valid vector layer.
-    projected: Union[str, Path]
+    projected : Union[str, Path]
         Path to a file to be written.
     source_crs : Union[str, dict, CRS]
         Projection identifier (proj4) for the source geometry, Default: '+proj=longlat +datum=WGS84 +no_defs'.
     target_crs : Union[str, dict, CRS]
         Projection identifier (proj4) for the target geometry.
-
-    Returns
-    -------
-    None
     """
 
     if target_crs is None:
@@ -248,7 +239,8 @@ def determine_upstream_ids(
     downstream_field: str = None,
     basin_family: Optional[str] = None,
 ) -> Union[pd.DataFrame, geopandas.GeoDataFrame]:
-    """Return a list of upstream features by evaluating the downstream networks.
+    """
+    Return a list of upstream features by evaluating the downstream networks.
 
     Parameters
     ----------
@@ -259,13 +251,13 @@ def determine_upstream_ids(
     basin_field : str
         The field used to determine the id of the basin according to hydro project.
     downstream_field : str
-        The field identifying the downstream sub-basin for the hydro project.
+        The field identifying the downstream subbasin for the hydro project.
     basin_family : str, optional
         Regional watershed code (For HydroBASINS dataset).
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame or geopandas.GeoDataFrame
         Basins ids including `fid` and its upstream contributors.
     """
 
@@ -303,8 +295,11 @@ def determine_upstream_ids(
 def find_geometry_from_coord(
     lon: float, lat: float, df: geopandas.GeoDataFrame
 ) -> geopandas.GeoDataFrame:
-    """Return the geometry containing the given coordinates.
+    """
+    Return the geometry containing the given coordinates.
 
+    Parameters
+    ----------
     lon : float
         Longitude.
     lat : float
@@ -314,7 +309,7 @@ def find_geometry_from_coord(
 
     Returns
     -------
-    GeoDataFrame
+    geopandas.GeoDataFrame
         Record whose geometry contains the point.
     """
 

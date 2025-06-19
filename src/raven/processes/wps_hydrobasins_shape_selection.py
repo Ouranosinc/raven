@@ -11,8 +11,12 @@ LOGGER = logging.getLogger("PYWPS")
 
 
 class HydroBasinsSelectionProcess(Process):
-    """Given lat/lon coordinates that point to a North American watershed,
-    return the feature containing the coordinates or the entire upstream water basin."""
+    """
+    HydroBASINS Selection Process
+
+    Given lat/lon coordinates that point to a North American watershed,
+    return the feature containing the coordinates or the entire upstream water basin.
+    """
 
     def __init__(self):
         inputs = [
@@ -97,7 +101,7 @@ class HydroBasinsSelectionProcess(Process):
             # Collect features from GeoServer
             response.update_status("Collecting relevant features", status_percentage=50)
 
-            # Identify upstream sub-basins and write to a new file
+            # Identify upstream subbasins and write to a new file
             upstream = geoserver.hydrobasins_upstream(gdf.loc[0], domain)
 
             # Aggregate upstream features into a single geometry.

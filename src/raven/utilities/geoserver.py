@@ -20,7 +20,7 @@ import urllib.request
 import warnings
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 from urllib.parse import urljoin
 
 import fiona
@@ -71,7 +71,8 @@ def _get_location_wfs(
     layer: str = None,
     geoserver: str = GEO_URL,
 ) -> dict:
-    """Return leveled features from a hosted data set using bounding box coordinates and WFS 1.1.0 protocol.
+    """
+    Return levelled features from a hosted data set using bounding box coordinates and WFS 1.1.0 protocol.
 
     For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
     on projected coordinate system (Easting, Northing) boundaries.
@@ -129,7 +130,8 @@ def _get_feature_attributes_wfs(
     layer: str = None,
     geoserver: str = GEO_URL,
 ) -> str:
-    """Return WFS GetFeature URL request for attribute values.
+    """
+    Return WFS GetFeature URL request for attribute values.
 
     Making this request will return a JSON response.
 
@@ -139,7 +141,7 @@ def _get_feature_attributes_wfs(
         Attribute/field names.
     layer : str
         Name of geographic layer queried.
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
@@ -169,13 +171,14 @@ def _filter_feature_attributes_wfs(
     layer: str,
     geoserver: str = GEO_URL,
 ) -> str:
-    """Return WFS GetFeature URL request filtering geographic features based on a property's value.
+    """
+    Return WFS GetFeature URL request filtering geographic features based on a property's value.
 
     Parameters
     ----------
     attribute : str
         Attribute/field name.
-    value: Union[str, float, int]
+    value : Union[str, float, int]
         Value for attribute queried.
     layer : str
         Name of geographic layer queried.
@@ -217,7 +220,8 @@ def _determine_upstream_ids(
     downstream_field: str,
     basin_family: Optional[str] = None,
 ) -> pd.DataFrame:
-    """Return a list of upstream features by evaluating the downstream networks.
+    """
+    Return a list of upstream features by evaluating the downstream networks.
 
     Parameters
     ----------
@@ -228,7 +232,7 @@ def _determine_upstream_ids(
     basin_field : str
         The field used to determine the id of the basin according to hydro project.
     downstream_field : str
-        The field identifying the downstream sub-basin for the hydro project.
+        The field identifying the downstream subbasin for the hydro project.
     basin_family : str, optional
         Regional watershed code (For HydroBASINS dataset).
 
@@ -275,7 +279,8 @@ def get_raster_wcs(
     layer: str = None,
     geoserver: str = GEO_URL,
 ) -> bytes:
-    """Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
+    """
+    Return a subset of a raster image from the local GeoServer via WCS 2.0.1 protocol.
 
     For geographic raster grids, subsetting is based on WGS84 (Long, Lat) boundaries.
     If not geographic, subsetting based on projected coordinate system (Easting, Northing) boundaries.
@@ -283,11 +288,11 @@ def get_raster_wcs(
     Parameters
     ----------
     coordinates : Sequence of int or float or str
-        Geographic coordinates of the bounding box (left, down, right, up)
+        Geographic coordinates of the bounding box (left, down, right, up).
     geographic : bool
         If True, uses "Long" and "Lat" in WCS call. Otherwise, uses "E" and "N".
     layer : str
-        Layer name of raster exposed on GeoServer instance, e.g. 'public:CEC_NALCMS_LandUse_2010'
+        Layer name of raster exposed on GeoServer instance, e.g. 'public:CEC_NALCMS_LandUse_2010'.
     geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
@@ -332,7 +337,8 @@ def get_raster_wcs(
 
 
 def hydrobasins_upstream(feature: dict, domain: str) -> pd.DataFrame:
-    """Return a list of hydrobasins features located upstream.
+    """
+    Return a list of HydroBASINS features located upstream.
 
     Parameters
     ----------
@@ -343,7 +349,7 @@ def hydrobasins_upstream(feature: dict, domain: str) -> pd.DataFrame:
 
     Returns
     -------
-    pd.Series
+    pandas.Series
         Basins ids including `fid` and its upstream contributors.
     """
     basin_field = "HYBAS_ID"
@@ -372,16 +378,17 @@ def hydrobasins_upstream(feature: dict, domain: str) -> pd.DataFrame:
 
 
 def hydrobasins_aggregate(gdf: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate multiple HydroBASINS watersheds into a single geometry.
+    """
+    Aggregate multiple HydroBASINS watersheds into a single geometry.
 
     Parameters
     ----------
     gdf : pd.DataFrame
-        Watershed attributes indexed by HYBAS_ID
+        Watershed attributes indexed by HYBAS_ID.
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
     """
     i0 = gdf.index[0]
 
@@ -443,7 +450,8 @@ def filter_hydrobasins_attributes_wfs(
     domain: str,
     geoserver: str = GEO_URL,
 ) -> str:
-    """Return a URL that formats and returns a remote GetFeatures request from the USGS HydroBASINS dataset.
+    """
+    Return a URL that formats and returns a remote GetFeatures request from the USGS HydroBASINS dataset.
 
     For geographic raster grids, subsetting is based on WGS84 (Long, Lat) boundaries.
     If not geographic, subsetting based on projected coordinate system (Easting, Northing) boundaries.
@@ -483,7 +491,8 @@ def get_hydrobasins_location_wfs(
     domain: str = None,
     geoserver: str = GEO_URL,
 ) -> str:
-    """Return features from the USGS HydroBASINS data set using bounding box coordinates.
+    """
+    Return features from the USGS HydroBASINS data set using bounding box coordinates.
 
     For geographic raster grids, subsetting is based on WGS84 (Long, Lat) boundaries.
     If not geographic, subsetting based on projected coordinate system (Easting, Northing) boundaries.
@@ -501,7 +510,6 @@ def get_hydrobasins_location_wfs(
     -------
     str
         A GeoJSON-encoded vector feature.
-
     """
     lakes = True
     level = 12
@@ -523,7 +531,8 @@ def hydro_routing_upstream(
     lakes: str = "1km",
     geoserver: str = GEO_URL,
 ) -> pd.Series:
-    """Return a list of hydro routing features located upstream.
+    """
+    Return a list of hydro routing features located upstream.
 
     Parameters
     ----------
@@ -538,7 +547,7 @@ def hydro_routing_upstream(
 
     Returns
     -------
-    pd.Series
+    pandas.Series
         Basins ids including `fid` and its upstream contributors.
     """
     wfs = WebFeatureService(url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30)
@@ -576,7 +585,8 @@ def get_hydro_routing_attributes_wfs(
     lakes: str = "1km",
     geoserver: str = GEO_URL,
 ) -> str:
-    """Return a URL that formats and returns a remote GetFeatures request from hydro routing dataset.
+    """
+    Return a URL that formats and returns a remote GetFeatures request from hydro routing dataset.
 
     For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
     on projected coordinate system (Easting, Northing) boundaries.
@@ -589,14 +599,13 @@ def get_hydro_routing_attributes_wfs(
         Level of granularity requested for the lakes vector (range(7,13)). Default: 12.
     lakes : {"1km", "all"}
         Query the version of dataset with lakes under 1km in width removed ("1km") or return all lakes ("all").
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
     -------
     str
         URL to the GeoJSON-encoded WFS response.
-
     """
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
     return _get_feature_attributes_wfs(
@@ -611,7 +620,8 @@ def filter_hydro_routing_attributes_wfs(
     lakes: str = "1km",
     geoserver: str = GEO_URL,
 ) -> str:
-    """Return a URL that formats and returns a remote GetFeatures request from hydro routing dataset.
+    """
+    Return a URL that formats and returns a remote GetFeatures request from hydro routing dataset.
 
     For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
     on projected coordinate system (Easting, Northing) boundaries.
@@ -633,7 +643,6 @@ def filter_hydro_routing_attributes_wfs(
     -------
     str
         URL to the GeoJSON-encoded WFS response.
-
     """
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
     return _filter_feature_attributes_wfs(
@@ -650,7 +659,8 @@ def get_hydro_routing_location_wfs(
     level: int = 12,
     geoserver: str = GEO_URL,
 ) -> dict:
-    """Return features from the hydro routing data set using bounding box coordinates.
+    """
+    Return features from the hydro routing data set using bounding box coordinates.
 
     For geographic rasters, subsetting is based on WGS84 (Long, Lat) boundaries. If not geographic, subsetting based
     on projected coordinate system (Easting, Northing) boundaries.
@@ -663,14 +673,13 @@ def get_hydro_routing_location_wfs(
         Query the version of dataset with lakes under 1km in width removed ("1km") or return all lakes ("all").
     level : int
         Level of granularity requested for the lakes vector (range(7,13)). Default: 12.
-    geoserver: str
+    geoserver : str
         The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
     -------
     dict
         A GeoJSON-derived dictionary of vector features (FeatureCollection).
-
     """
     layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
 

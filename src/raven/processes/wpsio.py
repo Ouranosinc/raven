@@ -1,10 +1,4 @@
-"""
-This module contains the WPS inputs and outputs that are reused across multiple WPS processes.
-
-
-"""
-
-from dataclasses import fields
+"""This module contains the WPS inputs and outputs that are reused across multiple WPS processes."""
 
 from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput
 from pywps.app.Common import Metadata
@@ -12,7 +6,6 @@ from pywps.app.Common import Metadata
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
 # ---------------------------------------- #
-
 
 # --- GIS Inputs --- #
 

@@ -33,9 +33,7 @@ class TestGenericZonalStatsProcess:
             categorical=False,
             band=1,
             shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=yangtze.fetch(
-                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
-            ),
+            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
         )
 
         resp = client.get(
@@ -81,9 +79,7 @@ class TestGenericZonalStatsProcess:
             categorical=True,
             band=1,
             shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=yangtze.fetch(
-                "earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"
-            ),
+            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
         )
 
         resp = client.get(
