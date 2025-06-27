@@ -25,3 +25,7 @@ RUN pip install . --no-deps
 EXPOSE 9099
 
 CMD ["gunicorn", "--bind=0.0.0.0:9099", "-t 60", "raven.wsgi:application"]
+# docker build -t pavics/raven .
+# docker run -p 9099:9099 pavics/raven
+# http://localhost:9099/wps?request=GetCapabilities&service=WPS
+# http://localhost:9099/wps?request=DescribeProcess&service=WPS&identifier=all&version=1.0.0
