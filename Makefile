@@ -238,6 +238,16 @@ servedocs: docs ## compile the docs watching for changes
 	@echo "Compiling the docs and watching for changes ..."
 	@watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
+## Docker targets:
+
+docker-build: ## build the docker container
+	@echo "Building the docker container ..."
+	@docker build -t $(APP_NAME) .
+
+docker-run: docker-build ## build and run the docker container locally
+	@echo "Running the docker container locally ..."
+	@docker run -d -p $(WPS_PORT):$(WPS_PORT) --name $(APP_NAME) $(APP_NAME)
+
 ## Deployment targets:
 
 dist: clean ## build source and wheel package

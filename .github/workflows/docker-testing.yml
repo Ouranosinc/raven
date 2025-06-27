@@ -11,21 +11,39 @@ jobs:
     name: Build Docker image
     runs-on: ubuntu-latest
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            auth.docker.io:443
+            conda.anaconda.org:443
+            files.pythonhosted.org:443
+            github.com:443
+            production.cloudflare.docker.com:443
+            pypi.org:443
+            registry-1.docker.io:443
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
-      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          persist-credentials: false
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
           file: "Dockerfile"
-          tags: localpytest:latest
+          tags: localraven:latest
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: false
-      - uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3.0.0
+      - name: Run Docker image
+        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3.0.0
         with:
-          image: localpytest:latest
+          image: localraven:latest
           options: -p 9099:9099
           run: |
             raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
