@@ -146,12 +146,17 @@ clean-docs: ## remove documentation artifacts
 	@-rm -f docs/modules.rst
 	$(MAKE) -C docs clean
 
-lint: ## check code style
-	@echo "Running black, ruff, isort, and yamllint code style checks ..."
-	black --check src/raven tests
-	isort --check src/raven tests
-	flake8 src/raven tests
+lint/flake8: ## check style with flake8
+	python -m ruff check src/raven tests
+	python -m flake8 --config=.flake8 src/raven tests
+	python -m numpydoc lint src/raven/*/*.py
 	yamllint --config-file=.yamllint.yaml src/raven
+
+lint/black: ## check style with black
+	python -m black --check src/raven tests
+	python -m blackdoc --check src/raven docs
+
+lint: lint/flake8 lint/black ## check style
 
 ## Testing targets:
 
@@ -233,10 +238,20 @@ servedocs: docs ## compile the docs watching for changes
 	@echo "Compiling the docs and watching for changes ..."
 	@watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
+## Docker targets:
+
+docker-build: ## build the docker container
+	@echo "Building the docker container ..."
+	@docker build -t $(APP_NAME) .
+
+docker-run: docker-build ## build and run the docker container locally
+	@echo "Running the docker container locally ..."
+	@docker run -d -p $(WPS_PORT):$(WPS_PORT) --name $(APP_NAME) $(APP_NAME)
+
 ## Deployment targets:
 
 dist: clean ## build source and wheel package
-	@python -m build --sdist
+	@python -m flit build
 	@bash -c 'ls -l dist/'
 
 release: dist ## upload source and wheel packages

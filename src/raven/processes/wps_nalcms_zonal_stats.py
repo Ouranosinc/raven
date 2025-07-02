@@ -41,8 +41,7 @@ class NALCMSZonalStatisticsProcess(Process):
             identifier="nalcms-zonal-stats",
             title="NALCMS Land Use Zonal Statistics",
             version="1.0",
-            abstract="Return zonal statistics and land-use cover for the CEC NALCMS based on the boundaries of a "
-            "vector file.",
+            abstract="Return zonal statistics and land-use cover for the CEC NALCMS based on the boundaries of a vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,

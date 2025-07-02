@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 import rasterio
@@ -18,7 +18,8 @@ LOGGER = logging.getLogger("RavenPy")
 
 
 def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
-    """Return a dictionary of geometry properties.
+    """
+    Return a dictionary of geometry properties.
 
     Parameters
     ----------
@@ -233,12 +234,13 @@ def gdal_aspect_analysis(
 
 
 def circular_mean_aspect(angles: np.ndarray) -> np.ndarray:
-    """Return the mean angular aspect based on circular arithmetic approach.
+    """
+    Return the mean angular aspect based on circular arithmetic approach.
 
     Parameters
     ----------
-    angles: np.ndarray
-        Array of aspect angles
+    angles : np.ndarray
+        Array of aspect angles.
 
     Returns
     -------
