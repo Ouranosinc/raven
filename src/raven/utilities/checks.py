@@ -19,7 +19,10 @@ LOGGER = logging.getLogger("RavenPy")
 
 
 def single_file_check(file_list: Sequence[Union[str, Path]]) -> Any:
-    """Return the first element of a file list. Raise an error if the list is empty or contains more than one element.
+    """
+    Return the first element of a file list.
+
+    Raise an error if the list is empty or contains more than one element.
 
     Parameters
     ----------
@@ -46,7 +49,10 @@ def boundary_check(
     max_y: Union[int, float] = 60,
     min_y: Union[int, float] = -60,
 ) -> None:
-    r"""Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Emit a UserWarning if so.
+    r"""
+    Verify that boundaries do not exceed specific latitudes for geographic coordinate data.
+
+    Emit a UserWarning if so.
 
     Parameters
     ----------
@@ -97,7 +103,8 @@ def boundary_check(
 
 
 def multipolygon_check(geom: GeometryCollection) -> None:
-    """Perform a check to verify a geometry is a MultiPolygon
+    """
+    Perform a check to verify a geometry is a MultiPolygon.
 
     Parameters
     ----------
@@ -123,7 +130,8 @@ def feature_contains(
     point: Union[tuple[Union[int, float, str], Union[str, float, int]], Point],
     shp: Union[str, Path, list[Union[str, Path]]],
 ) -> Union[dict, bool]:
-    """Return the first feature containing a location.
+    """
+    Return the first feature containing a location.
 
     Parameters
     ----------
