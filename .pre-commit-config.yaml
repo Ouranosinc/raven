@@ -35,7 +35,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
-    rev: 7.2.0
+    rev: 7.3.0
     hooks:
       - id: flake8
         args: [ '--config=.flake8' ]
@@ -61,7 +61,7 @@ repos:
       - id: pydocstyle
         args: [ '--convention=numpy', '--match="(?!test_).*\.py"' ]
   - repo: https://github.com/keewis/blackdoc
-    rev: v0.3.9
+    rev: v0.4.1
     hooks:
       - id: blackdoc
         additional_dependencies: [ 'black==25.1.0' ]
@@ -72,7 +72,7 @@ repos:
       - id: yamllint
         args: [ '--config-file=.yamllint.yaml' ]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.33.0
+    rev: 0.33.2
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
