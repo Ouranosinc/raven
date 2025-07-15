@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v0.19.0 (unreleased)
+v0.19.0 (2025-07-16)
 --------------------
 
 Major Changes
@@ -15,7 +15,7 @@ Major Changes
 Internal Changes
 ^^^^^^^^^^^^^^^^
 * Allowed for larger int fields when writing to GeoJSON (#535)
-* Ensured that JSON-serialized output does not include numpy complex types (#535)
+* Ensured that JSON-serialized output does not include `numpy` complex types (#535)
 * Added a GitHub Workflow to test the Dockerfile recipe configuration for RavenWPS (#481)
 * Cleaned up the Dockerfile recipe configuration for `raven`. Now using `gunicorn` for service management (#481)
 * Testing data fetching mechanism has been refactored to use `pooch` for better maintainability (#569)
