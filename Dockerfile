@@ -3,7 +3,7 @@ FROM condaforge/mambaforge
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 LABEL org.opencontainers.image.authors="https://github.com/Ouranosinc/raven"
-LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.18.2"
+LABEL Description="Raven WPS" Vendor="Birdhouse" Version="0.19.0"
 
 # Set the working directory to /code
 WORKDIR /code
