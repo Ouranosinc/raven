@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.9,<4"]
+requires = ["flit_core >=3.12,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -21,42 +21,43 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
   "Operating System :: MacOS :: MacOS X",
   "Operating System :: POSIX :: Linux",
   "Operating System :: Unix",
-  "Programming Language :: Python",
-  "Natural Language :: English",
-  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
-  "Topic :: Scientific/Engineering :: Hydrology",
-  "License :: OSI Approved :: MIT License"
+  "Topic :: Scientific/Engineering :: Hydrology"
 ]
 dynamic = ["description", "version"]
 dependencies = [
-  "anyascii",
+  "anyascii >=0.3.2",
   "click >=8.1.7",
+  "filelock >=3.14.1",
   "jinja2 >=3.1.4",
   "matplotlib",
   "netCDF4",
-  "numpy >=1.23.0",
+  "numpy >=1.24.0",
   "owslib",
+  "packaging >=23.1",
   "pandas >=2.2",
   "psutil >=6.0.0",
   "pywps >=4.6",
-  "requests",
+  "requests >=2.31.0",
   "xarray >=2023.11.0",
   "xclim >=0.48.2",
   # GIS libraries
   "affine",
   "cartopy >=0.23.0",
-  "fiona >=1.9.0",
+  "fiona >=1.9.6",
   "geojson",
-  "geopandas >=0.12.0",
+  "geopandas >=1.0",
   "pyogrio >=0.7.2",
   "pyproj >=3.4",
   "rasterio",
@@ -67,30 +68,33 @@ dependencies = [
   # Docs and other utilities
   "fsspec",
   "psycopg2", # to use postgres to log pywps requests like in Prod
-  "pymetalink"
+  "pymetalink >=6.5.3"
 ]
 
 [project.optional-dependencies]
 dev = [
   # Dev tools and testing
   "birdhouse-birdy",
-  "black >=24.10.0",
-  "build",
-  "bump-my-version >=0.26.0",
-  "flake8 >=7.0.0",
-  "flake8-alphabetize",
-  "flake8-rst-docstrings",
-  "flit >=3.8,<4.0",
+  "black >=25.1.0",
+  "blackdoc >=0.3.9",
+  "bump-my-version >=1.2.0",
+  "flake8 >=7.1.1",
+  "flake8-rst-docstrings >=0.3.0",
+  "flit >=3.12,<4.0",
   "ipykernel",
-  "isort >=5.13.2",
   "nbconvert",
   "nbval",
   "nc-time-axis",
-  "pip >=23.3.0",
+  "numpydoc >=1.8.0",
+  "pip >=24.2.0",
+  "pooch >=1.8.0",
   "pre-commit >=3.6.0",
   "pytest >=8.0.0",
+  "pytest-cov >=5.0.0",
   "pytest-xdist >=3.2",
-  "yamllint"
+  "ruff >=0.12.0",
+  "tox >=4.24.1",
+  "yamllint >=1.35.1"
 ]
 docs = [
   "ipyleaflet",
@@ -99,7 +103,7 @@ docs = [
   "nbsphinx >=0.9.5",
   "sphinx >=7.0.0,<8.2.0",
   "sphinx-autodoc-typehints",
-  "sphinx-codeautolink",
+  "sphinx-codeautolink >=0.16.2",
   "sphinx-copybutton",
   "sphinx-rtd-theme >=1.0"
 ]
@@ -173,7 +177,6 @@ include = [
   "src/raven/data/**/*.zip",
   "src/raven/default.cfg",
   "src/raven/templates/pywps.cfg",
-  "setup.cfg",
   "tests/*.py",
   "tests/test.cfg"
 ]
@@ -188,10 +191,36 @@ exclude = [
   "docs/source/raven*.rst"
 ]
 
-[tool.isort]
-profile = "black"
-py_version = 39
-append_only = true
+[tool.numpydoc_validation]
+checks = [
+  "all", # report on all checks, except the below
+  "ES01",
+  "EX01",
+  "GL01",
+  "GL08",
+  "PR01",
+  "PR08",
+  "RT01",
+  "RT03",
+  "SA01",
+  "SA04",
+  "SS03",
+  "SS06"
+]
+# remember to use single quotes for regex in TOML
+exclude = [
+  # don't report on objects that match any of these regex
+  '\.undocumented_method$',
+  '\.__repr__$',
+  # any object starting with an underscore is a private object
+  '\._\w+'
+]
+override_SS05 = [
+  # override SS05 to allow docstrings starting with these words
+  '^Process ',
+  '^Assess ',
+  '^Access '
+]
 
 [tool.pytest.ini_options]
 addopts = [
@@ -212,3 +241,50 @@ markers = [
   "slow: mark test to be slow (deselect with '-m \"not slow\"')",
   "very_slow: mark test to be very slow (deselect with '-m \"not very_slow\"')"
 ]
+
+[tool.ruff]
+src = ["raven"]
+line-length = 88
+target-version = "py39"
+exclude = [
+  ".eggs",
+  ".git",
+  "build",
+  "docs"
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+preview = true
+
+[tool.ruff.lint.flake8-bandit]
+check-typed-exception = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["ravenpy"]
+case-sensitive = true
+detect-same-package = false
+lines-after-imports = 2
+no-lines-before = ["future", "standard-library"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 150
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.vulture]
+exclude = []
+ignore_decorators = ["@pytest.fixture"]
+ignore_names = []
+min_confidence = 90
+paths = ["src/raven", "tests"]
+sort_by_size = true

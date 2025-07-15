@@ -55,8 +55,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             identifier="nalcms-zonal-stats-raster",
             title="NALCMS Land Use Zonal Statistics with raster output",
             version="1.0",
-            abstract="Return zonal statistics, land-use cover, and raster grid for the CEC NALCMS based "
-            "on the boundaries of a vector file.",
+            abstract="Return zonal statistics, land-use cover, and raster grid for the CEC NALCMS based on the boundaries of a vector file.",
             metadata=[],
             inputs=inputs,
             outputs=outputs,
@@ -117,7 +116,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             )
             gdf = gpd.read_file(projected)
             if sum(gdf.area) / 1e6 > 1e5:
-                LOGGER.warning(f"Vector shape has area of {sum(gdf.area) / 1E6} km2.")
+                LOGGER.warning(f"Vector shape has area of {sum(gdf.area) / 1e6} km2.")
                 raise Exception(
                     "NALCMS zonal statistics only supported for areas smaller than 100,000 km2."
                 )

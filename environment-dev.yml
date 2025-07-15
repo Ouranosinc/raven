@@ -1,23 +1,27 @@
 name: raven
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
   - python >=3.9,<3.13
-  - flit >=3.8,<4.0
+  - flit >=3.12,<4.0
   - birdy
-  - black >=24.10.0
-  - bump-my-version >=0.26.0
-  - flake8 >=7.0
-  - flake8-rst-docstrings
+  - black >=25.1.0
+  - blackdoc >=0.3.9
+  - bump-my-version >=1.2.0
+  - flake8 >=7.1.1
+  - flake8-rst-docstrings >=0.3.0
   - ipykernel
   - ipywidgets
-  - isort >=5.13.2
   - nbconvert
   - nbval
-  - pip >=23.3.0
+  - numpydoc >=1.8.0
+  - pip >=24.2.0
+  - pooch >=1.8.0
   - pre-commit >=3.6.0
-  - pymetalink
   - pytest >=8.0.0
+  - pytest-cov >=5.0.0
   - pytest-xdist >=3.2
   - python-build
+  - tox >=4.24.1
+  - yamllint >=1.35.1

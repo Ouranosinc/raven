@@ -36,8 +36,7 @@ class ShapePropertiesProcess(Process):
             ),
             LiteralInput(
                 "projected_crs",
-                "Coordinate Reference System for area calculation (Default: EPSG:6622,"
-                " NAD83(CSRS) / Quebec Lambert)",
+                "Coordinate Reference System for area calculation (Default: EPSG:6622, NAD83(CSRS) / Quebec Lambert)",
                 data_type="integer",
                 default=6622,
                 min_occurs=1,
@@ -80,10 +79,7 @@ class ShapePropertiesProcess(Process):
         try:
             projection = CRS.from_epsg(projected_crs)
             if projection.is_geographic:
-                msg = (
-                    f"Desired CRS {projection.to_epsg()} is geographic. "
-                    "Areal analysis values will be in decimal-degree units."
-                )
+                msg = f"Desired CRS {projection.to_epsg()} is geographic. Areal analysis values will be in decimal-degree units."
                 LOGGER.warning(msg)
         except Exception as e:
             msg = f"{e}: Failed to parse CRS definition. Exiting."

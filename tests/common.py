@@ -44,7 +44,7 @@ def get_output(doc):
     TODO: make this helper method public in pywps."""
     output = {}
     for output_el in xpath_ns(
-        doc, "/wps:ExecuteResponse" "/wps:ProcessOutputs/wps:Output"
+        doc, "/wps:ExecuteResponse/wps:ProcessOutputs/wps:Output"
     ):
         [identifier_el] = xpath_ns(output_el, "./ows:Identifier")
 

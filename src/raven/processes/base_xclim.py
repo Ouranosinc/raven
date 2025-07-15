@@ -211,7 +211,8 @@ class _XclimIndicatorProcess(Process):
 
 
 def chunk_dataset(ds, max_size=1000000):
-    """Ensures the chunked size of a xarray.Dataset is below a certain size
+    """
+    Ensure the chunked size of a xarray.Dataset is below a certain size.
 
     Cycle through the dimensions, divide the chunk size by 2 until criteria is met.
     """

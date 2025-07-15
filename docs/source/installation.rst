@@ -7,17 +7,30 @@ Installation
     :local:
     :depth: 1
 
-Install from Conda-Forge (suggested)
-------------------------------------
+Install from PyPI
+-----------------
+
+.. note::
+
+   As of Summer 2025, `raven` is available as a PyPI-based package for testing and evaluation purposes. For a production server, we recommend deploying Raven as a Docker service.
+
+To install the latest release from PyPI:
+
+.. code-block:: console
+
+   $ python -m pip install birdhouse-raven
+
+Install from Conda-Forge
+------------------------
 
 Create an Anaconda environment named `ravenwps-env`:
 
 .. code-block:: bash
 
-    conda env create -n ravenwps-env python=3.9
+    conda env create -n ravenwps-env python=3.10
     source activate ravenwps-env
 
-This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
+This should now prepend the environment to your shell commands (i.e. `(ravenwps-env) $`).
 Now install directly from `conda-forge`:
 
 .. code-block:: bash
@@ -34,22 +47,14 @@ Check out code from the Raven GitHub repo and start the installation:
     git clone https://github.com/Ouranosinc/raven.git
     cd raven
 
-Environment Setup with Anaconda (macOS/Linux)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install from Docker
+-------------------
 
-Create Conda environment named `raven`:
+The easiest way to deploy Raven is to use the Docker image. The Docker image is available on Docker Hub as `pavics/raven`.
 
-.. code-block:: bash
+.. code-block:: console
 
-    conda env create -n ravenwps-env -f environment.yml
-
-The environment can then be activated with:
-
-.. code-block:: bash
-
-    source activate ravenwps-env
-
-This should now prepend the environment to your shell commands (ie: `(ravenwps-env) $`).
+   $ docker pull pavics/raven:latest
 
 Installing and Launching RavenWPS
 ---------------------------------
@@ -129,9 +134,3 @@ You can also use the ``Makefile`` to start and stop the service:
     -----------------------------
 
     You can also run Raven as a Docker container, see the :ref:`Tutorial <tutorial>`.
-
-You can also run Raven as a Docker container.
-
-.. ::
-
-  TODO: Describe Docker container support.
