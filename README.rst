@@ -2,17 +2,17 @@
 Raven : Hydrological modeling and analytics
 ===========================================
 
-+----------------------------+-----------------------------------------------------+
-| Versions                   | |pypi| |versions|                                   |
-+----------------------------+-----------------------------------------------------+
-| Documentation and Support  | |docs| |gitter|                                     |
-+----------------------------+-----------------------------------------------------+
-| Open Source                | |license|                                           |
-+----------------------------+-----------------------------------------------------+
-| Coding Standards           | |black| |ruff| |pre-commit|                         |
-+----------------------------+-----------------------------------------------------+
-| Development Status         | |status| |build| |coveralls|                        |
-+----------------------------+-----------------------------------------------------+
++----------------------------+----------------------------------------+
+| Versions                   | |conda| |platforms|                    |
++----------------------------+----------------------------------------+
+| Documentation and Support  | |docs| |gitter|                        |
++----------------------------+----------------------------------------+
+| Open Source                | |license|                              |
++----------------------------+----------------------------------------+
+| Coding Standards           | |black| |ruff| |pre-commit|            |
++----------------------------+----------------------------------------+
+| Development Status         | |status| |build| |coveralls|           |
++----------------------------+----------------------------------------+
 
 Raven (the bird)
   *A WPS service that offers processes related to hydrological modelling.*
@@ -70,6 +70,10 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
     :target: https://github.com/Ouranosinc/raven/actions/workflows/main.yml
     :alt: Build Status
 
+.. |conda| image:: https://img.shields.io/conda/vn/conda-forge/raven-wps.svg
+    :target: https://anaconda.org/conda-forge/raven-wps
+    :alt: Anaconda Version
+
 .. |coveralls| image:: https://coveralls.io/repos/github/Ouranosinc/raven/badge.svg
     :target: https://coveralls.io/github/Ouranosinc/raven
     :alt: Coveralls
@@ -90,13 +94,18 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
     :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE
     :alt: License
 
+.. |platforms| image:: https://anaconda.org/conda-forge/raven-wps/badges/platforms.svg
+    :target: https://anaconda.org/conda-forge/raven-wps
+    :alt: Supported Python Versions
+
 .. |pre-commit| image:: https://results.pre-commit.ci/badge/github/Ouranosinc/raven/main.svg
     :target: https://results.pre-commit.ci/latest/github/Ouranosinc/raven/main
     :alt: pre-commit.ci status
 
-.. |pypi| image:: https://img.shields.io/pypi/v/birdhouse-raven.svg
-    :target: https://pypi.python.org/pypi/birdhouse-raven
-    :alt: PyPI
+..
+    .. |pypi| image:: https://img.shields.io/pypi/v/birdhouse-raven.svg
+        :target: https://pypi.python.org/pypi/birdhouse-raven
+        :alt: PyPI
 
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
     :target: https://github.com/astral-sh/ruff
@@ -106,9 +115,10 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
     :target: https://www.repostatus.org/#active
     :alt: Project Status: Active - The project has reached a stable, usable state and is being actively developed.
 
-.. |versions| image:: https://img.shields.io/pypi/pyversions/birdhouse-raven.svg
-    :target: https://pypi.python.org/pypi/birdhouse-raven
-    :alt: Supported Python Versions
+..
+    .. |versions| image:: https://img.shields.io/pypi/pyversions/birdhouse-raven.svg
+        :target: https://pypi.python.org/pypi/birdhouse-raven
+        :alt: Supported Python Versions
 
 .. |zenodo| image:: https://zenodo.org/badge/135511617.svg
     :target: https://zenodo.org/badge/latestdoi/135511617
