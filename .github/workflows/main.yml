@@ -52,12 +52,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        os: [ "ubuntu-latest" ]
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
         include:
           - os: "macos-latest"
             python-version: "3.10"
@@ -76,6 +72,7 @@ jobs:
             pavics.ouranos.ca:443
             pypi.org:443
             raw.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
             repo.anaconda.com:443
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -96,16 +93,27 @@ jobs:
         run: |
           micromamba list
           python -m pip check || true
-      - name: Test RavenWPS
+      - name: Test RavenWPS with pytest
         run: |
-          python -m pytest -m "not very_slow" tests
+          python -m pytest -m "not very_slow" tests --cov=raven --cov-report=lcov
+      - name: Report Coverage
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          flag-name: run-${{ matrix.os }}-${{ matrix.python-version }}-conda
+          parallel: true
 
   finish:
     name: Finish
     needs:
       - conda
     runs-on: ubuntu-latest
-    container: python:3-slim
     steps:
-      - name: Finished
-        run: echo "Finished!"
+      - name: Harden Runner
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
+        with:
+          disable-sudo: true
+          egress-policy: audit
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          parallel-finished: true
