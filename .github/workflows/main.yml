@@ -66,6 +66,7 @@ jobs:
           allowed-endpoints: >
             cdn.proj.org:443
             conda.anaconda.org:443
+            coveralls.io:443
             files.pythonhosted.org:443
             github.com:443
             objects.githubusercontent.com:443
@@ -99,7 +100,7 @@ jobs:
       - name: Report Coverage
         uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
         with:
-          flag-name: run-${{ matrix.os }}-${{ matrix.python-version }}-conda
+          flag-name: run-${{ matrix.os }}-Python${{ matrix.python-version }}-conda
           parallel: true
 
   finish:
