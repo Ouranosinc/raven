@@ -136,7 +136,7 @@ tag = false
 allow_dirty = true
 
 [[tool.bumpversion.files]]
-filename = "raven/__version__.py"
+filename = "src/raven/__version__.py"
 search = "__version__ = \"{current_version}\""
 replace = "__version__ = \"{new_version}\""
 
