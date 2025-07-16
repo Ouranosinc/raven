@@ -129,14 +129,14 @@ target-version = [
 ]
 
 [tool.bumpversion]
-current_version = "0.18.2"
+current_version = "0.19.0"
 commit = true
 commit_args = "--no-verify"
 tag = false
 allow_dirty = true
 
 [[tool.bumpversion.files]]
-filename = "raven/__version__.py"
+filename = "src/raven/__version__.py"
 search = "__version__ = \"{current_version}\""
 replace = "__version__ = \"{new_version}\""
 
