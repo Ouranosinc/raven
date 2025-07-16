@@ -3,6 +3,7 @@
 import collections
 import logging
 from pathlib import Path
+from typing import Union
 
 import fiona
 import geopandas
@@ -29,10 +30,14 @@ LOGGER = logging.getLogger("RavenPy")
 WGS84 = 4326
 
 
+BaseGeomType = Union[GeometryCollection, BaseGeometry]
+CRSType = Union[str, int, CRS]
+
+
 def geom_transform(
-    geom: GeometryCollection | BaseGeometry,
-    source_crs: str | int | CRS = WGS84,
-    target_crs: str | int | CRS = None,
+    geom: BaseGeomType,
+    source_crs: CRSType = WGS84,
+    target_crs: CRSType | None = None,
 ) -> GeometryCollection:
     """
     Change the projection of a geometry.
@@ -53,6 +58,9 @@ def geom_transform(
     GeometryCollection
         Reprojected geometry.
     """
+    if target_crs is None:
+        raise ValueError("No target CRS is defined.")
+
     try:
         from pyproj import Transformer
 
@@ -76,10 +84,15 @@ def geom_transform(
         raise Exception(msg)
 
 
+SingleMultiPolygonType = Union[
+    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]
+]
+
+
 def generic_raster_clip(
     raster: str | Path,
     output: str | Path,
-    geometry: Polygon | MultiPolygon | list[Polygon | MultiPolygon],
+    geometry: SingleMultiPolygonType,
     touches: bool = False,
     fill_with_nodata: bool = True,
     padded: bool = True,
@@ -133,10 +146,13 @@ def generic_raster_clip(
             dst.write(mask_image)
 
 
+CRSdictType = Union[str, dict, CRS]
+
+
 def generic_raster_warp(
     raster: str | Path,
     output: str | Path,
-    target_crs: str | dict | CRS,
+    target_crs: CRSdictType,
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
 ) -> None:
     """
@@ -148,7 +164,7 @@ def generic_raster_warp(
         Path to input raster.
     output : str or Path
         Path to output raster.
-    target_crs : str or dict
+    target_crs : str or dict or CRS
         Target projection identifier.
     raster_compression : str
         Level of data compression. Default: 'lzw'.
@@ -179,11 +195,14 @@ def generic_raster_warp(
                 dst.write(data)
 
 
+CRSstrType = Union[str, CRS]
+
+
 def generic_vector_reproject(
     vector: str | Path,
     projected: str | Path,
-    source_crs: str | CRS = WGS84,
-    target_crs: str | CRS = None,
+    source_crs: CRSstrType = WGS84,
+    target_crs: CRSstrType | None = None,
 ) -> None:
     """
     Reproject all features and layers within a vector file and return a GeoJSON.
@@ -231,13 +250,16 @@ def generic_vector_reproject(
                         raise
 
 
+DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]
+
+
 def determine_upstream_ids(
     fid: str,
-    df: pd.DataFrame | geopandas.GeoDataFrame,
+    df: DataFrameType,
     basin_field: str = None,
     downstream_field: str = None,
     basin_family: str | None = None,
-) -> pd.DataFrame | geopandas.GeoDataFrame:
+) -> DataFrameType:
     """
     Return a list of upstream features by evaluating the downstream networks.
 

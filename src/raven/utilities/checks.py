@@ -5,7 +5,7 @@ import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import fiona
 import rasterio
@@ -14,6 +14,7 @@ from pyproj.exceptions import CRSError
 from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
 
 import raven.utilities.io as io
+from shapely.geometry.base import BaseGeometry
 
 LOGGER = logging.getLogger("RavenPy")
 
@@ -117,8 +118,11 @@ def multipolygon_check(geom: GeometryCollection) -> None:
     return
 
 
+PointType = Union[tuple[Union[int, float, str], Union[int, float, str]], BaseGeometry]
+
+
 def feature_contains(
-    point: tuple[int | float | str, int | float | str] | Point,
+    point: PointType,
     shp: str | Path | list[str | Path],
 ) -> dict | bool:
     """
