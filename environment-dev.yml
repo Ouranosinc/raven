@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - python >=3.9,<3.13
-  - flit >=3.12,<4.0
-  - birdy
+  - python >=3.10,<3.14
+  - flit >=3.11,<4.0
+  - birdy >=0.8.6
   - black >=25.1.0
   - blackdoc >=0.3.9
   - bump-my-version >=1.2.0
@@ -22,6 +22,7 @@ dependencies:
   - pytest >=8.0.0
   - pytest-cov >=5.0.0
   - pytest-xdist >=3.2
-  - python-build
+  - python-build >=1.2.1
+  - ruff >=0.12.2
   - tox >=4.24.1
   - yamllint >=1.35.1

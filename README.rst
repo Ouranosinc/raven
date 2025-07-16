@@ -9,7 +9,7 @@ Raven : Hydrological modeling and analytics
 +----------------------------+----------------------------------------+
 | Open Source                | |license|                              |
 +----------------------------+----------------------------------------+
-| Coding Standards           | |black| |ruff| |pre-commit|            |
+| Coding Standards           | |ruff| |pre-commit|                    |
 +----------------------------+----------------------------------------+
 | Development Status         | |status| |build| |coveralls|           |
 +----------------------------+----------------------------------------+
@@ -61,10 +61,6 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
 .. _`bird-house/cookiecutter-birdhouse`: https://github.com/bird-house/cookiecutter-birdhouse
 .. _`Developer Guide`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html
 .. _`bump-my-version`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
-
-.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-        :target: https://github.com/psf/black
-        :alt: Python Black
 
 .. |build| image:: https://github.com/Ouranosinc/raven/actions/workflows/main.yml/badge.svg
     :target: https://github.com/Ouranosinc/raven/actions/workflows/main.yml

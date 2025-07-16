@@ -1,7 +1,6 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import Optional, Union
 
 import numpy as np
 import rasterio
@@ -17,7 +16,7 @@ GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"
 LOGGER = logging.getLogger("RavenPy")
 
 
-def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
+def geom_prop(geom: Polygon | MultiPolygon | GeometryCollection) -> dict:
     """
     Return a dictionary of geometry properties.
 
@@ -55,9 +54,9 @@ def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
 
 
 def dem_prop(
-    dem: Union[str, Path],
-    geom: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]] = None,
-    directory: Union[str, Path] = None,
+    dem: str | Path,
+    geom: Polygon | MultiPolygon | list[Polygon | MultiPolygon] = None,
+    directory: str | Path = None,
 ) -> dict[str, float]:
     """Return raster properties for each geometry.
 
@@ -117,8 +116,8 @@ def dem_prop(
 
 
 def gdal_slope_analysis(
-    dem: Union[str, Path],
-    set_output: Optional[Union[str, Path]] = None,
+    dem: str | Path,
+    set_output: str | Path | None = None,
     units: str = "degree",
 ) -> np.ndarray:
     """Return the slope of the terrain from the DEM.
@@ -175,10 +174,10 @@ def gdal_slope_analysis(
 
 
 def gdal_aspect_analysis(
-    dem: Union[str, Path],
-    set_output: Union[str, Path, bool] = False,
+    dem: str | Path,
+    set_output: str | Path | bool = False,
     flat_values_are_zero: bool = False,
-) -> Union[np.ndarray, Dataset]:
+) -> np.ndarray | Dataset:
     """Return the aspect of the terrain from the DEM.
 
     The aspect is the compass direction of the steepest slope (0: North, 90: East, 180: South, 270: West).

@@ -9,7 +9,6 @@ import zipfile
 from collections.abc import Sequence
 from pathlib import Path
 from re import search
-from typing import Optional, Union
 
 import fiona
 import rasterio
@@ -22,7 +21,7 @@ WGS84 = 4326
 
 # Function addressing exploit CVE-2007-4559
 def is_within_directory(
-    directory: Union[str, os.PathLike], target: Union[str, os.PathLike]
+    directory: str | os.PathLike, target: str | os.PathLike
 ) -> bool:
     abs_directory = os.path.abspath(directory)
     abs_target = os.path.abspath(target)
@@ -44,13 +43,13 @@ def safe_extract(
     tar.extractall(path, members, numeric_owner=numeric_owner)
 
 
-def address_append(address: Union[str, Path]) -> str:
+def address_append(address: str | Path) -> str:
     """
     Format a URL/URI to be more easily read with libraries such as "rasterstats".
 
     Parameters
     ----------
-    address : Union[str, Path]
+    address : str or Path
         URL/URI to a potential zip or tar file.
 
     Returns
@@ -75,8 +74,8 @@ def address_append(address: Union[str, Path]) -> str:
 
 
 def generic_extract_archive(
-    resources: Union[str, Path, list[Union[bytes, str, Path]]],
-    output_dir: Optional[Union[str, Path]] = None,
+    resources: str | Path | list[bytes | str | Path],
+    output_dir: str | Path | None = None,
 ) -> list[str]:
     """
     Extract archives (tar/zip) to a working directory.
@@ -140,10 +139,10 @@ def generic_extract_archive(
 
 
 def archive_sniffer(
-    archives: Union[str, Path, list[Union[str, Path]]],
-    working_dir: Optional[Union[str, Path]] = None,
-    extensions: Optional[Sequence[str]] = None,
-) -> list[Union[str, Path]]:
+    archives: str | Path | list[str | Path],
+    working_dir: str | Path | None = None,
+    extensions: Sequence[str] | None = None,
+) -> list[str | Path]:
     """
     Return a list of locally unarchived files that match the desired extensions.
 
@@ -174,13 +173,13 @@ def archive_sniffer(
 
 
 def crs_sniffer(
-    *args: Union[str, Path, Sequence[Union[str, Path]]],
-) -> Union[list[Union[str, int]], str, int]:
+    *args: str | Path | Sequence[str | Path],
+) -> list[str | int] | str | int:
     """Return the list of CRS found in files.
 
     Parameters
     ----------
-    *args : Union[str, Path, Sequence[Union[str, Path]]]
+    *args : str or Path or Sequence of str or Path
         Path(s) to the file(s) to examine.
 
     Returns
@@ -239,13 +238,13 @@ def crs_sniffer(
     return crs_list
 
 
-def raster_datatype_sniffer(file: Union[str, Path]) -> str:
+def raster_datatype_sniffer(file: str | Path) -> str:
     """
     Return the type of the raster stored in the file.
 
     Parameters
     ----------
-    file : Union[str, Path]
+    file : str or Path
         Path to file.
 
     Returns
@@ -264,7 +263,7 @@ def raster_datatype_sniffer(file: Union[str, Path]) -> str:
 
 
 def get_bbox(
-    vector: Union[str, Path], all_features: bool = True
+    vector: str | Path, all_features: bool = True
 ) -> tuple[float, float, float, float]:
     """
     Return bounding box of all features or the first feature in file.
@@ -278,7 +277,7 @@ def get_bbox(
 
     Returns
     -------
-    float, float, float, float
+    (float, float, float, float)
         Geographic coordinates of the bounding box (lon0, lat0, lon1, lat1).
     """
 

@@ -6,7 +6,6 @@ from pathlib import Path
 from random import choice
 from string import ascii_letters
 from tempfile import NamedTemporaryFile
-from typing import Union
 
 import numpy as np
 import rasterio
@@ -67,8 +66,8 @@ EARTH_ENV_DEM = "public:EarthEnv_DEM90_NorthAmerica"
 
 
 def gather_dem_tile(
-    vector_file: Union[str, os.PathLike],
-    work_dir: Union[str, os.PathLike],
+    vector_file: str | os.PathLike,
+    work_dir: str | os.PathLike,
     geographic: bool = True,
     raster: str = EARTH_ENV_DEM,
 ) -> Path:
@@ -101,12 +100,12 @@ def gather_dem_tile(
     return Path(raster_file)
 
 
-def parse_lonlat(lonlat: Union[str, tuple[str, str]]) -> tuple[float, float]:
+def parse_lonlat(lonlat: str | tuple[str, str]) -> tuple[float, float]:
     """Return longitude and latitude from a string.
 
     Parameters
     ----------
-    lonlat : str or Tuple[str, str]
+    lonlat : str or tuple of [str, str]
       A tuple or a str of lon and lat coordinates.
 
     Returns
@@ -133,7 +132,7 @@ def zonalstats_raster_file(
     data_type: str = None,
     crs: str = None,
     zip_archive: bool = False,
-) -> Union[Path, list[Path]]:
+) -> Path | list[Path]:
     """
     Extract the zonalstats grid(s) to a zipped GeoTIFF file and ensure that it is projected with specified CRS.
 

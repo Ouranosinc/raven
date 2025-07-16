@@ -5,7 +5,7 @@ import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import fiona
 import rasterio
@@ -18,7 +18,7 @@ import raven.utilities.io as io
 LOGGER = logging.getLogger("RavenPy")
 
 
-def single_file_check(file_list: Sequence[Union[str, Path]]) -> Any:
+def single_file_check(file_list: Sequence[str | Path]) -> Any:
     """
     Return the first element of a file list and raise an error if the list is empty or contains more than one element.
 
@@ -44,9 +44,9 @@ def single_file_check(file_list: Sequence[Union[str, Path]]) -> Any:
 
 
 def boundary_check(
-    *args: Union[str, Path],
-    max_y: Union[int, float] = 60,
-    min_y: Union[int, float] = -60,
+    *args: str | Path,
+    max_y: int | float = 60,
+    min_y: int | float = -60,
 ) -> None:
     r"""
     Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Emit a UserWarning if so.
@@ -118,15 +118,15 @@ def multipolygon_check(geom: GeometryCollection) -> None:
 
 
 def feature_contains(
-    point: Union[tuple[Union[int, float, str], Union[str, float, int]], Point],
-    shp: Union[str, Path, list[Union[str, Path]]],
-) -> Union[dict, bool]:
+    point: tuple[int | float | str, int | float | str] | Point,
+    shp: str | Path | list[str | Path],
+) -> dict | bool:
     """
     Return the first feature containing a location.
 
     Parameters
     ----------
-    point : tuple[Union[int, float, str], Union[str, float, int]], Point]
+    point : tuple of [int or float or str, int or float or str] or Point
         Geographic coordinates of a point (lon, lat) or a shapely Point.
     shp : str or Path or list of str or Path
         The path to the file storing the geometries.
