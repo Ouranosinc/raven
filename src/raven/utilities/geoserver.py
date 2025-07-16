@@ -13,7 +13,6 @@ For example, many function's logic essentially consists in creating the layer na
 We could have a function that returns the layer name, and then other functions expect the layer name.
 """
 
-import inspect
 import json
 import os
 import urllib.request
