@@ -130,7 +130,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
             response.update_status("Statistic calculated", status_percentage=70)
 
-            land_use = list()
+            land_use = []
             for stat in stats:
                 lu = defaultdict(int)
                 prop = stat["properties"]

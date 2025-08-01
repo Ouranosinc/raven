@@ -13,14 +13,12 @@ For example, many function's logic essentially consists in creating the layer na
 We could have a function that returns the layer name, and then other functions expect the layer name.
 """
 
-import inspect
 import json
 import os
 import urllib.request
 import warnings
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Optional, Union
 from urllib.parse import urljoin
 
 import fiona
@@ -54,20 +52,22 @@ hybas_domains = {dom: hybas_dir / hybas_pat.format(domain=dom) for dom in hybas_
 
 
 def _get_location_wfs(
-    bbox: Optional[
+    bbox: None
+    | (
         tuple[
-            Union[str, float, int],
-            Union[str, float, int],
-            Union[str, float, int],
-            Union[str, float, int],
+            str | float | int,
+            str | float | int,
+            str | float | int,
+            str | float | int,
         ]
-    ] = None,
-    point: Optional[
+    ) = None,
+    point: None
+    | (
         tuple[
-            Union[str, float, int],
-            Union[str, float, int],
+            str | float | int,
+            str | float | int,
         ]
-    ] = None,
+    ) = None,
     layer: str = None,
     geoserver: str = GEO_URL,
 ) -> dict:
@@ -79,9 +79,9 @@ def _get_location_wfs(
 
     Parameters
     ----------
-    bbox : Optional[Tuple[Union[str, float, int], Union[str, float, int], Union[str, float, int], Union[str, float, int]]]
+    bbox : tuple of [str or float or int, str or float or int, str or float or int, str or float or int], optional
         Geographic coordinates of the bounding box (left, down, right, up).
-    point : Optional[Tuple[Union[str, float, int], Union[str, float, int]]]
+    point : tuple of [str or float or int, str or float or int], optional
         Geographic coordinates of an intersecting point (lon, lat).
     layer : str
         The WFS/WMS layer name requested.
@@ -100,12 +100,6 @@ def _get_location_wfs(
     if bbox:
         kwargs = dict(bbox=bbox)
     elif point:
-        # FIXME: Remove this once OWSlib > 0.24.1 is released.
-        if not Intersects and not wfs_Point:
-            raise NotImplementedError(
-                f"{inspect.stack()[1][3]} with point filtering requires OWSLib>0.24.1.",
-            )
-
         p = wfs_Point(
             id="feature",
             srsName="http://www.opengis.net/gml/srs/epsg.xml#4326",
@@ -167,7 +161,7 @@ def _get_feature_attributes_wfs(
 
 def _filter_feature_attributes_wfs(
     attribute: str,
-    value: Union[str, float, int],
+    value: str | float | int,
     layer: str,
     geoserver: str = GEO_URL,
 ) -> str:
@@ -178,7 +172,7 @@ def _filter_feature_attributes_wfs(
     ----------
     attribute : str
         Attribute/field name.
-    value : Union[str, float, int]
+    value : str or float or int
         Value for attribute queried.
     layer : str
         Name of geographic layer queried.
@@ -188,7 +182,7 @@ def _filter_feature_attributes_wfs(
     Returns
     -------
     str
-      WFS request URL.
+        WFS request URL.
     """
 
     try:
@@ -218,7 +212,7 @@ def _determine_upstream_ids(
     *,
     basin_field: str,
     downstream_field: str,
-    basin_family: Optional[str] = None,
+    basin_family: str | None = None,
 ) -> pd.DataFrame:
     """
     Return a list of upstream features by evaluating the downstream networks.
@@ -274,7 +268,7 @@ def _determine_upstream_ids(
 
 
 def get_raster_wcs(
-    coordinates: Union[Iterable, Sequence[Union[float, str]]],
+    coordinates: Iterable | Sequence[float | str],
     geographic: bool = True,
     layer: str = None,
     geoserver: str = GEO_URL,
@@ -408,20 +402,16 @@ def hydrobasins_aggregate(gdf: pd.DataFrame) -> pd.DataFrame:
 
 
 def select_hybas_domain(
-    bbox: Optional[
-        tuple[
-            Union[int, float], Union[int, float], Union[int, float], Union[int, float]
-        ]
-    ] = None,
-    point: Optional[tuple[Union[int, float], Union[int, float]]] = None,
+    bbox: tuple[int | float, int | float, int | float, int | float] | None = None,
+    point: tuple[int | float, int | float] | None = None,
 ) -> str:
     """Provided a given coordinate or boundary box, return the domain name of the geographic region the coordinate is located within.
 
     Parameters
     ----------
-    bbox : Optional[Tuple[Union[float, int], Union[float, int], Union[float, int], Union[float, int]]]
+    bbox : tuple of [int or float, int or float, int or float, int or float], optional
         Geographic coordinates of the bounding box (left, down, right, up).
-    point : Optional[Tuple[Union[float, int], Union[float, int]]]
+    point : tuple[int or float, int or float], optional
         Geographic coordinates of an intersecting point (lon, lat).
 
     Returns
@@ -446,7 +436,7 @@ def select_hybas_domain(
 
 def filter_hydrobasins_attributes_wfs(
     attribute: str,
-    value: Union[str, float, int],
+    value: str | float | int,
     domain: str,
     geoserver: str = GEO_URL,
 ) -> str:
@@ -465,7 +455,8 @@ def filter_hydrobasins_attributes_wfs(
     domain : {"na", "ar"}
         The domain of the HydroBASINS data.
     geoserver : str
-        The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
+        The address of the geoserver housing the layer to be queried.
+        Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
     -------
@@ -485,8 +476,8 @@ def filter_hydrobasins_attributes_wfs(
 
 def get_hydrobasins_location_wfs(
     coordinates: tuple[
-        Union[str, float, int],
-        Union[str, float, int],
+        str | float | int,
+        str | float | int,
     ],
     domain: str = None,
     geoserver: str = GEO_URL,
@@ -499,12 +490,13 @@ def get_hydrobasins_location_wfs(
 
     Parameters
     ----------
-    coordinates : Tuple[str or float or int, str or float or int]
+    coordinates : tuple of [str or float or int, str or float or int]
         Geographic coordinates of the bounding box (left, down, right, up).
     domain : {"na", "ar"}
         The domain of the HydroBASINS data.
     geoserver : str
-        The address of the geoserver housing the layer to be queried. Default: https://pavics.ouranos.ca/geoserver/.
+        The address of the geoserver housing the layer to be queried.
+        Default: https://pavics.ouranos.ca/geoserver/.
 
     Returns
     -------
@@ -526,7 +518,7 @@ def get_hydrobasins_location_wfs(
 
 
 def hydro_routing_upstream(
-    fid: Union[str, float, int],
+    fid: str | float | int,
     level: int = 12,
     lakes: str = "1km",
     geoserver: str = GEO_URL,
@@ -615,7 +607,7 @@ def get_hydro_routing_attributes_wfs(
 
 def filter_hydro_routing_attributes_wfs(
     attribute: str = None,
-    value: Union[str, float, int] = None,
+    value: str | float | int = None,
     level: int = 12,
     lakes: str = "1km",
     geoserver: str = GEO_URL,
@@ -652,8 +644,8 @@ def filter_hydro_routing_attributes_wfs(
 
 def get_hydro_routing_location_wfs(
     coordinates: tuple[
-        Union[int, float, str],
-        Union[str, float, int],
+        int | float | str,
+        str | float | int,
     ],
     lakes: str,
     level: int = 12,
@@ -667,7 +659,7 @@ def get_hydro_routing_location_wfs(
 
     Parameters
     ----------
-    coordinates : Tuple[str or float or int, str or float or int]
+    coordinates : tuple  of [str or float or int, str or float or int]
         Geographic coordinates of the bounding box (left, down, right, up).
     lakes : {"1km", "all"}
         Query the version of dataset with lakes under 1km in width removed ("1km") or return all lakes ("all").
