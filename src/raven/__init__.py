@@ -3,7 +3,7 @@
 ###################################################################################
 # MIT License
 #
-# Copyright (c) 2018-2024, David Huard, Richard Arsenault, Trevor James Smith, Tuan Long Vu
+# Copyright (c) 2018-2025, David Huard, Richard Arsenault, Trevor James Smith, Tuan Long Vu
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
