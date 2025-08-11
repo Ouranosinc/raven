@@ -23,7 +23,7 @@ endif
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
 # instance so the notebooks can also be used as tutorial notebooks.
-OUTPUT_URL ?= https://pavics.ouranos.ca/wpsoutputs/raven
+PAVICS_OUTPUT_URL ?= https://pavics.ouranos.ca/wpsoutputs/raven
 
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
 
@@ -223,7 +223,7 @@ refresh-notebooks: ## refreshing all notebook outputs under docs/source/notebook
 
 NB_REFRESH_FILE := ""
 refresh-notebooks-impl: ## refresh one single notebook
-	@bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
+	@bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(PAVICS_OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
 
 ## Sphinx targets:
 
