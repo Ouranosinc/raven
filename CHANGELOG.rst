@@ -1,6 +1,19 @@
 Changelog
 =========
 
+v0.19.1 (unreleased)
+--------------------
+
+Major Changes
+^^^^^^^^^^^^^
+* Dropped support for Python 3.9, now requiring Python 3.10 or higher (#576)
+
+Internal Changes
+^^^^^^^^^^^^^^^^
+* Dropped `black` and `blackdoc` in favor of `ruff` for code style and formatting (#576)
+* Updated `pre-commit` hook versions and adjusted configurations for Python 3.10+ support (#576)
+* Adjusted a handful of typing issues in ``raven.utilities`` for more accurate type hints (#576)
+
 v0.19.0 (2025-07-16)
 --------------------
 

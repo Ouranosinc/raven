@@ -134,7 +134,7 @@ clean-test: ## remove test and coverage artifacts
 	@echo "Removing test artifacts ..."
 	@-rm -fr .pytest_cache
 
-clean-dist: clean  ## remove git ignored files and directories
+clean-dist: clean ## remove git ignored files and directories
 	@echo "Running 'git clean' ..."
 	@git diff --quiet HEAD || echo "There are uncommitted changes! Aborting 'git clean' ..."
 	## do not use git clean -e/--exclude here, add them to .gitignore instead
@@ -152,11 +152,7 @@ lint/flake8: ## check style with flake8
 	python -m numpydoc lint src/raven/*/*.py
 	yamllint --config-file=.yamllint.yaml src/raven
 
-lint/black: ## check style with black
-	python -m black --check src/raven tests
-	python -m blackdoc --check src/raven docs
-
-lint: lint/flake8 lint/black ## check style
+lint: lint/flake8 ## check style
 
 ## Testing targets:
 

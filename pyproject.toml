@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.12,<4"]
+requires = ["flit_core >=3.11.0,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -13,7 +13,7 @@ maintainers = [
   {name = "Tuan Long Vu", email = "vu.long@ouranos.ca"}
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
-requires-python = ">=3.9.0"
+requires-python = ">=3.10.0"
 keywords = ["wps", "pywps", "birdhouse", "raven", "hydrology", "gis", "analysis"]
 license = {file = "LICENSE"}
 classifiers = [
@@ -27,10 +27,10 @@ classifiers = [
   "Operating System :: POSIX :: Linux",
   "Operating System :: Unix",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: GIS",
   "Topic :: Scientific/Engineering :: Hydrology"
@@ -41,28 +41,27 @@ dependencies = [
   "click >=8.1.7",
   "filelock >=3.14.1",
   "jinja2 >=3.1.4",
-  "matplotlib",
-  "netCDF4",
-  "numpy >=1.24.0",
-  "owslib",
+  "matplotlib >=3.6.0",
+  "netCDF4 >=1.6.5",
+  "numpy >=1.25.0",
+  "owslib >=0.30.0",
   "packaging >=23.1",
   "pandas >=2.2",
   "psutil >=6.0.0",
   "pywps >=4.6",
-  "requests >=2.31.0",
+  "requests >=2.32.2",
   "xarray >=2023.11.0",
   "xclim >=0.48.2",
   # GIS libraries
-  "affine",
+  "affine >=2.4.0",
   "cartopy >=0.23.0",
   "fiona >=1.9.6",
-  "geojson",
+  "geojson >=3.2.0",
   "geopandas >=1.0",
   "pyogrio >=0.7.2",
   "pyproj >=3.4",
   "rasterio",
-  "rasterstats",
-  "requests",
+  "rasterstats >=0.20.0",
   "rioxarray",
   "shapely >=2.0",
   # Docs and other utilities
@@ -74,13 +73,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   # Dev tools and testing
-  "birdhouse-birdy",
-  "black >=25.1.0",
-  "blackdoc >=0.3.9",
+  "birdhouse-birdy >=0.8.6",
+  "build >=1.2.1",
   "bump-my-version >=1.2.0",
-  "flake8 >=7.1.1",
+  "flake8 >=7.2.0",
   "flake8-rst-docstrings >=0.3.0",
-  "flit >=3.12,<4.0",
+  "flit >=3.11.0,<4.0",
   "ipykernel",
   "nbconvert",
   "nbval",
@@ -92,7 +90,7 @@ dev = [
   "pytest >=8.0.0",
   "pytest-cov >=5.0.0",
   "pytest-xdist >=3.2",
-  "ruff >=0.12.0",
+  "ruff >=0.12.2",
   "tox >=4.24.1",
   "yamllint >=1.35.1"
 ]
@@ -119,14 +117,6 @@ raven-wps = "raven.cli:cli"
 "About Ouranos" = "https://www.ouranos.ca/en/"
 
 [tool]
-
-[tool.black]
-target-version = [
-  "py39",
-  "py310",
-  "py311",
-  "py312"
-]
 
 [tool.bumpversion]
 current_version = "0.19.0"
@@ -245,7 +235,6 @@ markers = [
 [tool.ruff]
 src = ["raven"]
 line-length = 88
-target-version = "py39"
 exclude = [
   ".eggs",
   ".git",
