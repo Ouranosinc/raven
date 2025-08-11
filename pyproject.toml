@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.11,<4"]
+requires = ["flit_core >=3.11.0,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -74,13 +74,11 @@ dependencies = [
 dev = [
   # Dev tools and testing
   "birdhouse-birdy >=0.8.6",
-  "black >=25.1.0",
-  "blackdoc >=0.3.9",
   "build >=1.2.1",
   "bump-my-version >=1.2.0",
-  "flake8 >=7.1.1",
+  "flake8 >=7.2.0",
   "flake8-rst-docstrings >=0.3.0",
-  "flit >=3.12,<4.0",
+  "flit >=3.11.0,<4.0",
   "ipykernel",
   "nbconvert",
   "nbval",

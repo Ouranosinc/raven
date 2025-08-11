@@ -7,7 +7,7 @@ Raven : Hydrological modeling and analytics
 +----------------------------+----------------------------------------+
 | Documentation and Support  | |docs| |gitter| |versions|             |
 +----------------------------+----------------------------------------+
-| Open Source                | |license|                              |
+| Open Source                | |license| |zenodo|                     |
 +----------------------------+----------------------------------------+
 | Coding Standards           | |ruff| |pre-commit|                    |
 +----------------------------+----------------------------------------+
