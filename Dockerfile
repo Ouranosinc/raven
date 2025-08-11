@@ -21,10 +21,14 @@ COPY . /code
 # Install WPS project
 RUN pip install . --no-deps
 
+# Set environment variables for Raven WPS
+ENV RAVEN_BIND_HOST=0.0.0.0
+ENV RAVEN_BIND_PORT=9099
+
 # Start WPS service on port 9099
 EXPOSE 9099
 
-CMD ["gunicorn", "--bind=0.0.0.0:9099", "-t 60", "raven.wsgi:application"]
+CMD ["sh", "-c", "gunicorn --bind=${RAVEN_BIND_HOST}:${RAVEN_BIND_PORT} -t 60 raven.wsgi:application"]
 # docker build -t pavics/raven .
 # docker run -p 9099:9099 pavics/raven
 # http://localhost:9099/wps?request=GetCapabilities&service=WPS
