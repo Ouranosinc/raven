@@ -78,7 +78,6 @@ Do the same as above using the ``Makefile``.
     make test-all
     make lint
 
-
 Running notebooks tests
 -----------------------
 

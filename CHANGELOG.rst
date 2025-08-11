@@ -1,12 +1,25 @@
 Changelog
 =========
 
-v0.19.0 (unreleased)
+v0.19.1 (unreleased)
 --------------------
 
 Major Changes
 ^^^^^^^^^^^^^
-* The `raven` library is now available for installation on PyPI (under the name `birdhouse-raven`) (#536)
+* Dropped support for Python 3.9, now requiring Python 3.10 or higher (#576)
+
+Internal Changes
+^^^^^^^^^^^^^^^^
+* Dropped `black` and `blackdoc` in favor of `ruff` for code style and formatting (#576)
+* Updated `pre-commit` hook versions and adjusted configurations for Python 3.10+ support (#576)
+* Adjusted a handful of typing issues in ``raven.utilities`` for more accurate type hints (#576)
+
+v0.19.0 (2025-07-16)
+--------------------
+
+Major Changes
+^^^^^^^^^^^^^
+* The `raven` library is now available for installation on PyPI (under the name `birdhouse-raven`) (#536, #569)
 * Documentation has been overhauled so that WPS processes are listed in a more organized manner (#535)
 * Reimplemented the `cruft` configuration and ported recent changes to ensure that the project is up-to-date (#536)
 * Removed `pysheds` and watershed delineation process due to a licensing issue (#495)
@@ -15,9 +28,12 @@ Major Changes
 Internal Changes
 ^^^^^^^^^^^^^^^^
 * Allowed for larger int fields when writing to GeoJSON (#535)
-* Ensured that JSON-serialized output does not include numpy complex types (#535)
+* Ensured that JSON-serialized output does not include `numpy` complex types (#535)
 * Added a GitHub Workflow to test the Dockerfile recipe configuration for RavenWPS (#481)
 * Cleaned up the Dockerfile recipe configuration for `raven`. Now using `gunicorn` for service management (#481)
+* Testing data fetching mechanism has been refactored to use `pooch` for better maintainability (#569)
+* Tooling has been updated to use `ruff` and other newer tools for code quality and formatting (#569)
+* `raven` now uses Trusted Publisher for TestPyPI and PyPI releases (#569)
 
 v0.18.2 (2023-07-06)
 --------------------

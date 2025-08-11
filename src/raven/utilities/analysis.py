@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Union
 
 import numpy as np
 import rasterio
@@ -16,8 +16,10 @@ GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"
 
 LOGGER = logging.getLogger("RavenPy")
 
+PolygonType = Union[Polygon, MultiPolygon, GeometryCollection]
 
-def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
+
+def geom_prop(geom: PolygonType) -> dict:
     """
     Return a dictionary of geometry properties.
 
@@ -54,10 +56,15 @@ def geom_prop(geom: Union[Polygon, MultiPolygon, GeometryCollection]) -> dict:
     return properties
 
 
+SingleMultiPolygonType = Union[
+    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]
+]
+
+
 def dem_prop(
-    dem: Union[str, Path],
-    geom: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]] = None,
-    directory: Union[str, Path] = None,
+    dem: str | Path,
+    geom: SingleMultiPolygonType | None = None,
+    directory: str | Path | None = None,
 ) -> dict[str, float]:
     """
     Return raster properties for each geometry.
@@ -118,8 +125,8 @@ def dem_prop(
 
 
 def gdal_slope_analysis(
-    dem: Union[str, Path],
-    set_output: Optional[Union[str, Path]] = None,
+    dem: str | Path,
+    set_output: str | Path | None = None,
     units: str = "degree",
 ) -> np.ndarray:
     """
@@ -176,13 +183,15 @@ def gdal_slope_analysis(
         return np.ma.masked_values(set_output.ReadAsArray(), value=-9999)
 
 
+ArrayType = Union[np.ndarray, Dataset]
+
+
 def gdal_aspect_analysis(
-    dem: Union[str, Path],
-    set_output: Union[str, Path, bool] = False,
+    dem: str | Path,
+    set_output: str | Path | bool = False,
     flat_values_are_zero: bool = False,
-) -> Union[np.ndarray, Dataset]:
-    """
-    Return the aspect of the terrain from the DEM.
+) -> ArrayType:
+    """Return the aspect of the terrain from the DEM.
 
     The aspect is the compass direction of the steepest slope (0: North, 90: East, 180: South, 270: West).
 
@@ -197,7 +206,7 @@ def gdal_aspect_analysis(
 
     Returns
     -------
-    np.ndarray
+    numpy.ndarray or xarray.Dataset
         Aspect array.
 
     Notes

@@ -3,7 +3,7 @@
 import collections
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 import fiona
 import geopandas
@@ -22,6 +22,7 @@ from shapely.geometry import (
     mapping,
     shape,
 )
+from shapely.geometry.base import BaseGeometry
 from shapely.ops import transform
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
@@ -29,10 +30,14 @@ LOGGER = logging.getLogger("RavenPy")
 WGS84 = 4326
 
 
+BaseGeomType = Union[GeometryCollection, BaseGeometry]
+CRSType = Union[str, int, CRS]
+
+
 def geom_transform(
-    geom: Union[GeometryCollection, shape],
-    source_crs: Union[str, int, CRS] = WGS84,
-    target_crs: Union[str, int, CRS] = None,
+    geom: BaseGeomType,
+    source_crs: CRSType = WGS84,
+    target_crs: CRSType | None = None,
 ) -> GeometryCollection:
     """
     Change the projection of a geometry.
@@ -41,11 +46,11 @@ def geom_transform(
 
     Parameters
     ----------
-    geom : Union[GeometryCollection, shape]
+    geom : GeometryCollection or BaseGeometry
         Source geometry.
-    source_crs : Union[str, int, CRS]
+    source_crs : str or int or CRS
         Projection identifier (proj4) for the source geometry, e.g. '+proj=longlat +datum=WGS84 +no_defs'.
-    target_crs : Union[str, int, CRS]
+    target_crs : str or int or CRS
         Projection identifier (proj4) for the target geometry.
 
     Returns
@@ -53,9 +58,10 @@ def geom_transform(
     GeometryCollection
         Reprojected geometry.
     """
-    try:
-        from functools import partial
+    if target_crs is None:
+        raise ValueError("No target CRS is defined.")
 
+    try:
         from pyproj import Transformer
 
         if isinstance(source_crs, int or str):
@@ -78,10 +84,15 @@ def geom_transform(
         raise Exception(msg)
 
 
+SingleMultiPolygonType = Union[
+    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]
+]
+
+
 def generic_raster_clip(
-    raster: Union[str, Path],
-    output: Union[str, Path],
-    geometry: Union[Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]],
+    raster: str | Path,
+    output: str | Path,
+    geometry: SingleMultiPolygonType,
     touches: bool = False,
     fill_with_nodata: bool = True,
     padded: bool = True,
@@ -92,24 +103,20 @@ def generic_raster_clip(
 
     Parameters
     ----------
-    raster : Union[str, Path]
+    raster : str or Path
         Path to input raster.
-    output : Union[str, Path]
+    output : str or Path
         Path to output raster.
-    geometry : Union[Polygon, MultiPolygon, List[Union[Polygon, MultiPolygon]]
+    geometry : Polygon or MultiPolygon or list of Polygons
         Geometry defining the region to crop.
     touches : bool
         Whether to include cells that intersect the geometry or not. Default: True.
     fill_with_nodata : bool
-        Whether to keep pixel values for regions outside of shape or set as nodata or not. Default: True.
+        Whether to keep pixel values for regions outside shape or set as nodata or not. Default: True.
     padded : bool
         Whether to add a half-pixel buffer to shape before masking or not. Default: True.
     raster_compression : str
         Level of data compression. Default: 'lzw'.
-
-    Returns
-    -------
-    None
     """
     if not isinstance(geometry, collections.abc.Iterable):
         geometry = [geometry]
@@ -139,28 +146,28 @@ def generic_raster_clip(
             dst.write(mask_image)
 
 
+CRSdictType = Union[str, dict, CRS]
+
+
 def generic_raster_warp(
-    raster: Union[str, Path],
-    output: Union[str, Path],
-    target_crs: Union[str, dict, CRS],
+    raster: str | Path,
+    output: str | Path,
+    target_crs: CRSdictType,
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
 ) -> None:
-    """Reproject a raster file.
+    """
+    Reproject a raster file.
 
     Parameters
     ----------
-    raster : Union[str, Path]
+    raster : str or Path
         Path to input raster.
-    output : Union[str, Path]
+    output : str or Path
         Path to output raster.
-    target_crs : str or dict
+    target_crs : str or dict or CRS
         Target projection identifier.
     raster_compression : str
         Level of data compression. Default: 'lzw'.
-
-    Returns
-    -------
-    None
     """
     with rasterio.open(raster, "r") as src:
         # Reproject raster using WarpedVRT class
@@ -188,28 +195,28 @@ def generic_raster_warp(
                 dst.write(data)
 
 
+CRSstrType = Union[str, CRS]
+
+
 def generic_vector_reproject(
-    vector: Union[str, Path],
-    projected: Union[str, Path],
-    source_crs: Union[str, CRS] = WGS84,
-    target_crs: Union[str, CRS] = None,
+    vector: str | Path,
+    projected: str | Path,
+    source_crs: CRSstrType = WGS84,
+    target_crs: CRSstrType | None = None,
 ) -> None:
-    """Reproject all features and layers within a vector file and return a GeoJSON
+    """
+    Reproject all features and layers within a vector file and return a GeoJSON.
 
     Parameters
     ----------
-    vector : Union[str, Path]
+    vector : str or Path
         Path to a file containing a valid vector layer.
-    projected : Union[str, Path]
+    projected : str or Path
         Path to a file to be written.
-    source_crs : Union[str, dict, CRS]
+    source_crs : str or dict or CRS
         Projection identifier (proj4) for the source geometry, Default: '+proj=longlat +datum=WGS84 +no_defs'.
-    target_crs : Union[str, dict, CRS]
+    target_crs : str or dict or CRS
         Projection identifier (proj4) for the target geometry.
-
-    Returns
-    -------
-    None
     """
 
     if target_crs is None:
@@ -243,14 +250,18 @@ def generic_vector_reproject(
                         raise
 
 
+DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]
+
+
 def determine_upstream_ids(
     fid: str,
-    df: Union[pd.DataFrame, geopandas.GeoDataFrame],
+    df: DataFrameType,
     basin_field: str = None,
     downstream_field: str = None,
-    basin_family: Optional[str] = None,
-) -> Union[pd.DataFrame, geopandas.GeoDataFrame]:
-    """Return a list of upstream features by evaluating the downstream networks.
+    basin_family: str | None = None,
+) -> DataFrameType:
+    """
+    Return a list of upstream features by evaluating the downstream networks.
 
     Parameters
     ----------
@@ -261,13 +272,13 @@ def determine_upstream_ids(
     basin_field : str
         The field used to determine the id of the basin according to hydro project.
     downstream_field : str
-        The field identifying the downstream sub-basin for the hydro project.
+        The field identifying the downstream subbasin for the hydro project.
     basin_family : str, optional
         Regional watershed code (For HydroBASINS dataset).
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame or geopandas.GeoDataFrame
         Basins ids including `fid` and its upstream contributors.
     """
 
@@ -305,8 +316,11 @@ def determine_upstream_ids(
 def find_geometry_from_coord(
     lon: float, lat: float, df: geopandas.GeoDataFrame
 ) -> geopandas.GeoDataFrame:
-    """Return the geometry containing the given coordinates.
+    """
+    Return the geometry containing the given coordinates.
 
+    Parameters
+    ----------
     lon : float
         Longitude.
     lat : float
@@ -316,7 +330,7 @@ def find_geometry_from_coord(
 
     Returns
     -------
-    GeoDataFrame
+    geopandas.GeoDataFrame
         Record whose geometry contains the point.
     """
 

@@ -27,5 +27,5 @@ services:
       - ../raven-testdata:/testdata
       - ./:/opt/wps
     environment:
-      - RAVENPY_TESTDATA_PATH=/testdata
-    command: bash -c "python -m pip install pytest && pytest -x"
+      - RAVEN_TESTDATA_CACHE_DIR=/testdata
+    command: bash -c "source activate wps && pytest -x"

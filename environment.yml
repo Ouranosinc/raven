@@ -1,33 +1,34 @@
 name: raven
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
-  - python >=3.9,<3.13
+  - python >=3.10,<3.14
   - pywps >=4.6
   - affine >=2.4.0
   - anyascii >=0.3.2
   - cartopy >=0.23.0
   - click >=8.1.7
-  - fiona >=1.9
-  - geopandas >=0.12.0
-  - geojson >=3.1.0
+  - filelock >=3.14.0
+  - fiona >=1.9.6
+  - geopandas >=1.0
+  - geojson >=3.2.0
   - gdal >=3.0
   - jinja2 >=3.1.4
   - matplotlib-base >=3.6.0
   - nbval >=0.10.0
   - netcdf4 >=1.6.5
-  - numpy >=1.23.0
-  - owslib >=0.29.0
+  - numpy >=1.25.0
+  - owslib >=0.30.0
   - pandas >=2.2
   - psutil >=6.0.0
   - psycopg2
-  - pymetalink >=6.5.2
+  - pymetalink >=6.5.3
   - pyogrio >=0.7.2
   - pyproj >=3.4
   - rasterio >=1.4.0
   - rasterstats >=0.20.0
-  - requests >=2.31.0
+  - requests >=2.32.2
   - rioxarray >=0.15.0
   - shapely >=2.0
   - xarray >=2023.11.0

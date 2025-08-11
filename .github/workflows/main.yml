@@ -7,7 +7,7 @@ on:
   pull_request:
 
 env:
-  MAIN_TESTDATA_BRANCH: "master"
+  RAVEN_TESTDATA_BRANCH: "v2025.6.12"
 
 concurrency:
   # For a given workflow, if we push to the same branch, cancel all previous builds on that branch except on main.
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
   lint:
@@ -23,18 +23,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             files.pythonhosted.org:443
             github.com:443
+            proxy.golang.org:443
             pypi.org:443
+            storage.googleapis.com:443
       - name: Checkout Repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Set up Python${{ matrix.python-version }}
-        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.x"
           cache: "pip"
@@ -50,35 +54,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
+        os: [ "ubuntu-latest" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
         include:
           - os: "macos-latest"
             python-version: "3.10"
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             cdn.proj.org:443
             conda.anaconda.org:443
+            coveralls.io:443
             files.pythonhosted.org:443
             github.com:443
             objects.githubusercontent.com:443
             pavics.ouranos.ca:443
             pypi.org:443
             raw.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
             repo.anaconda.com:443
       - name: Checkout Repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - name: Setup Conda (Micromamba) with Python${{ matrix.python-version }}
-        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1.9.0
+        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v2.0.5
         with:
           cache-downloads: true
           cache-environment: true
@@ -92,16 +96,32 @@ jobs:
         run: |
           micromamba list
           python -m pip check || true
-      - name: Test RavenWPS
+      - name: Test RavenWPS with pytest
         run: |
-          python -m pytest -m "not very_slow" tests
+          python -m pytest -m "not very_slow" tests --cov=raven --cov-report=lcov
+      - name: Report Coverage
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          flag-name: run-${{ matrix.os }}-Python${{ matrix.python-version }}-conda
+          parallel: true
 
   finish:
     name: Finish
     needs:
       - conda
     runs-on: ubuntu-latest
-    container: python:3-slim
     steps:
-      - name: Finished
-        run: echo "Finished!"
+      - name: Harden Runner
+        uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            coveralls.io:443
+            github.com:443
+            objects.githubusercontent.com:443
+            release-assets.githubusercontent.com:443
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          parallel-finished: true

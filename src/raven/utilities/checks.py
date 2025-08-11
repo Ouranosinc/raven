@@ -14,19 +14,19 @@ from pyproj.exceptions import CRSError
 from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
 
 import raven.utilities.io as io
+from shapely.geometry.base import BaseGeometry
 
 LOGGER = logging.getLogger("RavenPy")
 
 
-def single_file_check(file_list: Sequence[Union[str, Path]]) -> Any:
+def single_file_check(file_list: Sequence[str | Path]) -> Any:
     """
-    Return the first element of a file list.
-
-    Raise an error if the list is empty or contains more than one element.
+    Return the first element of a file list and raise an error if the list is empty or contains more than one element.
 
     Parameters
     ----------
     file_list : Sequence of str or Path
+        A list of files.
     """
     if isinstance(file_list, (str, Path)):
         return file_list
@@ -45,23 +45,26 @@ def single_file_check(file_list: Sequence[Union[str, Path]]) -> Any:
 
 
 def boundary_check(
-    *args: Union[str, Path],
-    max_y: Union[int, float] = 60,
-    min_y: Union[int, float] = -60,
+    *args: str | Path,
+    max_y: int | float = 60,
+    min_y: int | float = -60,
 ) -> None:
     r"""
     Verify that boundaries do not exceed specific latitudes for geographic coordinate data.
 
-    Emit a UserWarning if so.
-
     Parameters
     ----------
-    \*args : Sequence of str or Path
-        str or Path to file(s)
+    *args : Sequence of str or Path
+        str or Path to files.
     max_y : int or float
         Maximum value allowed for latitude. Default: 60.
     min_y : int or float
         Minimum value allowed for latitude. Default: -60.
+
+    Warnings
+    --------
+    UserWarning
+        If boundaries exceed specified latitude boundaries.
     """
     vectors = (".gml", ".shp", ".geojson", ".gpkg", ".json")
     rasters = (".tif", ".tiff")
@@ -83,10 +86,7 @@ def boundary_check(
                 geographic = True
             src_min_y, src_max_y = src.bounds[1], src.bounds[3]
             if geographic and (src_max_y > max_y or src_min_y < min_y):
-                msg = (
-                    f"Vector {file} contains geometries in high latitudes."
-                    " Verify choice of projected CRS is appropriate for analysis."
-                )
+                msg = f"Vector {file} contains geometries in high latitudes. Verify choice of projected CRS is appropriate for analysis."
                 LOGGER.warning(msg)
                 warnings.warn(msg, UserWarning)
             if not geographic:
@@ -109,10 +109,7 @@ def multipolygon_check(geom: GeometryCollection) -> None:
     Parameters
     ----------
     geom : GeometryCollection
-
-    Returns
-    -------
-    None
+        The geometry to check.
     """
     if not isinstance(geom, GeometryCollection):
         try:
@@ -126,16 +123,19 @@ def multipolygon_check(geom: GeometryCollection) -> None:
     return
 
 
+PointType = Union[tuple[Union[int, float, str], Union[int, float, str]], BaseGeometry]
+
+
 def feature_contains(
-    point: Union[tuple[Union[int, float, str], Union[str, float, int]], Point],
-    shp: Union[str, Path, list[Union[str, Path]]],
-) -> Union[dict, bool]:
+    point: PointType,
+    shp: str | Path | list[str | Path],
+) -> dict | bool:
     """
     Return the first feature containing a location.
 
     Parameters
     ----------
-    point : tuple[Union[int, float, str], Union[str, float, int]], Point]
+    point : tuple of [int or float or str, int or float or str] or Point
         Geographic coordinates of a point (lon, lat) or a shapely Point.
     shp : str or Path or list of str or Path
         The path to the file storing the geometries.
