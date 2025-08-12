@@ -5,7 +5,7 @@ channels:
 dependencies:
   - python >=3.10,<3.14
   - flit >=3.11,<4.0
-  - birdy >=0.8.6
+  - birdy >=0.9.1
   - bump-my-version >=1.2.0
   - flake8 >=7.2.0
   - flake8-rst-docstrings >=0.3.0
