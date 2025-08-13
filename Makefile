@@ -7,8 +7,9 @@ APP_NAME := raven-wps
 
 OS := $(shell uname)
 
+WPS_HOST ?= 0.0.0.0
 WPS_PORT ?= 9099
-WPS_URL ?= http://0.0.0.0:$(WPS_PORT)
+WPS_URL ?= http://$(WPS_HOST):$(WPS_PORT)
 
 # If WPS_URL is overridden, this should also be overridden to match.
 WPS_OUTPUT_URL ?= http://localhost:$(WPS_PORT)/outputs
@@ -245,8 +246,9 @@ docker-build: ## build the docker container
 	@docker build -t $(APP_NAME) .
 
 docker-run: docker-build ## build and run the docker container locally
-	@echo "Running the docker container locally ..."
-	@docker run -d -p $(WPS_PORT):$(WPS_PORT) --name $(APP_NAME) $(APP_NAME)
+	@docker rm -f $(APP_NAME) 2>/dev/null || true
+	@echo "Running the docker container locally on $(WPS_HOST):$(WPS_PORT)..."
+	@docker run -d -e RAVEN_BIND_HOST=$(WPS_HOST) -e RAVEN_BIND_PORT=$(WPS_PORT) -p $(WPS_PORT):$(WPS_PORT) --name $(APP_NAME) $(APP_NAME)
 
 ## Deployment targets:
 
