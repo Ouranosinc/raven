@@ -128,7 +128,7 @@ If instead we want to run the notebooks against the production raven-wps server 
         # to test a single notebook (note the .run at the end of the notebook path)
         make WPS_URL=https://pavics.ouranos.ca/twitcher/ows/proxy/raven/wps docs/source/notebooks/Subset_climate_data_over_watershed.ipynb.run
 
-We can also override all three of the server variables (``WPS_URL``, ``FINCH_WPS_URL``) to pick and choose any servers/services from anywhere we want.
+We can also override both of the server variables (``WPS_URL``, ``FINCH_WPS_URL``) to pick and choose any servers/services from anywhere we want.
 
 Starting local Jupyter server to edit/develop notebooks
 -------------------------------------------------------
