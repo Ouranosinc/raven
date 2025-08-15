@@ -48,7 +48,7 @@ jobs:
 
   conda:
     name: Conda (Python${{ matrix.python-version }}; ${{ matrix.os }})
-    if: always()
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'pull_request'
     needs: lint
     runs-on: ${{ matrix.os }}
     defaults:
