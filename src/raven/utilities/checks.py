@@ -50,7 +50,7 @@ def boundary_check(
     min_y: int | float = -60,
 ) -> None:
     r"""
-    Verify that boundaries do not exceed specific latitudes for geographic coordinate data. Emit a UserWarning if so.
+    Verify that boundaries do not exceed specific latitudes for geographic coordinate data.
 
     Parameters
     ----------
@@ -60,6 +60,11 @@ def boundary_check(
         Maximum value allowed for latitude. Default: 60.
     min_y : int or float
         Minimum value allowed for latitude. Default: -60.
+
+    Warnings
+    --------
+    UserWarning
+        If boundaries exceed specified latitude boundaries.
     """
     vectors = (".gml", ".shp", ".geojson", ".gpkg", ".json")
     rasters = (".tif", ".tiff")
@@ -99,7 +104,7 @@ def boundary_check(
 
 def multipolygon_check(geom: GeometryCollection) -> None:
     """
-    Perform a check to verify a geometry is a MultiPolygon
+    Perform a check to verify a geometry is a MultiPolygon.
 
     Parameters
     ----------

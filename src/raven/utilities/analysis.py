@@ -66,7 +66,8 @@ def dem_prop(
     geom: SingleMultiPolygonType | None = None,
     directory: str | Path | None = None,
 ) -> dict[str, float]:
-    """Return raster properties for each geometry.
+    """
+    Return raster properties for each geometry.
 
     This
 
@@ -128,14 +129,15 @@ def gdal_slope_analysis(
     set_output: str | Path | None = None,
     units: str = "degree",
 ) -> np.ndarray:
-    """Return the slope of the terrain from the DEM.
+    """
+    Return the slope of the terrain from the DEM.
 
     The slope is the magnitude of the gradient of the elevation.
 
     Parameters
     ----------
     dem : str or Path
-        Path to file storing DEM.
+        The path to file storing DEM.
     set_output : str or Path, optional
         If set to a valid filepath, will write to this path, otherwise will use an in-memory gdal.Dataset.
     units : str
@@ -196,7 +198,7 @@ def gdal_aspect_analysis(
     Parameters
     ----------
     dem : str or Path
-        Path to file storing DEM.
+        The path to file storing DEM.
     set_output : str or Path or bool
         If set to a valid filepath, will write to this path, otherwise will use an in-memory gdal.Dataset.
     flat_values_are_zero : bool

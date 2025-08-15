@@ -41,7 +41,7 @@ dependencies = [
   "click >=8.1.7",
   "filelock >=3.14.1",
   "jinja2 >=3.1.4",
-  "matplotlib >=3.6.0",
+  "matplotlib >=3.7.0",
   "netCDF4 >=1.6.5",
   "numpy >=1.25.0",
   "owslib >=0.30.0",
@@ -60,12 +60,11 @@ dependencies = [
   "geopandas >=1.0",
   "pyogrio >=0.7.2",
   "pyproj >=3.4",
-  "rasterio",
+  "rasterio >=1.4.0",
   "rasterstats >=0.20.0",
-  "rioxarray",
+  "rioxarray >=0.15.0",
   "shapely >=2.0",
   # Docs and other utilities
-  "fsspec",
   "psycopg2", # to use postgres to log pywps requests like in Prod
   "pymetalink >=6.5.3"
 ]
@@ -73,15 +72,15 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   # Dev tools and testing
-  "birdhouse-birdy >=0.8.6",
+  "birdhouse-birdy >=0.9.1",
   "build >=1.2.1",
   "bump-my-version >=1.2.0",
   "flake8 >=7.2.0",
   "flake8-rst-docstrings >=0.3.0",
   "flit >=3.11.0,<4.0",
   "ipykernel",
-  "nbconvert",
-  "nbval",
+  "nbconvert >=7.13.0",
+  "nbval >=0.10.0",
   "nc-time-axis",
   "numpydoc >=1.8.0",
   "pip >=24.2.0",
@@ -110,11 +109,11 @@ docs = [
 raven-wps = "raven.cli:cli"
 
 [project.urls]
-"Homepage" = "https://pavics-raven.readthedocs.io/"
+"Homepage" = "https://pavics-sdi.readthedocs.io/projects/raven/en/latest/"
 "Source" = "https://github.com/Ouranosinc/raven/"
 "Changelog" = "https://pavics-sdi.readthedocs.io/projects/raven/en/latest/changes.html"
 "Issue tracker" = "https://github.com/Ouranosinc/raven/issues"
-"About Ouranos" = "https://www.ouranos.ca/en/"
+"About Ouranos" = "https://ouranos.ca/en/"
 
 [tool]
 

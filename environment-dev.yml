@@ -5,20 +5,19 @@ channels:
 dependencies:
   - python >=3.10,<3.14
   - flit >=3.11,<4.0
-  - birdy >=0.8.6
-  - black >=25.1.0
-  - blackdoc >=0.3.9
+  - birdy >=0.9.1
   - bump-my-version >=1.2.0
   - flake8 >=7.2.0
   - flake8-rst-docstrings >=0.3.0
   - ipykernel
   - ipywidgets
-  - nbconvert
-  - nbval
+  - nbconvert >=7.13.0
+  - nbval >=0.10.0
   - numpydoc >=1.8.0
   - pip >=24.2.0
   - pooch >=1.8.0
   - pre-commit >=3.6.0
+  - pymetalink >=6.5.3
   - pytest >=8.0.0
   - pytest-cov >=5.0.0
   - pytest-xdist >=3.2

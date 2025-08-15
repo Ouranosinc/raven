@@ -7,19 +7,24 @@ APP_NAME := raven-wps
 
 OS := $(shell uname)
 
-WPS_PORT := 9099
-WPS_URL := http://0.0.0.0:$(WPS_PORT)
+WPS_HOST ?= 0.0.0.0
+WPS_PORT ?= 9099
+WPS_URL ?= http://$(WPS_HOST):$(WPS_PORT)
 
 # If WPS_URL is overridden, this should also be overridden to match.
-WPS_OUTPUT_URL := http://localhost:$(WPS_PORT)/outputs
+WPS_OUTPUT_URL ?= http://localhost:$(WPS_PORT)/outputs
 
-# This will only work on Linux (not macOS/homebrew GDAL)
-GDAL_VERSION := $(shell gdal-config --version)
+# This will only work for Linux and macOS/homebrew
+ifeq ($(OS),"Linux")
+	GDAL_VERSION := $(shell gdal-config --version)
+else ifeq ($(OS),"Darwin")
+	GDAL_VERSION := $(shell gdalinfo --version | awk '{print $2}' | sed s'/.$//')
+endif
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
 # instance so the notebooks can also be used as tutorial notebooks.
-OUTPUT_URL = https://pavics.ouranos.ca/wpsoutputs/raven
+PAVICS_OUTPUT_URL ?= https://pavics.ouranos.ca/wpsoutputs/raven
 
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
 
@@ -219,7 +224,7 @@ refresh-notebooks: ## refreshing all notebook outputs under docs/source/notebook
 
 NB_REFRESH_FILE := ""
 refresh-notebooks-impl: ## refresh one single notebook
-	@bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
+	@bash -c 'WPS_URL="$(WPS_URL)" FINCH_WPS_URL="$(FINCH_WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=240 --output "$(NB_REFRESH_FILE)" --output-dir . "$(NB_REFRESH_FILE)"; sed -i "s@$(WPS_OUTPUT_URL)/@$(PAVICS_OUTPUT_URL)/@g" "$(NB_REFRESH_FILE)"'
 
 ## Sphinx targets:
 
@@ -241,8 +246,9 @@ docker-build: ## build the docker container
 	@docker build -t $(APP_NAME) .
 
 docker-run: docker-build ## build and run the docker container locally
-	@echo "Running the docker container locally ..."
-	@docker run -d -p $(WPS_PORT):$(WPS_PORT) --name $(APP_NAME) $(APP_NAME)
+	@docker rm -f $(APP_NAME) 2>/dev/null || true
+	@echo "Running the docker container locally on $(WPS_HOST):$(WPS_PORT)..."
+	@docker run -d -e RAVEN_BIND_HOST=$(WPS_HOST) -e RAVEN_BIND_PORT=$(WPS_PORT) -p $(WPS_PORT):$(WPS_PORT) --name $(APP_NAME) $(APP_NAME)
 
 ## Deployment targets:
 
