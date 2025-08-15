@@ -8,7 +8,7 @@ repos:
       - id: pyupgrade
         args: [ '--py310-plus' ]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -49,7 +49,7 @@ repos:
       - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.3
+    rev: v0.12.9
     hooks:
       - id: ruff-check
         args: [ '--fix', '--show-fixes' ]
@@ -72,7 +72,7 @@ repos:
         args: [ '--py310-plus' ]
         additional_dependencies: [ 'pyupgrade==v3.20.0' ]
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.27.2
+    rev: v8.28.0
     hooks:
       - id: gitleaks
   - repo: https://github.com/python-jsonschema/check-jsonschema
