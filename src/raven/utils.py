@@ -9,9 +9,6 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import rasterio
-import rasterio.mask
-import rasterio.vrt
-import rasterio.warp
 from affine import Affine
 from pyproj.crs import CRS
 
