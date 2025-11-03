@@ -4,6 +4,7 @@ import pytest
 from common import CFG_FILE, client_for, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
+from requests.exceptions import HTTPError
 
 from raven.processes import TerrainAnalysisProcess
 
@@ -43,6 +44,8 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.slow
+    @pytest.mark.online
+    @pytest.mark.xfail(raises=HTTPError, reason="Geoserver unavailable")
     def test_shape_subset_wcs(self, yangtze):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)

@@ -1,4 +1,5 @@
 import json
+from requests.exceptions import HTTPError
 
 import pytest
 from common import CFG_FILE, client_for, count_pixels, get_output
@@ -107,6 +108,7 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
+    @pytest.mark.xfail(raises=HTTPError, reason="Geoserver unavailable")
     def test_geoserver_dem_wcs_simple(self, yangtze):
         client = client_for(
             Service(
@@ -150,6 +152,7 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
+    @pytest.mark.xfail(raises=HTTPError, reason="Geoserver unavailable")
     def test_geoserver_dem_wcs_categorized(self, yangtze):
         client = client_for(
             Service(

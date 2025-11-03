@@ -6,6 +6,7 @@ from metalink import download as md
 from pywps import Service, get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
 from pywps.tests import assert_response_success
+from requests.exceptions import HTTPError
 from shapely.geometry import MultiPolygon
 
 from raven.processes import (
@@ -19,6 +20,8 @@ xpath_ns = get_xpath_ns(VERSION)
 
 
 class TestNALCMSZonalStatsProcess:
+    @pytest.mark.online
+    @pytest.mark.xfail(raises=HTTPError, reason="Geoserver unavailable")
     def test_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
@@ -106,6 +109,8 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
+    @pytest.mark.online
+    @pytest.mark.xfail(raises=HTTPError, reason="Geoserver unavailable")
     def test_wcs_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
@@ -143,6 +148,8 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
+    @pytest.mark.online
+    @pytest.mark.xfail(raises=HTTPError, reason="Geoserver unavailable")
     def test_wcs_true_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
