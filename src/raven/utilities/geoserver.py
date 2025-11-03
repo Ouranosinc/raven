@@ -31,6 +31,7 @@ from owslib.fes2 import Intersects
 from owslib.gml import Point
 from owslib.wcs import WebCoverageService
 from owslib.wfs import WebFeatureService
+from requests import ReadTimeout
 
 from .geo import determine_upstream_ids
 
@@ -111,7 +112,14 @@ def _get_location_wfs(
     """
     geoserver = _fix_server_url(geoserver)
 
-    wfs = WebFeatureService(url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30)
+    try:
+        wfs = WebFeatureService(
+            url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30
+        )
+    except ReadTimeout as err:
+        raise ConnectionError(
+            f"Could not connect to the GeoServer at {geoserver}."
+        ) from err
 
     if bbox and point:
         raise NotImplementedError("Provide either 'bbox' or 'point'.")
@@ -277,16 +285,18 @@ def get_raster_wcs(
     else:
         x, y = "E", "N"
 
-    wcs = WebCoverageService(url=urljoin(geoserver, "ows"), version="2.0.1")
-
     try:
+        wcs = WebCoverageService(url=urljoin(geoserver, "ows"), version="2.0.1")
         resp = wcs.getCoverage(
             identifier=[layer],
             format="image/tiff",
             subsets=[(x, left, right), (y, down, up)],
             timeout=120,
         )
-
+    except ReadTimeout as err:
+        raise ConnectionError(
+            "Unable to connect to the GeoServer WCS service."
+        ) from err
     except Exception:
         raise
 
@@ -524,15 +534,23 @@ def hydro_routing_upstream(
     """
     geoserver = _fix_server_url(geoserver)
 
-    wfs = WebFeatureService(url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30)
-    layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
+    try:
+        wfs = WebFeatureService(
+            url=urljoin(geoserver, "wfs"), version="2.0.0", timeout=30
+        )
+        layer = f"public:routing_{lakes}Lakes_{str(level).zfill(2)}"
 
-    # Get attributes necessary to identify upstream watersheds
-    resp = wfs.getfeature(
-        typename=layer,
-        propertyname=["SubId", "DowSubId"],
-        outputFormat="application/json",
-    )
+        # Get attributes necessary to identify upstream watersheds
+        resp = wfs.getfeature(
+            typename=layer,
+            propertyname=["SubId", "DowSubId"],
+            outputFormat="application/json",
+        )
+    except ReadTimeout as err:
+        raise ConnectionError(
+            "Unable to connect to the GeoServer WFS service."
+        ) from err
+
     df = gpd.read_file(resp)
 
     # Identify upstream features
