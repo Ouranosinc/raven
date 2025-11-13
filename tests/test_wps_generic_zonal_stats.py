@@ -107,6 +107,9 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_geoserver_dem_wcs_simple(self, yangtze):
         client = client_for(
             Service(
@@ -150,6 +153,9 @@ class TestGenericZonalStatsProcess:
         assert isinstance(type(geometry), type(MultiPolygon))
 
     @pytest.mark.online
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_geoserver_dem_wcs_categorized(self, yangtze):
         client = client_for(
             Service(

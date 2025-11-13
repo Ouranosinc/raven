@@ -1,6 +1,7 @@
 import json
 
 import pytest
+
 from common import CFG_FILE, client_for, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
@@ -23,6 +24,7 @@ class TestParser:
 
 
 @pytest.mark.online
+@pytest.mark.xfail(raises=AssertionError, reason="Geoserver unavailable", strict=False)
 class TestShapeSelectionProcess:
     @pytest.mark.very_slow
     @pytest.mark.parametrize("aggregate_upstream,ids", [(True, 551), (False, 1)])

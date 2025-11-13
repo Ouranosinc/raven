@@ -1,6 +1,7 @@
 import json
 
 import pytest
+
 from common import CFG_FILE, client_for, count_pixels, get_output
 from metalink import download as md
 from pywps import Service, get_ElementMakerForVersion
@@ -19,6 +20,7 @@ xpath_ns = get_xpath_ns(VERSION)
 
 
 class TestNALCMSZonalStatsProcess:
+    @pytest.mark.online
     def test_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
@@ -106,6 +108,10 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
+    @pytest.mark.online
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_wcs_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
@@ -143,6 +149,10 @@ class TestNALCMSZonalStatsProcess:
         assert category_counts == geometry["features"][0]["properties"]["count"]
         assert sum(stats.values()) == geometry["features"][0]["properties"]["count"]
 
+    @pytest.mark.online
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_wcs_true_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsProcess()], cfgfiles=CFG_FILE)
@@ -183,6 +193,9 @@ class TestNALCMSZonalStatsProcess:
 
 @pytest.mark.online
 class TestNALCMSZonalStatsWithRasterProcess:
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_wcs_simplified_categories(self, yangtze):
         client = client_for(
             Service(processes=[NALCMSZonalStatisticsRasterProcess()], cfgfiles=CFG_FILE)
@@ -244,4 +257,7 @@ class TestNALCMSZonalStatsWithRasterProcess:
             datainputs=datainputs,
         )
         el = resp.xpath("//wps:ExceptionReport/ows:Exception/ows:ExceptionText")[0]
-        assert "areas smaller" in el.text
+        assert (
+            "NALCMS zonal statistics only supported for areas smaller than 100,000 km2."
+            in el.text
+        )

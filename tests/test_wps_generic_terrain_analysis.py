@@ -43,6 +43,10 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.slow
+    @pytest.mark.online
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_shape_subset_wcs(self, yangtze):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
@@ -75,6 +79,9 @@ class TestGenericTerrainAnalysisProcess:
         assert out[0]["aspect"] > 0
 
     @pytest.mark.online
+    @pytest.mark.xfail(
+        raises=AssertionError, reason="Geoserver unavailable", strict=False
+    )
     def test_single_polygon(self, yangtze):
         client = client_for(
             Service(processes=[TerrainAnalysisProcess()], cfgfiles=CFG_FILE)
