@@ -6,8 +6,7 @@ Configuration
 Command-line options
 --------------------
 
-You can overwrite the default `PyWPS`_ configuration by using command-line options.
-See the Raven help which options are available:
+You can overwrite the default `PyWPS`_ configuration by using command-line options. See the Raven help which options are available:
 
     .. code-block:: console
 
@@ -24,9 +23,7 @@ Start service with different hostname and port:
 Use a custom configuration file
 -------------------------------
 
-You can overwrite the default `PyWPS`_ configuration by providing your own
-PyWPS configuration file (just modifiy the options you want to change).
-Use one of the existing ``sample-*.cfg`` files as example and copy them to ``etc/custom.cfg``.
+You can overwrite the default `PyWPS`_ configuration by providing your own PyWPS configuration file (just modify the options you want to change). Use one of the existing ``sample-*.cfg`` files as example and copy them to ``etc/custom.cfg``.
 
 For example change the hostname (*demo.org*) and logging level:
 
