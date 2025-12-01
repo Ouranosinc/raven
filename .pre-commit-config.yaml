@@ -3,7 +3,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args: [ '--py310-plus' ]
@@ -49,7 +49,7 @@ repos:
       - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.3
+    rev: v0.14.7
     hooks:
       - id: ruff-check
         args: [ '--fix', '--show-fixes' ]
@@ -58,28 +58,43 @@ repos:
     rev: 7.3.0
     hooks:
       - id: flake8
+        additional_dependencies: [ 'flake8-rst-docstrings==0.4.0' ]
         args: [ '--config=.flake8' ]
-        additional_dependencies:
-          - "flake8-rst-docstrings==0.3.0"
   - repo: https://github.com/jendrikseipp/vulture
     rev: v2.14
     hooks:
       - id: vulture
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        additional_dependencies: [ 'tomli' ]
+        args: [ '--toml=pyproject.toml' ]
+  - repo: https://github.com/numpy/numpydoc
+    rev: v1.9.0
+    hooks:
+      - id: numpydoc-validation
+        exclude: ^docs/|^tests/|^templates/|.*\/_.*\.py$
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.9.1
     hooks:
       - id: nbqa-pyupgrade
         args: [ '--py310-plus' ]
-        additional_dependencies: [ 'pyupgrade==v3.20.0' ]
+        additional_dependencies: [ 'pyupgrade==v3.21.2' ]
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.28.0
+    rev: v8.30.0
     hooks:
       - id: gitleaks
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.34.0
+    rev: 0.35.0
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
+  - repo: https://github.com/woodruffw/zizmor-pre-commit
+    rev: v1.18.0
+    hooks:
+      - id: zizmor
+        args: [ '--config=.zizmor.yml' ]
   - repo: meta
     hooks:
       - id: check-hooks-apply

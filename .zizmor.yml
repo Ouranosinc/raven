@@ -1,0 +1,6 @@
+rules:
+  dangerous-triggers:
+    ignore:
+      - label.yml:9
+      - first-pull-request.yml:3
+      - workflow-warning.yml:3

@@ -6,13 +6,28 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    directory: .github/workflows
     schedule:
-      interval: monthly
-    open-pull-requests-limit: 5
+      interval: "quarterly"
+    groups:
+      actions:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: pip
     directory: /
     schedule:
-      interval: monthly
+      interval: "quarterly"
     open-pull-requests-limit: 5
+    groups:
+      python:
+        patterns:
+          - "pyproject.toml"
+      CI:
+        patterns:
+          - "CI/requirements.in"
+          - "CI/requirements.txt"
+    cooldown:
+      default-days: 7
