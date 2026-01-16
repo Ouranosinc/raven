@@ -6,28 +6,31 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: .github/workflows
+    directory: /.github/workflows
     schedule:
       interval: "quarterly"
     groups:
       actions:
         patterns:
           - "*"
+        update-types:
+          - patch
+          - minor
+          - major
     cooldown:
       default-days: 7
 
   - package-ecosystem: pip
-    directory: /
+    directory: /CI
     schedule:
       interval: "quarterly"
-    open-pull-requests-limit: 5
     groups:
       python:
         patterns:
-          - "pyproject.toml"
-      CI:
-        patterns:
-          - "CI/requirements.in"
-          - "CI/requirements.txt"
+          - "requirements_ci.*"
+        update-types:
+          - patch
+          - minor
+          - major
     cooldown:
       default-days: 7
