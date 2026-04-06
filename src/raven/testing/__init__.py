@@ -1,3 +1,3 @@
 """RavenWPS Testing Utilities"""
 
-from raven.testing.utils import *  # noqa: F403
+from raven.testing.utils import *

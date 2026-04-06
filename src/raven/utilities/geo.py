@@ -25,6 +25,7 @@ from shapely.geometry import (
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import transform
 
+
 RASTERIO_TIFF_COMPRESSION = "lzw"
 LOGGER = logging.getLogger("RavenPy")
 WGS84 = 4326
@@ -84,9 +85,7 @@ def geom_transform(
         raise Exception(msg)
 
 
-SingleMultiPolygonType = Union[
-    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]
-]
+SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]
 
 
 def generic_raster_clip(

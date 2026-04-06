@@ -11,10 +11,10 @@ import fiona
 import rasterio
 from pyproj import CRS
 from pyproj.exceptions import CRSError
+from raven.utilities import io
 from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
-
-import raven.utilities.io as io
 from shapely.geometry.base import BaseGeometry
+
 
 LOGGER = logging.getLogger("RavenPy")
 
@@ -46,8 +46,8 @@ def single_file_check(file_list: Sequence[str | Path]) -> Any:
 
 def boundary_check(
     *args: str | Path,
-    max_y: int | float = 60,
-    min_y: int | float = -60,
+    max_y: float = 60,
+    min_y: float = -60,
 ) -> None:
     r"""
     Verify that boundaries do not exceed specific latitudes for geographic coordinate data.
@@ -99,7 +99,6 @@ def boundary_check(
             msg = f"Unable to read boundaries from {file}"
             LOGGER.error(msg)
             raise
-    return
 
 
 def multipolygon_check(geom: GeometryCollection) -> None:
@@ -120,10 +119,9 @@ def multipolygon_check(geom: GeometryCollection) -> None:
 
     if isinstance(geom, MultiPolygon):
         LOGGER.warning("Shape is a Multipolygon.")
-    return
 
 
-PointType = Union[tuple[Union[int, float, str], Union[int, float, str]], BaseGeometry]
+PointType = Union[tuple[int | float | str, int | float | str], BaseGeometry]
 
 
 def feature_contains(

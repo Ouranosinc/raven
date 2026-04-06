@@ -16,6 +16,7 @@ from pywps import configuration
 
 from . import wsgi
 
+
 PID_FILE = Path(__file__).parent.joinpath("pywps.pid").resolve()
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -107,7 +108,6 @@ def cli():
     It's intended to be running in a test environment only!
     For more documentation, visit https://pywps.org/doc
     """
-    pass
 
 
 @cli.command()

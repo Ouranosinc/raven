@@ -1,7 +1,6 @@
 """Tools for searching for and acquiring test data."""
 
 from __future__ import annotations
-
 import importlib.metadata as ilm
 import importlib.resources as ilr
 import logging
@@ -21,13 +20,13 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 
+import raven
 from filelock import FileLock
 from packaging.version import Version
 from xarray import Dataset
 from xarray import open_dataset as _open_dataset
 from xclim.testing.utils import show_versions as _show_versions
 
-import raven
 
 try:
     import pooch
@@ -252,7 +251,7 @@ def load_registry(
         lockfile = testing_folder.joinpath(".lock")
         with FileLock(lockfile):
             if not registry_file.exists():
-                urlretrieve(remote_registry, registry_file)  # noqa: S310
+                urlretrieve(remote_registry, registry_file)
         lockfile.unlink(missing_ok=True)
 
     elif branch != default_testdata_version:
@@ -262,7 +261,7 @@ def load_registry(
                 custom_registry_folder = Path(tmp_dir).joinpath("testing", branch)
                 custom_registry_folder.mkdir(parents=True, exist_ok=True)
                 registry_file = custom_registry_folder.joinpath("registry.txt")
-                urlretrieve(remote_registry, registry_file)  # noqa: S310
+                urlretrieve(remote_registry, registry_file)
                 return load_registry_from_file(registry_file)
         else:
             # If the branch is not the default version, check if the registry file exists
@@ -273,7 +272,7 @@ def load_registry(
             registry_file = custom_registry_folder.joinpath("registry.txt")
             with FileLock(custom_registry_folder.joinpath(".lock")):
                 if not registry_file.exists():
-                    urlretrieve(remote_registry, registry_file)  # noqa: S310
+                    urlretrieve(remote_registry, registry_file)
             return load_registry_from_file(registry_file)
 
     else:
@@ -458,7 +457,7 @@ def populate_testing_data(
         for attempt in range(retry):
             try:
                 n.fetch(file)
-            except HTTPError:  # noqa: PERF203
+            except HTTPError:
                 msg = f"Failed to download file `{file}` on attempt {attempt + 1}."
                 logging.info(msg)
             else:

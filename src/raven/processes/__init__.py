@@ -8,6 +8,7 @@ from .wps_hydrobasins_shape_selection import HydroBasinsSelectionProcess
 from .wps_nalcms_zonal_stats import NALCMSZonalStatisticsProcess
 from .wps_nalcms_zonal_stats_raster import NALCMSZonalStatisticsRasterProcess
 
+
 geo = [
     RasterSubsetProcess(),
     ShapePropertiesProcess(),

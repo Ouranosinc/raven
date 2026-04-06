@@ -15,6 +15,7 @@ import rasterio
 from pyproj import CRS
 from shapely.geometry import shape
 
+
 LOGGER = logging.getLogger("RavenPy")
 WGS84 = 4326
 

@@ -10,6 +10,7 @@ from anyascii import anyascii
 from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
 from pywps.app.Common import Metadata
 
+
 LOGGER = logging.getLogger("PYWPS")
 
 
@@ -88,9 +89,7 @@ class _XclimIndicatorProcess(Process):
                 inputs.append(make_variable())
             elif name in ["tn10", "tn90", "t10", "t90"]:
                 inputs.append(make_nc_input(name))
-            elif name in ["thresh_tasmin", "thresh_tasmax"]:
-                inputs.append(make_thresh(name, attrs["default"], attrs["desc"]))
-            elif name in [
+            elif name in ["thresh_tasmin", "thresh_tasmax"] or name in [
                 "thresh",
             ]:
                 inputs.append(make_thresh(name, attrs["default"], attrs["desc"]))

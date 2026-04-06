@@ -11,9 +11,9 @@ import numpy as np
 import rasterio
 from affine import Affine
 from pyproj.crs import CRS
-
 from raven.utilities.geoserver import get_raster_wcs
 from raven.utilities.io import get_bbox
+
 
 LOGGER = logging.getLogger("RAVEN")
 
