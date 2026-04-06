@@ -5,10 +5,10 @@ from typing import Union
 
 import numpy as np
 import rasterio
-from osgeo.gdal import Dataset, DEMProcessing
+from osgeo.gdal import DEMProcessing, Dataset
+from raven.utilities.geo import generic_raster_clip
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
 
-from raven.utilities.geo import generic_raster_clip
 
 # See: https://kokoalberti.com/articles/geotiff-compression-optimization-guide/
 # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
@@ -56,9 +56,7 @@ def geom_prop(geom: PolygonType) -> dict:
     return properties
 
 
-SingleMultiPolygonType = Union[
-    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]
-]
+SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]
 
 
 def dem_prop(

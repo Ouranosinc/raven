@@ -5,7 +5,6 @@ from collections import defaultdict
 
 from pywps import Process
 from rasterstats import zonal_stats
-
 from raven.utilities import geoserver
 from raven.utilities.checks import single_file_check
 from raven.utilities.geo import generic_vector_reproject
@@ -18,6 +17,7 @@ from raven.utils import (
 )
 
 from . import wpsio as wio
+
 
 LOGGER = logging.getLogger("PYWPS")
 

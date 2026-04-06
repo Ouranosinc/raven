@@ -5,7 +5,6 @@ from common import CFG_FILE, client_for, get_output
 from metalink import download as md
 from pywps import Service
 from pywps.tests import assert_response_success
-
 from raven.processes import RasterSubsetProcess
 
 
