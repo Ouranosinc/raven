@@ -5,7 +5,7 @@ import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import fiona
 import rasterio
@@ -121,7 +121,7 @@ def multipolygon_check(geom: GeometryCollection) -> None:
         logger.warning("Shape is a Multipolygon.")
 
 
-PointType = tuple[int | float | str, int | float | str] | BaseGeometry
+PointType = Union[tuple[int | float | str, int | float | str], BaseGeometry]  # noqa: UP007
 
 
 def feature_contains(

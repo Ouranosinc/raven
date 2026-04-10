@@ -3,6 +3,7 @@
 import collections
 import logging
 from pathlib import Path
+from typing import Union
 
 import fiona
 import geopandas
@@ -30,8 +31,8 @@ logger = logging.getLogger(__name__)
 WGS84 = 4326
 
 
-BaseGeomType = GeometryCollection | BaseGeometry
-CRSType = str | int | CRS
+BaseGeomType = Union[GeometryCollection, BaseGeometry]  # noqa: UP007
+CRSType = Union[str, int, CRS]  # noqa: UP007
 
 
 def geom_transform(
@@ -84,7 +85,7 @@ def geom_transform(
         raise Exception(msg)  # noqa: TRY002
 
 
-SingleMultiPolygonType = Polygon | MultiPolygon | list[Polygon | MultiPolygon]
+SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon, MultiPolygon]]  # noqa: UP007
 
 
 def generic_raster_clip(
@@ -144,7 +145,7 @@ def generic_raster_clip(
             dst.write(mask_image)
 
 
-CRSdictType = str | dict | CRS
+CRSdictType = Union[str, dict, CRS]  # noqa: UP007
 
 
 def generic_raster_warp(
@@ -196,7 +197,7 @@ def generic_raster_warp(
             dst.write(data)
 
 
-CRSstrType = str | CRS
+CRSstrType = Union[str, CRS]  # noqa: UP007
 
 
 def generic_vector_reproject(
@@ -250,7 +251,7 @@ def generic_vector_reproject(
                         raise
 
 
-DataFrameType = pd.DataFrame | geopandas.GeoDataFrame
+DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]  # noqa: UP007
 
 
 def determine_upstream_ids(

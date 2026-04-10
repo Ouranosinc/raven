@@ -1,6 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import rasterio
@@ -15,7 +16,7 @@ GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"
 
 logger = logging.getLogger(__name__)
 
-PolygonType = Polygon | MultiPolygon | GeometryCollection
+PolygonType = Union[Polygon, MultiPolygon, GeometryCollection]  # noqa: UP007
 
 
 def geom_prop(geom: PolygonType) -> dict:
@@ -55,7 +56,7 @@ def geom_prop(geom: PolygonType) -> dict:
     return properties
 
 
-SingleMultiPolygonType = Polygon | MultiPolygon | list[Polygon | MultiPolygon]
+SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]  # noqa: UP007
 
 
 def dem_prop(
@@ -180,7 +181,7 @@ def gdal_slope_analysis(
         return np.ma.masked_values(set_output.ReadAsArray(), value=-9999)
 
 
-ArrayType = np.ndarray | Dataset
+ArrayType = Union[np.ndarray, Dataset]  # noqa: UP007
 
 
 def gdal_aspect_analysis(
