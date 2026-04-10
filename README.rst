@@ -9,7 +9,7 @@ Raven : Hydrological modeling and analytics
 +----------------------------+----------------------------------------+
 | Open Source                | |license| |zenodo|                     |
 +----------------------------+----------------------------------------+
-| Coding Standards           | |ruff| |pre-commit|                    |
+| Coding Standards           | |ruff| |pre-commit-ci|                 |
 +----------------------------+----------------------------------------+
 | Development Status         | |status| |build| |coveralls|           |
 +----------------------------+----------------------------------------+
@@ -94,7 +94,7 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
     :target: https://anaconda.org/conda-forge/raven-wps
     :alt: Supported Python Versions
 
-.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/Ouranosinc/raven/main.svg
+.. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/Ouranosinc/raven/main.svg
     :target: https://results.pre-commit.ci/latest/github/Ouranosinc/raven/main
     :alt: pre-commit.ci status
 

@@ -151,13 +151,13 @@ clean-docs: ## remove documentation artifacts
 	@-rm -f docs/modules.rst
 	$(MAKE) -C docs clean
 
-lint/flake8: ## check style with flake8
+lint/ruff: ## check style with ruff
 	python -m ruff check src/raven tests
 	python -m flake8 --config=.flake8 src/raven tests
 	python -m numpydoc lint src/raven/*/*.py
 	yamllint --config-file=.yamllint.yaml src/raven
 
-lint: lint/flake8 ## check style
+lint: lint/ruff ## check style
 
 ## Testing targets:
 
@@ -184,10 +184,14 @@ notebook-sanitizer: ## sanitize notebooks with configuration file
 	@echo "Copying notebook output sanitizer ..."
 	@-bash -c "curl -L $(SANITIZE_FILE) -o $(CURDIR)/docs/source/output-sanitize.cfg --silent"
 
-test-notebooks: notebook-sanitizer  ## run notebook-based tests
+test-notebooks: notebook-sanitizer ## run notebook-based tests
 	@echo "Running notebook-based tests"
 	@$(MAKE) -f $(THIS_FILE) test-notebooks-impl
 
+test-notebooks-lax: notebook-sanitizer ## run tests on notebooks but don't be so strict about outputs
+	@echo "Running notebook-based tests"
+	@bash -c "env WPS_URL=$(WPS_URL) pytest --nbval-lax --rootdir tests/ --verbose $(CURDIR)/docs/source/notebooks/ --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+ 
 # Test one single notebook (add .run at the end of notebook path).
 # Might require one time `make notebook-sanitizer`.
 %.ipynb.run: %.ipynb
