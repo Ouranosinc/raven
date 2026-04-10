@@ -1,7 +1,6 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import rasterio
@@ -14,9 +13,9 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
 # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
 GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
-PolygonType = Union[Polygon, MultiPolygon, GeometryCollection]
+PolygonType = Polygon | MultiPolygon | GeometryCollection
 
 
 def geom_prop(geom: PolygonType) -> dict:
@@ -56,7 +55,7 @@ def geom_prop(geom: PolygonType) -> dict:
     return properties
 
 
-SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]
+SingleMultiPolygonType = Polygon | MultiPolygon | list[Polygon | MultiPolygon]
 
 
 def dem_prop(
@@ -84,16 +83,16 @@ def dem_prop(
         Dictionary storing mean elevation [m], slope [deg] and aspect [deg] as float.
     """
 
-    fns = dict()
+    fns = {}
     fns["dem"] = (
-        tempfile.NamedTemporaryFile(
+        tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix="dem", suffix=".tiff", dir=directory, delete=False
         ).name
         if geom is not None
         else dem
     )
     for key in ["slope", "aspect"]:
-        fns[key] = tempfile.NamedTemporaryFile(
+        fns[key] = tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix=key, suffix=".tiff", dir=directory, delete=False
         ).name
 
@@ -181,7 +180,7 @@ def gdal_slope_analysis(
         return np.ma.masked_values(set_output.ReadAsArray(), value=-9999)
 
 
-ArrayType = Union[np.ndarray, Dataset]
+ArrayType = np.ndarray | Dataset
 
 
 def gdal_aspect_analysis(

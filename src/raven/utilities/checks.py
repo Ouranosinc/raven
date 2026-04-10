@@ -5,7 +5,7 @@ import logging
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import fiona
 import rasterio
@@ -16,7 +16,7 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
 from shapely.geometry.base import BaseGeometry
 
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 def single_file_check(file_list: Sequence[str | Path]) -> Any:
@@ -121,7 +121,7 @@ def multipolygon_check(geom: GeometryCollection) -> None:
         logger.warning("Shape is a Multipolygon.")
 
 
-PointType = Union[tuple[int | float | str, int | float | str], BaseGeometry]
+PointType = tuple[int | float | str, int | float | str] | BaseGeometry
 
 
 def feature_contains(
@@ -156,7 +156,7 @@ def feature_contains(
     elif isinstance(point, Point):
         pass
     else:
-        raise ValueError(
+        raise TypeError(
             f"point should be shapely.Point or tuple of coordinates, got : {point} of type({type(point)})"
         )
 

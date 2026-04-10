@@ -81,10 +81,10 @@ class ShapePropertiesProcess(Process):
             if projection.is_geographic:
                 msg = f"Desired CRS {projection.to_epsg()} is geographic. Areal analysis values will be in decimal-degree units."
                 logger.warning(msg)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             msg = f"{e}: Failed to parse CRS definition. Exiting."
             logger.error(msg)
-            raise Exception(msg)
+            raise Exception(msg)  # noqa: TRY002
 
         # TODO: It would be good to one day refactor this to make use of RavenPy utils and gis utilities
         properties = []
@@ -108,10 +108,10 @@ class ShapePropertiesProcess(Process):
 
                         properties.append(prop)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             msg = f"{e}: Failed to extract features from shape {vector_file}."
             logger.error(msg)
-            raise Exception(msg)
+            raise Exception(msg)  # noqa: TRY002
 
         response.outputs["properties"].data = json.dumps(properties)
 

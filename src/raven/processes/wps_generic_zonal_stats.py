@@ -83,7 +83,7 @@ class ZonalStatisticsProcess(Process):
             logger.warning(msg)
 
             # Reproject full vector to preserve feature attributes
-            projected = tempfile.NamedTemporaryFile(
+            projected = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
             generic_vector_reproject(
@@ -111,6 +111,6 @@ class ZonalStatisticsProcess(Process):
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
             logger.error(msg)
-            raise Exception(msg) from e
+            raise Exception(msg) from e  # noqa: TRY002
 
         return response

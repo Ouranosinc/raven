@@ -140,7 +140,7 @@ search = "Version=\"{current_version}\""
 replace = "Version=\"{new_version}\""
 
 [tool.codespell]
-ignore-words-list = "inout,te,noo"
+ignore-words-list = "astroid,inout,te,noo"
 
 [tool.coverage.run]
 relative_files = true

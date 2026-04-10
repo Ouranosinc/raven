@@ -36,7 +36,7 @@ except ImportError:
     )
     pooch = None
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "TESTDATA_BRANCH",
@@ -156,7 +156,7 @@ def show_versions(
             for req in requires
             if re.match(r"^[A-Za-z0-9_.\-]+", req)
         ]
-        sorted_deps = sorted(list(set(requires) - {"raven"}))
+        sorted_deps = sorted(set(requires) - {"raven"})
 
         return ["raven"] + sorted_deps
 
@@ -171,22 +171,25 @@ def show_versions(
 
 def testing_setup_warnings():
     """Warn users about potential incompatibilities between RavenWPS and raven-testdata versions."""
+    # This does not need to be emitted on GitHub Workflows and ReadTheDocs
     if (
-        re.match(r"^\d+\.\d+\.\d+$", raven.__version__)
-        and TESTDATA_BRANCH != default_testdata_version
+        (
+            re.match(r"^\d+\.\d+\.\d+$", raven.__version__)
+            and TESTDATA_BRANCH != default_testdata_version
+        )
+        and not os.getenv("CI")
+        and not os.getenv("READTHEDOCS")
     ):
-        # This does not need to be emitted on GitHub Workflows and ReadTheDocs
-        if not os.getenv("CI") and not os.getenv("READTHEDOCS"):
-            warnings.warn(
-                f"`birdhouse-raven` stable ({raven.__version__}) is running tests against a non-default "
-                f"branch of the testing data. It is possible that changes to the testing data may "
-                f"be incompatible with some assertions in this version. "
-                f"Please be sure to check {TESTDATA_REPO_URL} for more information.",
-            )
+        warnings.warn(
+            f"`birdhouse-raven` stable ({raven.__version__}) is running tests against a non-default "
+            f"branch of the testing data. It is possible that changes to the testing data may "
+            f"be incompatible with some assertions in this version. "
+            f"Please be sure to check {TESTDATA_REPO_URL} for more information.",
+        )
 
     if re.match(r"^v\d+\.\d+\.\d+", TESTDATA_BRANCH):
         # Find the date of the last modification of RavenWPS source files to generate a calendar version
-        install_date = dt.strptime(
+        install_date = dt.strptime(  # noqa: DTZ007
             time.ctime(Path(raven.__file__).stat().st_mtime),
             "%a %b %d %H:%M:%S %Y",
         )
@@ -453,24 +456,24 @@ def populate_testing_data(
     errored_files = []
     for file in load_registry():
         msg = f"Downloading file `{file}` from remote repository..."
-        logging.info(msg)
+        logger.info(msg)
         for attempt in range(retry):
             try:
                 n.fetch(file)
             except HTTPError:
                 msg = f"Failed to download file `{file}` on attempt {attempt + 1}."
-                logging.info(msg)
+                logger.info(msg)
             else:
-                logging.info("File was downloaded successfully.")
+                logger.info("File was downloaded successfully.")
                 break
         else:
             msg = f"Failed to download file `{file}` after {retry} attempts."
-            logging.error(msg)
+            logger.error(msg)
             errored_files.append(file)
 
     if errored_files:
         msg = f"The following files were unable to be downloaded: {errored_files}"
-        logging.error(msg)
+        logger.error(msg)
 
 
 def gather_testing_data(

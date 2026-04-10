@@ -19,7 +19,7 @@ from . import wsgi
 
 PID_FILE = Path(__file__).parent.joinpath("pywps.pid").resolve()
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 template_env = Environment(
     loader=PackageLoader("raven", "templates"),
@@ -291,7 +291,7 @@ def start(
                     fp.write(f"{pid}")
         except OSError as e:
             msg = f"{e.strerror} [{e.errno}]"
-            raise Exception(msg)
+            raise Exception(msg)  # noqa: TRY002
 
         if pid == 0:
             os.setsid()

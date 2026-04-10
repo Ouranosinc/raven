@@ -132,7 +132,7 @@ def generic_extract_archive(
                 else:
                     msg = f'File extension "{file}" unknown'
                     logger.debug(msg)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 msg = f"Failed to extract sub archive {{{arch}}}: {{{e}}}"
                 logger.error(msg)
         else:
@@ -217,11 +217,11 @@ def crs_sniffer(
         except FileNotFoundError as e:
             msg = f"{e}: Unable to open file {args}"
             logger.warning(msg)
-            raise Exception(msg)
+            raise Exception(msg)  # noqa: TRY002
         except NotImplementedError as e:
             msg = f"{e}: Multilayer GeoPackages are currently unsupported"
             logger.error(msg)
-            raise Exception(msg)
+            raise Exception(msg)  # noqa: TRY002
         except RuntimeError as e:
             msg = "{e}: Something unexpected happened here"
             logger.error(e)

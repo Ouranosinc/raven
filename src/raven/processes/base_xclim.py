@@ -191,7 +191,7 @@ class _XclimIndicatorProcess(Process):
                     value = input_var.data
 
                 else:
-                    raise ValueError(f"Input not understood: `{input}`.")
+                    raise TypeError(f"Input not understood: `{input}`.")
 
                 values.append(value)
 

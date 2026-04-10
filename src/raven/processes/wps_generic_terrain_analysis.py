@@ -117,7 +117,7 @@ class TerrainAnalysisProcess(Process):
         if ras_crs != projection.to_epsg():
             msg = f"CRS for {raster_file} is not {projection}. Reprojecting raster..."
             logger.warning(msg)
-            warped_fn = tempfile.NamedTemporaryFile(
+            warped_fn = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="warped_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
             generic_raster_warp(raster_file, warped_fn, projection)
@@ -127,7 +127,7 @@ class TerrainAnalysisProcess(Process):
 
         # Perform the terrain analysis
         # ----------------------------
-        rpj = tempfile.NamedTemporaryFile(
+        rpj = tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
         ).name
 
@@ -140,7 +140,7 @@ class TerrainAnalysisProcess(Process):
         features = [sgeo.shape(feat["geometry"]) for feat in geo["features"]]
         union = ops.unary_union(features)
 
-        clipped_fn = tempfile.NamedTemporaryFile(
+        clipped_fn = tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix="clipped_", suffix=".tiff", delete=False, dir=self.workdir
         ).name
         # Ensure that values for regions outside of clip are kept

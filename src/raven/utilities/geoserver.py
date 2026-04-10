@@ -177,14 +177,14 @@ def _get_feature_attributes_wfs(
     host = _fix_server_url(HOST_URL)
     geoserver = _fix_server_url(geoserver)
 
-    params = dict(
-        service="WFS",
-        version="2.0.0",
-        request="GetFeature",
-        typename=layer,
-        outputFormat="application/json",
-        propertyName=",".join(attribute),
-    )
+    params = {
+        "service": "WFS",
+        "version": "2.0.0",
+        "request": "GetFeature",
+        "typename": layer,
+        "outputFormat": "application/json",
+        "propertyName": ",".join(attribute),
+    }
     url = urljoin(geoserver, "wfs") + "?" + urlencode(params)
     http = urllib3.PoolManager()
     response = http.request("GET", url)
