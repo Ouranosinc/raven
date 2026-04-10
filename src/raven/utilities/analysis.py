@@ -56,7 +56,9 @@ def geom_prop(geom: PolygonType) -> dict:
     return properties
 
 
-SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]  # noqa: UP007
+SingleMultiPolygonType = Union[  # noqa: UP007
+    Polygon, MultiPolygon, list[Polygon | MultiPolygon]
+]
 
 
 def dem_prop(
