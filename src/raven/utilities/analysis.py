@@ -57,7 +57,7 @@ def geom_prop(geom: PolygonType) -> dict:
 
 
 SingleMultiPolygonType = Union[  # noqa: UP007
-    Polygon, MultiPolygon, list[Polygon | MultiPolygon]
+    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]  # noqa: UP007
 ]
 
 
