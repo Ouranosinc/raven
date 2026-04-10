@@ -151,13 +151,13 @@ clean-docs: ## remove documentation artifacts
 	@-rm -f docs/modules.rst
 	$(MAKE) -C docs clean
 
-lint/ruff: ## check style with ruff
-	python -m ruff check src/raven tests
-	python -m flake8 --config=.flake8 src/raven tests
-	python -m numpydoc lint src/raven/*/*.py
-	yamllint --config-file=.yamllint.yaml src/raven
-
-lint: lint/ruff ## check style
+lint: ## check style
+	@echo "Running code style checks ..."
+	@bash -c 'python -m ruff check src/raven tests'
+	@bash -c 'python -m flake8 --config=.flake8 src/raven tests'
+	@bash -c 'python -m numpydoc lint src/raven/*/*.py'
+	@bash -c 'python -m vulture src/raven tests'
+	@bash -c 'python -m yamllint --config-file=.yamllint.yaml .'
 
 ## Testing targets:
 

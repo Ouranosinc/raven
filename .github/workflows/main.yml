@@ -52,7 +52,7 @@ jobs:
           python -m pip install --require-hashes -r CI/requirements_ci.txt
       - name: Run pylint
         run: |
-          python -m pylint --rcfile=.pylintrc.toml --disable=import-error --exit-zero src/finch
+          python -m pylint --rcfile=.pylintrc.toml --disable=import-error --exit-zero src/raven
       - name: Run pre-commit
         uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 

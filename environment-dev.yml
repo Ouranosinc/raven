@@ -24,4 +24,5 @@ dependencies:
   - python-build >=1.2.1
   - ruff >=0.12.2
   - tox >=4.24.1
+  - vulture >=2.14
   - yamllint >=1.35.1
