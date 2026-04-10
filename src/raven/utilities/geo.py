@@ -3,7 +3,6 @@
 import collections
 import logging
 from pathlib import Path
-from typing import Union
 
 import fiona
 import geopandas
@@ -27,7 +26,7 @@ from shapely.ops import transform
 
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 WGS84 = 4326
 
 
@@ -79,10 +78,10 @@ def geom_transform(
         reprojected = transform(transform_func.transform, geom)
 
         return reprojected
-    except Exception as err:
+    except Exception as err:  # noqa: BLE001
         msg = f"{err}: Failed to reproject geometry"
         logger.error(msg)
-        raise Exception(msg)
+        raise Exception(msg)  # noqa: TRY002
 
 
 SingleMultiPolygonType = Polygon | MultiPolygon | list[Polygon | MultiPolygon]
@@ -170,7 +169,10 @@ def generic_raster_warp(
     """
     # Reproject raster using WarpedVRT class
 
-    with rasterio.open(raster, "r") as src, rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt:
+    with (
+        rasterio.open(raster, "r") as src,
+        rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt,
+    ):
         # Calculate grid properties based on projection
         affine, width, height = rasterio.warp.calculate_default_transform(
             src.crs, target_crs, src.width, src.height, *src.bounds
@@ -243,13 +245,12 @@ def generic_vector_reproject(
                             Feature(geometry=new_geom, properties=feature.properties)
                         )
                     except Exception as err:
-                        logger.exception(
-                            f"{err}: Unable to reproject feature {feature}"
-                        )
+                        msg = f"{err}: Unable to reproject feature {feature}"
+                        logger.exception(msg)
                         raise
 
 
-DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]
+DataFrameType = pd.DataFrame | geopandas.GeoDataFrame
 
 
 def determine_upstream_ids(
