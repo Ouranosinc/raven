@@ -14,6 +14,9 @@ from raven.testing.utils import (
 from raven.testing.utils import yangtze as _yangtze
 
 
+logger = logging.getLogger(__name__)
+
+
 @pytest.fixture(scope="session")
 def threadsafe_data_dir(tmp_path_factory) -> Path:
     return Path(tmp_path_factory.getbasetemp().joinpath("data"))
@@ -49,7 +52,7 @@ def gather_session_data(request, yangtze, worker_id):
             try:
                 flag.unlink()
             except FileNotFoundError:
-                logging.info(
+                logger.info(
                     "Teardown race condition occurred: .data_written flag already removed. Lucky!"
                 )
 

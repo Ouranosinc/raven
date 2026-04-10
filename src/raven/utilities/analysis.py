@@ -14,7 +14,7 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
 # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
 GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"
 
-LOGGER = logging.getLogger("RavenPy")
+logger = logging.getLogger(__file__)
 
 PolygonType = Union[Polygon, MultiPolygon, GeometryCollection]
 
@@ -41,7 +41,7 @@ def geom_prop(geom: PolygonType) -> dict:
     geom = shape(geom)
     lon, lat = geom.centroid.x, geom.centroid.y
     if (lon > 180) or (lon < -180) or (lat > 90) or (lat < -90):
-        LOGGER.warning("Shape centroid is not in decimal degrees.")
+        logger.warning("Shape centroid is not in decimal degrees.")
     area = geom.area
     length = geom.length
     gravelius = length / 2 / np.sqrt(np.pi * area)

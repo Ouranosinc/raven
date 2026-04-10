@@ -19,7 +19,7 @@ from raven.utils import (
 from . import wpsio as wio
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class NALCMSZonalStatisticsProcess(Process):
@@ -77,7 +77,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
             if vec_crs != ras_crs:
                 msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting..."
-                LOGGER.warning(msg)
+                logger.warning(msg)
 
                 # Reproject full vector to preserve feature attributes
                 projected = tempfile.NamedTemporaryFile(
@@ -148,7 +148,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
         except Exception as e:
             msg = f"Failed to perform zonal statistics using {shape_url} and {raster_url}: {e}"
-            LOGGER.error(msg)
+            logger.error(msg)
             raise Exception(msg) from e
 
         return response

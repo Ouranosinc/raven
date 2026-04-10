@@ -124,7 +124,7 @@ def _get_location_wfs(
     if bbox and point:
         raise NotImplementedError("Provide either 'bbox' or 'point'.")
     if bbox:
-        kwargs = dict(bbox=bbox)
+        kwargs = {"bbox": bbox}
     elif point:
         p = Point(
             id="feature",
@@ -133,7 +133,7 @@ def _get_location_wfs(
         )
         f = Intersects(propertyname="the_geom", geometry=p)
         intersects = f.toXML()
-        kwargs = dict(filter=intersects)
+        kwargs = {"filter": intersects}
     else:
         raise ValueError("Either 'bbox' or 'point' must be provided.")
 
@@ -230,14 +230,14 @@ def _filter_feature_attributes_wfs(
 
     filter_request = PropertyIsLike(propertyname=attribute, literal=value, wildCard="*")
     filterxml = etree.tostring(filter_request.toXML()).decode("utf-8")
-    params = dict(
-        service="WFS",
-        version="1.1.0",
-        request="GetFeature",
-        typename=layer,
-        outputFormat="application/json",
-        filter=filterxml,
-    )
+    params = {
+        "service": "WFS",
+        "version": "1.1.0",
+        "request": "GetFeature",
+        "typename": layer,
+        "outputFormat": "application/json",
+        "filter": filterxml,
+    }
 
     url = urljoin(geoserver, "wfs") + "?" + urlencode(params)
     http = urllib3.PoolManager()

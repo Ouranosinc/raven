@@ -19,7 +19,7 @@ from shapely import ops
 from . import wpsio as wio
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class TerrainAnalysisProcess(Process):
@@ -83,7 +83,7 @@ class TerrainAnalysisProcess(Process):
         projection = CRS.from_user_input(destination_crs)
         if not projection.is_projected:
             msg = f"Destination CRS {projection.to_epsg()} is not projected. Terrain analysis values will not be valid."
-            LOGGER.error(ValueError(msg))
+            logger.error(ValueError(msg))
             raise ValueError(msg)
 
         # Collect and process the shape
@@ -116,7 +116,7 @@ class TerrainAnalysisProcess(Process):
         # ----------------
         if ras_crs != projection.to_epsg():
             msg = f"CRS for {raster_file} is not {projection}. Reprojecting raster..."
-            LOGGER.warning(msg)
+            logger.warning(msg)
             warped_fn = tempfile.NamedTemporaryFile(
                 prefix="warped_", suffix=".tiff", delete=False, dir=self.workdir
             ).name

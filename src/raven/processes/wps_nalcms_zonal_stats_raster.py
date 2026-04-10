@@ -23,7 +23,7 @@ from raven.utils import (
 from . import wpsio as wio
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class NALCMSZonalStatisticsRasterProcess(Process):
@@ -90,7 +90,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
             if vec_crs != ras_crs:
                 msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting..."
-                LOGGER.warning(msg)
+                logger.warning(msg)
 
                 # Reproject full vector to preserve feature attributes
                 projected = tempfile.NamedTemporaryFile(
@@ -116,7 +116,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
             )
             gdf = gpd.read_file(projected)
             if sum(gdf.area) / 1e6 > 1e5:
-                LOGGER.warning(f"Vector shape has area of {sum(gdf.area) / 1e6} km2.")
+                logger.warning(f"Vector shape has area of {sum(gdf.area) / 1e6} km2.")
                 raise Exception(
                     "NALCMS zonal statistics only supported for areas smaller than 100,000 km2."
                 )
@@ -198,7 +198,7 @@ class NALCMSZonalStatisticsRasterProcess(Process):
 
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
-            LOGGER.error(msg)
+            logger.error(msg)
             raise Exception(msg) from e
 
         return response

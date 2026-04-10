@@ -16,7 +16,7 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
 from shapely.geometry.base import BaseGeometry
 
 
-LOGGER = logging.getLogger("RavenPy")
+logger = logging.getLogger(__file__)
 
 
 def single_file_check(file_list: Sequence[str | Path]) -> Any:
@@ -40,7 +40,7 @@ def single_file_check(file_list: Sequence[str | Path]) -> Any:
             raise FileNotFoundError(msg)
         return file_list[0]
     except (FileNotFoundError, NotImplementedError) as e:
-        LOGGER.error(e)
+        logger.error(e)
         raise
 
 
@@ -87,17 +87,17 @@ def boundary_check(
             src_min_y, src_max_y = src.bounds[1], src.bounds[3]
             if geographic and (src_max_y > max_y or src_min_y < min_y):
                 msg = f"Vector {file} contains geometries in high latitudes. Verify choice of projected CRS is appropriate for analysis."
-                LOGGER.warning(msg)
+                logger.warning(msg)
                 warnings.warn(msg, UserWarning)
             if not geographic:
                 msg = f"Vector {file} is not in a geographic coordinate system."
-                LOGGER.warning(msg)
+                logger.warning(msg)
                 warnings.warn(msg, UserWarning)
             src.close()
 
         except FileNotFoundError:
             msg = f"Unable to read boundaries from {file}"
-            LOGGER.error(msg)
+            logger.error(msg)
             raise
 
 
@@ -114,11 +114,11 @@ def multipolygon_check(geom: GeometryCollection) -> None:
         try:
             geom = shape(geom)
         except AttributeError:
-            LOGGER.error("Unable to load argument as shapely.geometry.shape().")
+            logger.error("Unable to load argument as shapely.geometry.shape().")
             raise
 
     if isinstance(geom, MultiPolygon):
-        LOGGER.warning("Shape is a Multipolygon.")
+        logger.warning("Shape is a Multipolygon.")
 
 
 PointType = Union[tuple[int | float | str, int | float | str], BaseGeometry]

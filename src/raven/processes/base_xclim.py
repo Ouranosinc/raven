@@ -3,6 +3,7 @@ import os
 from functools import reduce
 from itertools import cycle
 from operator import mul
+from pathlib import Path
 
 import requests
 import xarray as xr
@@ -11,7 +12,7 @@ from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput, Process
 from pywps.app.Common import Metadata
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 def make_xclim_indicator_process(name, xci):
@@ -123,7 +124,7 @@ class _XclimIndicatorProcess(Process):
                 inputs.extend(make_indexer())
             else:
                 # raise NotImplementedError(name)
-                LOGGER.warning(f"not implemented: {name}")
+                logger.warning(f"not implemented: {name}")
 
         return inputs
 
@@ -155,8 +156,9 @@ class _XclimIndicatorProcess(Process):
         return os.path.join(self.workdir, "log.txt")
 
     def write_log(self, message):
-        open(self.log_file_path(), "a").write(message + "\n")
-        LOGGER.info(message)
+        with Path(self.log_file_path()).open("a") as f:
+            f.write(f"{message}\n")
+        logger.info(message)
 
     def _handler(self, request, response):
         response.outputs["output_log"].file = self.log_file_path()
@@ -164,9 +166,9 @@ class _XclimIndicatorProcess(Process):
 
         self.write_log("Preparing inputs")
         keywords = {}
-        LOGGER.debug("received inputs: " + ", ".join(request.inputs.keys()))
+        logger.debug("received inputs: " + ", ".join(request.inputs.keys()))
         for name, input_queue in request.inputs.items():
-            LOGGER.debug(input_queue)
+            logger.debug(input_queue)
             values = []
 
             for input_var in input_queue:
@@ -178,14 +180,14 @@ class _XclimIndicatorProcess(Process):
                     elif "variable" in request.inputs:
                         value = ds.data_vars[request.inputs["variable"][0].data]
                     else:
-                        for key, val in ds.data_vars.items():
+                        for val in ds.data_vars.values():
                             value = val
                             break
                         else:
                             raise ValueError(f"Input not understood: `{input_var}`.")
 
                 elif isinstance(input, LiteralInput):
-                    LOGGER.debug(input_var.data)
+                    logger.debug(input_var.data)
                     value = input_var.data
 
                 else:
@@ -197,7 +199,7 @@ class _XclimIndicatorProcess(Process):
             keywords.pop("variable", None)
 
         self.write_log("Running computation")
-        LOGGER.debug(keywords)
+        logger.debug(keywords)
         out = self.xci(**keywords)
         out_fn = os.path.join(self.workdir, f"out_{self.identifier}.nc")
 

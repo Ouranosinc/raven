@@ -36,7 +36,7 @@ except ImportError:
     )
     pooch = None
 
-LOGGER = logging.getLogger("raven.testing.utils")
+logger = logging.getLogger(__file__)
 
 __all__ = [
     "TESTDATA_BRANCH",
@@ -551,6 +551,6 @@ def audit_url(url: str, context: str | None = None) -> str:
         msg = f"{context if context else ''} URL is not well-formed: '{url}'".strip()
 
     if msg:
-        LOGGER.error(msg)
+        logger.error(msg)
         raise URLError(msg)
     return url

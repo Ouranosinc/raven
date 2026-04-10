@@ -12,7 +12,7 @@ from raven.utils import gather_dem_tile, zonalstats_raster_file
 from . import wpsio as wio
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class RasterSubsetProcess(Process):
@@ -76,9 +76,9 @@ class RasterSubsetProcess(Process):
 
         if ras_crs != vec_crs:
             msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting raster..."
-            LOGGER.warning(msg)
+            logger.warning(msg)
 
-            projected = tempfile.NamedTemporaryFile(
+            projected = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
             generic_raster_warp(raster_file, projected, target_crs=vec_crs)
@@ -124,7 +124,7 @@ class RasterSubsetProcess(Process):
 
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
-            LOGGER.error(msg)
+            logger.error(msg)
             raise Exception(msg)
 
         return response

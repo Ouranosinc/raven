@@ -27,12 +27,12 @@ from shapely.ops import transform
 
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
-LOGGER = logging.getLogger("RavenPy")
+logger = logging.getLogger(__file__)
 WGS84 = 4326
 
 
-BaseGeomType = Union[GeometryCollection, BaseGeometry]
-CRSType = Union[str, int, CRS]
+BaseGeomType = GeometryCollection | BaseGeometry
+CRSType = str | int | CRS
 
 
 def geom_transform(
@@ -81,11 +81,11 @@ def geom_transform(
         return reprojected
     except Exception as err:
         msg = f"{err}: Failed to reproject geometry"
-        LOGGER.error(msg)
+        logger.error(msg)
         raise Exception(msg)
 
 
-SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]
+SingleMultiPolygonType = Polygon | MultiPolygon | list[Polygon | MultiPolygon]
 
 
 def generic_raster_clip(
@@ -145,7 +145,7 @@ def generic_raster_clip(
             dst.write(mask_image)
 
 
-CRSdictType = Union[str, dict, CRS]
+CRSdictType = str | dict | CRS
 
 
 def generic_raster_warp(
@@ -168,33 +168,33 @@ def generic_raster_warp(
     raster_compression : str
         Level of data compression. Default: 'lzw'.
     """
-    with rasterio.open(raster, "r") as src:
-        # Reproject raster using WarpedVRT class
-        with rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt:
-            # Calculate grid properties based on projection
-            affine, width, height = rasterio.warp.calculate_default_transform(
-                src.crs, target_crs, src.width, src.height, *src.bounds
-            )
+    # Reproject raster using WarpedVRT class
 
-            # Copy relevant metadata from parent raster
-            metadata = src.meta.copy()
-            metadata.update(
-                {
-                    "driver": "GTiff",
-                    "height": height,
-                    "width": width,
-                    "transform": affine,
-                    "crs": target_crs,
-                    "compress": raster_compression,
-                }
-            )
-            data = vrt.read()
+    with rasterio.open(raster, "r") as src, rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt:
+        # Calculate grid properties based on projection
+        affine, width, height = rasterio.warp.calculate_default_transform(
+            src.crs, target_crs, src.width, src.height, *src.bounds
+        )
 
-            with rasterio.open(output, "w", **metadata) as dst:
-                dst.write(data)
+        # Copy relevant metadata from parent raster
+        metadata = src.meta.copy()
+        metadata.update(
+            {
+                "driver": "GTiff",
+                "height": height,
+                "width": width,
+                "transform": affine,
+                "crs": target_crs,
+                "compress": raster_compression,
+            }
+        )
+        data = vrt.read()
+
+        with rasterio.open(output, "w", **metadata) as dst:
+            dst.write(data)
 
 
-CRSstrType = Union[str, CRS]
+CRSstrType = str | CRS
 
 
 def generic_vector_reproject(
@@ -243,7 +243,7 @@ def generic_vector_reproject(
                             Feature(geometry=new_geom, properties=feature.properties)
                         )
                     except Exception as err:
-                        LOGGER.exception(
+                        logger.exception(
                             f"{err}: Unable to reproject feature {feature}"
                         )
                         raise
@@ -255,8 +255,8 @@ DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]
 def determine_upstream_ids(
     fid: str,
     df: DataFrameType,
-    basin_field: str = None,
-    downstream_field: str = None,
+    basin_field: str | None = None,
+    downstream_field: str | None = None,
     basin_family: str | None = None,
 ) -> DataFrameType:
     """

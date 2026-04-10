@@ -15,7 +15,7 @@ from raven.utilities.geoserver import get_raster_wcs
 from raven.utilities.io import get_bbox
 
 
-LOGGER = logging.getLogger("RAVEN")
+logger = logging.getLogger(__name__)
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
 
@@ -90,7 +90,7 @@ def gather_dem_tile(
     bbox = get_bbox(vector_file)
     raster_layer = raster
     raster_bytes = get_raster_wcs(bbox, geographic=geographic, layer=raster_layer)
-    raster_file = NamedTemporaryFile(
+    raster_file = NamedTemporaryFile(  # noqa: SIM115
         prefix="wcs_", suffix=".tiff", delete=False, dir=work_dir
     ).name
     with open(raster_file, "wb") as f:
@@ -117,19 +117,19 @@ def parse_lonlat(lonlat: str | tuple[str, str]) -> tuple[float, float]:
         elif isinstance(lonlat, tuple):
             lon, lat = map(float, lonlat)
         else:
-            raise ValueError
+            raise TypeError("lonlat is not an appropriate type.")
         return lon, lat
     except Exception as e:
         msg = f"Failed to parse longitude, latitude coordinates {lonlat}"
-        raise Exception(msg) from e
+        raise Exception(msg) from e  # noqa: TRY002
 
 
 def zonalstats_raster_file(
     stats: dict,
-    working_dir: str = None,
+    working_dir: str | None = None,
     raster_compression: str = RASTERIO_TIFF_COMPRESSION,
-    data_type: str = None,
-    crs: str = None,
+    data_type: str | None = None,
+    crs: str | None = None,
     zip_archive: bool = False,
 ) -> Path | list[Path]:
     """
@@ -170,12 +170,12 @@ def zonalstats_raster_file(
 
             aff = Affine(*grid_properties)
 
-            LOGGER.info(f"Writing raster data to {raster_subset}")
+            logger.info(f"Writing raster data to {raster_subset}")
 
             masked_array = np.ma.masked_values(raster, nodata)
             if masked_array.mask.all():
                 msg = f"Subset {i} is empty, continuing..."
-                LOGGER.warning(msg)
+                logger.warning(msg)
 
             normal_array = np.asarray(masked_array, dtype=data_type)
 
@@ -195,17 +195,17 @@ def zonalstats_raster_file(
             ) as f:
                 f.write(normal_array, 1)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             msg = f"Failed to write raster outputs: {e}"
-            LOGGER.error(msg)
-            raise Exception(msg)
+            logger.error(msg)
+            raise Exception(msg)  # noqa: TRY002
 
     # `shutil.make_archive` could potentially cause problems with multi-thread? Worth investigating later.
     if zip_archive:
         foldername = f"subset_{''.join(choice(ascii_letters) for _ in range(10))}"
         out_fn = Path(working_dir).joinpath(foldername)
         shutil.make_archive(
-            base_name=out_fn.as_posix(), format="zip", root_dir=out_dir, logger=LOGGER
+            base_name=out_fn.as_posix(), format="zip", root_dir=out_dir, logger=logger
         )
         return Path(f"{out_fn}.zip")
     else:

@@ -191,7 +191,7 @@ test-notebooks: notebook-sanitizer ## run notebook-based tests
 test-notebooks-lax: notebook-sanitizer ## run tests on notebooks but don't be so strict about outputs
 	@echo "Running notebook-based tests"
 	@bash -c "env WPS_URL=$(WPS_URL) pytest --nbval-lax --rootdir tests/ --verbose $(CURDIR)/docs/source/notebooks/ --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
- 
+
 # Test one single notebook (add .run at the end of notebook path).
 # Might require one time `make notebook-sanitizer`.
 %.ipynb.run: %.ipynb
