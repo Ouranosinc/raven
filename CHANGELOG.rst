@@ -13,6 +13,13 @@ Internal Changes
 * Dropped `black` and `blackdoc` in favor of `ruff` for code style and formatting (#576)
 * Updated `pre-commit` hook versions and adjusted configurations for Python 3.10+ support (#576)
 * Adjusted a handful of typing issues in ``raven.utilities`` for more accurate type hints (#576)
+* Updated project from (relatively outdated) cookiecutter template (`cookiecutter-birdhouse`) (#605):
+    * `bump-my-version` has been configured for patch bumps.
+    * Labels are now automatically applied to pull requests.
+    * Python CI libraries now use fixed hashes.
+    * Several small `ruff` code style violations have been addressed.
+    * `LOGGER` is now `logger`. No more root-level logging.
+    * `pylint` and `vulture` have now been configured to run on codebase.
 
 v0.19.0 (2025-07-16)
 --------------------
