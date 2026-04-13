@@ -7,7 +7,7 @@ from raven.utilities import geoserver
 from raven.utils import parse_lonlat
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class HydroBasinsSelectionProcess(Process):

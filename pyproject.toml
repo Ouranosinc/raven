@@ -74,7 +74,7 @@ dev = [
   # Dev tools and testing
   "birdhouse-birdy >=0.9.1",
   "build >=1.2.1",
-  "bump-my-version >=1.2.0",
+  "bump-my-version >=1.3.0",
   "flake8 >=7.2.0",
   "flake8-rst-docstrings >=0.3.0",
   "flit >=3.11.0,<4.0",
@@ -91,6 +91,7 @@ dev = [
   "pytest-xdist >=3.2",
   "ruff >=0.12.2",
   "tox >=4.24.1",
+  "vulture >=2.14",
   "yamllint >=1.35.1"
 ]
 docs = [
@@ -98,7 +99,7 @@ docs = [
   "ipython >=8.5.0,!=9.0.0",
   "ipywidgets",
   "nbsphinx >=0.9.5",
-  "sphinx >=7.0.0,<8.2.0",
+  "sphinx >=7.1.0,<8.2.0",
   "sphinx-autodoc-typehints",
   "sphinx-codeautolink >=0.16.2",
   "sphinx-copybutton",
@@ -140,7 +141,7 @@ search = "Version=\"{current_version}\""
 replace = "Version=\"{new_version}\""
 
 [tool.codespell]
-ignore-words-list = "inout,te,noo"
+ignore-words-list = "astroid,inout,te,noo"
 
 [tool.coverage.run]
 relative_files = true
