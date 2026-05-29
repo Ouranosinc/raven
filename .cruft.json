@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/bird-house/cookiecutter-birdhouse",
-  "commit": "14697aab2b2312fb3ac46b3b82e79be0ff9ebe37",
+  "commit": "c458a0f0433dca3f8b88630b8b9f001fa9e0abcf",
   "skip": [],
   "context": {
     "cookiecutter": {
@@ -23,7 +23,7 @@
       ],
       "__gh_slug": "Ouranosinc/raven",
       "_template": "https://github.com/bird-house/cookiecutter-birdhouse",
-      "_commit": "14697aab2b2312fb3ac46b3b82e79be0ff9ebe37"
+      "_commit": "c458a0f0433dca3f8b88630b8b9f001fa9e0abcf"
     }
   },
   "checkout": null
