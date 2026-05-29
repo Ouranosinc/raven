@@ -40,12 +40,10 @@ jobs:
           push: false
 
       - name: Run Docker image
-        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3.0.0
-        with:
-          image: localraven:latest
-          options: -p 9099:9099
-          run: |
+        run: |
+          docker run --rm -p 9099:9099 localraven:latest sh -c '
             raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
             sleep 2s
             raven-wps status
             raven-wps stop
+          '
