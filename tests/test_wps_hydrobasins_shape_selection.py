@@ -1,11 +1,9 @@
 import json
 
 import pytest
-
 from common import CFG_FILE, client_for, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
-
 from raven.processes import HydroBasinsSelectionProcess
 from raven.utils import parse_lonlat
 
@@ -19,7 +17,7 @@ class TestParser:
             assert isinstance(lonlat[0], float)
             assert isinstance(lonlat[1], float)
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017
             parse_lonlat("This isn't a number, 333.444")
 
 

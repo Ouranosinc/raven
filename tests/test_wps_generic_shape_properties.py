@@ -6,7 +6,6 @@ import numpy as np
 from common import CFG_FILE, client_for, get_output
 from pywps import Service
 from pywps.tests import assert_response_success
-
 from raven.processes import ShapePropertiesProcess
 
 
@@ -42,7 +41,7 @@ class TestGenericShapePropertiesProcess:
         # raise Warning(geo_def)
         # raise Exception(geo_def.errors())
 
-        temp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)
+        temp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)  # noqa: SIM115
         with open(temp.name, "w") as f:
             geojson.dump(geo_def, f, indent=4)
         return temp

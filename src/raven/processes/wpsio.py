@@ -3,6 +3,7 @@
 from pywps import FORMATS, ComplexInput, ComplexOutput, LiteralInput
 from pywps.app.Common import Metadata
 
+
 # ---------------------------------------- #
 # ---------------- Inputs ---------------- #
 # ---------------------------------------- #

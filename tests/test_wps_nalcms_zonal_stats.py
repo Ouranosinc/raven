@@ -1,18 +1,17 @@
 import json
 
 import pytest
-
 from common import CFG_FILE, client_for, count_pixels, get_output
 from metalink import download as md
 from pywps import Service, get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
 from pywps.tests import assert_response_success
-from shapely.geometry import MultiPolygon
-
 from raven.processes import (
     NALCMSZonalStatisticsProcess,
     NALCMSZonalStatisticsRasterProcess,
 )
+from shapely.geometry import MultiPolygon
+
 
 VERSION = "1.0.0"
 WPS, OWS = get_ElementMakerForVersion(VERSION)

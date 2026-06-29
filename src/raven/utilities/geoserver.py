@@ -21,10 +21,10 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 from urllib.parse import urlencode, urljoin
 
-import urllib3
 import fiona
 import geopandas as gpd
 import pandas as pd
+import urllib3
 from lxml import etree
 from owslib.fes import PropertyIsLike
 from owslib.fes2 import Intersects
@@ -124,7 +124,7 @@ def _get_location_wfs(
     if bbox and point:
         raise NotImplementedError("Provide either 'bbox' or 'point'.")
     if bbox:
-        kwargs = dict(bbox=bbox)
+        kwargs = {"bbox": bbox}
     elif point:
         p = Point(
             id="feature",
@@ -133,7 +133,7 @@ def _get_location_wfs(
         )
         f = Intersects(propertyname="the_geom", geometry=p)
         intersects = f.toXML()
-        kwargs = dict(filter=intersects)
+        kwargs = {"filter": intersects}
     else:
         raise ValueError("Either 'bbox' or 'point' must be provided.")
 
@@ -177,14 +177,14 @@ def _get_feature_attributes_wfs(
     host = _fix_server_url(HOST_URL)
     geoserver = _fix_server_url(geoserver)
 
-    params = dict(
-        service="WFS",
-        version="2.0.0",
-        request="GetFeature",
-        typename=layer,
-        outputFormat="application/json",
-        propertyName=",".join(attribute),
-    )
+    params = {
+        "service": "WFS",
+        "version": "2.0.0",
+        "request": "GetFeature",
+        "typename": layer,
+        "outputFormat": "application/json",
+        "propertyName": ",".join(attribute),
+    }
     url = urljoin(geoserver, "wfs") + "?" + urlencode(params)
     http = urllib3.PoolManager()
     response = http.request("GET", url)
@@ -194,7 +194,7 @@ def _get_feature_attributes_wfs(
 
 def _filter_feature_attributes_wfs(
     attribute: str,
-    value: str | float | int,
+    value: str | float,
     layer: str,
     geoserver: str = GEOSERVER_URL,
 ) -> str:
@@ -230,14 +230,14 @@ def _filter_feature_attributes_wfs(
 
     filter_request = PropertyIsLike(propertyname=attribute, literal=value, wildCard="*")
     filterxml = etree.tostring(filter_request.toXML()).decode("utf-8")
-    params = dict(
-        service="WFS",
-        version="1.1.0",
-        request="GetFeature",
-        typename=layer,
-        outputFormat="application/json",
-        filter=filterxml,
-    )
+    params = {
+        "service": "WFS",
+        "version": "1.1.0",
+        "request": "GetFeature",
+        "typename": layer,
+        "outputFormat": "application/json",
+        "filter": filterxml,
+    }
 
     url = urljoin(geoserver, "wfs") + "?" + urlencode(params)
     http = urllib3.PoolManager()
@@ -303,7 +303,7 @@ def get_raster_wcs(
     data = resp.read()
 
     try:
-        etree.fromstring(data)  # noqa: S320
+        etree.fromstring(data)
         # The response is an XML file describing the server error.
         raise ChildProcessError(data)
 
@@ -422,7 +422,7 @@ def select_hybas_domain(
 
 def filter_hydrobasins_attributes_wfs(
     attribute: str,
-    value: str | float | int,
+    value: str | float,
     domain: str,
     geoserver: str = GEOSERVER_URL,
 ) -> str:
@@ -507,7 +507,7 @@ def get_hydrobasins_location_wfs(
 
 
 def hydro_routing_upstream(
-    fid: str | float | int,
+    fid: str | float,
     level: int = 12,
     lakes: str = "1km",
     geoserver: str = GEOSERVER_URL,
@@ -610,7 +610,7 @@ def get_hydro_routing_attributes_wfs(
 
 def filter_hydro_routing_attributes_wfs(
     attribute: str,
-    value: str | float | int,
+    value: str | float,
     level: int = 12,
     lakes: str = "1km",
     geoserver: str = GEOSERVER_URL,

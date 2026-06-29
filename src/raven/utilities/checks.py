@@ -11,12 +11,12 @@ import fiona
 import rasterio
 from pyproj import CRS
 from pyproj.exceptions import CRSError
+from raven.utilities import io
 from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
-
-import raven.utilities.io as io
 from shapely.geometry.base import BaseGeometry
 
-LOGGER = logging.getLogger("RavenPy")
+
+logger = logging.getLogger(__name__)
 
 
 def single_file_check(file_list: Sequence[str | Path]) -> Any:
@@ -40,14 +40,14 @@ def single_file_check(file_list: Sequence[str | Path]) -> Any:
             raise FileNotFoundError(msg)
         return file_list[0]
     except (FileNotFoundError, NotImplementedError) as e:
-        LOGGER.error(e)
+        logger.error(e)
         raise
 
 
 def boundary_check(
     *args: str | Path,
-    max_y: int | float = 60,
-    min_y: int | float = -60,
+    max_y: float = 60,
+    min_y: float = -60,
 ) -> None:
     r"""
     Verify that boundaries do not exceed specific latitudes for geographic coordinate data.
@@ -87,19 +87,18 @@ def boundary_check(
             src_min_y, src_max_y = src.bounds[1], src.bounds[3]
             if geographic and (src_max_y > max_y or src_min_y < min_y):
                 msg = f"Vector {file} contains geometries in high latitudes. Verify choice of projected CRS is appropriate for analysis."
-                LOGGER.warning(msg)
+                logger.warning(msg)
                 warnings.warn(msg, UserWarning)
             if not geographic:
                 msg = f"Vector {file} is not in a geographic coordinate system."
-                LOGGER.warning(msg)
+                logger.warning(msg)
                 warnings.warn(msg, UserWarning)
             src.close()
 
         except FileNotFoundError:
             msg = f"Unable to read boundaries from {file}"
-            LOGGER.error(msg)
+            logger.error(msg)
             raise
-    return
 
 
 def multipolygon_check(geom: GeometryCollection) -> None:
@@ -115,15 +114,14 @@ def multipolygon_check(geom: GeometryCollection) -> None:
         try:
             geom = shape(geom)
         except AttributeError:
-            LOGGER.error("Unable to load argument as shapely.geometry.shape().")
+            logger.error("Unable to load argument as shapely.geometry.shape().")
             raise
 
     if isinstance(geom, MultiPolygon):
-        LOGGER.warning("Shape is a Multipolygon.")
-    return
+        logger.warning("Shape is a Multipolygon.")
 
 
-PointType = Union[tuple[Union[int, float, str], Union[int, float, str]], BaseGeometry]
+PointType = Union[tuple[int | float | str, int | float | str], BaseGeometry]  # noqa: UP007
 
 
 def feature_contains(
@@ -158,7 +156,7 @@ def feature_contains(
     elif isinstance(point, Point):
         pass
     else:
-        raise ValueError(
+        raise TypeError(
             f"point should be shapely.Point or tuple of coordinates, got : {point} of type({type(point)})"
         )
 

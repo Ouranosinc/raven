@@ -1,21 +1,20 @@
 from __future__ import annotations
-
 import logging
 from pathlib import Path
 
 import pytest
-
 from raven.testing.utils import (
     TESTDATA_BRANCH,
     TESTDATA_CACHE_DIR,
     TESTDATA_REPO_URL,
     default_testdata_cache,
     gather_testing_data,
-)
-from raven.testing.utils import (
     testing_setup_warnings,
 )
 from raven.testing.utils import yangtze as _yangtze
+
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
@@ -53,9 +52,8 @@ def gather_session_data(request, yangtze, worker_id):
             try:
                 flag.unlink()
             except FileNotFoundError:
-                logging.info(
+                logger.info(
                     "Teardown race condition occurred: .data_written flag already removed. Lucky!"
                 )
-                pass
 
     request.addfinalizer(remove_data_written_flag)

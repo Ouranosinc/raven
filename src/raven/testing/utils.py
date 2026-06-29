@@ -1,7 +1,6 @@
 """Tools for searching for and acquiring test data."""
 
 from __future__ import annotations
-
 import importlib.metadata as ilm
 import importlib.resources as ilr
 import logging
@@ -21,13 +20,13 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 
+import raven
 from filelock import FileLock
 from packaging.version import Version
 from xarray import Dataset
 from xarray import open_dataset as _open_dataset
 from xclim.testing.utils import show_versions as _show_versions
 
-import raven
 
 try:
     import pooch
@@ -37,7 +36,7 @@ except ImportError:
     )
     pooch = None
 
-LOGGER = logging.getLogger("raven.testing.utils")
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "TESTDATA_BRANCH",
@@ -157,7 +156,7 @@ def show_versions(
             for req in requires
             if re.match(r"^[A-Za-z0-9_.\-]+", req)
         ]
-        sorted_deps = sorted(list(set(requires) - {"raven"}))
+        sorted_deps = sorted(set(requires) - {"raven"})
 
         return ["raven"] + sorted_deps
 
@@ -172,22 +171,25 @@ def show_versions(
 
 def testing_setup_warnings():
     """Warn users about potential incompatibilities between RavenWPS and raven-testdata versions."""
+    # This does not need to be emitted on GitHub Workflows and ReadTheDocs
     if (
-        re.match(r"^\d+\.\d+\.\d+$", raven.__version__)
-        and TESTDATA_BRANCH != default_testdata_version
+        (
+            re.match(r"^\d+\.\d+\.\d+$", raven.__version__)
+            and TESTDATA_BRANCH != default_testdata_version
+        )
+        and not os.getenv("CI")
+        and not os.getenv("READTHEDOCS")
     ):
-        # This does not need to be emitted on GitHub Workflows and ReadTheDocs
-        if not os.getenv("CI") and not os.getenv("READTHEDOCS"):
-            warnings.warn(
-                f"`birdhouse-raven` stable ({raven.__version__}) is running tests against a non-default "
-                f"branch of the testing data. It is possible that changes to the testing data may "
-                f"be incompatible with some assertions in this version. "
-                f"Please be sure to check {TESTDATA_REPO_URL} for more information.",
-            )
+        warnings.warn(
+            f"`birdhouse-raven` stable ({raven.__version__}) is running tests against a non-default "
+            f"branch of the testing data. It is possible that changes to the testing data may "
+            f"be incompatible with some assertions in this version. "
+            f"Please be sure to check {TESTDATA_REPO_URL} for more information.",
+        )
 
     if re.match(r"^v\d+\.\d+\.\d+", TESTDATA_BRANCH):
         # Find the date of the last modification of RavenWPS source files to generate a calendar version
-        install_date = dt.strptime(
+        install_date = dt.strptime(  # noqa: DTZ007
             time.ctime(Path(raven.__file__).stat().st_mtime),
             "%a %b %d %H:%M:%S %Y",
         )
@@ -252,7 +254,7 @@ def load_registry(
         lockfile = testing_folder.joinpath(".lock")
         with FileLock(lockfile):
             if not registry_file.exists():
-                urlretrieve(remote_registry, registry_file)  # noqa: S310
+                urlretrieve(remote_registry, registry_file)
         lockfile.unlink(missing_ok=True)
 
     elif branch != default_testdata_version:
@@ -262,7 +264,7 @@ def load_registry(
                 custom_registry_folder = Path(tmp_dir).joinpath("testing", branch)
                 custom_registry_folder.mkdir(parents=True, exist_ok=True)
                 registry_file = custom_registry_folder.joinpath("registry.txt")
-                urlretrieve(remote_registry, registry_file)  # noqa: S310
+                urlretrieve(remote_registry, registry_file)
                 return load_registry_from_file(registry_file)
         else:
             # If the branch is not the default version, check if the registry file exists
@@ -273,7 +275,7 @@ def load_registry(
             registry_file = custom_registry_folder.joinpath("registry.txt")
             with FileLock(custom_registry_folder.joinpath(".lock")):
                 if not registry_file.exists():
-                    urlretrieve(remote_registry, registry_file)  # noqa: S310
+                    urlretrieve(remote_registry, registry_file)
             return load_registry_from_file(registry_file)
 
     else:
@@ -454,24 +456,24 @@ def populate_testing_data(
     errored_files = []
     for file in load_registry():
         msg = f"Downloading file `{file}` from remote repository..."
-        logging.info(msg)
+        logger.info(msg)
         for attempt in range(retry):
             try:
                 n.fetch(file)
-            except HTTPError:  # noqa: PERF203
+            except HTTPError:
                 msg = f"Failed to download file `{file}` on attempt {attempt + 1}."
-                logging.info(msg)
+                logger.info(msg)
             else:
-                logging.info("File was downloaded successfully.")
+                logger.info("File was downloaded successfully.")
                 break
         else:
             msg = f"Failed to download file `{file}` after {retry} attempts."
-            logging.error(msg)
+            logger.error(msg)
             errored_files.append(file)
 
     if errored_files:
         msg = f"The following files were unable to be downloaded: {errored_files}"
-        logging.error(msg)
+        logger.error(msg)
 
 
 def gather_testing_data(
@@ -552,6 +554,6 @@ def audit_url(url: str, context: str | None = None) -> str:
         msg = f"{context if context else ''} URL is not well-formed: '{url}'".strip()
 
     if msg:
-        LOGGER.error(msg)
+        logger.error(msg)
         raise URLError(msg)
     return url

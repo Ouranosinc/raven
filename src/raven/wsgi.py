@@ -8,8 +8,20 @@ from pywps.app.Service import Service
 from .processes import processes
 
 
-def create_app(cfgfiles=None):
-    """Create PyWPS application."""
+def create_app(cfgfiles: list[str] | None = None) -> Service:
+    """
+    Create PyWPS application.
+
+    Parameters
+    ----------
+    cfgfiles : list of str, optional
+        Configuration files to use.
+
+    Returns
+    -------
+    pywps.app.Service.Service
+        PyWPS application.
+    """
     config_files = [Path(__file__).parent.joinpath("default.cfg")]
     if cfgfiles:
         config_files.extend(cfgfiles)

@@ -3,10 +3,8 @@ import logging
 import tempfile
 
 import shapely.geometry as sgeo
-import shapely.ops as ops
 from pyproj.crs import CRS
 from pywps import FORMATS, ComplexOutput, LiteralInput, Process
-
 from raven.utilities.analysis import dem_prop
 from raven.utilities.checks import boundary_check, single_file_check
 from raven.utilities.geo import (
@@ -16,10 +14,12 @@ from raven.utilities.geo import (
 )
 from raven.utilities.io import archive_sniffer, crs_sniffer
 from raven.utils import gather_dem_tile
+from shapely import ops
 
 from . import wpsio as wio
 
-LOGGER = logging.getLogger("PYWPS")
+
+logger = logging.getLogger("PYWPS")
 
 
 class TerrainAnalysisProcess(Process):
@@ -83,7 +83,7 @@ class TerrainAnalysisProcess(Process):
         projection = CRS.from_user_input(destination_crs)
         if not projection.is_projected:
             msg = f"Destination CRS {projection.to_epsg()} is not projected. Terrain analysis values will not be valid."
-            LOGGER.error(ValueError(msg))
+            logger.error(ValueError(msg))
             raise ValueError(msg)
 
         # Collect and process the shape
@@ -116,8 +116,8 @@ class TerrainAnalysisProcess(Process):
         # ----------------
         if ras_crs != projection.to_epsg():
             msg = f"CRS for {raster_file} is not {projection}. Reprojecting raster..."
-            LOGGER.warning(msg)
-            warped_fn = tempfile.NamedTemporaryFile(
+            logger.warning(msg)
+            warped_fn = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="warped_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
             generic_raster_warp(raster_file, warped_fn, projection)
@@ -127,7 +127,7 @@ class TerrainAnalysisProcess(Process):
 
         # Perform the terrain analysis
         # ----------------------------
-        rpj = tempfile.NamedTemporaryFile(
+        rpj = tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix="reproj_", suffix=".json", delete=False, dir=self.workdir
         ).name
 
@@ -140,7 +140,7 @@ class TerrainAnalysisProcess(Process):
         features = [sgeo.shape(feat["geometry"]) for feat in geo["features"]]
         union = ops.unary_union(features)
 
-        clipped_fn = tempfile.NamedTemporaryFile(
+        clipped_fn = tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix="clipped_", suffix=".tiff", delete=False, dir=self.workdir
         ).name
         # Ensure that values for regions outside of clip are kept
