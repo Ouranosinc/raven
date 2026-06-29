@@ -112,6 +112,10 @@ jobs:
       - name: Test RavenWPS with pytest
         run: |
           python -m pytest -m "not very_slow" tests --cov=raven --cov-report=lcov
+      - name: Trust Coveralls Homebrew tap # Homebrew v6.0 requirement; Remove when coverallsapp/github-action >2.3.7
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew trust coverallsapp/coveralls
       - name: Report Coverage
         uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e # v2.3.7
         with:
