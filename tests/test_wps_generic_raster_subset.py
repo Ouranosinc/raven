@@ -44,7 +44,7 @@ class TestGenericRasterSubsetProcess:
         # Depends on PyMetaLink behaviour?
         assert len(raster_dir) in (1, 5)
 
-        bounds = list()
+        bounds = []
         for f in raster_dir:
             raster = rio.open(f)
             assert raster.bounds
@@ -85,7 +85,7 @@ class TestGenericRasterSubsetProcess:
         raster_dir = md.get(out["raster"], path=tempfile.mkdtemp())
         assert len(raster_dir) == 6
 
-        bounds = list()
+        bounds = []
         for f in raster_dir:
             raster = rio.open(f)
             assert raster.bounds

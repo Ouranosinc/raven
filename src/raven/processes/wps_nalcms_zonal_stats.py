@@ -19,7 +19,7 @@ from raven.utils import (
 from . import wpsio as wio
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class NALCMSZonalStatisticsProcess(Process):
@@ -77,10 +77,10 @@ class NALCMSZonalStatisticsProcess(Process):
 
             if vec_crs != ras_crs:
                 msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting..."
-                LOGGER.warning(msg)
+                logger.warning(msg)
 
                 # Reproject full vector to preserve feature attributes
-                projected = tempfile.NamedTemporaryFile(
+                projected = tempfile.NamedTemporaryFile(  # noqa: SIM115
                     prefix="reprojected_",
                     suffix=".json",
                     delete=False,
@@ -93,7 +93,7 @@ class NALCMSZonalStatisticsProcess(Process):
                 projected = vector_file
 
         else:  # using the NALCMS data from GeoServer
-            projected = tempfile.NamedTemporaryFile(
+            projected = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
             generic_vector_reproject(
@@ -105,7 +105,7 @@ class NALCMSZonalStatisticsProcess(Process):
             raster_bytes = geoserver.get_raster_wcs(
                 bbox, geographic=False, layer=raster_url
             )
-            raster_file = tempfile.NamedTemporaryFile(
+            raster_file = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="wcs_", suffix=".tiff", delete=False, dir=self.workdir
             ).name
             with open(raster_file, "wb") as f:
@@ -148,7 +148,7 @@ class NALCMSZonalStatisticsProcess(Process):
 
         except Exception as e:
             msg = f"Failed to perform zonal statistics using {shape_url} and {raster_url}: {e}"
-            LOGGER.error(msg)
-            raise Exception(msg) from e
+            logger.error(msg)
+            raise Exception(msg) from e  # noqa: TRY002
 
         return response

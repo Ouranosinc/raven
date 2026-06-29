@@ -19,7 +19,7 @@ from . import wsgi
 
 PID_FILE = Path(__file__).parent.joinpath("pywps.pid").resolve()
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 template_env = Environment(
     loader=PackageLoader("raven", "templates"),
@@ -27,8 +27,20 @@ template_env = Environment(
 )
 
 
-def write_user_config(**kwargs):
-    """Write a custom configuration file."""
+def write_user_config(**kwargs) -> Path:
+    r"""
+    Write a custom configuration file.
+
+    Parameters
+    ----------
+    **kwargs : dict
+        Configuration parameters.
+
+    Returns
+    -------
+    Path
+        The path to the written configuration file.
+    """
     config_templ = template_env.get_template("pywps.cfg")
     rendered_config = config_templ.render(**kwargs)
     config_file = Path(__file__).parent.joinpath(".custom.cfg").resolve()
@@ -37,8 +49,15 @@ def write_user_config(**kwargs):
     return config_file
 
 
-def get_host():
-    """Gather host information."""
+def get_host() -> tuple[str, int]:
+    """
+    Gather host information.
+
+    Returns
+    -------
+    tuple[str, int]
+        The host and port.
+    """
     url = configuration.get_config_value("server", "url")
     url = url or "http://localhost:9099/wps"
 
@@ -54,8 +73,15 @@ def get_host():
     return host, port
 
 
-def run_process_action(action=None):
-    """Run an action with psutil on current process and return a status message."""
+def run_process_action(action: str | None = None):
+    """
+    Run an action with psutil on current process and return a status message.
+
+    Parameters
+    ----------
+    action : str, optional
+        The action to perform, by default "status".
+    """
     action = action or "status"
     try:
         with PID_FILE.open() as fp:
@@ -200,6 +226,35 @@ def start(
     Start PyWPS service.
 
     This service is by default available at http://localhost:9099/wps
+
+    Parameters
+    ----------
+    config : str
+        Path to pywps configuration file.
+    bind_host : str
+        IP address used to bind service.
+    daemon : bool
+        Run in daemon mode.
+    hostname : str
+        Hostname in PyWPS configuration.
+    port : str
+        Port in PyWPS configuration.
+    maxsingleinputsize : str
+        Maxsingleinputsize in PyWPS configuration.
+    maxprocesses : int
+        Maxprocesses in PyWPS configuration.
+    parallelprocesses : int
+        Parallelprocesses in PyWPS configuration.
+    log_level : str
+        Log level in PyWPS configuration.
+    log_file : str
+        Log file in PyWPS configuration.
+    database : str
+        Database in PyWPS configuration.
+    outputurl : str
+        Base URL for file downloads.
+    outputpath : str
+        Base directory where outputs are written.
     """
     if PID_FILE.exists():
         click.echo(f'PID file exists: "{PID_FILE}". Service still running?')
@@ -235,7 +290,8 @@ def start(
                 with PID_FILE.open("w") as fp:
                     fp.write(f"{pid}")
         except OSError as e:
-            raise Exception("%s [%d]" % (e.strerror, e.errno))
+            msg = f"{e.strerror} [{e.errno}]"
+            raise Exception(msg)  # noqa: TRY002
 
         if pid == 0:
             os.setsid()

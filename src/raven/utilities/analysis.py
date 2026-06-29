@@ -14,9 +14,9 @@ from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
 # or 'compress=deflate' or 'compress=zstd' or 'compress=lerc' or others
 GDAL_TIFF_COMPRESSION_OPTION = "compress=lzw"
 
-LOGGER = logging.getLogger("RavenPy")
+logger = logging.getLogger(__name__)
 
-PolygonType = Union[Polygon, MultiPolygon, GeometryCollection]
+PolygonType = Union[Polygon, MultiPolygon, GeometryCollection]  # noqa: UP007
 
 
 def geom_prop(geom: PolygonType) -> dict:
@@ -41,7 +41,7 @@ def geom_prop(geom: PolygonType) -> dict:
     geom = shape(geom)
     lon, lat = geom.centroid.x, geom.centroid.y
     if (lon > 180) or (lon < -180) or (lat > 90) or (lat < -90):
-        LOGGER.warning("Shape centroid is not in decimal degrees.")
+        logger.warning("Shape centroid is not in decimal degrees.")
     area = geom.area
     length = geom.length
     gravelius = length / 2 / np.sqrt(np.pi * area)
@@ -56,7 +56,9 @@ def geom_prop(geom: PolygonType) -> dict:
     return properties
 
 
-SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]
+SingleMultiPolygonType = Union[  # noqa: UP007
+    Polygon, MultiPolygon, list[Union[Polygon, MultiPolygon]]  # noqa: UP007
+]
 
 
 def dem_prop(
@@ -84,16 +86,16 @@ def dem_prop(
         Dictionary storing mean elevation [m], slope [deg] and aspect [deg] as float.
     """
 
-    fns = dict()
+    fns = {}
     fns["dem"] = (
-        tempfile.NamedTemporaryFile(
+        tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix="dem", suffix=".tiff", dir=directory, delete=False
         ).name
         if geom is not None
         else dem
     )
     for key in ["slope", "aspect"]:
-        fns[key] = tempfile.NamedTemporaryFile(
+        fns[key] = tempfile.NamedTemporaryFile(  # noqa: SIM115
             prefix=key, suffix=".tiff", dir=directory, delete=False
         ).name
 
@@ -181,7 +183,7 @@ def gdal_slope_analysis(
         return np.ma.masked_values(set_output.ReadAsArray(), value=-9999)
 
 
-ArrayType = Union[np.ndarray, Dataset]
+ArrayType = Union[np.ndarray, Dataset]  # noqa: UP007
 
 
 def gdal_aspect_analysis(

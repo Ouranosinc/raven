@@ -12,7 +12,7 @@ from raven.utils import gather_dem_tile
 from . import wpsio as wio
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 SUMMARY_ZONAL_STATS = ["count", "min", "max", "mean", "median", "sum", "nodata"]
 
 
@@ -80,10 +80,10 @@ class ZonalStatisticsProcess(Process):
 
         if ras_crs != vec_crs:
             msg = f"CRS for files {vector_file} and {raster_file} are not the same. Reprojecting vector..."
-            LOGGER.warning(msg)
+            logger.warning(msg)
 
             # Reproject full vector to preserve feature attributes
-            projected = tempfile.NamedTemporaryFile(
+            projected = tempfile.NamedTemporaryFile(  # noqa: SIM115
                 prefix="reprojected_", suffix=".json", delete=False, dir=self.workdir
             ).name
             generic_vector_reproject(
@@ -110,7 +110,7 @@ class ZonalStatisticsProcess(Process):
 
         except Exception as e:
             msg = f"Failed to perform raster subset using {shape_url}{f' and {raster_url} ' if raster_url else ''}: {e}"
-            LOGGER.error(msg)
-            raise Exception(msg) from e
+            logger.error(msg)
+            raise Exception(msg) from e  # noqa: TRY002
 
         return response

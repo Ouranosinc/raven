@@ -4,3 +4,6 @@ rules:
       - label.yml:9
       - first-pull-request.yml:3
       - workflow-warning.yml:3
+  superfluous-actions:
+    ignore:
+      - docker-testing.yml:50

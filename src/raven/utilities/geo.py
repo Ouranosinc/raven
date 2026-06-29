@@ -27,12 +27,12 @@ from shapely.ops import transform
 
 
 RASTERIO_TIFF_COMPRESSION = "lzw"
-LOGGER = logging.getLogger("RavenPy")
+logger = logging.getLogger(__name__)
 WGS84 = 4326
 
 
-BaseGeomType = Union[GeometryCollection, BaseGeometry]
-CRSType = Union[str, int, CRS]
+BaseGeomType = Union[GeometryCollection, BaseGeometry]  # noqa: UP007
+CRSType = Union[str, int, CRS]  # noqa: UP007
 
 
 def geom_transform(
@@ -79,13 +79,13 @@ def geom_transform(
         reprojected = transform(transform_func.transform, geom)
 
         return reprojected
-    except Exception as err:
+    except Exception as err:  # noqa: BLE001
         msg = f"{err}: Failed to reproject geometry"
-        LOGGER.error(msg)
-        raise Exception(msg)
+        logger.error(msg)
+        raise Exception(msg)  # noqa: TRY002
 
 
-SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon | MultiPolygon]]
+SingleMultiPolygonType = Union[Polygon, MultiPolygon, list[Polygon, MultiPolygon]]  # noqa: UP007
 
 
 def generic_raster_clip(
@@ -145,7 +145,7 @@ def generic_raster_clip(
             dst.write(mask_image)
 
 
-CRSdictType = Union[str, dict, CRS]
+CRSdictType = Union[str, dict, CRS]  # noqa: UP007
 
 
 def generic_raster_warp(
@@ -168,33 +168,36 @@ def generic_raster_warp(
     raster_compression : str
         Level of data compression. Default: 'lzw'.
     """
-    with rasterio.open(raster, "r") as src:
-        # Reproject raster using WarpedVRT class
-        with rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt:
-            # Calculate grid properties based on projection
-            affine, width, height = rasterio.warp.calculate_default_transform(
-                src.crs, target_crs, src.width, src.height, *src.bounds
-            )
+    # Reproject raster using WarpedVRT class
 
-            # Copy relevant metadata from parent raster
-            metadata = src.meta.copy()
-            metadata.update(
-                {
-                    "driver": "GTiff",
-                    "height": height,
-                    "width": width,
-                    "transform": affine,
-                    "crs": target_crs,
-                    "compress": raster_compression,
-                }
-            )
-            data = vrt.read()
+    with (
+        rasterio.open(raster, "r") as src,
+        rasterio.vrt.WarpedVRT(src, crs=target_crs) as vrt,
+    ):
+        # Calculate grid properties based on projection
+        affine, width, height = rasterio.warp.calculate_default_transform(
+            src.crs, target_crs, src.width, src.height, *src.bounds
+        )
 
-            with rasterio.open(output, "w", **metadata) as dst:
-                dst.write(data)
+        # Copy relevant metadata from parent raster
+        metadata = src.meta.copy()
+        metadata.update(
+            {
+                "driver": "GTiff",
+                "height": height,
+                "width": width,
+                "transform": affine,
+                "crs": target_crs,
+                "compress": raster_compression,
+            }
+        )
+        data = vrt.read()
+
+        with rasterio.open(output, "w", **metadata) as dst:
+            dst.write(data)
 
 
-CRSstrType = Union[str, CRS]
+CRSstrType = Union[str, CRS]  # noqa: UP007
 
 
 def generic_vector_reproject(
@@ -243,20 +246,19 @@ def generic_vector_reproject(
                             Feature(geometry=new_geom, properties=feature.properties)
                         )
                     except Exception as err:
-                        LOGGER.exception(
-                            f"{err}: Unable to reproject feature {feature}"
-                        )
+                        msg = f"{err}: Unable to reproject feature {feature}"
+                        logger.exception(msg)
                         raise
 
 
-DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]
+DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]  # noqa: UP007
 
 
 def determine_upstream_ids(
     fid: str,
     df: DataFrameType,
-    basin_field: str = None,
-    downstream_field: str = None,
+    basin_field: str | None = None,
+    downstream_field: str | None = None,
     basin_family: str | None = None,
 ) -> DataFrameType:
     """

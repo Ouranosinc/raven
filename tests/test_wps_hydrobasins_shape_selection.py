@@ -17,7 +17,7 @@ class TestParser:
             assert isinstance(lonlat[0], float)
             assert isinstance(lonlat[1], float)
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017
             parse_lonlat("This isn't a number, 333.444")
 
 

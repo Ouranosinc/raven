@@ -16,7 +16,7 @@ from pyproj import CRS
 from shapely.geometry import shape
 
 
-LOGGER = logging.getLogger("RavenPy")
+logger = logging.getLogger(__name__)
 WGS84 = 4326
 
 
@@ -39,7 +39,7 @@ def safe_extract(
     for member in tar.getmembers():
         member_path = os.path.join(path, member.name)
         if not is_within_directory(path, member_path):
-            raise Exception("Attempted Path Traversal in Tar File")
+            raise Exception("Attempted Path Traversal in Tar File")  # noqa: TRY002
 
     tar.extractall(path, members, numeric_owner=numeric_owner)
 
@@ -67,10 +67,11 @@ def address_append(address: str | Path) -> str:
         elif tarred:
             return f"tar://{address}"
         else:
-            LOGGER.info("No prefixes needed for address.")
+            logger.info("No prefixes needed for address.")
             return str(address)
     except Exception:
-        LOGGER.error("Failed to prefix or parse URL %s." % address)
+        msg = f"Failed to prefix or parse URL {address}."
+        logger.error(msg)
         raise
 
 
@@ -100,12 +101,12 @@ def generic_extract_archive(
     if not isinstance(resources, list):
         resources = [resources]
 
-    files = list()
+    files = []
 
     for arch in resources:
         if any(ext in str(arch).lower() for ext in archive_types):
             try:
-                LOGGER.debug("archive=%s", arch)
+                logger.debug("archive=%s", arch)
                 file = Path(arch).name
 
                 if file.endswith(".nc"):
@@ -126,14 +127,16 @@ def generic_extract_archive(
                         )
                 elif file.endswith(".7z"):
                     msg = "7z file extraction is not supported at this time."
-                    LOGGER.warning(msg)
+                    logger.warning(msg)
                     warnings.warn(msg, UserWarning)
                 else:
-                    LOGGER.debug('File extension "%s" unknown' % file)
-            except Exception as e:
-                LOGGER.error(f"Failed to extract sub archive {{{arch}}}: {{{e}}}")
+                    msg = f'File extension "{file}" unknown'
+                    logger.debug(msg)
+            except Exception as e:  # noqa: BLE001
+                msg = f"Failed to extract sub archive {{{arch}}}: {{{e}}}"
+                logger.error(msg)
         else:
-            LOGGER.warning("No archives found. Continuing...")
+            logger.warning("No archives found. Continuing...")
             return resources
 
     return files
@@ -161,7 +164,7 @@ def archive_sniffer(
     list of str or Path
         List of files with matching accepted extensions.
     """
-    potential_files = list()
+    potential_files = []
 
     if not extensions:
         extensions = [".gml", ".shp", ".geojson", ".gpkg", ".json"]
@@ -188,7 +191,7 @@ def crs_sniffer(
     Union[List[str], str]
         Returns either a list of CRSes or a single CRS definition, depending on the number of instances found.
     """
-    crs_list = list()
+    crs_list = []
     vectors = (".gml", ".shp", ".geojson", ".gpkg", ".json")
     rasters = (".tif", ".tiff")
     all_files = vectors + rasters
@@ -202,9 +205,8 @@ def crs_sniffer(
                 suffix = Path(file).suffix.lower()
 
             if suffix in vectors:
-                if suffix == ".gpkg":
-                    if len(fiona.listlayers(file)) > 1:
-                        raise NotImplementedError
+                if suffix == ".gpkg" and len(fiona.listlayers(file)) > 1:
+                    raise NotImplementedError
                 with fiona.open(file, "r") as src:
                     found_crs = CRS.from_wkt(src.crs_wkt).to_epsg()
             elif suffix in rasters:
@@ -214,14 +216,15 @@ def crs_sniffer(
                 raise FileNotFoundError("Invalid filename suffix")
         except FileNotFoundError as e:
             msg = f"{e}: Unable to open file {args}"
-            LOGGER.warning(msg)
-            raise Exception(msg)
+            logger.warning(msg)
+            raise Exception(msg)  # noqa: TRY002
         except NotImplementedError as e:
             msg = f"{e}: Multilayer GeoPackages are currently unsupported"
-            LOGGER.error(msg)
-            raise Exception(msg)
-        except RuntimeError:
-            pass
+            logger.error(msg)
+            raise Exception(msg)  # noqa: TRY002
+        except RuntimeError as e:
+            msg = "{e}: Something unexpected happened here"
+            logger.error(e)
 
         crs_list.append(found_crs)
 
@@ -232,7 +235,7 @@ def crs_sniffer(
     if len(crs_list) == 1:
         if not crs_list[0]:
             msg = f"No CRS definitions found in {args}. Assuming {WGS84}."
-            LOGGER.warning(msg)
+            logger.warning(msg)
             warnings.warn(msg, UserWarning)
             return WGS84
         return crs_list[0]
@@ -259,7 +262,7 @@ def raster_datatype_sniffer(file: str | Path) -> str:
         return dtype
     except rasterio.errors.RasterioError:
         msg = f"Unable to read data type from {file}."
-        LOGGER.exception(msg)
+        logger.exception(msg)
         raise ValueError(msg)
 
 

@@ -18,15 +18,7 @@ jobs:
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            auth.docker.io:443
-            conda.anaconda.org:443
-            files.pythonhosted.org:443
-            github.com:443
-            production.cloudflare.docker.com:443
-            pypi.org:443
-            registry-1.docker.io:443
+          egress-policy: audit
 
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -35,6 +27,7 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build Docker image (no push)
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
         with:
@@ -47,12 +40,10 @@ jobs:
           push: false
 
       - name: Run Docker image
-        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185 # v3.0.0
-        with:
-          image: localraven:latest
-          options: -p 9099:9099
-          run: |
+        run: |
+          docker run --rm -p 9099:9099 localraven:latest sh -c '
             raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
             sleep 2s
             raven-wps status
             raven-wps stop
+          '

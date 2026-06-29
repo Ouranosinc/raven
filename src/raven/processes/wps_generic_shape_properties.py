@@ -11,7 +11,7 @@ from raven.utilities.io import archive_sniffer, crs_sniffer
 from shapely.geometry import shape
 
 
-LOGGER = logging.getLogger("PYWPS")
+logger = logging.getLogger("PYWPS")
 
 
 class ShapePropertiesProcess(Process):
@@ -80,11 +80,11 @@ class ShapePropertiesProcess(Process):
             projection = CRS.from_epsg(projected_crs)
             if projection.is_geographic:
                 msg = f"Desired CRS {projection.to_epsg()} is geographic. Areal analysis values will be in decimal-degree units."
-                LOGGER.warning(msg)
-        except Exception as e:
+                logger.warning(msg)
+        except Exception as e:  # noqa: BLE001
             msg = f"{e}: Failed to parse CRS definition. Exiting."
-            LOGGER.error(msg)
-            raise Exception(msg)
+            logger.error(msg)
+            raise Exception(msg)  # noqa: TRY002
 
         # TODO: It would be good to one day refactor this to make use of RavenPy utils and gis utilities
         properties = []
@@ -108,10 +108,10 @@ class ShapePropertiesProcess(Process):
 
                         properties.append(prop)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             msg = f"{e}: Failed to extract features from shape {vector_file}."
-            LOGGER.error(msg)
-            raise Exception(msg)
+            logger.error(msg)
+            raise Exception(msg)  # noqa: TRY002
 
         response.outputs["properties"].data = json.dumps(properties)
 

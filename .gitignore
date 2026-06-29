@@ -115,8 +115,6 @@ docs/source/raven.rst
 target/
 
 # External Sources
-#src/external
-src/
 
 # tests
 tests/*/*/processor_0

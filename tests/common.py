@@ -1,8 +1,12 @@
+import logging
 from pathlib import Path
 
 from pywps import get_ElementMakerForVersion
 from pywps.app.basic import get_xpath_ns
 from pywps.tests import WpsClient, WpsTestResponse
+
+
+logger = logging.getLogger(__name__)
 
 
 VERSION = "1.0.0"
@@ -28,7 +32,9 @@ def count_pixels(stats, numeric_categories=False):
         if numeric_categories:
             try:
                 int(key)
-            except ValueError:
+            except ValueError as err:
+                msg = f"Unable to cast to int: {err}"
+                logger.info(msg)
                 continue
         if key in ["count", "min", "max", "mean", "median", "sum", "nodata"]:
             continue
