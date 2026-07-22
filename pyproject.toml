@@ -137,8 +137,8 @@ replace = "{new_version}"
 
 [[tool.bumpversion.files]]
 filename = "Dockerfile"
-search = "Version=\"{current_version}\""
-replace = "Version=\"{new_version}\""
+search = "LABEL org.opencontainers.image.version=\"{current_version}\""
+replace = "LABEL org.opencontainers.image.version=\"{new_version}\""
 
 [tool.codespell]
 ignore-words-list = "astroid,inout,te,noo"
