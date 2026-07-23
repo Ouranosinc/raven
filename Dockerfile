@@ -2,9 +2,10 @@
 FROM condaforge/miniforge3
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
-LABEL org.opencontainers.image.authors="https://github.com/Ouranosinc/raven"
-LABEL org.opencontainers.image.title="Raven WPS"
-LABEL org.opencontainers.image.vendor="Birdhouse"
+LABEL org.opencontainers.image.authors="Bird-house"
+LABEL org.opencontainers.image.created="2026-07-23T15:44:02Z"
+LABEL org.opencontainers.image.source="https://github.com/Ouranosinc/raven"
+LABEL org.opencontainers.image.title="RavenWPS"
 LABEL org.opencontainers.image.version="0.19.0"
 
 # Set the working directory to /code
