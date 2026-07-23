@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Docker image
         run: |
-          docker run --rm -p 9099:9099 ${{ env.TEST_TAG }} sh -c '
+          docker run --rm ${{ env.TEST_TAG }} sh -c '
             raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
             sleep 2s
             raven-wps status
