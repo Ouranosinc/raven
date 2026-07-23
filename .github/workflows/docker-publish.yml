@@ -9,8 +9,7 @@ permissions:
   contents: read
 
 env:
-  TAG_VERSION: ${{ github.ref_name }}
-  TEST_TAG: pavics/raven:test
+  TAG_NAME: ${{ github.ref_name }}
   LATEST_TAG: pavics/raven:latest
 
 jobs:
@@ -26,8 +25,7 @@ jobs:
 
       - name: Gather Version from Tag
         run: |
-          TAG=${TAG_VERSION}
-          VERSION=${TAG#v}
+          VERSION=${TAG_NAME#v}
           echo Version: $VERSION
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
