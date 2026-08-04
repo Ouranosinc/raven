@@ -20,6 +20,11 @@ Internal Changes
     * Several small `ruff` code style violations have been addressed.
     * `LOGGER` is now `logger`. No more root-level logging.
     * `pylint` and `vulture` have now been configured to run on codebase.
+* Added a Docker build and Docker Hub publishing workflow (#617)
+* Dockerfile image adjustments (#617):
+    * Changed the base Dockerfile image from `condaforge/mambaforge` to `condaforge/miniforge3`
+    * Adjusted the Dockerfile metadata to use `org.opencontainers` metadata conventions
+* Fixed the Zenodo DOI badge to use the `latest` URL.
 
 v0.19.0 (2025-07-16)
 --------------------
