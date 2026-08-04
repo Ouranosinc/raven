@@ -114,6 +114,6 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
     :target: https://pypi.python.org/pypi/birdhouse-raven
     :alt: Supported Python Versions
 
-.. |zenodo| image:: https://zenodo.org/badge/135511617.svg
-    :target: https://zenodo.org/badge/latestdoi/135511617
+.. |zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3239468.svg
+    :target: https://doi.org/10.5281/zenodo.3239468
     :alt: DOI
