@@ -1,14 +1,14 @@
 # vim:set ft=dockerfile:
-FROM condaforge/miniforge3
+FROM condaforge/miniforge3:26.3.2-3
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 LABEL org.opencontainers.image.authors="Birdhouse and Ouranosinc"
 LABEL org.opencontainers.image.created="2026-07-30T20:37:38Z"
+LABEL org.opencontainers.image.description="Raven WPS"
 LABEL org.opencontainers.image.source="https://github.com/Ouranosinc/raven"
 LABEL org.opencontainers.image.title="RavenWPS"
 LABEL org.opencontainers.image.vendor="Birdhouse"
 LABEL org.opencontainers.image.version="0.19.0"
-LABEL Description="Raven WPS"
 
 # Set the working directory to /code
 WORKDIR /code
