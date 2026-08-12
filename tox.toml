@@ -1,6 +1,6 @@
 envlist = [
   "lint",
-  {product = [{prefix = "py3.", start = 11, stop = 14}]},
+  {product = [{prefix = "py3.", start = 11, stop = 13}]},
   "docs"
 ]
 skip_missing_interpreters = true
@@ -53,4 +53,3 @@ commands_post = [
 "3.11" = ["py3.11"]
 "3.12" = ["py3.12"]
 "3.13" = ["py3.13"]
-"3.14" = ["py3.14"]

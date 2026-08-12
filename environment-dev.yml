@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - python >=3.11,<3.15
+  - python >=3.11,<3.14
   - birdy >=0.9.1
   # development
   - bump-my-version >=1.3.0
