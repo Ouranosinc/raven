@@ -18,7 +18,7 @@ build:
     python: "miniforge3-25.11"
   jobs:
     install:
-      - pip install --groups docs
+      - pip install --group docs
 
 formats: all
 
