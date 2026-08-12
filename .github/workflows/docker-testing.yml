@@ -40,6 +40,7 @@ jobs:
           load: true
           push: false
           tags: ${{ env.TEST_TAG }}
+      
       - name: Run Docker image
         run: |
           docker run --rm ${{ env.TEST_TAG }} sh -c '

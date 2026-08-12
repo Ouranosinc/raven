@@ -40,6 +40,7 @@ if "DO_NOT_CHECK_EXECUTABLE_EXISTENCE" not in os.environ:
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.extlinks",
     "sphinx.ext.imgconverter",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
@@ -56,6 +57,13 @@ extensions = [
 
 autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 2
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "private-members": False,
+    "special-members": False,
+}
 
 autoapi_type = "python"
 autoapi_dirs = ["../../raven"]
@@ -106,6 +114,10 @@ autodoc_mock_imports = [
     "xclim",
     "zlib",
 ]
+
+extlinks = {
+    "user": ("https://github.com/%s", "@%s"),
+}
 
 # Monkeypatch constant because the following are mock imports.
 # Only works if numpy is actually installed and at the same time being mocked.

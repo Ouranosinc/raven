@@ -6,24 +6,29 @@ on:
       - master
     paths-ignore:
       - .*
-      - .github/*/*.md
-      - .github/*/*.yml
+      - .github/**.md
+      - .github/**.yml
       - AUTHORS.rst
       - CHANGELOG.rst
-      - CI/*.in
-      - CI/*.txt
+      - CI/**.in
+      - CI/**.txt
+      - CODE_OF_CONDUCT.rst
+      - CONTRIBUTING.rst
       - Dockerfile
       - Makefile
+      - README.rst
       - docker-compose.yml
-      - docs/*/*.ipynb
-      - docs/*/*.py
-      - docs/*/*.rst
+      - docs/**.ipynb
+      - docs/**.py
+      - docs/**.rst
       - docs/Makefile
       - docs/_static/*
       - environment-dev.yml
       - environment-docs.yml
       - environment.yml
       - pyproject.toml
+      - test/**.py
+      - tox.toml
       - src/$raven/__version__.py
 
 permissions:
@@ -31,11 +36,14 @@ permissions:
 
 jobs:
   bump_patch_version:
-    name: Bumpversion Patch
+    name: Bump build/patch version
     runs-on: ubuntu-latest
     environment: automation
     permissions:
       contents: write
+    strategy:
+      matrix:
+        python-version: [ "3.13" ]    
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
@@ -47,6 +55,7 @@ jobs:
             files.pythonhosted.org:443
             github.com:443
             pypi.org:443
+
       - name: Generate App Token
         id: token_generator
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -54,15 +63,18 @@ jobs:
           app-id: ${{ secrets.OURANOS_HELPER_BOT_ID }}
           private-key: ${{ secrets.OURANOS_HELPER_BOT_KEY }}
           permission-contents: write
+
       - name: Checkout Repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           token: ${{ steps.token_generator.outputs.token }}
           persist-credentials: false
-      - name: Set up Python3
+
+      - name: Set up Python${{ matrix.python-version }}
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: "3.x"
+          python-version: ${{ matrix.python-version }}
+
       - name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
         with:
@@ -71,9 +83,11 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
           trust_level: 5
+
       - name: Install CI libraries
         run: |
           python -m pip install --require-hashes -r CI/requirements_ci.txt
+
       - name: Conditional Bump
         run: |
           CURRENT_VERSION=$(bump-my-version show current_version)
@@ -85,6 +99,7 @@ jobs:
             bump-my-version bump patch
           fi
           echo "new_version=$(bump-my-version show current_version)"
+
       - name: Push Changes
         uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c # v1.3.0
         with:

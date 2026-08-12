@@ -4,15 +4,13 @@
   - changed-files:
     - any-glob-to-any-file:
       - '.editorconfig'
-      - '.flake8'
       - '.github/workflows/*'
       - '.pre-commit-config.yaml'
-      - '.pylintrc.toml'
       - '.readthedocs.yml'
       - '.yamllint.yml'
       - 'Makefile'
       - 'docs/Makefile'
-      - 'tox.ini'
+      - 'tox.toml'
 
 'dependencies':
   - changes-files:

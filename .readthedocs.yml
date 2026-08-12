@@ -13,9 +13,12 @@ sphinx:
   fail_on_warning: true
 
 build:
-  os: "ubuntu-24.04"
+  os: "ubuntu-26.04"
   tools:
-    python: "mambaforge-23.11"
+    python: "miniforge3-25.11"
+  jobs:
+    install:
+      - pip install --groups docs
 
 formats: all
 
@@ -26,5 +29,3 @@ python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-        - docs

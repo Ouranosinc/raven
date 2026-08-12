@@ -28,3 +28,6 @@ gh-pages: html
 	cd $(GHBUILDDIR)/html; git add . ; git commit -m "rebuilt docs"; git push origin gh-pages
 	@echo
 	@echo "Committed to gh-pages."
+
+livehtml:
+	sphinx-autobuild --port 54345 --open-browser --delay 3 --re-ignore "$(BUILDDIR)|$(SOURCEDIR)/apidoc|Makefile|__pycache__" "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

@@ -87,19 +87,7 @@ help: ## print this help message. (Default)
 	@echo "Please use 'make <target>' where <target> is one of:"
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-## Build targets:
-
-install: ## install raven application
-ifdef GDAL_VERSION
-	@echo "Installing application with GIS..."
-	@-bash -c "pip install --no-cache-dir gdal==$(GDAL_VERSION)"
-endif
-	@-bash -c "pip install -e ."
-	@echo "\nStart service with \`make start\` and stop with \`make stop\`."
-
-develop: ## install raven application with development libraries
-	@echo "Installing development requirements for tests and docs ..."
-	@-bash -c 'pip install -e ".[dev]"'
+## Service targets:
 
 start: ## start raven service as daemon (background process)
 	@echo "Starting application ..."
@@ -115,6 +103,21 @@ restart: stop start  ## restart raven service
 status: ## show status of raven service
 	@echo "Showing status ..."
 	@-bash -c "$(APP_NAME) status"
+
+## Build targets:
+
+install: ## install raven application
+ifdef GDAL_VERSION
+	@echo "Installing application with GIS..."
+	@-bash -c "pip install --no-cache-dir gdal==$(GDAL_VERSION)"
+endif
+	@echo "Installing application ..."
+	@-bash -c 'pip install -e .'
+	@echo "\nStart service with \`make start\` and stop with \`make stop\`."
+
+develop: install-dev ## install raven application with development libraries
+	@python -m pip install .
+	@-bash -c 'prek install'
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -150,6 +153,21 @@ clean-docs: ## remove documentation artifacts
 	@-rm -f docs/raven.rst
 	@-rm -f docs/modules.rst
 	$(MAKE) -C docs clean
+
+install-dev:
+	@echo "Installing development requirements for tests and docs ..."
+	@python -m pip install --group dev
+
+install-lint: ## install dependencies needed for linting
+	@python -m pip install --quiet --group lint
+install-docs: ## install dependencies needed for building the docs
+	@python -m pip install --quiet --group docs
+
+install-test: ## install dependencies needed for standard testing
+	@python -m pip install --quiet --group test
+
+install-tox: ## install base dependencies needed for running tox
+	@python -m pip install --quiet --group tox
 
 lint: ## check style
 	@echo "Running code style checks ..."
@@ -232,16 +250,24 @@ refresh-notebooks-impl: ## refresh one single notebook
 
 ## Sphinx targets:
 
-docs: clean-docs ## generate Sphinx HTML documentation, including API docs
+autodoc: install-docs clean-docs ## create sphinx-apidoc files
+	@bash -c 'sphinx-apidoc -o docs/source/apidoc --private --module-first src/raven'
+
+build-docs: autodoc ## generate Sphinx HTML documentation, including API docs
 	@echo "Generating docs with Sphinx ..."
 	@bash -c '$(MAKE) -C docs html'
+
+docs: build-docs ## generate Sphinx HTML documentation, including API docs
 	@echo "Open your browser to: file:/$(APP_ROOT)/docs/build/html/index.html"
 	## do not execute xdg-open automatically since it hangs ReadTheDocs and job does not complete
 	@echo "xdg-open $(APP_ROOT)/docs/build/html/index.html"
+ifndef READTHEDOCS
+	$(BROWSER) docs/_build/html/index.html
+endif
 
 servedocs: docs ## compile the docs watching for changes
 	@echo "Compiling the docs and watching for changes ..."
-	@watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+	$(MAKE) -C docs livehtml
 
 ## Docker targets:
 
