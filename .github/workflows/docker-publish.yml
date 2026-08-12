@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "Dockerfile"
+      - "src/raven/__version__.py"
     tags:
       - "v*"
 
