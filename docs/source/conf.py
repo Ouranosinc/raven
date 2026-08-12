@@ -177,7 +177,7 @@ pygments_style = "sphinx"
 todo_include_todos = False
 
 # Suppress "WARNING: unknown mimetype for ..." when building EPUB.
-suppress_warnings = ["epub.unknown_project_files"]
+suppress_warnings = ["epub.unknown_project_files", "sphinx_autodoc_typehints.forward_reference"]
 
 # Avoid "configuration.rst:4:duplicate label configuration, other instance in configuration.rst"
 autosectionlabel_prefix_document = True

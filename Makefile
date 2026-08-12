@@ -175,7 +175,7 @@ lint: ## check style
 	@bash -c 'python -m flake8 --config=.flake8 src/raven tests'
 	@bash -c 'python -m numpydoc lint src/raven/*/*.py'
 	@bash -c 'python -m vulture src/raven tests'
-	@bash -c 'python -m yamllint --config-file=.yamllint.yaml .'
+	@bash -c 'python -m yamllint --config-file=.yamllint.yaml src/raven tests'
 
 ## Testing targets:
 

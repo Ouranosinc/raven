@@ -23,6 +23,7 @@ docs = [
   "jupyter_client",
   "nbconvert >=7.13.0",
   "nbsphinx >=0.9.8",
+  "pooch >=1.8.0",
   "sphinx >=9.0.2",
   "sphinx-autobuild >=2024.4.16",
   "sphinx-autodoc-typehints",
@@ -305,10 +306,7 @@ addopts = [
   "--maxprocesses=4",
   "--dist=worksteal"
 ]
-python_files = "test_*.py"
-norecursedirs = ["src", ".git", "bin"]
 filterwarnings = ["ignore::UserWarning"]
-testpaths = "tests"
 markers = [
   "online: mark test to need internet connection (deselect with '-m \"not online\"')",
   "slow: mark test to be slow (deselect with '-m \"not slow\"')",

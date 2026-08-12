@@ -47,6 +47,7 @@ wheels/
 .hypothesis/
 .pytest_cache/
 .tox/
+coverage.lcov
 coverage.xml
 coverage/
 htmlcov/
