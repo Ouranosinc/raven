@@ -7,7 +7,7 @@ dependencies:
   - python >=3.11,<3.12
   - pywps >=4.7.0
   - ipyleaflet
-  - ipython >==9.0.0
+  - ipython >=9.0.0
   - ipywidgets
   - nbsphinx >=0.9.8
   - numpy >=1.25.0
