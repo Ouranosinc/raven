@@ -4,6 +4,7 @@ import tempfile
 
 from pywps import LiteralInput, Process
 from rasterstats import zonal_stats
+
 from raven.utilities.checks import single_file_check
 from raven.utilities.geo import generic_vector_reproject
 from raven.utilities.io import archive_sniffer, crs_sniffer

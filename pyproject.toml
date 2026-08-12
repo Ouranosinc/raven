@@ -18,30 +18,28 @@ lint = [
 docs = [
   # Documentation and example support
   "ipykernel",
-    "ipyleaflet",
-
+  "ipyleaflet",
   "ipython >=9.0.0",
   "jupyter_client",
   "nbconvert >=7.13.0",
   "nbsphinx >=0.9.8",
   "sphinx >=9.0.2",
   "sphinx-autobuild >=2024.4.16",
-    "sphinx-autodoc-typehints",
-
+  "sphinx-autodoc-typehints",
   "sphinx-click",
   "sphinx-codeautolink >=0.16.2",
   "sphinx-copybutton >=0.5.2",
   "sphinx-rtd-theme >=1.0"
 ]
 test = [
-    "birdhouse-birdy >=0.9.1",
+  "birdhouse-birdy >=0.9.1",
   "coverage >=7.5.0",
   "nbval >=0.11.0",
   "pytest >=9.0.0",
   "pytest-cov >=7.1.0",
   "nc-time-axis",
   "pooch >=1.8.0",
-  "pytest-xdist >=3.2",
+  "pytest-xdist >=3.2"
 ]
 tox = [
   "tox >=4.52.0",
@@ -216,7 +214,7 @@ values = [
 ]
 
 [tool.codespell]
-ignore-words-list = "astroid,inout,te,noo"
+ignore-words-list = "astroid,inout,te,noo,thirdparty"
 
 [tool.coverage.run]
 relative_files = true

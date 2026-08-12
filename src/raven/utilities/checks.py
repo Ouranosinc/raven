@@ -11,9 +11,10 @@ import fiona
 import rasterio
 from pyproj import CRS
 from pyproj.exceptions import CRSError
-from raven.utilities import io
 from shapely.geometry import GeometryCollection, MultiPolygon, Point, shape
 from shapely.geometry.base import BaseGeometry
+
+from raven.utilities import io
 
 
 logger = logging.getLogger(__name__)
