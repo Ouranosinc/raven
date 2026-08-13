@@ -7,7 +7,7 @@ Changelog
 
 Major Changes
 ^^^^^^^^^^^^^
-* Dropped support for Python 3.9, now requiring Python 3.10 or higher (#576)
+* Dropped support for Python 3.9 and Python 3.10, now requiring Python 3.11 or higher (#576, #618)
 
 Internal Changes
 ^^^^^^^^^^^^^^^^
@@ -26,6 +26,12 @@ Internal Changes
     * Changed the base Dockerfile image from `condaforge/mambaforge` to `condaforge/miniforge3`
     * Adjusted the Dockerfile metadata to use `org.opencontainers` metadata conventions
 * Fixed the Zenodo DOI badge to use the `latest` URL.
+* Updated project from cookiecutter template (`cookiecutter-birdhouse`) (#618):
+    * Replace `pre-commit` with `prek`.
+    * More consistent documentation formatting.
+    * Project configuration now uses PEPs 639 and 735.
+    * Employ `pytest` v9.0+ conventions.
+    * `tox.ini` replaced by `tox.toml`.
 
 .. _changes_0.19.0:
 
