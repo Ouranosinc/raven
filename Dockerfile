@@ -1,5 +1,5 @@
 # vim:set ft=dockerfile:
-FROM condaforge/miniforge3:26.3.2-3
+FROM condaforge/miniforge3:26.5.3-0
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 LABEL org.opencontainers.image.authors="Birdhouse and Ouranosinc"
