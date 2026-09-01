@@ -34,3 +34,14 @@ updates:
           - major
     cooldown:
       default-days: 7
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: "quarterly"
+    groups:
+      docker:
+        patterns:
+          - "Dockerfile"
+    cooldown:
+      default-days: 7

@@ -3,25 +3,25 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - python >=3.10,<3.14
-  - pywps >=4.6
+  - python >=3.11,<3.14
+  - pywps >=4.7.0
   - affine >=2.4.0
   - anyascii >=0.3.2
   - cartopy >=0.23.0
-  - click >=8.1.7
+  - click >=8.3.0
   - filelock >=3.14.0
   - fiona >=1.9.6
   - geopandas >=1.0
   - geojson >=3.2.0
   - gdal >=3.0
-  - jinja2 >=3.1.4
+  - jinja2 >=3.1.6
   - matplotlib-base >=3.7.0
   - nbval >=0.10.0
   - netcdf4 >=1.6.5
   - numpy >=1.25.0
   - owslib >=0.30.0
   - pandas >=2.2
-  - psutil >=6.0.0
+  - psutil >=7.2.0
   - psycopg2
   - pymetalink >=6.5.3
   - pyogrio >=0.7.2

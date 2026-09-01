@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/bird-house/cookiecutter-birdhouse",
-  "commit": "c458a0f0433dca3f8b88630b8b9f001fa9e0abcf",
+  "commit": "7604e21be1653ec6f77056b133b96912eac79fd4",
   "skip": [],
   "context": {
     "cookiecutter": {
@@ -12,18 +12,18 @@
       "project_repo_name": "raven",
       "project_readthedocs_name": "pavics-raven",
       "project_short_description": "A WPS service that offers processes related to hydrological modelling.",
-      "version": "0.17.1",
+      "version": "0.19.0",
       "open_source_license": "MIT license",
       "http_port": "9099",
       "use_pytest": "y",
-      "use_black": "n",
       "create_author_file": "y",
+      "generated_with_cruft": "y",
       "_copy_without_render": [
         "{{cookiecutter.project_slug}}/templates/*.cfg"
       ],
-      "__gh_slug": "Ouranosinc/raven",
+      "__gh_slug": "https://github.com/Ouranosinc/raven",
       "_template": "https://github.com/bird-house/cookiecutter-birdhouse",
-      "_commit": "c458a0f0433dca3f8b88630b8b9f001fa9e0abcf"
+      "_commit": "7604e21be1653ec6f77056b133b96912eac79fd4"
     }
   },
   "checkout": null

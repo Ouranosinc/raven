@@ -20,12 +20,13 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 
-import raven
 from filelock import FileLock
 from packaging.version import Version
 from xarray import Dataset
 from xarray import open_dataset as _open_dataset
 from xclim.testing.utils import show_versions as _show_versions
+
+import raven
 
 
 try:

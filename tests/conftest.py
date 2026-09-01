@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 import pytest
+
 from raven.testing.utils import (
     TESTDATA_BRANCH,
     TESTDATA_CACHE_DIR,

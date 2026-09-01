@@ -9,7 +9,7 @@ Raven : Hydrological modeling and analytics
 +----------------------------+----------------------------------------+
 | Open Source                | |license| |zenodo|                     |
 +----------------------------+----------------------------------------+
-| Coding Standards           | |ruff| |pre-commit-ci|                 |
+| Coding Standards           | |ruff| |prek| |pre-commit-ci|          |
 +----------------------------+----------------------------------------+
 | Development Status         | |status| |build| |coveralls|           |
 +----------------------------+----------------------------------------+
@@ -63,57 +63,61 @@ This package was created with `Cookiecutter`_ and the `bird-house/cookiecutter-b
 .. _`bump-my-version`: https://pavics-raven.readthedocs.io/en/latest/dev_guide.html#bump-a-new-version
 
 .. |build| image:: https://github.com/Ouranosinc/raven/actions/workflows/main.yml/badge.svg
-    :target: https://github.com/Ouranosinc/raven/actions/workflows/main.yml
-    :alt: Build Status
+        :target: https://github.com/Ouranosinc/raven/actions/workflows/main.yml
+        :alt: Build Status
 
 .. |conda| image:: https://img.shields.io/conda/vn/conda-forge/raven-wps.svg
-    :target: https://anaconda.org/conda-forge/raven-wps
-    :alt: Anaconda Version
+        :target: https://anaconda.org/conda-forge/raven-wps
+        :alt: Anaconda Version
 
 .. |coveralls| image:: https://coveralls.io/repos/github/Ouranosinc/raven/badge.svg
-    :target: https://coveralls.io/github/Ouranosinc/raven
-    :alt: Coveralls
+        :target: https://coveralls.io/github/Ouranosinc/raven
+        :alt: Coveralls
 
 .. |docs| image:: https://readthedocs.org/projects/pavics-raven/badge/?version=latest
-    :target: https://pavics-raven.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+        :target: https://pavics-raven.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
 
 .. |fossa| image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2FOuranosinc%2Fraven.svg?type=shield
-    :target: https://app.fossa.com/projects/git%2Bgithub.com%2FOuranosinc%2Fraven?ref=badge_shield
-    :alt: FOSSA
+        :target: https://app.fossa.com/projects/git%2Bgithub.com%2FOuranosinc%2Fraven?ref=badge_shield
+        :alt: FOSSA
 
 .. |gitter| image:: https://badges.gitter.im/bird-house/birdhouse.svg
-    :target: https://gitter.im/bird-house/birdhouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-    :alt: Join the chat at https://gitter.im/bird-house/birdhouse
+        :target: https://gitter.im/bird-house/birdhouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+        :alt: Join the chat at https://gitter.im/bird-house/birdhouse
 
 .. |license| image:: https://img.shields.io/github/license/Ouranosinc/raven.svg
-    :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE
-    :alt: License
+        :target: https://github.com/Ouranosinc/raven/blob/main/LICENSE
+        :alt: License
 
 .. |platforms| image:: https://anaconda.org/conda-forge/raven-wps/badges/platforms.svg
-    :target: https://anaconda.org/conda-forge/raven-wps
-    :alt: Supported Python Versions
+        :target: https://anaconda.org/conda-forge/raven-wps
+        :alt: Supported Python Versions
 
 .. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/Ouranosinc/raven/main.svg
-    :target: https://results.pre-commit.ci/latest/github/Ouranosinc/raven/main
-    :alt: pre-commit.ci status
+        :target: https://results.pre-commit.ci/latest/github/Ouranosinc/raven/main
+        :alt: pre-commit.ci status
+
+.. |prek| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json
+        :target: https://github.com/j178/prek
+        :alt: prek
 
 .. |pypi| image:: https://img.shields.io/pypi/v/birdhouse-raven.svg
-    :target: https://pypi.python.org/pypi/birdhouse-raven
-    :alt: PyPI
+        :target: https://pypi.python.org/pypi/birdhouse-raven
+        :alt: PyPI
 
 .. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
-    :target: https://github.com/astral-sh/ruff
-    :alt: Ruff
+        :target: https://github.com/astral-sh/ruff
+        :alt: Ruff
 
 .. |status| image:: https://www.repostatus.org/badges/latest/active.svg
-    :target: https://www.repostatus.org/#active
-    :alt: Project Status: Active - The project has reached a stable, usable state and is being actively developed.
+        :target: https://www.repostatus.org/#active
+        :alt: Project Status: Active - The project has reached a stable, usable state and is being actively developed.
 
 .. |versions| image:: https://img.shields.io/pypi/pyversions/birdhouse-raven.svg
-    :target: https://pypi.python.org/pypi/birdhouse-raven
-    :alt: Supported Python Versions
+        :target: https://pypi.python.org/pypi/birdhouse-raven
+        :alt: Supported Python Versions
 
-.. |zenodo| image:: https://zenodo.org/badge/135511617.svg
-    :target: https://zenodo.org/badge/latestdoi/135511617
-    :alt: DOI
+.. |zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3239468.svg
+        :target: https://doi.org/10.5281/zenodo.3239468
+        :alt: DOI

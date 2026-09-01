@@ -1,2 +1,6 @@
 .git
-docs/
+.github
+__pycache__
+build
+dist
+docs

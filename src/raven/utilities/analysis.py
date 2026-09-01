@@ -6,8 +6,9 @@ from typing import Union
 import numpy as np
 import rasterio
 from osgeo.gdal import DEMProcessing, Dataset
-from raven.utilities.geo import generic_raster_clip
 from shapely.geometry import GeometryCollection, MultiPolygon, Polygon, shape
+
+from raven.utilities.geo import generic_raster_clip
 
 
 # See: https://kokoalberti.com/articles/geotiff-compression-optimization-guide/
