@@ -258,10 +258,11 @@ exclude = [
   "Dockerfile",
   "docker-compose.yml",
   "docs/build",
-  "docs/source/modules.rst",
+  "docs/source/apidoc/modules.rst",
+  "docs/source/apidoc/raven.rst",
+  "docs/source/apidoc/raven*.rst",
   "docs/source/notebooks/.ipynb_checkpoints",
-  "docs/source/output-sanitize.cfg",
-  "docs/source/raven*.rst"
+  "docs/source/output-sanitize.cfg"
 ]
 
 [tool.numpydoc_validation]

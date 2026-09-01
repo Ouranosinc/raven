@@ -107,10 +107,10 @@ docs/build/
 docs/doctrees/
 docs/html/
 docs/make.bat
-docs/source/modules.rst
+docs/source/apidoc/modules.rst
+docs/source/apidoc/raven.*.rst
+docs/source/apidoc/raven.rst
 docs/source/output-sanitize.cfg
-docs/source/raven.*.rst
-docs/source/raven.rst
 
 # PyBuilder
 target/

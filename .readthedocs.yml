@@ -19,6 +19,8 @@ build:
   jobs:
     post_install:
       - pip install --group docs
+    pre_build:
+      - sphinx-apidoc -o docs/source/apidoc --private --module-first src/raven
 
 formats: all
 
