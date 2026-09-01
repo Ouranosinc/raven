@@ -12,6 +12,7 @@ User documentation
 
 .. toctree::
    :maxdepth: 1
+   :caption: Table of Contents
 
    getting_started
    installation
@@ -21,6 +22,17 @@ User documentation
    processes
    authors
    changelog
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Package Structure
+
+   apidoc/modules
+
+.. toctree::
+   :caption: GitHub Repository
+
+   Ouranosinc/Raven <https://github.com/Ouranosinc/raven>
 
 Credits
 -------

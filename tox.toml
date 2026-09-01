@@ -1,0 +1,55 @@
+envlist = [
+  "lint",
+  {product = [{prefix = "py3.", start = 11, stop = 13}]},
+  "docs"
+]
+skip_missing_interpreters = true
+
+[env.docs]
+description = "Build the documentation with makefile under {basepython}"
+labels = ["docs"]
+dependency_groups = ["docs"]
+commands = [
+  ["make", "build-docs"]
+]
+commands_post = []
+allowlist_externals = ["make"]
+
+[env.extras]
+description = "Run tests with extras under {basepython}"
+extras = ["extras"]
+
+[env.lint]
+description = "Run code quality compliance tests under {basepython}"
+labels = ["lint"]
+skip_install = true
+dependency_groups = ["lint"]
+commands = [
+  ["make", "lint"]
+]
+commands_post = []
+allowlist_externals = ["make"]
+
+[env_run_base]
+description = "Run tests with pytest under {basepython}"
+setenv = {PYTEST_ADDOPTS = "--color=yes --cov=raven --cov-report=lcov", PYTHONPATH = "{toxinidir}"}
+passenv = ["CI", "COVERALLS_*", "GDAL_VERSION", "GITHUB_*", "RAVEN_*"]
+download = true
+dependency_groups = ["test"]
+install_command = ["python", "-m", "pip", "install", "--no-user", "{opts}", "{packages}"]
+commands_pre = [
+  ["pip", "list"],
+  ["pip", "check"]
+]
+commands = [
+  ["python", "-m", "pip", "install", "--no-user", "--upgrade", "--force-reinstall", "--no-deps", "--no-binary", "gdal", "gdal[numpy]=={env:GDAL_VERSION}.*"],
+  ["pytest", "{posargs}"]
+]
+commands_post = [
+  ["coverage", "report"]
+]
+
+[gh.python]
+"3.11" = ["py3.11"]
+"3.12" = ["py3.12"]
+"3.13" = ["py3.13"]

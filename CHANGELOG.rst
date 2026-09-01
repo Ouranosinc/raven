@@ -1,12 +1,13 @@
+=========
 Changelog
 =========
 
-v0.19.1 (unreleased)
---------------------
+`Unreleased <https://github.com/Ouranosinc/raven>`_ (latest)
+------------------------------------------------------------
 
 Major Changes
 ^^^^^^^^^^^^^
-* Dropped support for Python 3.9, now requiring Python 3.10 or higher (#576)
+* Dropped support for Python 3.9 and Python 3.10, now requiring Python 3.11 or higher (#576, #618)
 
 Internal Changes
 ^^^^^^^^^^^^^^^^
@@ -25,6 +26,14 @@ Internal Changes
     * Changed the base Dockerfile image from `condaforge/mambaforge` to `condaforge/miniforge3`
     * Adjusted the Dockerfile metadata to use `org.opencontainers` metadata conventions
 * Fixed the Zenodo DOI badge to use the `latest` URL.
+* Updated project from cookiecutter template (`cookiecutter-birdhouse`) (#618):
+    * Replace `pre-commit` with `prek`.
+    * More consistent documentation formatting.
+    * Project configuration now uses PEPs 639 and 735.
+    * Employ `pytest` v9.0+ conventions.
+    * `tox.ini` replaced by `tox.toml`.
+
+.. _changes_0.19.0:
 
 v0.19.0 (2025-07-16)
 --------------------
@@ -47,12 +56,16 @@ Internal Changes
 * Tooling has been updated to use `ruff` and other newer tools for code quality and formatting (#569)
 * `raven` now uses Trusted Publisher for TestPyPI and PyPI releases (#569)
 
+.. _changes_0.18.2:
+
 v0.18.2 (2023-07-06)
 --------------------
 
 * Removed pin on `owslib` below v0.29 and pin on `fiona` below v2.0 (#480)
 * Added a GitHub Workflow to test against macOS builds (#480)
 * Adapted zonal statistics processes to support the latest `fiona` and `zonalstats` API changes (#480)
+
+.. _changes_0.18.1:
 
 v0.18.1 (2023-05-23)
 --------------------
@@ -61,6 +74,8 @@ v0.18.1 (2023-05-23)
 * Added Python3.11 to supported versions with a build for Python3.11 in CI (#477)
 * Adjusted ReadMe to reflect recent significant changes (#477)
 * Updated deprecated GitHub Actions (#477)
+
+.. _changes_0.18.0:
 
 v0.18.0 (2023-05-23)
 --------------------
@@ -73,6 +88,8 @@ Major Changes
 * Removed all tests related to Raven WPS modelling (#464)
 * Raise error message if shape area for NALCMS zonal stats raster is above 100,000 km2 (#473)
 
+.. _changes_0.17.1:
+
 v0.17.1 (2023-04-04)
 --------------------
 
@@ -80,6 +97,8 @@ Internal Changes
 ^^^^^^^^^^^^^^^^
 * Dockerfile configuration now uses Python3.8 and `condaforge/mambaforge` base image (#466)
 * `pandas` is temporarily pinned below v2.0 (#466)
+
+.. _changes_0.17.0:
 
 v0.17.0 (2023-02-28)
 --------------------
@@ -96,6 +115,8 @@ Internal Changes
 * Makefile updates to better perform notebook refresh actions (#459)
 * Pre-commit style updates (#446, #447, #449, #461)
 * Use `provision-with-micromamba` GitHub Action in CI workflows (#462)
+
+.. _changes_0.16.0:
 
 v0.16.0 (2022-11-01)
 --------------------
@@ -121,12 +142,16 @@ Internal Changes
     - check-jsonschema: Verify that GitHub and ReadTheDocs workflows are valid
 * Added a Zenodo/DOI configuration
 
+.. _changes_0.15.1:
+
 v0.15.1 (2022-01-14)
 --------------------
 
 * Modified handling for GDAL to better support conda-build configuration
 * Update to RavenPy 0.7.8
 * Upgrade to PyWPS 4.5.1
+
+.. _changes_0.15.0:
 
 v0.15.0 (2021-12-22)
 --------------------
@@ -136,16 +161,22 @@ v0.15.0 (2021-12-22)
 * Set development status to Beta.
 * Replace pip-installed packages with conda-forge equivalents.
 
+.. _changes_0.14.2:
+
 v0.14.2 (2021-09-03)
 --------------------
 
 * Update to RavenPy 0.7.4 (pin climpred below version 2.1.6)
 * Fixed a process-breaking bug in `wps_hydrobasins_shape_selection`
 
+.. _changes_0.14.1:
+
 v0.14.1 (2021-08-31)
 --------------------
 
 * Update to RavenPy 0.7.3 (pin xclim version 0.28.1)
+
+.. _changes_0.14.0:
 
 v0.14.0 (2021-08-30)
 --------------------
@@ -155,6 +186,8 @@ v0.14.0 (2021-08-30)
 * More informative install documentation
 * Upgrade to PyWPS 4.4.5
 
+.. _changes_0.13.0:
+
 v0.13.0 (2021-05-14)
 --------------------
 
@@ -163,12 +196,16 @@ v0.13.0 (2021-05-14)
 * Add ``random_numbers`` WPS param to pass optional ``OstRandomNumbers.txt`` file to Ostrich processes
 * Add error handlers for regionalisation and climatology processes
 
+.. _changes_0.12.1:
+
 v0.12.1 (2021-04-16)
 --------------------
 
 * Fix bug where the name of configuration files was used, while the client transmission of data does not carry the file name.
 * Update notebooks
 * Move draft notebooks to sandbox
+
+.. _changes_0.12.0:
 
 v0.12.0 (2021-04-14)
 --------------------
@@ -187,7 +224,9 @@ v0.12.0 (2021-04-14)
 * Fix broken notebooks
 * Improve error reporting by including stack trace in error messages.
 
-v0.11.x (2021-02-01)
+.. _changes_0.11.1:
+
+v0.11.1 (2021-02-01)
 --------------------
 
 * Add processes to run hydrological simulations on ECCC GEPS forecasts/hindcasts
@@ -208,8 +247,9 @@ v0.11.x (2021-02-01)
 * Add ``nalcms-zonal-stats-raster`` process using ``pymetalink``
 * Simplify documentation build environment.
 
+.. _changes_0.10.0:
 
-v0.10.x (2020-03-09) Oxford
+v0.10.0 (2020-03-09) Oxford
 ---------------------------
 
 * ``suppress_ouput`` also triggers ``:DontWriteWatershedStorage``
@@ -220,12 +260,16 @@ v0.10.x (2020-03-09) Oxford
 * Updated Raven version to 295
 * Support passing shapes as zip files
 
-v0.9.x (2019-11-11)
+.. _changes_0.9.0:
+
+v0.9.0 (2019-11-11)
 -------------------
 
 * Return configuration files used to run model in a zip archive
 
-v0.8.x (2019-10-22)
+.. _changes_0.8.0:
+
+v0.8.0 (2019-10-22)
 --------------------
 * Added more documentation for users
 * Fixed reprojection errors in GIS utilities
@@ -235,7 +279,9 @@ v0.8.x (2019-10-22)
 * Employed ipyleaflets for notebook-based web-maps
 * Run py.test on notebooks from local or remote server
 
-v0.7.x (2019-06-25)
+.. _changes_0.7.0:
+
+v0.7.0 (2019-06-25)
 -------------------
 
 * Regionalization database
@@ -243,7 +289,9 @@ v0.7.x (2019-06-25)
 * Many new notebook tutorials
 * Bug fixes
 
-v0.6.x (2019-06-05)
+.. _changes_0.6.0:
+
+v0.6.0 (2019-06-05)
 -------------------
 
 * Regionalization process allowing the estimation of parameters of ungauged watersheds
@@ -251,6 +299,8 @@ v0.6.x (2019-06-05)
 * Added processes creating graphics
 * GIS processes now use GeoServer capabilities
 * Docker configuration
+
+.. _changes_0.5.0:
 
 v0.5.0 (2019-04-12)
 -------------------
@@ -264,6 +314,8 @@ v0.5.0 (2019-04-12)
 * Added multi-model parallel simulations
 * Added multi-bassin parallel simulations
 
+.. _changes_0.4.0:
+
 v0.4.0 (2019-03-12)
 -------------------
 
@@ -271,11 +323,15 @@ v0.4.0 (2019-03-12)
 * Added support for launching a singularity image
 * Added library functions for model regionalization
 
+.. _changes_0.3.0:
+
 v0.3.0 (2019-01-24)
 -------------------
 
 * Adds process for MOHYSE emulator
 * Adds process for HBV-EC emulator
+
+.. _changes_0.2.0:
 
 v0.2.0 (2018-11-29) Washington
 ------------------------------

@@ -13,9 +13,14 @@ sphinx:
   fail_on_warning: true
 
 build:
-  os: "ubuntu-24.04"
+  os: "ubuntu-26.04"
   tools:
-    python: "mambaforge-23.11"
+    python: "miniforge3-25.11"
+  jobs:
+    post_install:
+      - pip install --group docs
+    pre_build:
+      - sphinx-apidoc -o docs/source/apidoc --private --module-first src/raven
 
 formats: all
 
@@ -26,5 +31,3 @@ python:
   install:
     - method: pip
       path: .
-      extra_requirements:
-        - docs
