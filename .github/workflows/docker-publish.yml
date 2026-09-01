@@ -17,6 +17,8 @@ jobs:
   build-publish:
     name: Build and publish image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: "pavics/raven"
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -33,12 +35,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
-          images: pavics/raven
-          labels: |
-            org.opencontainers.image.authors=Birdhouse and Ouranosinc
-            org.opencontainers.image.description=Raven WPS
-            org.opencontainers.image.title=RavenWPS
-            org.opencontainers.image.vendor=Birdhouse
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=tag
@@ -56,6 +53,7 @@ jobs:
       - name: Build Docker image and publish to Docker Hub
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
+          file: Dockerfile
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}

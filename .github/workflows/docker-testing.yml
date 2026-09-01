@@ -9,13 +9,12 @@ on:
 permissions:
   contents: read
 
-env:
-  TEST_TAG: pavics/raven:test
-
 jobs:
   build:
     name: Build Docker image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: "pavics/raven"
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -28,6 +27,14 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Gather Docker metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ env.IMAGE_NAME }}
+        tags: |
+          type=raw,value=test
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
@@ -36,16 +43,21 @@ jobs:
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          context: .
+          file: Dockerfile
+          labels: ${{ steps.meta.outputs.labels }}
           load: true
           push: false
-          tags: ${{ env.TEST_TAG }}
+          tags:  ${{ steps.meta.outputs.tags }}
 
       - name: Run Docker image
         run: |
-          docker run --rm ${{ env.TEST_TAG }} sh -c '
+          docker run --rm ${{ env.IMAGE_NAME }}:test sh -c '
             raven-wps start -b 0.0.0.0 -c /code/etc/demo.cfg -d
             sleep 2s
             raven-wps status
             raven-wps stop
           '
+
+      - name: Inspect labels
+        run: |
+          docker inspect --format='{{json .Config.Labels}}' ${{ env.IMAGE_NAME }}:test

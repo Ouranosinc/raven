@@ -5,6 +5,7 @@ ENV PIP_ROOT_USER_ACTION=ignore
 LABEL org.opencontainers.image.authors="Birdhouse and Ouranosinc"
 LABEL org.opencontainers.image.created="2026-07-30T20:37:38Z"
 LABEL org.opencontainers.image.description="Raven WPS"
+LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source="https://github.com/Ouranosinc/raven"
 LABEL org.opencontainers.image.title="RavenWPS"
 LABEL org.opencontainers.image.vendor="Birdhouse"
