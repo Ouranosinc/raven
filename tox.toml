@@ -1,6 +1,6 @@
 envlist = [
   "lint",
-  {product = [{prefix = "py3.", start = 11, stop = 13}]},
+  { product = [{ prefix = "py3.", start = 11, stop = 13 }] },
   "docs"
 ]
 skip_missing_interpreters = true
@@ -32,7 +32,7 @@ allowlist_externals = ["make"]
 
 [env_run_base]
 description = "Run tests with pytest under {basepython}"
-setenv = {PYTEST_ADDOPTS = "--color=yes --cov=raven --cov-report=lcov", PYTHONPATH = "{toxinidir}"}
+setenv = { PYTEST_ADDOPTS = "--color=yes --cov=raven --cov-report=lcov", PYTHONPATH = "{toxinidir}" }
 passenv = ["CI", "COVERALLS_*", "GDAL_VERSION", "GITHUB_*", "RAVEN_*"]
 download = true
 dependency_groups = ["test"]
