@@ -190,7 +190,7 @@ def testing_setup_warnings():
 
     if re.match(r"^v\d+\.\d+\.\d+", TESTDATA_BRANCH):
         # Find the date of the last modification of RavenWPS source files to generate a calendar version
-        install_date = dt.strptime(  # noqa: DTZ007
+        install_date = dt.strptime(
             time.ctime(Path(raven.__file__).stat().st_mtime),
             "%a %b %d %H:%M:%S %Y",
         )
@@ -247,7 +247,7 @@ def load_registry(
 
     if repo != default_testdata_repo_url:
         external_repo_name = urlparse(repo).path.split("/")[-2]
-        external_branch_name = branch.split("/")[-1]
+        external_branch_name = branch.rsplit("/", maxsplit=1)[-1]
         testing_folder = Path(str(ilr.files("raven").joinpath("testing")))
         registry_file = testing_folder.joinpath(
             f"registry.{external_repo_name}.{external_branch_name}.txt"
@@ -550,9 +550,9 @@ def audit_url(url: str, context: str | None = None) -> str:
     msg = ""
     result = urlparse(url)
     if result.scheme == "http":
-        msg = f"{context if context else ''} URL is not using secure HTTP: '{url}'".strip()
+        msg = f"{context or ''} URL is not using secure HTTP: '{url}'".strip()
     if not all([result.scheme, result.netloc]):
-        msg = f"{context if context else ''} URL is not well-formed: '{url}'".strip()
+        msg = f"{context or ''} URL is not well-formed: '{url}'".strip()
 
     if msg:
         logger.error(msg)

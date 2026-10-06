@@ -67,22 +67,22 @@ def _fix_server_url(server_url: str) -> str:
 
 
 def _get_location_wfs(
-    bbox: None
-    | (
+    bbox: (
         tuple[
             str | float | int,
             str | float | int,
             str | float | int,
             str | float | int,
         ]
-    ) = None,
-    point: None
-    | (
+    )
+    | None = None,
+    point: (
         tuple[
             str | float | int,
             str | float | int,
         ]
-    ) = None,
+    )
+    | None = None,
     *,
     layer: str,
     geoserver: str = GEOSERVER_URL,

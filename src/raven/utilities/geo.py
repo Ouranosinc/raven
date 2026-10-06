@@ -255,7 +255,7 @@ DataFrameType = Union[pd.DataFrame, geopandas.GeoDataFrame]  # noqa: UP007
 
 
 def determine_upstream_ids(
-    fid: str,
+    fid: str | float,
     df: DataFrameType,
     basin_field: str | None = None,
     downstream_field: str | None = None,
@@ -266,7 +266,7 @@ def determine_upstream_ids(
 
     Parameters
     ----------
-    fid : str
+    fid : str or float
         feature ID of the downstream feature of interest.
     df : pd.DataFrame
         A Dataframe comprising the watershed attributes.
@@ -305,7 +305,7 @@ def determine_upstream_ids(
     for b in up:
         tmp = upstream_ids(sub if sub is not None else df, b)
         if len(tmp):
-            up.extend(tmp)
+            up.extend(tmp)  # noqa: B909
 
     return (
         sub[sub[basin_field].isin(up)]

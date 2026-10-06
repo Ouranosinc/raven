@@ -5,14 +5,14 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "birdhouse-raven"
 authors = [
-  {name = "David Huard", email = "huard.david@ouranos.ca"},
-  {name = "Richard Arsenault", email = "richard.arsenault@etsmtl.ca"}
+  { name = "David Huard", email = "huard.david@ouranos.ca" },
+  { name = "Richard Arsenault", email = "richard.arsenault@etsmtl.ca" }
 ]
 maintainers = [
-  {name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca"},
-  {name = "Tuan Long Vu", email = "vu.long@ouranos.ca"}
+  { name = "Trevor James Smith", email = "smith.trevorj@ouranos.ca" },
+  { name = "Tuan Long Vu", email = "vu.long@ouranos.ca" }
 ]
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.11.0"
 keywords = ["wps", "pywps", "birdhouse", "raven", "hydrology", "gis", "analysis"]
 license = "MIT"
@@ -133,10 +133,10 @@ dev = [
   "pip >=26.1",
   "prek >=0.4.0",
   "watchdog >=6.0.0",
-  {include-group = "docs"},
-  {include-group = "lint"},
-  {include-group = "test"},
-  {include-group = "tox"}
+  { include-group = "docs" },
+  { include-group = "lint" },
+  { include-group = "test" },
+  { include-group = "tox" }
 ]
 
 [tool]

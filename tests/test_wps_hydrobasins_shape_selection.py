@@ -33,18 +33,13 @@ class TestShapeSelectionProcess:
         )
 
         fields = [
-            "location={location}",
+            "location=-68.724444, 50.646667",
             # 'level={level}',
             # 'lakes={lakes}',
-            "aggregate_upstream={aggregate_upstream}",
+            f"aggregate_upstream={aggregate_upstream}",
         ]
 
-        datainputs = ";".join(fields).format(
-            location="-68.724444, 50.646667",
-            # level="12",
-            # lakes=True,
-            aggregate_upstream=aggregate_upstream,
-        )
+        datainputs = ";".join(fields)
 
         resp = client.get(
             service="WPS",

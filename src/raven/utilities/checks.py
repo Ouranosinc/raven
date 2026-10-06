@@ -151,8 +151,7 @@ def feature_contains(
 
     if isinstance(point, collections.abc.Sequence) and not isinstance(point, str):
         for coord in point:
-            if isinstance(coord, (int, float)):
-                pass
+            isinstance(coord, (int, float))
         point = Point(point)
     elif isinstance(point, Point):
         pass

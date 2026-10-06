@@ -86,41 +86,24 @@ class _XclimIndicatorProcess(Process):
             if name in ["tas", "tasmin", "tasmax", "pr", "prsn"]:
                 inputs.append(make_nc_input(name))
             if name in ["da", "q", "arr"]:
-                inputs.append(make_nc_input(name))
-                inputs.append(make_variable())
+                inputs.extend([make_nc_input(name), make_variable()])
             elif name in ["tn10", "tn90", "t10", "t90"]:
                 inputs.append(make_nc_input(name))
-            elif name in ["thresh_tasmin", "thresh_tasmax"] or name in [
-                "thresh",
-            ]:
+            elif name in ["thresh_tasmin", "thresh_tasmax"] or name == "thresh":
                 inputs.append(make_thresh(name, attrs["default"], attrs["desc"]))
-            elif name in [
-                "freq",
-            ]:
+            elif name == "freq":
                 inputs.append(make_freq(name, attrs["default"]))
-            elif name in [
-                "window",
-            ]:
+            elif name == "window":
                 inputs.append(make_window(name, attrs["default"], attrs["desc"]))
-            elif name in [
-                "mode",
-            ]:
+            elif name == "mode":
                 inputs.append(make_mode(name, attrs["desc"]))
-            elif name in [
-                "op",
-            ]:
+            elif name == "op":
                 inputs.append(make_op(name, attrs["desc"]))
-            elif name in [
-                "t",
-            ]:
+            elif name == "t":
                 inputs.append(make_t(name, attrs["desc"]))
-            elif name in [
-                "dist",
-            ]:
+            elif name == "dist":
                 inputs.append(make_dist(name, attrs["desc"]))
-            elif name in [
-                "indexer",
-            ]:
+            elif name == "indexer":
                 inputs.extend(make_indexer())
             else:
                 # raise NotImplementedError(name)

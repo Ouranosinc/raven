@@ -7,6 +7,7 @@ import tempfile
 import warnings
 import zipfile
 from collections.abc import Sequence
+from os.path import commonpath
 from pathlib import Path
 from re import search
 
@@ -27,7 +28,7 @@ def is_within_directory(
     abs_directory = os.path.abspath(directory)
     abs_target = os.path.abspath(target)
 
-    prefix = os.path.commonprefix([abs_directory, abs_target])
+    prefix = commonpath([abs_directory, abs_target])
 
     return prefix == abs_directory
 
@@ -223,7 +224,7 @@ def crs_sniffer(
             logger.error(msg)
             raise Exception(msg)  # noqa: TRY002
         except RuntimeError as e:
-            msg = "{e}: Something unexpected happened here"
+            msg = f"{e}: Something unexpected happened here"
             logger.error(e)
 
         crs_list.append(found_crs)

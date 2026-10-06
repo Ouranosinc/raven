@@ -109,7 +109,7 @@ class RasterSubsetProcess(Process):
                     "MetaLink with links to raster files.",
                     workdir=self.workdir,
                 )
-                for i, file in enumerate(raster_files):
+                for file in raster_files:
                     # Create a MetaFile instance, which instantiates a ComplexOutput object.
                     mf = MetaFile(
                         file.name, description="Raster file", fmt=FORMATS.GEOTIFF
