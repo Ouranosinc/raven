@@ -21,20 +21,13 @@ class TestGenericZonalStatsProcess:
         )
 
         fields = [
-            "select_all_touching={touches}",
-            "categorical={categorical}",
-            "band={band}",
-            "shape=file@xlink:href=file://{shape}",
-            "raster=file@xlink:href=file://{raster}",
+            "select_all_touching=True",
+            "categorical=False",
+            "band=1",
+            f"shape=file@xlink:href=file://{yangtze.fetch('donneesqc_mrc_poly/mrc_subset.gml')}",
+            f"raster=file@xlink:href=file://{yangtze.fetch('earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')}",
         ]
-
-        datainputs = ";".join(fields).format(
-            touches=True,
-            categorical=False,
-            band=1,
-            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
-        )
+        datainputs = ";".join(fields)
 
         resp = client.get(
             service="WPS",
@@ -67,20 +60,13 @@ class TestGenericZonalStatsProcess:
         )
 
         fields = [
-            "select_all_touching={touches}",
-            "categorical={categorical}",
-            "band={band}",
-            "shape=file@xlink:href=file://{shape}",
-            "raster=file@xlink:href=file://{raster}",
+            "select_all_touching=True",
+            "categorical=True",
+            "band=1",
+            f"shape=file@xlink:href=file://{yangtze.fetch('donneesqc_mrc_poly/mrc_subset.gml')}",
+            "raster=file@xlink:href=file://{yangtze.fetch('earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')",
         ]
-
-        datainputs = ";".join(fields).format(
-            touches=True,
-            categorical=True,
-            band=1,
-            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-            raster=yangtze.fetch("earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff"),
-        )
+        datainputs = ";".join(fields)
 
         resp = client.get(
             service="WPS",
@@ -120,18 +106,13 @@ class TestGenericZonalStatsProcess:
             )
         )
         fields = [
-            "select_all_touching={touches}",
-            "categorical={categorical}",
-            "band={band}",
-            "shape=file@xlink:href=file://{shape}",
+            "select_all_touching=True",
+            "categorical=False",
+            "band=1",
+            f"shape=file@xlink:href=file://{yangtze.fetch('donneesqc_mrc_poly/mrc_subset.gml')}",
         ]
+        datainputs = ";".join(fields)
 
-        datainputs = ";".join(fields).format(
-            touches=True,
-            categorical=False,
-            band=1,
-            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-        )
         resp = client.get(
             service="WPS",
             request="Execute",
@@ -166,18 +147,13 @@ class TestGenericZonalStatsProcess:
             )
         )
         fields = [
-            "select_all_touching={touches}",
-            "categorical={categorical}",
-            "band={band}",
-            "shape=file@xlink:href=file://{shape}",
+            "select_all_touching=True",
+            "categorical=True",
+            "band=1",
+            f"shape=file@xlink:href=file://{yangtze.fetch('donneesqc_mrc_poly/mrc_subset.gml')}",
         ]
+        datainputs = ";".join(fields)
 
-        datainputs = ";".join(fields).format(
-            touches=True,
-            categorical=True,
-            band=1,
-            shape=yangtze.fetch("donneesqc_mrc_poly/mrc_subset.gml"),
-        )
         resp = client.get(
             service="WPS",
             request="Execute",
