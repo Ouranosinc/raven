@@ -64,7 +64,7 @@ class TestGenericZonalStatsProcess:
             "categorical=True",
             "band=1",
             f"shape=file@xlink:href=file://{yangtze.fetch('donneesqc_mrc_poly/mrc_subset.gml')}",
-            "raster=file@xlink:href=file://{yangtze.fetch('earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')",
+            f"raster=file@xlink:href=file://{yangtze.fetch('earthenv_dem_90m/earthenv_dem90_southernQuebec.tiff')}",
         ]
         datainputs = ";".join(fields)
 
