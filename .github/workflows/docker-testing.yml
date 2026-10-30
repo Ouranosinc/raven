@@ -49,6 +49,10 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
 
+      - name: Inspect labels
+        run: |
+          docker inspect --format='{{json .Config.Labels}}' ${{ env.IMAGE_NAME }}:test
+
       - name: Run Docker image
         run: |
           docker run --rm ${{ env.IMAGE_NAME }}:test sh -c '
@@ -57,7 +61,3 @@ jobs:
             raven-wps status
             raven-wps stop
           '
-
-      - name: Inspect labels
-        run: |
-          docker inspect --format='{{json .Config.Labels}}' ${{ env.IMAGE_NAME }}:test
