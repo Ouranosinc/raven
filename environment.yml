@@ -7,6 +7,7 @@ dependencies:
   - pywps >=4.7.0
   - affine >=2.4.0
   - anyascii >=0.3.2
+  - brotli-python >=1.2.1 # Fixes CVE-2026-111497
   - cartopy >=0.23.0
   - click >=8.3.0
   - filelock >=3.14.0
